@@ -1,8 +1,8 @@
 // Màn 5: chi tiết booking, QR thanh toán, hạn duyệt, hủy kèm số tiền hoàn, lịch sử.
 import { api } from '/js/api.js';
 import { getUser, mountShell, toast } from '/js/ui/shell.js';
-import { $, countdown, decorate, esc, paymentBadge, redirectToLogin, statusBadge } from '/js/ui/page.js';
-import { cancelDeadlines, dayLabel, mmss, money, refundFor, REFUND_LABEL, STATUS_LABEL, secondsLeft, shortTs, timeOf } from '/js/ui/format.js';
+import { $, countdown, decorate, esc, paymentBadge, policyStepsHtml, redirectToLogin, statusBadge } from '/js/ui/page.js';
+import { dayLabel, mmss, money, refundFor, REFUND_LABEL, STATUS_LABEL, secondsLeft, shortTs, timeOf } from '/js/ui/format.js';
 
 const id = Number(new URLSearchParams(location.search).get('id'));
 let b;
@@ -10,19 +10,14 @@ let meta;
 
 const ACTION = {
   create: 'Tạo booking', approve: 'Chủ sân duyệt', reject: 'Chủ sân từ chối', cancel: 'Hủy booking', expire: 'Hết hạn chưa duyệt',
-  paid: 'Xác nhận đã thanh toán', refund: 'Xác nhận đã hoàn tiền', completed: 'Đã đá xong', no_show: 'Ghi nhận bùng sân', attendance: 'Điểm danh',
+  paid: 'Xác nhận đã thanh toán', refund: 'Xác nhận đã hoàn tiền', attendance: 'Điểm danh',
 };
 const BY = { customer: 'bạn', owner: 'chủ sân', admin: 'quản trị viên' };
 
 const at = (ts) => `${timeOf(ts)} ${dayLabel(ts.slice(0, 10))}`;
 const canCancel = () => ['pending', 'confirmed'].includes(b.status) && secondsLeft(b.startAt, meta.now) > 0;
 
-function policyHtml() {
-  const d = cancelDeadlines(b.startAt);
-  return `<div class="policy"><div class="step"><b>100%</b><span>nếu hủy trước <b>${at(d.full)}</b></span></div>
-    <div class="step"><b>50%</b><span>nếu hủy trước <b>${at(d.half)}</b></span></div>
-    <div class="step"><b>0%</b><span>nếu hủy sau đó</span></div></div>`;
-}
+const policyHtml = () => `<div class="policy">${policyStepsHtml(b.startAt, meta.now)}</div>`;
 
 function refundNote() {
   if (b.status !== 'cancelled' && b.status !== 'rejected' && b.status !== 'expired') return '';
@@ -33,7 +28,7 @@ function refundNote() {
 function qrHtml(q) {
   const row = (k, v, copy) => `<div class="copy-row"><div><div class="k">${k}</div><div class="v">${esc(v)}</div></div>${copy ? `<button type="button" data-copy="${esc(copy)}" aria-label="Sao chép ${k.toLowerCase()}">Sao chép</button>` : ''}</div>`;
   return `<aside class="qr-card" aria-labelledby="qr-title">
-    <div class="row"><span class="h3" id="qr-title">Chuyển khoản để giữ sân</span><span class="spacer"></span><span class="badge badge-unpaid">Chưa thanh toán</span></div>
+    <div class="row"><span class="h3" id="qr-title">Chuyển khoản để giữ sân</span></div>
     <img class="qr" alt="Mã VietQR chuyển khoản ${money(q.amount)}, nội dung ${esc(q.content)}" src="${esc(q.url)}" width="260" height="260">
     <p class="amount num">${money(q.amount)}</p>
     ${row('Ngân hàng', q.bankName)}
@@ -47,6 +42,7 @@ function qrHtml(q) {
 
 function render() {
   const hasQr = !!b.paymentQr;
+  const pendingReason = b.history.find((h) => h.action === 'create')?.note || '';
   const pending = b.status === 'pending';
   const priceRows = b.discountPercent
     ? `<div><dt>Giá gốc</dt><dd class="num price-old">${money(b.basePrice)}</dd></div><div><dt>Giảm giờ chót</dt><dd class="num" style="color:var(--sale-text)">-${money(b.basePrice - b.price)} (${b.discountPercent}%)</dd></div>`
@@ -57,10 +53,10 @@ function render() {
   $('root').innerHTML = `
     <p class="crumb"><a href="/my-bookings.html">Booking của tôi</a> / ${esc(b.code)}</p>
     <div class="booking-layout${hasQr ? ' has-side' : ''}" style="margin-top:var(--sp-3)">
-      <div class="stack">
+      <div class="area-sum">
         <div class="card card-pad stack">
           <div class="row"><h1 class="booking-code">${esc(b.code)}</h1><span class="spacer"></span>${statusBadge(b.status)}${paymentBadge(b.paymentStatus)}</div>
-          ${pending ? `<div class="notice warn" role="status"><span class="countdown" id="cd"></span></div>` : ''}
+          ${pending ? `<div class="notice warn" role="status"><span class="countdown" id="cd"></span></div>${pendingReason ? `<p class="muted" style="font-size:var(--fs-sm)">${esc(pendingReason)}</p>` : ''}` : ''}
           ${b.status === 'confirmed' && b.paymentStatus === 'unpaid' && !hasQr ? '<div class="notice">Booking đã được xác nhận. Sân này chưa cấu hình VietQR, vui lòng liên hệ chủ sân để thanh toán.</div>' : ''}
           ${b.status === 'confirmed' && b.paymentStatus === 'paid' ? '<div class="notice">Chủ sân đã nhận tiền. Hẹn gặp bạn trên sân.</div>' : ''}
           <dl class="kv">
@@ -74,11 +70,14 @@ function render() {
           ${refundNote()}
           ${canCancel() ? `<div class="row"><button type="button" class="btn btn-danger" id="open-cancel">Hủy booking</button></div>` : ''}
         </div>
-        <div class="card card-pad stack">
+      </div>
+      ${hasQr ? qrHtml(b.paymentQr) : ''}
+      <div class="stack area-rest">
+        ${canCancel() ? `<div class="card card-pad stack">
           <h2 class="h3">Chính sách hủy</h2>
           ${policyHtml()}
           ${b.rulesSnapshot ? `<h2 class="h3" style="margin-top:var(--sp-4)">Nội quy sân</h2><p class="muted" style="font-size:var(--fs-sm)">${esc(b.rulesSnapshot)}</p>` : ''}
-        </div>
+        </div>` : ''}
         <div class="card card-pad">
           <h2 class="h3" style="margin-bottom:var(--sp-2)">Lịch sử trạng thái</h2>
           <ul class="history">${b.history
@@ -86,7 +85,6 @@ function render() {
             .join('')}</ul>
         </div>
       </div>
-      ${hasQr ? qrHtml(b.paymentQr) : ''}
     </div>`;
   document.title = `${b.code} – SânNhanh`;
   decorate();

@@ -2740,3 +2740,16 @@ dialog.modal .total dd {
 .filter-bar > .filter-row > .chip {
   justify-self: start;
 }
+
+.booking-layout.has-side {
+  grid-template-areas: 'sum' 'qr' 'rest';
+}
+.booking-layout.has-side > .area-sum { grid-area: sum; }
+.booking-layout.has-side > .qr-card { grid-area: qr; }
+.booking-layout.has-side > .area-rest { grid-area: rest; }
+@media (min-width: 900px) {
+  .booking-layout.has-side {
+    grid-template-areas: 'sum qr' 'rest qr';
+    grid-template-rows: auto 1fr;
+  }
+}

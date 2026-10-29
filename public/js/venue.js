@@ -1,7 +1,7 @@
 // Màn 3 + 4: chi tiết sân, lưới giờ, thanh đặt và hộp xác nhận. ?id=&date=&slot=HH:mm&court=
 import { api, ApiError } from '/js/api.js';
 import { getUser, mountShell, toast } from '/js/ui/shell.js';
-import { $, countdown, decorate, esc, isCustomer, modeTag, redirectToLogin } from '/js/ui/page.js';
+import { $, countdown, decorate, esc, isCustomer, modeTag, policyStepsHtml, redirectToLogin } from '/js/ui/page.js';
 import { addDays, cancelDeadlines, dateOf, dayLabel, hmToMin, mmss, money, moneyShort, relativeDayLabel, secondsLeft, weekdayOf } from '/js/ui/format.js';
 
 const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -219,14 +219,6 @@ function pick(courtId, start) {
 }
 
 /* ---------- Hộp xác nhận ---------- */
-function stepsFor(startAt) {
-  const d = cancelDeadlines(startAt);
-  const at = (ts) => `${ts.slice(11, 16)} ${dayLabel(ts.slice(0, 10))}`;
-  return `<div class="step"><b>100%</b><span>nếu hủy trước <b>${at(d.full)}</b></span></div>
-    <div class="step"><b>50%</b><span>nếu hủy trước <b>${at(d.half)}</b></span></div>
-    <div class="step"><b>0%</b><span>nếu hủy sau đó (tính vào độ tin cậy của bạn)</span></div>`;
-}
-
 function openConfirm() {
   const user = getUser();
   if (!user) return redirectToLogin();
@@ -250,7 +242,7 @@ function openConfirm() {
   } else {
     $('dlg-auto').textContent = 'Sân tự xác nhận: đặt xong là giữ được sân và bạn nhận mã QR để chuyển khoản.';
   }
-  $('dlg-policy').innerHTML = stepsFor(`${date} ${s.start}:00`);
+  $('dlg-policy').innerHTML = policyStepsHtml(`${date} ${s.start}:00`, meta.now);
   $('dlg-error').hidden = true;
   $('do-book').textContent = `${needsApproval ? 'Gửi yêu cầu' : 'Đặt sân'} · ${money(s.price)}`;
   $('do-book').disabled = false;
@@ -336,7 +328,7 @@ async function main() {
     if (want && date === params.get('date')) {
       const c = Number(params.get('court')) || null;
       const cand = c ? [findSlot(c, want) && { courtId: c }] : schedule.courts.filter((x) => isBookable(findSlot(x.id, want))).map((x) => ({ courtId: x.id }));
-      const first = cand.find((x) => x && isBookable(findSlot(x.courtId, want)));
+      const first = cand.find((x) => x && findSlot(x.courtId, want)?.offeredToYou) || cand.find((x) => x && isBookable(findSlot(x.courtId, want)));
       if (first) picked = { courtId: first.courtId, start: want };
     }
     if (picked) wantCourt = picked.courtId;

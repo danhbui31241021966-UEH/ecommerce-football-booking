@@ -6,7 +6,7 @@ import {
   vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs,
 } from './ui/format.js';
 
-const STORE_KEY = 'sannhanh.mock.v1';
+const STORE_KEY = 'sannhanh.mock.v2';
 const STATUSES = ['pending', 'confirmed', 'rejected', 'cancelled', 'expired', 'completed', 'no_show'];
 
 let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
@@ -171,11 +171,11 @@ function seedHistory(b, venue, tpl) {
   addLog(b, 'create', null, created, customer, '', b.createdAt);
   if (b.status === 'pending') return;
   if (needsApproval && !['rejected', 'expired'].includes(b.status)) addLog(b, 'approve', 'pending', 'confirmed', owner, '', at(5));
-  if (b.paymentStatus === 'paid') addLog(b, 'mark_paid', null, null, owner, 'Đã nhận chuyển khoản', at(30));
+  if (b.paymentStatus === 'paid') addLog(b, 'paid', null, null, owner, 'Đã nhận chuyển khoản', at(30));
   if (b.status === 'rejected') addLog(b, 'reject', 'pending', 'rejected', owner, b.cancelReason, at(8));
   if (b.status === 'expired') addLog(b, 'expire', 'pending', 'expired', { fullName: 'Hệ thống', role: 'system' }, 'Quá hạn chưa duyệt', at(15));
   if (b.status === 'cancelled') addLog(b, 'cancel', created, 'cancelled', customer, b.cancelReason || '', b.cancelledAt);
-  if (b.refundStatus === 'done') addLog(b, 'mark_refunded', null, null, owner, '', b.cancelledAt);
+  if (b.refundStatus === 'done') addLog(b, 'refund', null, null, owner, '', b.cancelledAt);
   if (b.status === 'no_show') addLog(b, 'attendance', 'confirmed', 'no_show', owner, 'Không đến sân', b.startAt);
   if (b.status === 'completed') addLog(b, 'attendance', 'confirmed', 'completed', owner, '', b.startAt);
 }
@@ -462,7 +462,7 @@ function offerSlot(courtId, date, start) {
   next.status = 'offered';
   next.offerExpiresAt = msToVn(until);
   notify(next.userId, `Slot ${start} ngày ${date.slice(8, 10)}/${date.slice(5, 7)} tại ${venue.name} · ${court.name} đang giữ cho bạn đến ${timeOf(next.offerExpiresAt)}.`, {
-    link: `/venue.html?id=${venue.id}&date=${date}&slot=${start}`,
+    link: `/venue.html?id=${venue.id}&date=${date}&slot=${start}&court=${court.id}`,
   });
 }
 const freeSlot = (b) => offerSlot(b.courtId, dateOf(b.startAt), timeOf(b.startAt));
@@ -685,14 +685,14 @@ function doPaid(b, actor, note) {
   if (b.status !== 'confirmed' && b.status !== 'completed') fail(409, 'Chỉ ghi nhận thanh toán cho booking đã xác nhận');
   if (b.paymentStatus === 'paid') fail(409, 'Booking đã được ghi nhận thanh toán');
   b.paymentStatus = 'paid';
-  addLog(b, 'mark_paid', null, null, actor, note || '');
+  addLog(b, 'paid', null, null, actor, note || '');
   notify(b.userId, `Đã ghi nhận thanh toán cho booking ${b.code}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   save();
 }
 function doRefunded(b, actor, note) {
   if (b.refundStatus !== 'pending') fail(409, 'Booking không có khoản hoàn đang chờ');
   b.refundStatus = 'done';
-  addLog(b, 'mark_refunded', null, null, actor, note || '');
+  addLog(b, 'refund', null, null, actor, note || '');
   notify(b.userId, `Chủ sân đã hoàn ${b.refundAmount.toLocaleString('vi-VN')}đ cho booking ${b.code}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   save();
 }

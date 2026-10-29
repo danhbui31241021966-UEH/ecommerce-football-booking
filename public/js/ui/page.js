@@ -1,7 +1,7 @@
 // Tiện ích chung cho các trang khách: thoát HTML, gắn icon, bắt buộc đăng nhập, nhãn trạng thái.
 import { icon } from '/js/ui/icons.js';
 import { getUser } from '/js/ui/shell.js';
-import { PAYMENT_LABEL, STATUS_LABEL } from '/js/ui/format.js';
+import { cancelDeadlines, dayLabel, PAYMENT_LABEL, refundFor, STATUS_LABEL, vnToMs } from '/js/ui/format.js';
 
 export const $ = (id) => document.getElementById(id);
 export const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -44,4 +44,17 @@ export function countdown(el, seconds, text, onEnd) {
     }
   }, 1000);
   return () => clearInterval(timer);
+}
+
+/** Chính sách hủy theo mốc giờ còn hiệu lực tại nowTs; mốc đã qua không hiện, thay bằng dòng "hiện tại hoàn bao nhiêu". */
+export function policyStepsHtml(startAt, nowTs) {
+  const d = cancelDeadlines(startAt);
+  const at = (ts) => `${ts.slice(11, 16)} ${dayLabel(ts.slice(0, 10))}`;
+  const now = vnToMs(nowTs);
+  const { percent } = refundFor({ startAt, price: 0, paid: false }, nowTs);
+  const steps = [];
+  if (vnToMs(d.full) > now) steps.push(`<div class="step"><b>100%</b><span>nếu hủy trước <b>${at(d.full)}</b></span></div>`);
+  if (vnToMs(d.half) > now) steps.push(`<div class="step"><b>50%</b><span>nếu hủy trước <b>${at(d.half)}</b>${vnToMs(d.full) <= now ? ' (mốc 100% đã qua)' : ''}</span></div>`);
+  steps.push(`<div class="step"><b>0%</b><span>${vnToMs(d.half) > now ? 'nếu hủy sau đó' : 'mốc hoàn 100% và 50% đều đã qua, hủy bây giờ không được hoàn'} (tính vào độ tin cậy của bạn)</span></div>`);
+  return `<p class="muted" style="font-size:var(--fs-sm);margin-bottom:8px">Nếu hủy ngay bây giờ: hoàn <b>${percent}%</b>.</p>${steps.join('')}`;
 }
