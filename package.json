@@ -7,6 +7,7 @@
   "scripts": {
     "start": "node src/server.js",
     "dev": "node --watch src/server.js",
+    "prototype": "node scripts/prototype-server.js",
     "db:init": "node scripts/db-init.js",
     "db:seed": "node scripts/db-init.js --seed",
     "test": "node --test --test-concurrency=1 \"tests/**/*.test.js\""
