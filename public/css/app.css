@@ -940,8 +940,11 @@ body:has(.booking-bar) .role-dock {
   gap: var(--sp-2);
 }
 .venue-card .title {
-  font-weight: 700;
-  font-size: var(--fs-lg);
+  font-weight: 850;
+  font-stretch: var(--stretch-cond);
+  text-transform: uppercase;
+  line-height: 1.1;
+  font-size: var(--fs-xl);
   text-decoration: none;
 }
 [data-icon] {
@@ -2357,5 +2360,369 @@ body:has(.booking-bar) .toast-stack {
     max-width: none;
     margin: 0;
     padding: var(--sp-12) clamp(var(--sp-8), 5vw, 80px);
+  }
+}
+
+/* ---------- Luồng khách: tìm sân, chi tiết sân, booking, thông báo ---------- */
+.page {
+  padding-block: var(--sp-6) var(--sp-12);
+}
+.page-head {
+  display: grid;
+  gap: var(--sp-2);
+  margin-bottom: var(--sp-5);
+}
+.page-head .sub {
+  color: var(--muted);
+}
+.crumb {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--muted);
+}
+.crumb a {
+  text-decoration: none;
+}
+.filter-bar {
+  display: grid;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-5);
+}
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.filter-row .select {
+  width: auto;
+  min-width: 132px;
+}
+.filter-label {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+}
+.card-grid {
+  display: grid;
+  gap: var(--sp-4);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 720px) {
+  .card-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 1100px) {
+  .card-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.venue-card .media img {
+  display: block;
+}
+.venue-card .slot-pills .slot-pill {
+  text-decoration: none;
+}
+.venue-card .none {
+  font-size: var(--fs-sm);
+  color: var(--muted);
+}
+
+/* chi tiết sân */
+.venue-top {
+  display: grid;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-8);
+}
+.venue-top .photo {
+  aspect-ratio: 16 / 9;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  background: var(--pitch-800);
+}
+.venue-top .photo img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.venue-top .info {
+  display: grid;
+  gap: var(--sp-3);
+  align-content: start;
+}
+.venue-top .addr {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px var(--sp-3);
+  align-items: center;
+}
+.amenities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.amenities span {
+  padding: 4px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-full);
+  font-size: var(--fs-sm);
+}
+.rules-grid {
+  display: grid;
+  gap: var(--sp-4);
+}
+.rules-grid h3 {
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+.rules-grid p {
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+@media (min-width: 900px) {
+  .venue-top {
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  }
+  .rules-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+.pick-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  margin-bottom: var(--sp-4);
+}
+.slot-mobile {
+  display: block;
+}
+.slot-mobile .court-switch {
+  margin-bottom: var(--sp-4);
+}
+.slot-desktop {
+  display: none;
+}
+@media (min-width: 900px) {
+  .slot-mobile {
+    display: none;
+  }
+  .slot-desktop {
+    display: block;
+  }
+}
+.slot-board td .slot {
+  display: grid;
+  align-content: center;
+}
+.picked-note {
+  margin-bottom: var(--sp-4);
+}
+dialog.modal .total dd {
+  font-size: var(--fs-xl);
+}
+.dlg-error {
+  color: var(--danger, #b42318);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+}
+
+/* booking */
+.booking-layout {
+  display: grid;
+  gap: var(--sp-5);
+  align-items: start;
+}
+@media (min-width: 900px) {
+  .booking-layout.has-side {
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+  }
+}
+.booking-code {
+  font-size: var(--fs-2xl);
+  font-stretch: var(--stretch-cond);
+  font-weight: 850;
+  letter-spacing: 0;
+}
+.history {
+  display: grid;
+  gap: 0;
+  list-style: none;
+  padding: 0;
+}
+.history li {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: var(--sp-3);
+  padding: 10px 0;
+  border-top: 1px solid var(--line);
+  font-size: var(--fs-sm);
+}
+.history li:first-child {
+  border-top: 0;
+}
+.history time {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+.history small {
+  display: block;
+  color: var(--muted);
+}
+.refund-box {
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  font-size: var(--fs-sm);
+}
+
+/* danh sách booking của tôi */
+.booking-list {
+  display: grid;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+}
+.booking-item {
+  display: grid;
+  gap: var(--sp-3);
+  padding: var(--sp-4);
+}
+.booking-item .when {
+  font-size: var(--fs-xl);
+  font-stretch: var(--stretch-cond);
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+.booking-item .where {
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+}
+.booking-item .top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+}
+.booking-item .badges {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+}
+.booking-item.offer {
+  border: 2px solid var(--violet);
+  background: var(--violet-bg);
+}
+.booking-item .actions {
+  display: flex;
+  gap: var(--sp-2);
+  flex-wrap: wrap;
+  align-items: center;
+}
+.offer-banner {
+  margin-top: var(--sp-5);
+  border: 2px solid var(--violet);
+}
+
+/* thông báo */
+.notif-list {
+  display: grid;
+  list-style: none;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+.notif-list li + li {
+  border-top: 1px solid var(--line);
+}
+.notif-item {
+  display: grid;
+  grid-template-columns: 12px 1fr auto;
+  gap: var(--sp-3);
+  align-items: start;
+  padding: var(--sp-4);
+  text-decoration: none;
+  color: inherit;
+}
+.notif-item:hover {
+  background: var(--surface-2);
+}
+.notif-item .pip {
+  width: 10px;
+  height: 10px;
+  margin-top: 6px;
+  border-radius: var(--r-full);
+  border: 1px solid var(--line-strong);
+}
+.notif-item.unread .pip {
+  background: var(--text);
+  border-color: var(--text);
+}
+.notif-item.unread .msg {
+  font-weight: 700;
+}
+.notif-item time {
+  font-size: var(--fs-xs);
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.notif-item .tag-unread {
+  display: inline-block;
+  margin-right: 6px;
+  font-size: var(--fs-xs);
+  font-weight: 800;
+}
+
+.filter-bar .chips {
+  flex-wrap: wrap;
+  overflow: visible;
+}
+.venue-top .addr a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+}
+
+.filter-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-3);
+  align-items: end;
+}
+.filter-field {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+}
+.filter-field .select {
+  width: 100%;
+}
+.filter-field.type {
+  grid-column: 1 / -1;
+}
+.filter-field .segmented {
+  width: 100%;
+}
+.filter-field .segmented button {
+  flex: 1;
+}
+@media (min-width: 720px) {
+  .filter-grid {
+    grid-template-columns: 160px 200px auto;
+    justify-content: start;
+  }
+  .filter-field.type {
+    grid-column: auto;
+  }
+  .filter-field .segmented {
+    width: auto;
   }
 }

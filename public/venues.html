@@ -4,28 +4,59 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Tìm sân – SânNhanh</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
-  <script type="module" src="/js/venues.js"></script>
+  <meta name="description" content="Lọc sân bóng mini theo ngày, giờ, giá, loại sân và quận. Giờ còn trống hiện ngay trên từng sân.">
+  <link rel="icon" href="/img/favicon.svg">
+  <link rel="preload" href="/fonts/Archivo-vietnamese.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/app.css">
 </head>
 <body>
-<main class="container">
-  <h1>Tìm sân bóng</h1>
-  <div class="layout-sidebar">
-    <form class="card stack" id="filter-form">
-      <div><label for="q">Tên sân / địa chỉ</label><input id="q" name="q"></div>
-      <div><label for="district">Khu vực</label><select id="district" name="district"><option value="">Tất cả</option></select></div>
-      <div><label for="date">Ngày đá</label><input id="date" name="date" type="date"><div class="field-hint">Chọn ngày để chỉ hiện sân còn slot trống</div></div>
-      <div><label for="from">Bắt đầu từ</label><input id="from" name="from" type="time" step="1800"></div>
-      <div><label for="fieldType">Loại sân</label><select id="fieldType" name="fieldType"><option value="">Sân 5 và 7</option><option value="5">Sân 5 người</option><option value="7">Sân 7 người</option></select></div>
-      <div><label for="maxPrice">Giá tối đa / slot</label><select id="maxPrice" name="maxPrice"><option value="">Không giới hạn</option><option>300000</option><option>400000</option><option>500000</option><option>700000</option></select></div>
-      <div class="row"><button class="btn" type="submit">Lọc</button><button class="btn btn-outline" type="reset" id="reset">Xóa lọc</button></div>
-    </form>
-    <section>
-      <p class="muted" id="result-info"></p>
-      <div class="venue-grid" id="venue-list"></div>
-    </section>
-  </div>
-</main>
+  <div id="app-header"></div>
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <p class="crumb"><a href="/">Trang chủ</a> / Tìm sân</p>
+        <h1 class="h1">Tìm sân trống</h1>
+        <p class="sub" id="summary" aria-live="polite">Đang tải…</p>
+      </div>
+
+      <form class="filter-bar" id="filters" aria-label="Bộ lọc sân" onsubmit="return false">
+        <div class="filter-row">
+          <span class="filter-label">Ngày</span>
+          <div class="day-chips" id="f-days" role="group" aria-label="Chọn ngày"></div>
+        </div>
+        <div class="filter-grid">
+          <div class="filter-field"><label class="filter-label" for="f-at">Giờ đá</label>
+            <select class="select" id="f-at"></select></div>
+          <div class="filter-field"><label class="filter-label" for="f-district">Quận</label>
+            <select class="select" id="f-district"><option value="">Tất cả quận</option></select></div>
+          <div class="filter-field type"><span class="filter-label" id="f-type-label">Loại sân</span>
+            <div class="segmented" id="f-type" role="group" aria-labelledby="f-type-label">
+              <button type="button" data-v="" aria-pressed="true">Tất cả</button>
+              <button type="button" data-v="5" aria-pressed="false">Sân 5</button>
+              <button type="button" data-v="7" aria-pressed="false">Sân 7</button>
+            </div></div>
+        </div>
+        <div class="filter-row">
+          <span class="filter-label">Giá</span>
+          <div class="chips" id="f-price" role="group" aria-label="Mức giá">
+            <button type="button" class="chip" data-v="" aria-pressed="true">Mọi mức giá</button>
+            <button type="button" class="chip" data-v="300000" aria-pressed="false">Đến 300k</button>
+            <button type="button" class="chip" data-v="400000" aria-pressed="false">Đến 400k</button>
+            <button type="button" class="chip" data-v="500000" aria-pressed="false">Đến 500k</button>
+          </div>
+          <button type="button" class="chip" id="f-last" aria-pressed="false">Đang giảm giá giờ chót</button>
+        </div>
+      </form>
+
+      <div class="card-grid" id="results" aria-live="polite"></div>
+      <div class="card empty" id="empty" hidden>
+        <div class="art" data-icon="calendar"></div>
+        <p><b style="color:var(--text)">Không có sân phù hợp</b><br><span id="empty-why">Thử đổi ngày, bỏ bớt bộ lọc hoặc chọn giờ khác.</span></p>
+        <button type="button" class="btn btn-lime" id="clear-filters">Xóa bộ lọc</button>
+      </div>
+    </div>
+  </main>
+  <div id="app-footer"></div>
+  <script type="module" src="/js/venues.js"></script>
 </body>
 </html>

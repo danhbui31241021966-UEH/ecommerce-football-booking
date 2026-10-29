@@ -4,11 +4,52 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chi tiết sân – SânNhanh</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
-  <script type="module" src="/js/venue.js"></script>
+  <link rel="icon" href="/img/favicon.svg">
+  <link rel="preload" href="/fonts/Archivo-vietnamese.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/app.css">
 </head>
 <body>
-<main class="container" id="venue-root"><p class="muted">Đang tải…</p></main>
+  <div id="app-header"></div>
+  <main class="page">
+    <div class="container" id="venue-root">
+      <p class="muted">Đang tải…</p>
+    </div>
+  </main>
+
+  <div class="booking-bar" id="booking-bar" hidden>
+    <div class="container">
+      <div class="summary">
+        <div class="what" id="bar-what">Chọn một giờ trống ở lưới phía trên</div>
+        <div class="total num" id="bar-total">—</div>
+      </div>
+      <button type="button" class="btn btn-lime btn-lg" id="bar-book" disabled>Đặt sân</button>
+    </div>
+  </div>
+
+  <dialog class="modal" id="confirm-dialog" aria-labelledby="dlg-title">
+    <div class="modal-head"><span class="h2" id="dlg-title">Xác nhận đặt sân</span><span class="spacer"></span>
+      <button type="button" class="icon-btn" data-close aria-label="Đóng" data-icon="close"></button></div>
+    <div class="modal-body stack">
+      <dl class="kv">
+        <div><dt>Sân</dt><dd id="dlg-venue"></dd></div>
+        <div><dt>Thời gian</dt><dd class="num" id="dlg-time"></dd></div>
+        <div id="dlg-orig-row"><dt>Giá gốc</dt><dd class="num price-old" id="dlg-orig"></dd></div>
+        <div id="dlg-sale-row"><dt>Giảm giờ chót</dt><dd class="num" id="dlg-sale" style="color:var(--sale-text)"></dd></div>
+        <div class="total"><dt>Tổng</dt><dd class="num" id="dlg-total"></dd></div>
+      </dl>
+      <div class="notice warn" id="dlg-approval" hidden></div>
+      <div class="notice" id="dlg-auto" hidden></div>
+      <div>
+        <p class="filter-label" style="margin-bottom:8px">Chính sách hủy</p>
+        <div class="policy" id="dlg-policy"></div>
+      </div>
+      <div class="field"><label for="note">Ghi chú cho chủ sân (không bắt buộc)</label><textarea id="note" class="textarea" maxlength="300" placeholder="VD: cần thêm bóng, áo bib"></textarea></div>
+      <p class="dlg-error" id="dlg-error" role="alert" hidden></p>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close>Để sau</button><button type="button" class="btn btn-lime" id="do-book">Đặt sân</button></div>
+  </dialog>
+
+  <div id="app-footer"></div>
+  <script type="module" src="/js/venue.js"></script>
 </body>
 </html>

@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Booking – SânNhanh</title>
+  <link rel="icon" href="/img/favicon.svg">
+  <link rel="preload" href="/fonts/Archivo-vietnamese.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div id="app-header"></div>
+  <main class="page">
+    <div class="container" id="root"><p class="muted">Đang tải…</p></div>
+  </main>
+  <dialog class="modal" id="cancel-dialog" aria-labelledby="cancel-title">
+    <div class="modal-head"><span class="h2" id="cancel-title">Hủy booking?</span><span class="spacer"></span>
+      <button type="button" class="icon-btn" data-close aria-label="Đóng" data-icon="close"></button></div>
+    <div class="modal-body stack">
+      <div class="refund-box" id="cancel-refund"></div>
+      <div class="field"><label for="cancel-reason">Lý do (không bắt buộc)</label><input id="cancel-reason" class="input" maxlength="200"></div>
+      <p class="dlg-error" id="cancel-error" role="alert" hidden></p>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn btn-ghost" data-close>Giữ booking</button><button type="button" class="btn btn-danger" id="do-cancel">Hủy booking</button></div>
+  </dialog>
+  <div id="app-footer"></div>
+  <script type="module" src="/js/booking.js"></script>
+</body>
+</html>
