@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đăng nhập – SânNhanh</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <script type="module" src="/js/auth.js"></script>
+</head>
+<body>
+<main class="container">
+  <div class="card auth-card">
+    <h1>Đăng nhập</h1>
+    <div id="form-error" class="alert alert-error hidden"></div>
+    <form id="login-form" class="stack" novalidate>
+      <div><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required></div>
+      <div><label for="password">Mật khẩu</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
+      <button class="btn btn-block" type="submit">Đăng nhập</button>
+    </form>
+    <p class="small muted">Chưa có tài khoản? <a href="/register.html" id="register-link">Đăng ký khách hàng</a>. Tài khoản chủ sân do quản trị viên cấp.</p>
+  </div>
+</main>
+</body>
+</html>

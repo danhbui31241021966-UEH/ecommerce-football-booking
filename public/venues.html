@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tìm sân – SânNhanh</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <script type="module" src="/js/venues.js"></script>
+</head>
+<body>
+<main class="container">
+  <h1>Tìm sân bóng</h1>
+  <div class="layout-sidebar">
+    <form class="card stack" id="filter-form">
+      <div><label for="q">Tên sân / địa chỉ</label><input id="q" name="q"></div>
+      <div><label for="district">Khu vực</label><select id="district" name="district"><option value="">Tất cả</option></select></div>
+      <div><label for="date">Ngày đá</label><input id="date" name="date" type="date"><div class="field-hint">Chọn ngày để chỉ hiện sân còn slot trống</div></div>
+      <div><label for="from">Bắt đầu từ</label><input id="from" name="from" type="time" step="1800"></div>
+      <div><label for="fieldType">Loại sân</label><select id="fieldType" name="fieldType"><option value="">Sân 5 và 7</option><option value="5">Sân 5 người</option><option value="7">Sân 7 người</option></select></div>
+      <div><label for="maxPrice">Giá tối đa / slot</label><select id="maxPrice" name="maxPrice"><option value="">Không giới hạn</option><option>300000</option><option>400000</option><option>500000</option><option>700000</option></select></div>
+      <div class="row"><button class="btn" type="submit">Lọc</button><button class="btn btn-outline" type="reset" id="reset">Xóa lọc</button></div>
+    </form>
+    <section>
+      <p class="muted" id="result-info"></p>
+      <div class="venue-grid" id="venue-list"></div>
+    </section>
+  </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đặt sân bóng đá mini 5/7 người tại TP.HCM – SânNhanh</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
+  <script type="module" src="/js/home.js"></script>
+</head>
+<body>
+<section class="hero">
+  <div class="container">
+    <h1>Đặt sân bóng mini 5/7 người tại TP.HCM</h1>
+    <p>Xem giá và lịch trống theo từng khung giờ, đặt sân trong vài bước – không cần gọi điện hỏi giờ.</p>
+    <form class="search-box" id="search-form" action="/venues.html">
+      <div><label for="q">Tên sân / địa chỉ</label><input id="q" name="q" placeholder="VD: Hoàng Gia, Cộng Hòa…"></div>
+      <div><label for="district">Khu vực</label><select id="district" name="district"><option value="">Tất cả quận/huyện</option></select></div>
+      <div><label for="date">Ngày đá</label><input id="date" name="date" type="date"></div>
+      <div><label for="from">Từ giờ</label><input id="from" name="from" type="time" step="1800"></div>
+      <button class="btn" type="submit">Tìm sân trống</button>
+    </form>
+  </div>
+</section>
+<main class="container">
+  <div class="row space-between"><h2>Sân nổi bật</h2><a href="/venues.html">Xem tất cả →</a></div>
+  <div class="venue-grid" id="venue-list"><p class="muted">Đang tải…</p></div>
+
+  <h2 style="margin-top:40px">Đặt sân chỉ với 3 bước</h2>
+  <div class="steps">
+    <div class="card"><div class="step-num">1</div><h3>Tìm sân</h3><p class="muted">Lọc theo khu vực, ngày, giờ và mức giá. Không cần đăng nhập để xem.</p></div>
+    <div class="card"><div class="step-num">2</div><h3>Chọn khung giờ</h3><p class="muted">Xem lịch trống từng sân con, giá giờ thường và giờ vàng rõ ràng.</p></div>
+    <div class="card"><div class="step-num">3</div><h3>Xác nhận & theo dõi</h3><p class="muted">Nhận mã booking, theo dõi trạng thái và hủy theo chính sách ngay trên web.</p></div>
+  </div>
+
+  <div class="card" style="margin-top:32px">
+    <div class="row space-between">
+      <div><h3>Bạn là chủ sân?</h3><p class="muted" style="margin:0">Quản lý lịch, giá, booking và chặn lịch đặt ngoài web tại một nơi. Liên hệ quản trị viên để được cấp tài khoản.</p></div>
+      <a class="btn btn-outline" href="/login.html?next=/owner.html">Đăng nhập cho chủ sân</a>
+    </div>
+  </div>
+</main>
+</body>
+</html>
