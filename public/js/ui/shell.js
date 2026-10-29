@@ -41,12 +41,20 @@ function isCurrent(href) {
   return path === href;
 }
 
+document.addEventListener('click', (e) => {
+  const b = e.target.closest('.role-switch button');
+  if (!b) return;
+  setRole(b.dataset.role);
+  location.reload();
+});
+
 export function mountShell({ unread = 0, userInitials = 'ĐN' } = {}) {
   const role = getRole();
   const links = NAV[role]
     .map((l) => `<a href="${l.href}" ${isCurrent(l.href) ? 'aria-current="page"' : ''}>${l.label}</a>`)
     .join('');
 
+  // Công tắc vai trò chỉ để demo prototype: nằm ở thanh nhỏ góc màn hình, không thuộc header sản phẩm.
   const roleSwitch = `<div class="role-switch" role="group" aria-label="Xem với vai trò (prototype)">${Object.entries(ROLE_LABEL)
     .map(([k, v]) => `<button type="button" data-role="${k}" aria-pressed="${k === role}">${v}</button>`)
     .join('')}</div>`;
@@ -59,7 +67,6 @@ export function mountShell({ unread = 0, userInitials = 'ĐN' } = {}) {
           <a class="brand" href="/">${brandMark}<span>Sân<b>Nhanh</b></span></a>
           <nav class="nav" aria-label="Điều hướng chính">${links}</nav>
           <div class="header-actions">
-            ${roleSwitch}
             ${
               role === 'guest'
                 ? `<a class="btn btn-lime btn-sm" href="/login.html">Đăng nhập</a>`
@@ -74,14 +81,9 @@ export function mountShell({ unread = 0, userInitials = 'ĐN' } = {}) {
       </header>
       <nav class="mobile-nav" aria-label="Điều hướng (mobile)">${links}
         <div class="mobile-role"><span>Xem với vai trò (prototype)</span>${roleSwitch}</div>
-      </nav>`;
+      </nav>
+      <details class="role-dock"><summary aria-label="Vai trò đang xem (prototype): ${ROLE_LABEL[role]}" title="Vai trò: ${ROLE_LABEL[role]}">${icon('users', 18)}</summary>${roleSwitch}</details>`;
 
-    document.querySelectorAll('.role-switch button').forEach((b) =>
-      b.addEventListener('click', () => {
-        setRole(b.dataset.role);
-        location.reload();
-      }),
-    );
     const menuBtn = document.querySelector('.menu-btn');
     const mobileNav = document.querySelector('.mobile-nav');
     menuBtn.addEventListener('click', () => {
@@ -98,7 +100,7 @@ export function mountShell({ unread = 0, userInitials = 'ĐN' } = {}) {
         <div class="container">
           <div>
             <a class="brand" href="/">${brandMark}<span>Sân<b>Nhanh</b></span></a>
-            <p style="margin-top:12px;max-width:340px">Đặt sân bóng mini 5/7 người tại TP.HCM – không app, không gọi điện.</p>
+            <p class="footer-note">Đặt sân bóng mini 5/7 người tại TP.HCM – không app, không gọi điện.</p>
           </div>
           <div>
             <p>Thanh toán chuyển khoản VietQR thẳng vào tài khoản chủ sân.</p>
@@ -107,7 +109,9 @@ export function mountShell({ unread = 0, userInitials = 'ĐN' } = {}) {
           <div>
             <p>Đồ án môn Phát triển ứng dụng TMĐT – Nhóm 8</p>
           </div>
+          <div class="footer-role"><span>Xem với vai trò (prototype)</span>${roleSwitch}</div>
         </div>
+        <p class="footer-wordmark" aria-hidden="true">SânNhanh</p>
       </footer>`;
   }
 }

@@ -20,11 +20,9 @@
     .hero { padding: 72px 0 88px; }
     .hero .container { position: relative; }
     .hero .search-panel { position: relative; z-index: 1; }
-    .hero .container::after { content: ''; position: absolute; right: 0; top: 0; width: 290px; height: 290px; background: url('/img/art/hero-ball.svg') center / contain no-repeat; opacity: .9; display: none; pointer-events: none; }
-    @media (min-width: 1000px) { .hero .container::after { display: block; } }
-    .hero .lead { max-width: 560px; margin: 18px 0 32px; color: var(--on-dark-muted); font-size: var(--fs-lg); }
-    .hero-stats { display: flex; gap: 28px; margin-top: 28px; color: var(--on-dark-muted); font-size: var(--fs-sm); flex-wrap: wrap; }
-    .hero-stats b { display: block; font-family: var(--font-display); font-size: 1.8rem; color: var(--on-dark); font-style: italic; }
+    .hero .lead { max-width: 560px; margin: 18px 0 32px; color: var(--on-dark); font-size: var(--fs-lg); }
+    .hero-stats { display: flex; gap: 28px; margin-top: 28px; color: var(--on-dark); font-size: var(--fs-sm); flex-wrap: wrap; }
+    .hero-stats b { display: block; font-family: var(--font-display); font-size: 1.8rem; color: var(--on-dark); }
     .venue-card .media.pitch-bg { display: grid; place-items: end start; padding: 12px; }
     .mobile-frame { max-width: 400px; border: 1px solid var(--line); border-radius: 28px; padding: 18px; background: var(--bg); }
   </style>
@@ -33,10 +31,11 @@
   <div id="app-header"></div>
 
   <!-- HERO -->
-  <section class="hero pitch-bg">
+  <section class="hero hero-photo" style="min-height:0">
+    <img src="/img/photos/hero-800.jpg" alt="Sân bóng mini về đêm" width="800" height="533">
     <div class="container">
       <p class="eyebrow" style="color:var(--lime-400)">TP.HCM · Sân 5 &amp; 7 người</p>
-      <h1 class="display" style="margin-top:12px">Tối nay<br>đá ở đâu<span class="text-lime">?</span></h1>
+      <h1 class="display" style="margin-top:32px">Tối nay<br>đá ở đâu<span class="text-lime">?</span></h1>
       <p class="lead">Chọn giờ muốn đá, xem ngay sân nào còn trống và giá thật. Đặt trong 1 phút – không app, không gọi điện.</p>
       <form class="search-panel" onsubmit="return false">
         <label class="cell"><span>Ngày</span>
@@ -65,22 +64,20 @@
   <section class="sg-section">
     <div class="container">
       <h2 class="h1">Màu &amp; chữ</h2>
-      <p class="lead">Xanh sân cỏ ban đêm làm nền nhận diện, vàng chanh (màu đèn sân) chỉ dành cho hành động chính. Màu cam là giảm giá, tím là danh sách chờ.</p>
+      <p class="lead">Đen mực và trắng ngà làm nền; vàng chanh là màu nhấn duy nhất (nút chính của hero và nhãn giảm giá), luôn là nền với chữ mực. Xanh, vàng, tím chỉ là màu trạng thái ô giờ, luôn đi kèm chữ.</p>
       <div class="swatches">
-        <div class="swatch"><div style="background:var(--pitch-950)"></div><p><b>Pitch 950</b><br>#06140e</p></div>
-        <div class="swatch"><div style="background:var(--pitch-700)"></div><p><b>Pitch 700</b><br>#134631</p></div>
-        <div class="swatch"><div style="background:var(--pitch-500)"></div><p><b>Pitch 500</b><br>#1f8a57</p></div>
-        <div class="swatch"><div style="background:var(--lime-400)"></div><p><b>Lime 400</b><br>#c6f135</p></div>
-        <div class="swatch"><div style="background:var(--bg)"></div><p><b>Nền</b><br>#f3f5f0</p></div>
-        <div class="swatch"><div style="background:var(--sale-strong)"></div><p><b>Giảm giá</b><br>#d03e08</p></div>
-        <div class="swatch"><div style="background:var(--warn-strong)"></div><p><b>Chờ duyệt</b><br>#f5a524</p></div>
+        <div class="swatch"><div style="background:var(--pitch-950)"></div><p><b>Mực</b><br>#0d0e0b</p></div>
+        <div class="swatch"><div style="background:var(--bg)"></div><p><b>Trắng ngà</b><br>#f6f4ee</p></div>
+        <div class="swatch"><div style="background:var(--lime-400)"></div><p><b>Nhấn / giảm giá</b><br>#d9f23d</p></div>
+        <div class="swatch"><div style="background:var(--pitch-500)"></div><p><b>Ô trống</b><br>#1f8a57</p></div>
+        <div class="swatch"><div style="background:var(--warn-strong)"></div><p><b>Đang giữ</b><br>#f5a524</p></div>
         <div class="swatch"><div style="background:var(--violet)"></div><p><b>Danh sách chờ</b><br>#5b3ae0</p></div>
       </div>
       <div class="card card-pad" style="margin-top:16px">
         <p class="display" style="font-size:3rem">Đá tối nay</p>
-        <p class="h1" style="margin-top:8px">Tiêu đề trang – Barlow Condensed</p>
+        <p class="h1" style="margin-top:8px">Tiêu đề trang – Archivo</p>
         <p class="h3" style="margin-top:8px">Tiêu đề nhỏ</p>
-        <p style="margin-top:8px">Nội dung dùng Be Vietnam Pro – font thiết kế cho tiếng Việt: ăn uống, đặt sân, hủy muộn, hoàn tiền.</p>
+        <p style="margin-top:8px">Một họ chữ duy nhất, Archivo (variable wght + wdth): tiêu đề và số viết hoa dạng hẹp, chữ thường và nút ở độ rộng 100%.</p>
         <p class="muted" style="margin-top:4px;font-size:var(--fs-sm)">Chữ phụ / ghi chú · Số dạng bảng: <span class="num">450.000đ · 19:00–20:00</span></p>
       </div>
     </div>
@@ -168,7 +165,7 @@
       <p class="lead">Giờ trống hiện ngay trên thẻ – bấm một giờ là vào đặt luôn. Giờ đang giảm giá có viền cam.</p>
       <div class="sg-grid cols-3">
         <article class="card card-hover venue-card">
-          <div class="media art-night">
+          <div class="media"><img src="/img/photos/kids-900.jpg" alt="Nhóm bạn đá bóng buổi tối" loading="lazy">
             <div class="tags"><span class="tag-sale">-20% giờ chót</span></div>
           </div>
           <div class="body">
@@ -186,7 +183,7 @@
           </div>
         </article>
         <article class="card card-hover venue-card">
-          <div class="media art-dusk"></div>
+          <div class="media"><img src="/img/photos/venue2-900.jpg" alt="Sân sáng đèn giữa đêm" loading="lazy"></div>
           <div class="body">
             <div class="row" style="gap:8px"><span class="tag-mode approval" data-icon="hourglass">Chủ sân duyệt</span></div>
             <a class="title" href="#">Sân cỏ nhân tạo Hoàng Gia</a>
@@ -200,7 +197,7 @@
           </div>
         </article>
         <article class="card venue-card">
-          <div class="media art-day"></div>
+          <div class="media"><img src="/img/photos/aerial-900.jpg" alt="Sân nhìn từ trên cao" loading="lazy"></div>
           <div class="body">
             <a class="title" href="#">Sân bóng Phú Mỹ Hưng</a>
             <div class="meta"><span data-icon="pin">Quận 7</span><span>Sân 7</span></div>

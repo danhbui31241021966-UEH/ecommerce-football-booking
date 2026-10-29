@@ -27,10 +27,5 @@ export function icon(name, size = 20, extra = '') {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${paths[name] || ''}</svg>`;
 }
 
-// Logo SânNhanh: quả bóng lướt nhanh trên nền vàng chanh.
-export const brandMark = `<svg class="brand-mark" viewBox="0 0 32 32" aria-hidden="true">
-  <rect width="32" height="32" rx="9" fill="#c6f135"/>
-  <path d="M5 12h7M3 16h8M5 20h6" stroke="#06140e" stroke-width="2.2" stroke-linecap="round"/>
-  <circle cx="20" cy="16" r="7.2" fill="#06140e"/>
-  <path d="m20 12.2 3.1 2.3-1.2 3.6h-3.8l-1.2-3.6z" fill="#c6f135"/>
-</svg>`;
+// Logo chỉ là chữ (wordmark) vẽ bằng CSS ở .brand; không dùng biểu tượng quả bóng.
+export const brandMark = '';
