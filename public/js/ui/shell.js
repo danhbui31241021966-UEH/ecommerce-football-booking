@@ -1,6 +1,7 @@
 // Khung trang dùng chung: header + menu theo vai trò, footer, toast.
 // Trang chỉ cần <div id="app-header"></div> và <div id="app-footer"></div>, rồi gọi mountShell().
 import { icon, brandMark } from './icons.js';
+import { api } from '/js/api.js';
 
 const NAV = {
   guest: [
@@ -27,62 +28,102 @@ const NAV = {
 
 const ROLE_LABEL = { guest: 'Khách', customer: 'Khách hàng', owner: 'Chủ sân', admin: 'Admin' };
 
-// Prototype: vai trò lưu trong localStorage để demo từng góc nhìn khi chưa có đăng nhập thật.
-const ROLE_KEY = 'sannhanh.role';
-export function getRole() {
-  return localStorage.getItem(ROLE_KEY) || 'guest';
-}
-export function setRole(role) {
-  localStorage.setItem(ROLE_KEY, role);
-}
+// Vai trò lấy từ phiên đăng nhập (api.me). Công tắc vai trò chỉ là đường tắt của prototype: đăng nhập nhanh vào tài khoản demo.
+let currentUser = null;
+export const getUser = () => currentUser;
+export const getRole = () => currentUser?.role || 'guest';
 
 function isCurrent(href) {
-  const path = location.pathname === '/index.html' ? '/' : location.pathname;
-  return path === href;
+  const path = location.pathname === '/index.html' ? '/' : location.pathname.replace(/\.html$/, '');
+  return path === href.replace(/\.html$/, '');
 }
 
-document.addEventListener('click', (e) => {
-  const b = e.target.closest('.role-switch button');
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
+const initialsOf = (name) => name.trim().split(/\s+/).slice(-2).map((w) => w[0]).join('').toUpperCase();
+
+document.addEventListener('click', async (e) => {
+  const b = e.target.closest('[data-role], [data-proto], [data-logout]');
   if (!b) return;
-  setRole(b.dataset.role);
-  location.reload();
+  try {
+    if (b.dataset.role) {
+      await api.proto.quickLogin(b.dataset.role);
+      location.reload();
+    } else if (b.dataset.logout !== undefined) {
+      await api.logout();
+      location.href = '/';
+    } else if (b.dataset.proto === 'reset') {
+      await api.proto.resetDemo();
+      location.reload();
+    } else if (b.dataset.proto === 'clock') {
+      await api.proto.advanceClock(15);
+      location.reload();
+    } else if (b.dataset.proto === 'holder') {
+      const r = await api.proto.holderCancels();
+      toast(r.cancelled ? `Người đang giữ slot đã hủy (${r.cancelled}). Xem thông báo của bạn.` : 'Bạn chưa xếp hàng chờ slot nào đang có người giữ.');
+      setTimeout(() => location.reload(), 900);
+    }
+  } catch (err) {
+    toast(err.message, { error: true });
+  }
 });
 
-export function mountShell({ unread = 0, userInitials = 'ĐN' } = {}) {
+export async function mountShell() {
+  try {
+    currentUser = (await api.me()).user;
+  } catch {
+    currentUser = null;
+  }
   const role = getRole();
   const links = NAV[role]
     .map((l) => `<a href="${l.href}" ${isCurrent(l.href) ? 'aria-current="page"' : ''}>${l.label}</a>`)
     .join('');
+  let unread = 0;
+  if (currentUser) {
+    try {
+      unread = (await api.notifications()).unread;
+    } catch {
+      unread = 0;
+    }
+  }
+  const proto = !!api.proto;
 
-  // Công tắc vai trò chỉ để demo prototype: nằm ở thanh nhỏ góc màn hình, không thuộc header sản phẩm.
+  // Công tắc vai trò chỉ để demo prototype: nút tròn ở góc (≥1280px), trong menu (<900px), trong footer (900–1279px).
   const roleSwitch = `<div class="role-switch" role="group" aria-label="Xem với vai trò (prototype)">${Object.entries(ROLE_LABEL)
     .map(([k, v]) => `<button type="button" data-role="${k}" aria-pressed="${k === role}">${v}</button>`)
     .join('')}</div>`;
+  const protoTools = `<div class="proto-tools">
+      <button type="button" data-proto="reset">Đặt lại dữ liệu demo</button>
+      <button type="button" data-proto="clock">Tua đồng hồ +15 phút</button>
+      <button type="button" data-proto="holder">Người giữ slot hủy (luồng chờ)</button>
+    </div>`;
 
   const header = document.getElementById('app-header');
   if (header) {
     header.outerHTML = `
       <header class="site-header">
         <div class="container">
-          <a class="brand" href="/">${brandMark}<span>Sân<b>Nhanh</b></span></a>
+          <a class="brand" href="${role === 'owner' ? '/owner.html' : role === 'admin' ? '/admin.html' : '/'}">${brandMark}<span>Sân<b>Nhanh</b></span></a>
           <nav class="nav" aria-label="Điều hướng chính">${links}</nav>
           <div class="header-actions">
             ${
-              role === 'guest'
+              !currentUser
                 ? `<a class="btn btn-lime btn-sm" href="/login.html">Đăng nhập</a>`
-                : `<a class="icon-btn" href="/notifications.html" aria-label="Thông báo">${icon('bell')}${
+                : `<a class="icon-btn" href="/notifications.html" aria-label="Thông báo${unread ? `: ${unread} chưa đọc` : ''}">${icon('bell')}${
                     unread ? `<span class="dot">${unread}</span>` : ''
                   }</a>
-                   <span class="avatar" title="${ROLE_LABEL[role]}">${userInitials}</span>`
+                   <details class="user-menu"><summary class="avatar" aria-label="Tài khoản ${esc(currentUser.fullName)}" title="${esc(currentUser.fullName)}">${esc(initialsOf(currentUser.fullName))}</summary>
+                     <div class="user-menu-panel"><b>${esc(currentUser.fullName)}</b><span>${esc(currentUser.email)} · ${ROLE_LABEL[role]}</span>
+                       <button type="button" data-logout>Đăng xuất</button></div></details>`
             }
             <button class="icon-btn menu-btn" type="button" aria-label="Mở menu" aria-expanded="false">${icon('menu')}</button>
           </div>
         </div>
       </header>
       <nav class="mobile-nav" aria-label="Điều hướng (mobile)">${links}
-        <div class="mobile-role"><span>Xem với vai trò (prototype)</span>${roleSwitch}</div>
+        ${currentUser ? '<button type="button" class="mobile-logout" data-logout>Đăng xuất</button>' : '<a href="/register.html">Đăng ký</a>'}
+        ${proto ? `<div class="mobile-role"><span>Xem với vai trò (prototype)</span>${roleSwitch}${protoTools}</div>` : ''}
       </nav>
-      <details class="role-dock"><summary aria-label="Vai trò đang xem (prototype): ${ROLE_LABEL[role]}" title="Vai trò: ${ROLE_LABEL[role]}">${icon('users', 18)}</summary>${roleSwitch}</details>`;
+      ${proto ? `<details class="role-dock"><summary aria-label="Công cụ demo (prototype): đang xem với vai trò ${ROLE_LABEL[role]}" title="Công cụ demo: ${ROLE_LABEL[role]}">${icon('users', 18)}</summary><div class="role-dock-panel">${roleSwitch}${protoTools}</div></details>` : ''}`;
 
     const menuBtn = document.querySelector('.menu-btn');
     const mobileNav = document.querySelector('.mobile-nav');
@@ -109,7 +150,7 @@ export function mountShell({ unread = 0, userInitials = 'ĐN' } = {}) {
           <div>
             <p>Đồ án môn Phát triển ứng dụng TMĐT – Nhóm 8</p>
           </div>
-          <div class="footer-role"><span>Xem với vai trò (prototype)</span>${roleSwitch}</div>
+          ${proto ? `<div class="footer-role"><span>Xem với vai trò (prototype)</span>${roleSwitch}${protoTools}</div>` : ''}
         </div>
         <p class="footer-wordmark" aria-hidden="true">SânNhanh</p>
       </footer>`;

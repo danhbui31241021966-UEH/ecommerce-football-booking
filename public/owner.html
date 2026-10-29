@@ -3,26 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Quản lý sân – SânNhanh</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
-  <script type="module" src="/js/owner.js"></script>
+  <title>Tổng quan – Chủ sân SânNhanh</title>
+  <meta name="description" content="Booking chờ duyệt, lịch hôm nay, tiền chưa thu.">
+  <link rel="icon" href="/img/favicon.svg">
+  <link rel="preload" href="/fonts/Archivo-vietnamese.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/owner.css">
 </head>
-<body>
-<main class="container">
-  <div class="row space-between">
-    <h1>Quản lý sân</h1>
-    <div class="row"><select id="venue-select" style="width:auto"></select><button class="btn btn-outline btn-sm" id="new-venue">+ Thêm cụm sân</button></div>
-  </div>
-  <div id="pending-alert" class="alert alert-warn hidden"></div>
-  <div class="tabs" id="tabs">
-    <button class="tab active" data-tab="schedule">Lịch theo ngày</button>
-    <button class="tab" data-tab="bookings">Booking</button>
-    <button class="tab" data-tab="settings">Cấu hình sân</button>
-  </div>
-  <section id="tab-schedule"></section>
-  <section id="tab-bookings" class="hidden"></section>
-  <section id="tab-settings" class="hidden"></section>
-</main>
+<body class="page-owner">
+  <div id="app-header"></div>
+
+  <main class="container owner-main">
+    <header class="page-head">
+      <div>
+        <h1 class="h1">Tổng quan</h1>
+        <p class="sub" id="sub"></p>
+      </div>
+      <div class="tools" id="tools"></div>
+    </header>
+    <div id="content" aria-live="polite"><div class="skeleton" style="height:240px"></div></div>
+  </main>
+
+  <script type="module" src="/js/owner/overview.js"></script>
 </body>
 </html>

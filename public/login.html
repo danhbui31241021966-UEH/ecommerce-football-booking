@@ -4,22 +4,38 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Đăng nhập – SânNhanh</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
-  <script type="module" src="/js/auth.js"></script>
+  <link rel="icon" href="/img/favicon.svg">
+  <link rel="preload" href="/fonts/Archivo-vietnamese.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/app.css">
 </head>
-<body>
-<main class="container">
-  <div class="card auth-card">
-    <h1>Đăng nhập</h1>
-    <div id="form-error" class="alert alert-error hidden"></div>
-    <form id="login-form" class="stack" novalidate>
-      <div><label for="email">Email</label><input id="email" name="email" type="email" autocomplete="email" required></div>
-      <div><label for="password">Mật khẩu</label><input id="password" name="password" type="password" autocomplete="current-password" required></div>
-      <button class="btn btn-block" type="submit">Đăng nhập</button>
-    </form>
-    <p class="small muted">Chưa có tài khoản? <a href="/register.html" id="register-link">Đăng ký khách hàng</a>. Tài khoản chủ sân do quản trị viên cấp.</p>
-  </div>
-</main>
+<body class="page-auth">
+  <div id="app-header"></div>
+  <main class="auth">
+    <div class="auth-visual" aria-hidden="true">
+      <img src="/img/photos/venue2-900.jpg" width="900" height="600" alt="">
+      <p class="display">Vào sân<br>nhanh hơn</p>
+    </div>
+    <section class="auth-panel" aria-labelledby="auth-title">
+      <p class="eyebrow">Khách hàng · Chủ sân · Admin</p>
+      <h1 class="h1" id="auth-title">Đăng nhập</h1>
+      <form id="auth-form" data-mode="login" novalidate>
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+        <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="password">Mật khẩu</label><input class="input" id="password" name="password" type="password" autocomplete="current-password" required></div>
+        <button class="btn btn-dark btn-lg btn-block" type="submit">Đăng nhập</button>
+      </form>
+      <p class="auth-alt">Chưa có tài khoản? <a href="/register.html" id="alt-link">Đăng ký khách hàng</a>. Tài khoản chủ sân do quản trị viên cấp.</p>
+      <div class="demo-accounts" id="demo-accounts" hidden>
+        <p class="label">Tài khoản demo (mật khẩu <code>Matkhau@123</code>)</p>
+        <div>
+          <button type="button" data-email="khach1@datsan.local">Khách hàng</button>
+          <button type="button" data-email="chusan1@datsan.local">Chủ sân</button>
+          <button type="button" data-email="admin@datsan.local">Admin</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <div id="app-footer"></div>
+  <script type="module" src="/js/auth-page.js"></script>
 </body>
 </html>

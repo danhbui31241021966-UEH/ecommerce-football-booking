@@ -3,42 +3,86 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Đặt sân bóng đá mini 5/7 người tại TP.HCM – SânNhanh</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
-  <script type="module" src="/js/home.js"></script>
+  <title>SânNhanh – Đặt sân bóng mini tối nay</title>
+  <meta name="description" content="Chọn giờ muốn đá, xem sân còn trống và giá thật. Đặt sân bóng mini 5/7 người tại TP.HCM trong một phút.">
+  <link rel="icon" href="/img/favicon.svg">
+  <link rel="preload" href="/fonts/Archivo-vietnamese.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/app.css">
 </head>
-<body>
-<section class="hero">
-  <div class="container">
-    <h1>Đặt sân bóng mini 5/7 người tại TP.HCM</h1>
-    <p>Xem giá và lịch trống theo từng khung giờ, đặt sân trong vài bước – không cần gọi điện hỏi giờ.</p>
-    <form class="search-box" id="search-form" action="/venues.html">
-      <div><label for="q">Tên sân / địa chỉ</label><input id="q" name="q" placeholder="VD: Hoàng Gia, Cộng Hòa…"></div>
-      <div><label for="district">Khu vực</label><select id="district" name="district"><option value="">Tất cả quận/huyện</option></select></div>
-      <div><label for="date">Ngày đá</label><input id="date" name="date" type="date"></div>
-      <div><label for="from">Từ giờ</label><input id="from" name="from" type="time" step="1800"></div>
-      <button class="btn" type="submit">Tìm sân trống</button>
-    </form>
-  </div>
-</section>
-<main class="container">
-  <div class="row space-between"><h2>Sân nổi bật</h2><a href="/venues.html">Xem tất cả →</a></div>
-  <div class="venue-grid" id="venue-list"><p class="muted">Đang tải…</p></div>
+<body class="page-home">
+  <div id="app-header"></div>
 
-  <h2 style="margin-top:40px">Đặt sân chỉ với 3 bước</h2>
-  <div class="steps">
-    <div class="card"><div class="step-num">1</div><h3>Tìm sân</h3><p class="muted">Lọc theo khu vực, ngày, giờ và mức giá. Không cần đăng nhập để xem.</p></div>
-    <div class="card"><div class="step-num">2</div><h3>Chọn khung giờ</h3><p class="muted">Xem lịch trống từng sân con, giá giờ thường và giờ vàng rõ ràng.</p></div>
-    <div class="card"><div class="step-num">3</div><h3>Xác nhận & theo dõi</h3><p class="muted">Nhận mã booking, theo dõi trạng thái và hủy theo chính sách ngay trên web.</p></div>
-  </div>
+  <main>
+    <!-- HERO: ảnh + tìm kiếm (trái), cột giờ trống gần nhất (phải) -->
+    <section class="match-hero">
+      <div class="hero-main">
+        <picture>
+          <source media="(max-width: 639px)" srcset="/img/photos/hero-portrait-760.jpg" width="760" height="1130">
+          <img src="/img/photos/hero-1920.jpg" srcset="/img/photos/hero-800.jpg 800w, /img/photos/hero-1920.jpg 1920w" sizes="(min-width: 960px) 67vw, 100vw"
+             width="1920" height="1280" alt="Cầu thủ áo xanh vàng đứng trên sân cỏ nhân tạo có lưới bao, đèn pha sáng về đêm" fetchpriority="high">
+        </picture>
+        <p class="eyebrow">TP.HCM · Sân 5 và sân 7 người</p>
+        <h1 class="display">Tối nay<br>đá ở đâu?</h1>
+        <p class="lead">Chọn giờ muốn đá, xem ngay sân nào còn trống và giá thật. Đặt trong một phút, không cần gọi điện.</p>
+        <form class="search-panel" id="search" action="/venues.html" method="get">
+          <label class="cell"><span>Ngày</span><select name="date" id="f-date"></select></label>
+          <label class="cell"><span>Giờ muốn đá</span><select name="at" id="f-at"></select></label>
+          <label class="cell"><span>Loại sân</span>
+            <select name="fieldType"><option value="5">Sân 5</option><option value="7">Sân 7</option><option value="">Tất cả</option></select></label>
+          <label class="cell"><span>Khu vực</span><select name="district" id="f-district"><option value="">Tất cả quận</option></select></label>
+          <button class="btn btn-lime btn-lg" type="submit" data-icon="search">Tìm sân trống</button>
+        </form>
+      </div>
+      <aside class="tonight" aria-labelledby="tonight-title">
+        <div class="tonight-head"><h2 class="h2" id="tonight-title">Giờ trống gần nhất</h2><span id="tonight-meta">Đang tải…</span></div>
+        <div id="tonight-rows"></div>
+        <a class="link-more" id="tonight-more" href="/venues.html">Xem tất cả giờ trống <span aria-hidden="true">→</span></a>
+      </aside>
+    </section>
 
-  <div class="card" style="margin-top:32px">
-    <div class="row space-between">
-      <div><h3>Bạn là chủ sân?</h3><p class="muted" style="margin:0">Quản lý lịch, giá, booking và chặn lịch đặt ngoài web tại một nơi. Liên hệ quản trị viên để được cấp tài khoản.</p></div>
-      <a class="btn btn-outline" href="/login.html?next=/owner.html">Đăng nhập cho chủ sân</a>
+    <!-- DẢI CHỮ CHẠY: giờ đang trống (nội dung lặp lần hai ẩn khỏi trình đọc màn hình) -->
+    <div class="ticker" id="ticker" role="marquee" aria-label="Giờ còn trống" hidden>
+      <div class="ticker-track" id="ticker-track"></div>
     </div>
-  </div>
-</main>
+
+    <!-- GIỜ CHÓT -->
+    <section class="band-dark" id="gio-chot">
+      <div class="container">
+        <div class="rule-head">
+          <h2 class="h1">Giờ chót,<br>giá nhẹ hơn</h2>
+          <p>Những giờ còn trống trong vài tiếng tới, chủ sân giảm giá để không bỏ trống. Giá đã gồm giảm, thanh toán chuyển khoản.</p>
+        </div>
+        <p class="swipe-hint">Vuốt ngang để xem thêm →</p>
+        <div class="swipe" id="fixtures"></div>
+        <p class="empty-note" id="fixtures-empty" hidden>Chưa có giờ nào đang giảm giá. Giờ chót chỉ xuất hiện cho slot còn trống bắt đầu trong vòng 3 giờ tới.</p>
+      </div>
+    </section>
+
+    <!-- SÂN CÒN TRỐNG -->
+    <section class="venues">
+      <div class="container">
+        <div class="rule-head">
+          <h2 class="h1">Sân<br>còn trống</h2>
+          <a class="link-more" href="/venues.html">Xem tất cả sân <span aria-hidden="true">→</span></a>
+        </div>
+        <p class="swipe-hint">Vuốt ngang để xem thêm →</p>
+        <div class="swipe" id="venue-list"></div>
+      </div>
+    </section>
+
+    <!-- DẢI CHANH: ba con số -->
+    <section class="stats" aria-label="Vì sao đặt ở SânNhanh">
+      <div class="stats-photo"><img src="/img/photos/stats-1400.jpg" width="1400" height="933" loading="lazy" alt="Hai đội xếp hàng ngang cạnh lưới sân bóng mini dưới đèn pha buổi tối"></div>
+      <ul class="stats-list">
+        <li><b>0đ</b><span>phí đặt sân</span></li>
+        <li><b>24h</b><span>hủy miễn phí trước giờ đá</span></li>
+        <li><b>VIETQR</b><span>thẳng tới chủ sân</span></li>
+      </ul>
+    </section>
+  </main>
+
+  <div id="app-footer"></div>
+
+  <script type="module" src="/js/index-page.js"></script>
 </body>
 </html>

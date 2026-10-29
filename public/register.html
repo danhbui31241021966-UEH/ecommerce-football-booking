@@ -4,25 +4,32 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Đăng ký – SânNhanh</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
-  <script type="module" src="/js/auth.js"></script>
+  <link rel="icon" href="/img/favicon.svg">
+  <link rel="preload" href="/fonts/Archivo-vietnamese.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/app.css">
 </head>
-<body>
-<main class="container">
-  <div class="card auth-card">
-    <h1>Đăng ký tài khoản</h1>
-    <div id="form-error" class="alert alert-error hidden"></div>
-    <form id="register-form" class="stack" novalidate>
-      <div><label for="fullName">Họ tên *</label><input id="fullName" name="fullName" autocomplete="name" required minlength="2" maxlength="100"></div>
-      <div><label for="email">Email *</label><input id="email" name="email" type="email" autocomplete="email" required></div>
-      <div><label for="phone">Số điện thoại *</label><input id="phone" name="phone" type="tel" autocomplete="tel" required pattern="0[0-9]{9}" placeholder="0901234567"></div>
-      <div><label for="password">Mật khẩu *</label><input id="password" name="password" type="password" autocomplete="new-password" required minlength="8" maxlength="72"><div class="field-hint">Tối thiểu 8 ký tự</div></div>
-      <div><label for="password2">Nhập lại mật khẩu *</label><input id="password2" name="password2" type="password" autocomplete="new-password" required></div>
-      <button class="btn btn-block" type="submit">Đăng ký</button>
-    </form>
-    <p class="small muted">Đã có tài khoản? <a href="/login.html" id="login-link">Đăng nhập</a></p>
-  </div>
-</main>
+<body class="page-auth">
+  <div id="app-header"></div>
+  <main class="auth">
+    <div class="auth-visual" aria-hidden="true">
+      <img src="/img/photos/venue2-900.jpg" width="900" height="600" alt="">
+      <p class="display">Đặt sân<br>cho cả đội</p>
+    </div>
+    <section class="auth-panel" aria-labelledby="auth-title">
+      <p class="eyebrow">Khách hàng</p>
+      <h1 class="h1" id="auth-title">Tạo tài khoản</h1>
+      <form id="auth-form" data-mode="register" novalidate>
+        <p class="form-error" id="form-error" role="alert" hidden></p>
+        <div class="field"><label for="fullName">Họ tên</label><input class="input" id="fullName" name="fullName" autocomplete="name" required></div>
+        <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="phone">Số điện thoại</label><input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required><span class="hint">10 chữ số, bắt đầu bằng 0. Chủ sân dùng số này để liên hệ khi cần.</span></div>
+        <div class="field"><label for="password">Mật khẩu</label><input class="input" id="password" name="password" type="password" autocomplete="new-password" required><span class="hint">Ít nhất 8 ký tự.</span></div>
+        <button class="btn btn-dark btn-lg btn-block" type="submit">Đăng ký</button>
+      </form>
+      <p class="auth-alt">Đã có tài khoản? <a href="/login.html" id="alt-link">Đăng nhập</a></p>
+    </section>
+  </main>
+  <div id="app-footer"></div>
+  <script type="module" src="/js/auth-page.js"></script>
 </body>
 </html>

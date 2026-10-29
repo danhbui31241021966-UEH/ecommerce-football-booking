@@ -1,0 +1,106 @@
+[
+  {
+    "id": 1, "ownerId": 2, "name": "Sân bóng Thành Phát", "district": "Quận 7",
+    "address": "33 Nguyễn Thị Thập, P. Tân Phú, Quận 7", "phone": "0281234561",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": ["Bãi giữ xe", "Nước uống", "Phòng thay đồ", "Đèn LED"],
+    "openTime": "06:00", "closeTime": "23:00", "slotMinutes": 60, "requiresApproval": false, "lastMinutePercent": 20,
+    "peakStart": "17:00", "peakEnd": "22:00", "isActive": true,
+    "description": "Cụm 3 sân cỏ nhân tạo thế hệ mới, đèn LED, có mái che khu khán đài nhỏ. Cách Crescent Mall 5 phút chạy xe.",
+    "rules": "Mang giày đinh dăm/TF, không dùng giày đinh sắt. Có mặt trước giờ đá 10 phút. Không hút thuốc trong sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=33+Nguyễn+Thị+Thập+Quận+7",
+    "bank": { "bin": "970436", "account": "0123456789", "accountName": "CTY SAN THANH PHAT" },
+    "courts": [
+      { "id": 1, "name": "Sân 1", "fieldType": "5", "price": 300000, "peakPrice": 450000, "isActive": true },
+      { "id": 2, "name": "Sân 2", "fieldType": "5", "price": 300000, "peakPrice": 450000, "isActive": true },
+      { "id": 3, "name": "Sân 3", "fieldType": "7", "price": 400000, "peakPrice": 550000, "isActive": true }
+    ]
+  },
+  {
+    "id": 2, "ownerId": 3, "name": "Sân cỏ nhân tạo Hoàng Gia", "district": "Bình Thạnh",
+    "address": "88 Điện Biên Phủ, P. 15, Bình Thạnh", "phone": "0281234562",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": ["Nước uống", "Phòng thay đồ", "Căng tin"],
+    "openTime": "07:00", "closeTime": "23:00", "slotMinutes": 60, "requiresApproval": true, "lastMinutePercent": 25,
+    "peakStart": "18:00", "peakEnd": "22:00", "isActive": true,
+    "description": "Hai sân 5 người sát trung tâm Bình Thạnh, mặt cỏ mới thay, có căng tin cho cả đội ngồi sau trận.",
+    "rules": "Giữ vệ sinh sân, không mang đồ uống có cồn. Đến muộn quá 15 phút chủ sân có quyền giao sân cho đội khác.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=88+Điện+Biên+Phủ+Bình+Thạnh",
+    "bank": { "bin": "970422", "account": "9876543210", "accountName": "TRAN THI SAN" },
+    "courts": [
+      { "id": 4, "name": "Sân 1", "fieldType": "5", "price": 280000, "peakPrice": 420000, "isActive": true },
+      { "id": 5, "name": "Sân 2", "fieldType": "5", "price": 280000, "peakPrice": 420000, "isActive": true }
+    ]
+  },
+  {
+    "id": 3, "ownerId": 2, "name": "Sân bóng Phú Mỹ Hưng", "district": "Quận 7",
+    "address": "20 Nguyễn Lương Bằng, P. Tân Phú, Quận 7", "phone": "0281234563",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": ["Bãi giữ xe rộng", "Nước uống", "Đèn LED", "Camera"],
+    "openTime": "06:00", "closeTime": "23:00", "slotMinutes": 60, "requiresApproval": false, "lastMinutePercent": 20,
+    "peakStart": "17:00", "peakEnd": "22:00", "isActive": true,
+    "description": "Ba sân 7 người trong khu Phú Mỹ Hưng, bãi xe rộng, phù hợp đội đông và đá giao hữu công ty.",
+    "rules": "Mang giày đinh dăm/TF. Không đá bóng ngoài khung giờ đã đặt.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=20+Nguyễn+Lương+Bằng+Quận+7",
+    "bank": { "bin": "970407", "account": "1903456789", "accountName": "SAN PHU MY HUNG" },
+    "courts": [
+      { "id": 6, "name": "Sân 1", "fieldType": "7", "price": 450000, "peakPrice": 650000, "isActive": true },
+      { "id": 7, "name": "Sân 2", "fieldType": "7", "price": 450000, "peakPrice": 650000, "isActive": true },
+      { "id": 8, "name": "Sân 3", "fieldType": "7", "price": 450000, "peakPrice": 650000, "isActive": true }
+    ]
+  },
+  {
+    "id": 4, "ownerId": 3, "name": "Sân bóng Thủ Đức Riverside", "district": "Thủ Đức",
+    "address": "150 Võ Văn Ngân, P. Bình Thọ, TP. Thủ Đức", "phone": "0281234564",
+    "imageUrl": "/img/photos/stats-1400.jpg",
+    "amenities": ["Bãi giữ xe rộng", "Nước uống", "Phòng thay đồ"],
+    "openTime": "05:30", "closeTime": "22:30", "slotMinutes": 90, "requiresApproval": false, "lastMinutePercent": 15,
+    "peakStart": null, "peakEnd": null, "isActive": true,
+    "description": "Sân đá theo ca 90 phút, giá một mức cả ngày. Gần ký túc xá và các trường đại học khu Thủ Đức.",
+    "rules": "Mang giày đinh dăm/TF. Sinh viên mang theo thẻ để được ưu tiên khung sáng.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=150+Võ+Văn+Ngân+Thủ+Đức",
+    "bank": { "bin": "970415", "account": "5566778899", "accountName": "SAN THU DUC RIVERSIDE" },
+    "courts": [
+      { "id": 9, "name": "Sân 1", "fieldType": "7", "price": 500000, "peakPrice": 500000, "isActive": true },
+      { "id": 10, "name": "Sân 2", "fieldType": "5", "price": 280000, "peakPrice": 280000, "isActive": true }
+    ]
+  },
+  {
+    "id": 5, "ownerId": 2, "name": "Sân Phú Nhuận Arena", "district": "Phú Nhuận",
+    "address": "20 Phan Xích Long, P. 2, Phú Nhuận", "phone": "0281234565",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": ["Bãi giữ xe", "Đèn LED", "Camera"],
+    "openTime": "06:00", "closeTime": "22:00", "slotMinutes": 60, "requiresApproval": false, "lastMinutePercent": 0,
+    "peakStart": "17:00", "peakEnd": "21:00", "isActive": true,
+    "description": "Sân 5 và sân 7 nằm gần Phan Xích Long, nhiều quán ăn quanh sân. Không áp dụng giảm giá giờ chót.",
+    "rules": "Mang giày đinh dăm/TF. Giữ gìn đèn và lưới sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=20+Phan+Xích+Long+Phú+Nhuận",
+    "bank": { "bin": "970407", "account": "1903456000", "accountName": "SAN PHU NHUAN ARENA" },
+    "courts": [
+      { "id": 11, "name": "Sân A", "fieldType": "5", "price": 320000, "peakPrice": 480000, "isActive": true },
+      { "id": 12, "name": "Sân B", "fieldType": "7", "price": 550000, "peakPrice": 750000, "isActive": true }
+    ]
+  },
+  {
+    "id": 6, "ownerId": 3, "name": "Sân mini Gò Vấp Star", "district": "Gò Vấp",
+    "address": "45 Phan Văn Trị, P. 10, Gò Vấp", "phone": "0281234566",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": ["Bãi giữ xe", "Nước uống", "Wifi"],
+    "openTime": "06:00", "closeTime": "22:00", "slotMinutes": 60, "requiresApproval": true, "lastMinutePercent": 20,
+    "peakStart": "17:00", "peakEnd": "21:00", "isActive": true,
+    "description": "Hai sân 5 người đá đêm, chủ sân duyệt từng booking để giữ lịch ổn định cho các đội quen.",
+    "rules": "Mang giày đinh dăm/TF. Báo trước nếu đến muộn.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/search/?api=1&query=45+Phan+Văn+Trị+Gò+Vấp",
+    "bank": { "bin": "970418", "account": "7788990011", "accountName": "SAN GO VAP STAR" },
+    "courts": [
+      { "id": 13, "name": "Sân 1", "fieldType": "5", "price": 250000, "peakPrice": 380000, "isActive": true },
+      { "id": 14, "name": "Sân 2", "fieldType": "5", "price": 250000, "peakPrice": 380000, "isActive": true }
+    ]
+  }
+]

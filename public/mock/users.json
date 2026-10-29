@@ -1,0 +1,12 @@
+{
+  "demoPassword": "Matkhau@123",
+  "demoLogins": { "customer": 4, "owner": 2, "admin": 1 },
+  "users": [
+    { "id": 1, "fullName": "Quản trị viên", "email": "admin@datsan.local", "phone": "0900000001", "role": "admin", "isActive": true, "createdDaysAgo": 90 },
+    { "id": 2, "fullName": "Nguyễn Văn Chủ", "email": "chusan1@datsan.local", "phone": "0900000002", "role": "owner", "isActive": true, "createdDaysAgo": 80 },
+    { "id": 3, "fullName": "Trần Thị Sân", "email": "chusan2@datsan.local", "phone": "0900000003", "role": "owner", "isActive": true, "createdDaysAgo": 75 },
+    { "id": 4, "fullName": "Lê Minh Khách", "email": "khach1@datsan.local", "phone": "0900000004", "role": "customer", "isActive": true, "createdDaysAgo": 40 },
+    { "id": 5, "fullName": "Phạm Đội Trưởng", "email": "khach2@datsan.local", "phone": "0900000005", "role": "customer", "isActive": true, "createdDaysAgo": 35 },
+    { "id": 6, "fullName": "Nguyễn Thu Hà", "email": "khach3@datsan.local", "phone": "0900000006", "role": "customer", "isActive": true, "createdDaysAgo": 30 }
+  ]
+}
