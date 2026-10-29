@@ -1,23 +1,2 @@
 <!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Quản trị – SânNhanh</title>
-  <link rel="stylesheet" href="/css/style.css">
-  <link rel="icon" href="/img/favicon.svg" type="image/svg+xml">
-  <script type="module" src="/js/admin.js"></script>
-</head>
-<body>
-<main class="container">
-  <h1>Quản trị hệ thống</h1>
-  <div class="tabs" id="tabs">
-    <button class="tab active" data-tab="owners">Chủ sân</button>
-    <button class="tab" data-tab="customers">Khách hàng</button>
-    <button class="tab" data-tab="bookings">Booking</button>
-    <button class="tab" data-tab="logs">Nhật ký</button>
-  </div>
-  <section id="tab-content"></section>
-</main>
-</body>
-</html>
+<html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Tài khoản · SânNhanh</title><link rel="icon" href="/img/favicon.svg" type="image/svg+xml"><link rel="stylesheet" href="/css/app.css"><link rel="stylesheet" href="/css/admin.css"><script type="module" src="/js/admin/users.js"></script></head><body><div id="app-header"></div><main class="container admin-page"><header class="admin-heading"><p class="eyebrow">QUẢN TRỊ HỆ THỐNG / 01</p><h1 class="h1">Tài khoản</h1><p>Quản lý quyền truy cập và cấp tài khoản chủ sân.</p></header><section class="admin-tools"><label class="search-field">Tìm người dùng<input id="user-search" type="search" placeholder="Tên, email hoặc số điện thoại"></label><label>Vai trò<select id="user-role"><option value="">Tất cả vai trò</option><option value="owner">Chủ sân</option><option value="customer">Khách hàng</option><option value="admin">Admin</option></select></label><button class="btn btn-lime" id="create-owner">+ Tạo chủ sân</button></section><p class="admin-feedback" id="feedback" role="status"></p><section class="data-panel"><div class="panel-heading"><h2>Danh sách người dùng</h2><span id="user-count"></span></div><div id="user-list" class="responsive-list" aria-live="polite"></div></section></main><dialog id="owner-dialog" class="modal"><form id="owner-form" novalidate><div class="modal-head"><h2 class="h2">Tạo tài khoản chủ sân</h2><button type="button" class="icon-btn" data-close aria-label="Đóng">×</button></div><div class="modal-body"><p class="eyebrow">CẤP QUYỀN TRUY CẬP</p><label class="field">Họ và tên<input class="input" name="fullName" required autocomplete="name" data-label="họ và tên"></label><label class="field">Email<input class="input" name="email" type="email" required autocomplete="email" data-label="email"></label><label class="field">Số điện thoại<input class="input" name="phone" required autocomplete="tel" data-label="số điện thoại"></label><label class="field">Mật khẩu<input class="input" name="password" type="password" required minlength="8" autocomplete="new-password" data-label="mật khẩu"></label><p class="form-error" id="owner-error" role="alert" hidden></p></div><div class="modal-foot"><button type="button" class="btn btn-ghost" data-close>Để sau</button><button class="btn btn-primary">Tạo tài khoản</button></div></form></dialog><div id="app-footer"></div></body></html>
