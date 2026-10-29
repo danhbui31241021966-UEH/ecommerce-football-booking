@@ -2726,3 +2726,17 @@ dialog.modal .total dd {
     width: auto;
   }
 }
+.filter-bar > .filter-row {
+  display: grid;
+  justify-content: start;
+  gap: 6px;
+}
+.filter-bar > .filter-row .chips {
+  display: flex;
+}
+.segmented button {
+  white-space: nowrap;
+}
+.filter-bar > .filter-row > .chip {
+  justify-self: start;
+}
