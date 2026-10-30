@@ -7,7 +7,6 @@ import { addDays, dateOf, dayLabel, hmToMin, minToHm, money, moneyShort, relativ
 
 const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 const MAX_PILLS = 8;
-const PHOTOS = ['/img/photos/kids-900.jpg', '/img/photos/venue2-900.jpg', '/img/photos/aerial-900.jpg'];
 
 let today;
 let nowTs;
@@ -66,7 +65,7 @@ function card(v, i, pills) {
   const unit = v.slotMinutes === 60 ? 'giờ' : `ca ${v.slotMinutes} phút`;
   const detail = `/venue.html?id=${v.id}&date=${state.date}`;
   return `<article class="card card-hover venue-card">
-    <div class="media"><img src="${esc(v.imageUrl || PHOTOS[i % 3])}" width="900" height="450" loading="lazy" alt="${v.imageIsIllustrative ? 'Ảnh minh họa, không phải ảnh của sân' : `Ảnh ${esc(v.name)}`}">
+    <div class="media">${v.imageUrl ? `<img src="${esc(v.imageUrl)}" width="900" height="450" loading="lazy" alt="${v.imageIsIllustrative ? 'Ảnh minh họa, không phải ảnh của sân' : esc(v.name)}">` : '<span class="no-photo">Chưa có ảnh</span>'}
       ${best ? `<div class="tags"><span class="tag-sale">-${best}% giờ chót</span></div>` : ''}</div>
     <div class="body">
       <div class="row" style="gap:8px">${modeTag(v.requiresApproval)}</div>

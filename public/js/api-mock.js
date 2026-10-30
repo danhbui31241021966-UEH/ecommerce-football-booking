@@ -6,7 +6,7 @@ import {
   vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs, weekdayOf,
 } from './ui/format.js';
 
-const STORE_KEY = 'sannhanh.mock.v3';
+const STORE_KEY = 'sannhanh.mock.v4';
 const STATUSES = ['pending', 'confirmed', 'rejected', 'cancelled', 'expired', 'completed', 'no_show'];
 
 let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
@@ -399,7 +399,8 @@ function toVenue(v, extra = {}) {
     address: v.address,
     phone: v.phone,
     imageUrl: v.imageUrl,
-    imageIsIllustrative: !!v.dataSource,
+    imageIsIllustrative: v.imageIsIllustrative === true,
+    imageCredit: v.imageCredit || null,
     amenities: v.amenities,
     openTime: v.openTime,
     closeTime: v.closeTime,
@@ -992,7 +993,7 @@ function applyCourt(c, b) {
 route('GET', '/api/owner/venues', (c) => S.venues.filter((v) => v.ownerId === need(c, 'owner').id).map((v) => toVenueDetail(v, true)));
 route('POST', '/api/owner/venues', (c) => {
   const u = need(c, 'owner');
-  const v = { id: nextId('venue'), ownerId: u.id, name: '', district: '', address: '', phone: '', imageUrl: '/img/photos/kids-900.jpg', amenities: [], openTime: '06:00', closeTime: '22:00', slotMinutes: 60, requiresApproval: false, lastMinutePercent: 0, peakStart: null, peakEnd: null, isActive: true, description: '', rules: '', cancelPolicy: 'Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.', mapsUrl: '', bank: { bin: '', account: '', accountName: '' }, courts: [] };
+  const v = { id: nextId('venue'), ownerId: u.id, name: '', district: '', address: '', phone: '', imageUrl: null, amenities: [], openTime: '06:00', closeTime: '22:00', slotMinutes: 60, requiresApproval: false, lastMinutePercent: 0, peakStart: null, peakEnd: null, isActive: true, description: '', rules: '', cancelPolicy: 'Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.', mapsUrl: '', bank: { bin: '', account: '', accountName: '' }, courts: [] };
   applyVenue(v, c.body || {});
   S.venues.push(v);
   save();

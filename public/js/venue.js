@@ -22,6 +22,16 @@ function sourceNote(ds) {
   return `<p class="muted source-note">${parts.join(' ')}</p>`;
 }
 
+// Nhãn dưới ảnh: ảnh minh họa của sân demo, hoặc ghi nguồn ảnh lấy từ Google Maps.
+function photoNote() {
+  if (!venue.imageUrl) return '';
+  if (venue.imageIsIllustrative) return '<span class="photo-note">Ảnh minh họa</span>';
+  const c = venue.imageCredit;
+  if (!c) return '';
+  const who = c.contributor ? ` · ${esc(c.contributor)}` : '';
+  return `<a class="photo-note" href="${esc(c.url)}" target="_blank" rel="noopener">Ảnh: ${esc(c.source)}${who}</a>`;
+}
+
 let venue;
 let meta;
 let today;
@@ -50,7 +60,7 @@ function renderTop() {
   $('venue-root').innerHTML = `
     <p class="crumb"><a href="/">Trang chủ</a> / <a href="/venues.html?date=${date}">Tìm sân</a> / ${esc(venue.name)}</p>
     <div class="venue-top" style="margin-top:var(--sp-3)">
-      <div class="photo"><img src="${esc(venue.imageUrl)}" width="900" height="506" alt="${venue.imageIsIllustrative ? 'Ảnh minh họa, không phải ảnh của sân' : `Ảnh ${esc(venue.name)}`}">${venue.imageIsIllustrative ? '<span class="photo-note">Ảnh minh họa</span>' : ''}</div>
+      <div class="photo">${venue.imageUrl ? `<img src="${esc(venue.imageUrl)}" width="900" height="506" alt="${venue.imageIsIllustrative ? 'Ảnh minh họa, không phải ảnh của sân' : esc(venue.name)}">` : '<span class="no-photo">Chưa có ảnh</span>'}${photoNote()}</div>
       <div class="info">
         <div class="row" style="gap:8px">${modeTag(venue.requiresApproval)}${venue.lastMinutePercent ? `<span class="tag-sale">Giờ chót -${venue.lastMinutePercent}%</span>` : ''}</div>
         <h1 class="h1">${esc(venue.name)}</h1>

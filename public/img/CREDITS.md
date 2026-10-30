@@ -10,14 +10,25 @@
 | `photos/hero-800.jpg` (cùng ảnh, bản mobile) | 800×533 | 69.937 B | như trên | Quyn Phạm |
 | `photos/hero-portrait-760.jpg` (cùng ảnh gốc, **bản cắt dọc** cho mobile dưới 640px: lấy vùng x 580–1340, y 150–1280 của bản 1920 để đầu cầu thủ nằm phía trên chữ) | 760×1130 | 100.378 B | như trên | Quyn Phạm |
 | `photos/stats-1400.jpg` | 1400×933 | 270.440 B | https://www.pexels.com/photo/football-team-players-standing-on-the-side-of-a-pitch-13907456/ | Quyn Phạm |
-| `photos/venue2-900.jpg` | 900×600 | 86.917 B | https://www.pexels.com/photo/football-players-sitting-on-football-field-13907429/ | Quyn Phạm |
-| `photos/kids-900.jpg` | 900×600 | 100.874 B | https://www.pexels.com/photo/boys-playing-soccer-on-a-field-19582958/ | Nguyễn Hoàng Văn |
-| `photos/aerial-900.jpg` | 900×675 | 108.859 B | https://www.pexels.com/photo/aerial-night-view-of-illuminated-soccer-field-32761355/ | Jose Parra |
+| `photos/venue2-900.jpg` (trang đăng nhập/đăng ký) | 900×600 | 86.917 B | https://www.pexels.com/photo/football-players-sitting-on-football-field-13907429/ | Quyn Phạm |
+| `photos/pexels-35246917.jpg` | 900×599 | 94.837 B | https://www.pexels.com/photo/35246917/ | ANH LÊ (handle `anh-le` trong tên file tải; chưa đối chiếu trang ảnh) |
+| `photos/pexels-35246964.jpg` | 900×599 | 103.781 B | https://www.pexels.com/photo/35246964/ | ANH LÊ (handle `anh-le` trong tên file tải; chưa đối chiếu trang ảnh) |
+| `photos/pexels-35246954.jpg` | 900×599 | 83.715 B | https://www.pexels.com/photo/35246954/ | ANH LÊ (handle `anh-le` trong tên file tải; chưa đối chiếu trang ảnh) |
+| `photos/pexels-35246935.jpg` | 900×599 | 94.052 B | https://www.pexels.com/photo/35246935/ | ANH LÊ (handle `anh-le` trong tên file tải; chưa đối chiếu trang ảnh) |
+| `photos/pexels-35154739.jpg` | 900×599 | 95.267 B | https://www.pexels.com/photo/35154739/ | ANH LÊ (handle `anh-le` trong tên file tải; chưa đối chiếu trang ảnh) |
+| `photos/pexels-35180881.jpg` | 900×599 | 111.555 B | https://www.pexels.com/photo/35180881/ | ANH LÊ (handle `anh-le` trong tên file tải; chưa đối chiếu trang ảnh) |
 
-Giấy phép: Pexels License (dùng và chỉnh sửa miễn phí, không bắt buộc ghi nguồn). Ảnh gốc của ba ảnh Quyn Phạm là 6000×4000; bản trong repo tải từ CDN của Pexels
+Giấy phép: Pexels License (dùng và chỉnh sửa miễn phí, không bắt buộc ghi nguồn). Ảnh gốc của các ảnh Quyn Phạm là 6000×4000; bản trong repo tải từ CDN của Pexels
 (`images.pexels.com`, `auto=compress`) ở chiều rộng ghi trên, riêng `stats-1400.jpg` được nén lại (JPEG q72) từ bản 1600px.
-Tác giả đã đối chiếu trên trang ảnh Pexels vào lần sửa này (hai ảnh Nguyễn Hoàng Văn và Jose Parra ở lần kiểm trước).
+Tác giả ba ảnh Quyn Phạm và `venue2-900` đã đối chiếu trên trang ảnh Pexels.
 Ảnh Quyn Phạm chụp trận bóng đêm trên sân cỏ nhân tạo có lưới bao; trang ảnh không ghi địa điểm cụ thể. Các ảnh chỉ minh họa cho sân mẫu trong prototype, không phải sân thật của hệ thống.
+
+Ảnh `pexels-<id>.jpg` (6 ảnh) chỉ dùng cho 6 sân demo (id 1–6) và có nhãn "Ảnh minh họa". Tải cùng cách (`images.pexels.com`, `auto=compress&cs=tinysrgb&w=900`), không chỉnh sửa.
+Id lấy từ kết quả tìm kiếm; pexels.com chặn truy cập tự động nên **tên tác giả chưa đối chiếu trên trang ảnh**: "ANH LÊ" lấy từ tiêu đề một kết quả tìm kiếm kèm handle `anh-le` trong tên file tải, ghi theo cả bộ ảnh cùng handle chứ chưa đối chiếu từng ảnh.
+
+## Ảnh sân thật (`public/img/venues/`)
+
+Ảnh của 26 sân thật lấy từ trang Google Maps của chính sân đó, tải về và thu nhỏ về 900px (không hotlink). Nguồn từng ảnh (link trang Maps, tên người đăng nếu Maps hiển thị, tháng chụp, ngày lấy) nằm trong `data/venues-hcm.json`, trường `image` của từng sân. Ảnh do người dùng Google Maps hoặc chủ sân đăng, bản quyền thuộc người đăng; chỉ dùng cho prototype học tập, trên giao diện có ghi "Ảnh: Google Maps". 8 sân Maps không có ảnh dùng được nên để trống ("Chưa có ảnh"), lý do ghi trong cùng trường `image`.
 
 ## Font
 

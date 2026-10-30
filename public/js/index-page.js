@@ -7,7 +7,7 @@ import { addDays, dateOf, hmToMin, minToHm, money, moneyShort, relativeDayLabel,
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
-const shortName = (n) => n.replace(/^Sân (bóng|cỏ nhân tạo|mini)\s+/i, '').replace(/^Sân\s+/i, '');
+const shortName = (n) => n.replace(/^Sân (bóng đá|bóng|cỏ nhân tạo|banh|mini)\s+/i, '').replace(/^Sân\s+/i, '');
 const slotLink = (venueId, date, s) => `/venue.html?id=${venueId}&date=${date}&slot=${s.start}&court=${s.courtId}`;
 
 /** Mỗi (sân, giờ) lấy một ô rẻ nhất trong số các sân con còn trống, sắp theo giờ rồi theo sân. */
@@ -91,7 +91,6 @@ function renderFixtures(todayRows, today) {
     .join('');
 }
 
-const PHOTOS = ['/img/photos/kids-900.jpg', '/img/photos/venue2-900.jpg', '/img/photos/aerial-900.jpg'];
 function renderVenues(venues, date) {
   const top = venues.filter((v) => v.availableSlots.length).sort((a, b) => b.availableSlots.length - a.availableSlots.length).slice(0, 3);
   $('venue-list').innerHTML = top
@@ -109,7 +108,7 @@ function renderVenues(venues, date) {
       const types = v.fieldTypes.map((t) => `Sân ${t}`).join(' · ');
       return `<article class="venue">
             <span class="no">0${i + 1}</span>
-            <a class="photo" href="/venue.html?id=${v.id}&date=${date}" tabindex="-1" aria-hidden="true"><img src="${esc(v.imageUrl || PHOTOS[i % 3])}" width="900" height="600" loading="lazy" alt=""></a>
+            <a class="photo" href="/venue.html?id=${v.id}&date=${date}" tabindex="-1" aria-hidden="true">${v.imageUrl ? `<img src="${esc(v.imageUrl)}" width="900" height="600" loading="lazy" alt="">` : '<span class="no-photo">Chưa có ảnh</span>'}</a>
             <h3><a href="/venue.html?id=${v.id}&date=${date}">${esc(v.name)}</a></h3>
             <div class="meta"><span data-icon="pin">${esc(v.district)}</span><span>${types}</span><span data-icon="${v.requiresApproval ? 'hourglass' : 'bolt'}">${v.requiresApproval ? 'Chủ sân duyệt' : 'Tự xác nhận'}</span></div>
             <p class="from"><span class="price">${money(v.minPrice)}</span> <span class="muted">– ${money(v.maxPrice)} / ${unit}</span></p>
