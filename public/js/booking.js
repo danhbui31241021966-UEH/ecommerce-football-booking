@@ -13,7 +13,7 @@ let match = null;
 const ACTION = {
   create: 'Tạo booking', approve: 'Chủ sân duyệt', reject: 'Chủ sân từ chối', cancel: 'Hủy booking', expire: 'Hết hạn chưa duyệt',
   paid: 'Xác nhận đã thanh toán', refund: 'Xác nhận đã hoàn tiền', attendance: 'Điểm danh',
-  match_part_paid: 'Chủ sân nhận một phần tiền', match_join: 'Có đội vào trận', match_release: 'Đội vào trận rời trận', match_confirm: 'Đủ hai đội, chốt sân', match_expire: 'Hết hạn, trận không thành', match_cancel: 'Hủy trận',
+  match_part_paid: 'Chủ sân nhận một phần tiền', match_join: 'Có đội vào trận', match_release: 'Đội vào trận rời trận', match_confirm: 'Đủ hai đội, chốt sân', match_expire: 'Hết hạn, trận không thành', match_cancel: 'Hủy trận', offer_accept: 'Đặt từ chào giá của sân',
   transfer_open: 'Đăng nhượng', transfer_withdraw: 'Đóng đăng nhượng', transfer_claim: 'Có đội nhận nhượng', transfer_release: 'Mở lại đăng nhượng',
   transfer_reject: 'Chủ sân từ chối đội nhận', transfer_expire: 'Hết hạn nhượng', transfer_done: 'Đã nhượng cho đội khác',
 };
@@ -74,6 +74,7 @@ function render() {
   const priceRows = b.discountPercent
     ? `<div><dt>Giá gốc</dt><dd class="num price-old">${money(b.basePrice)}</dd></div><div><dt>Giảm giờ chót</dt><dd class="num" style="color:var(--sale-text)">-${money(b.basePrice - b.price)} (${b.discountPercent}%)</dd></div>`
     : '';
+  const offerRow = b.fromOffer ? `<div><dt>Nguồn giá</dt><dd>Chào giá của chủ sân cho nhu cầu của bạn${b.basePrice > b.price ? ` (niêm yết ${money(b.basePrice)})` : ''}</dd></div>` : '';
   const cancelInfo = ['cancelled', 'rejected', 'expired'].includes(b.status)
     ? `<div><dt>${b.status === 'cancelled' ? 'Hủy bởi' : 'Kết thúc'}</dt><dd>${b.status === 'cancelled' ? BY[b.cancelledBy] || '' : STATUS_TEXT(b.status)}${b.cancelReason ? ` · ${esc(b.cancelReason)}` : ''}</dd></div>`
     : '';
@@ -89,7 +90,7 @@ function render() {
           <dl class="kv">
             <div><dt>Sân</dt><dd><a href="/venue.html?id=${b.venueId}">${esc(b.venueName)}</a> · ${esc(b.courtName)} (sân ${b.fieldType})</dd></div>
             <div><dt>Thời gian</dt><dd class="num">${timeOf(b.startAt)}–${timeOf(b.endAt)}, ${dayLabel(b.startAt.slice(0, 10))}</dd></div>
-            ${priceRows}
+            ${priceRows}${offerRow}
             <div class="total"><dt>Tổng</dt><dd class="num">${money(b.price)}</dd></div>
             ${b.customerNote ? `<div><dt>Ghi chú</dt><dd>${esc(b.customerNote)}</dd></div>` : ''}
             ${cancelInfo}

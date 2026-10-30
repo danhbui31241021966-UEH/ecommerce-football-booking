@@ -46,7 +46,7 @@ Ký hiệu: `[ ]` chưa làm · `[~]` đang làm · `[x]` xong.
 
 - [x] **C.** Nhượng booking — engine mock + `api.js` (đăng, nhận, rút, chủ sân xác nhận/từ chối), màn 17–18, tab "Nhượng sân" ở Booking của tôi, chip ở lưới slot, bảng "Nhượng sân" ở Quản lý booking, thông báo cho người chờ slot, nhật ký `transfer_*`, demo có sẵn 5 đăng nhượng; contract ở PRD mục 7. **Kiểm:** `/tmp/flows/f-transfer.mjs` (390 + 1280), f12, f345.
 - [x] **A.** Đủ hai đội mới chốt sân (R13) — chế độ bật theo sân con + khung giờ (`teamMode`), mở trận / vào trận, hai phần tiền xác nhận riêng, giữ slot bằng booking `matching`, hết hạn thì nhả slot và ghi hoàn từng đội; màn 19–21, tab "Ghép trận", bảng trận ở Quản lý booking, công tắc ở Cài đặt sân, admin ghi hoàn từng đội; demo có 4 trận (chờ đội B, đã có B chưa đủ tiền, đã chốt); key lưu v6. **Kiểm:** `/tmp/flows/f-match.mjs` (390 + 1280, 08:00/15:00/22:30), f12, f345, f-transfer.
-- [ ] **B.** Tính năng tiếp theo theo brief của lead.
+- [x] **B.** Đội đăng nhu cầu, sân chào giá (R14) — `requests`/`offers` (key lưu v7), chào giá không giữ slot, chọn = kiểm lại rồi đặt qua luồng đặt thường (giá chốt = giá chào, `offerId`); màn 22–24, màn Nhu cầu của chủ sân, mục "Nhu cầu" trên thanh điều hướng; demo 4 nhu cầu (chờ chào giá / 3 chào giá / đã chốt booking / của khách khác). Kèm: giờ đủ hai đội hiện lại trong kết quả tìm ở trang chủ và /venues kèm nhãn "Ghép trận". **Kiểm:** `/tmp/flows/f-request.mjs` (390 + 1280, nhiều mốc giờ), f-match, f-transfer, f12, f345. Chưa làm: thông báo email/đẩy thật, admin xem nhu cầu.
 
 ## Giai đoạn 3 – Backend và nối FE
 

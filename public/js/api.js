@@ -121,6 +121,12 @@ export const api = {
   match: (id) => get(`/api/matches/${id}`),
   joinMatch: (id) => post(`/api/matches/${id}/join`),
   withdrawMatch: (id) => request('DELETE', `/api/matches/${id}`),
+  /** Nhu cầu: openRequest { district, date, from, to, fieldType, budget, closesAt, note } → Request. acceptOffer(requestId, offerId) → Booking (qua luồng đặt thường). */
+  openRequest: (body) => post('/api/requests', body),
+  myRequests: () => get('/api/requests/mine'),
+  request: (id) => get(`/api/requests/${id}`),
+  cancelRequest: (id) => request('DELETE', `/api/requests/${id}`),
+  acceptOffer: (requestId, offerId) => post(`/api/requests/${requestId}/accept`, { offerId }),
   notifications: () => get('/api/notifications'),
   readAllNotifications: () => post('/api/notifications/read-all'),
 
@@ -150,6 +156,10 @@ export const api = {
     rejectMatchGuest: (id, reason) => post(`/api/owner/matches/${id}/reject-guest`, { reason }),
     cancelMatch: (id, reason) => post(`/api/owner/matches/${id}/cancel`, { reason }),
     refundMatch: (id, part, note) => post(`/api/owner/matches/${id}/refund`, { part, note }),
+    /** Nhu cầu của khách ở khu vực sân mình: requests() → [Request kèm options]; sendOffer(requestId, { courtId, start, price, validUntil, note }); withdrawOffer(offerId). */
+    requests: () => get('/api/owner/requests'),
+    sendOffer: (requestId, body) => post(`/api/owner/requests/${requestId}/offers`, body),
+    withdrawOffer: (id) => request('DELETE', `/api/owner/offers/${id}`),
     markPaid: (id, note) => post(`/api/owner/bookings/${id}/paid`, { note }),
     markRefunded: (id, note) => post(`/api/owner/bookings/${id}/refund`, { note }),
     /** result: 'completed' | 'no_show' */

@@ -212,3 +212,7 @@
 .court .c-time { display: inline-flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-sm); font-weight: 600; }
 .court .c-time .input { width: 120px; }
 @media (min-width: 900px) { .court .c-team { grid-column: 1 / -1; } }
+
+/* Nhu cầu của khách và chào giá */
+.rq-offers { list-style: none; margin: 0; padding: 0; display: grid; gap: var(--sp-2); }
+.rq-offer { display: grid; gap: var(--sp-1); padding: var(--sp-2) var(--sp-3); border: 1px solid var(--line); }

@@ -1,0 +1,22 @@
+{
+  "_doc": "Nhu cầu của khách và chào giá của sân (R14). day = số ngày sau hôm nay. Mỗi chào giá tự chọn slot trống đầu tiên trong khung giờ lúc dựng dữ liệu; price bị chặn bởi giá niêm yết. state chosen: chào giá có chosen:true đã thành booking.",
+  "requests": [
+    { "userId": 4, "district": "Quận 7", "day": 1, "from": "19:00", "to": "21:00", "fieldType": "7", "budget": 500000, "note": "Đá giao hữu, khoảng 14 người", "minAgo": 25, "state": "open", "offers": [] },
+    {
+      "userId": 4, "district": "Quận 7", "day": 2, "from": "18:00", "to": "20:00", "fieldType": "5", "budget": 260000, "note": "Cần sân có chỗ để xe", "minAgo": 90, "state": "open",
+      "offers": [
+        { "venueId": 12, "price": 250000, "minAgo": 60, "note": "Giá cho khách mới" },
+        { "venueId": 1, "price": 280000, "minAgo": 45 },
+        { "venueId": 33, "price": 300000, "minAgo": 20, "note": "Có nước miễn phí" }
+      ]
+    },
+    {
+      "userId": 4, "district": "Quận 7", "day": 1, "from": "08:00", "to": "10:00", "fieldType": "5", "budget": 280000, "note": "", "minAgo": 300, "state": "chosen",
+      "offers": [
+        { "venueId": 12, "price": 270000, "minAgo": 280, "chosen": true },
+        { "venueId": 33, "price": 290000, "minAgo": 270 }
+      ]
+    },
+    { "userId": 5, "district": "Gò Vấp", "day": 1, "from": "19:00", "to": "21:00", "fieldType": "5", "budget": 250000, "note": "", "minAgo": 40, "state": "open", "offers": [] }
+  ]
+}

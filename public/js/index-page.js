@@ -2,24 +2,29 @@
 import { api } from '/js/api.js';
 import { mountShell, toast } from '/js/ui/shell.js';
 import { icon } from '/js/ui/icons.js';
+import { teamSlotHref } from '/js/ui/match.js';
 import { hoursFor, nearestHour, settleChoice } from '/js/ui/hours.js';
 import { addDays, dateOf, hmToMin, minToHm, money, moneyShort, relativeDayLabel, timeOf } from '/js/ui/format.js';
 
 const $ = (id) => document.getElementById(id);
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 const shortName = (n) => n.replace(/^Sân (bóng đá|bóng|cỏ nhân tạo|banh|mini)\s+/i, '').replace(/^Sân\s+/i, '');
-const slotLink = (venueId, date, s) => `/venue.html?id=${venueId}&date=${date}&slot=${s.start}&court=${s.courtId}`;
+const slotLink = (venueId, date, s) => teamSlotHref(venueId, date, s) || `/venue.html?id=${venueId}&date=${date}&slot=${s.start}&court=${s.courtId}`;
+const isTeam = (s) => !!(s.match || s.teamMode);
+// Mỗi (sân, giờ) tối đa hai dòng: ô đặt thường và ô Ghép trận (ưu tiên trận đang chờ đội thứ hai hơn ô mở trận mới). Thẻ sân chỉ liệt kê ô đặt thường.
+const rank = (s) => (s.match ? 1 : s.teamMode ? 2 : 0);
+const better = (s, cur) => !cur || rank(s) < rank(cur) || (rank(s) === rank(cur) && s.price < cur.price);
 
 /** Mỗi (sân, giờ) lấy một ô rẻ nhất trong số các sân con còn trống, sắp theo giờ rồi theo sân. */
 function flatten(venues) {
   const best = new Map();
   for (const v of venues) {
     for (const s of v.availableSlots) {
-      const k = `${v.id}|${s.start}`;
-      if (!best.has(k) || s.price < best.get(k).price) best.set(k, { ...s, venue: v });
+      const k = `${v.id}|${s.start}|${isTeam(s) ? 1 : 0}`;
+      if (better(s, best.get(k))) best.set(k, { ...s, venue: v });
     }
   }
-  return [...best.values()].sort((a, b) => a.start.localeCompare(b.start) || a.venue.id - b.venue.id);
+  return [...best.values()].sort((a, b) => a.start.localeCompare(b.start) || a.venue.id - b.venue.id || isTeam(a) - isTeam(b));
 }
 
 function defaultChoice(nowTs, window) {
@@ -55,11 +60,12 @@ function fillSearch(meta, districts) {
 function renderTonight(rows, date, today, total) {
   $('tonight-meta').textContent = `${relativeDayLabel(date, today)} · ${total} giờ còn trống`;
   $('tonight-more').href = `/venues.html?date=${date}`;
-  const shown = rows.slice(0, 8);
+  // Giữ chỗ cho tối đa 2 dòng Ghép trận để không bị đẩy ra ngoài danh sách bởi các giờ đặt thường sớm hơn.
+  const shown = [...rows.filter((s) => !isTeam(s)).slice(0, 6), ...rows.filter(isTeam).slice(0, 2)].sort((a, b) => a.start.localeCompare(b.start) || a.venue.id - b.venue.id || isTeam(a) - isTeam(b));
   $('tonight-rows').innerHTML = shown.length
     ? shown
         .map(
-          (s, i) => `<a class="tonight-row${i >= 4 ? ' extra' : ''}" href="${slotLink(s.venue.id, date, s)}"><span class="t">${s.start}</span><span class="what"><b>${esc(shortName(s.venue.name))}</b><span>${esc(s.courtName)} · Sân ${s.fieldType}</span></span><span class="cost"><span class="price">${money(s.price)}</span>${s.discountPercent ? `<span class="tag-sale">-${s.discountPercent}%</span>` : ''}</span></a>`,
+          (s, i) => `<a class="tonight-row${i >= 4 ? ' extra' : ''}" href="${slotLink(s.venue.id, date, s)}"><span class="t">${s.start}</span><span class="what"><b>${esc(shortName(s.venue.name))}</b><span>${esc(s.courtName)} · Sân ${s.fieldType}</span></span><span class="cost"><span class="price">${money(s.price)}</span>${s.discountPercent ? `<span class="tag-sale">-${s.discountPercent}%</span>` : ''}${isTeam(s) ? '<span class="tag-team">Ghép trận</span>' : ''}</span></a>`,
         )
         .join('')
     : '<p class="muted" style="padding:var(--sp-4) 0">Hôm nay đã hết giờ trống.</p>';
@@ -92,11 +98,12 @@ function renderFixtures(todayRows, today) {
 }
 
 function renderVenues(venues, date) {
-  const top = venues.filter((v) => v.availableSlots.length).sort((a, b) => b.availableSlots.length - a.availableSlots.length).slice(0, 3);
+  const plain = (v) => v.availableSlots.filter((s) => !isTeam(s));
+  const top = venues.filter((v) => plain(v).length).sort((a, b) => plain(b).length - plain(a).length).slice(0, 3);
   $('venue-list').innerHTML = top
     .map((v, i) => {
       const byStart = new Map();
-      for (const s of v.availableSlots) if (!byStart.has(s.start) || s.price < byStart.get(s.start).price) byStart.set(s.start, s);
+      for (const s of v.availableSlots) if (!isTeam(s) && better(s, byStart.get(s.start))) byStart.set(s.start, s);
       const slots = [...byStart.values()].sort((a, b) => a.start.localeCompare(b.start));
       // Ưu tiên giờ sắp tới nhưng chừa chỗ cho giờ giảm giá nếu có
       const pills = slots.slice(0, 2);
@@ -114,7 +121,7 @@ function renderVenues(venues, date) {
             <p class="from"><span class="price">${money(v.minPrice)}</span> <span class="muted">– ${money(v.maxPrice)} / ${unit}</span></p>
             <p class="slot-row-label">Giờ còn trống</p>
             <div class="slot-pills">
-              ${pills.map((s) => `<a class="slot-pill${s.discountPercent ? ' sale' : ''}" href="${slotLink(v.id, date, s)}"><span class="t">${s.start}</span><span class="p">${moneyShort(s.price)}${s.discountPercent ? ` · -${s.discountPercent}%` : ''}</span></a>`).join('')}
+              ${pills.map((s) => `<a class="slot-pill${s.discountPercent ? ' sale' : ''}${isTeam(s) ? ' team' : ''}" href="${slotLink(v.id, date, s)}"><span class="t">${s.start}</span><span class="p">${isTeam(s) ? `Ghép trận · ${moneyShort(s.price)}` : `${moneyShort(s.price)}${s.discountPercent ? ` · -${s.discountPercent}%` : ''}`}</span></a>`).join('')}
               ${more > 0 ? `<a class="slot-pill more" href="/venue.html?id=${v.id}&date=${date}"><span class="t">+${more}</span><span class="p">giờ khác</span></a>` : ''}
             </div>
           </article>`;

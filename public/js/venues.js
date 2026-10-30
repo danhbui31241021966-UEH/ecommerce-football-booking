@@ -3,6 +3,7 @@ import { api } from '/js/api.js';
 import { mountShell, toast } from '/js/ui/shell.js';
 import { hoursFor, nearestHour, settleChoice } from '/js/ui/hours.js';
 import { $, decorate, esc, modeTag } from '/js/ui/page.js';
+import { teamSlotHref, teamSlotLabel } from '/js/ui/match.js';
 import { addDays, dateOf, dayLabel, hmToMin, minToHm, money, moneyShort, relativeDayLabel, weekdayOf } from '/js/ui/format.js';
 
 const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
@@ -43,7 +44,10 @@ function paintFilters(districts) {
   $('f-last').setAttribute('aria-pressed', String(!!state.lastMinute));
 }
 
-const slotLink = (venueId, s) => `/venue.html?id=${venueId}&date=${state.date}&slot=${s.start}&court=${s.courtId}`;
+const slotLink = (venueId, s) => teamSlotHref(venueId, state.date, s) || `/venue.html?id=${venueId}&date=${state.date}&slot=${s.start}&court=${s.courtId}`;
+// Mỗi giờ có tối đa hai ô: ô đặt thường và ô Ghép trận (ưu tiên trận đang chờ đội thứ hai hơn ô mở trận mới).
+const rank = (s) => (s.match ? 1 : s.teamMode ? 2 : 0);
+const kind = (s) => (s.match || s.teamMode ? 1 : 0);
 
 /** Mỗi giờ bắt đầu giữ một ô (rẻ nhất) trong các sân con còn trống. */
 function pillsOf(v) {
@@ -54,11 +58,19 @@ function pillsOf(v) {
   }
   if (state.lastMinute) slots = slots.filter((s) => s.discountPercent > 0);
   const byStart = new Map();
-  for (const s of slots) if (!byStart.has(s.start) || s.price < byStart.get(s.start).price) byStart.set(s.start, s);
-  return [...byStart.values()].sort((a, b) => a.start.localeCompare(b.start));
+  for (const s of slots) {
+    const k = `${s.start}|${kind(s)}`;
+    const cur = byStart.get(k);
+    if (!cur || rank(s) < rank(cur) || (rank(s) === rank(cur) && s.price < cur.price)) byStart.set(k, s);
+  }
+  return [...byStart.values()].sort((a, b) => a.start.localeCompare(b.start) || kind(a) - kind(b));
 }
 
-function card(v, i, pills) {
+const pillHtml = (v, s) => `<a class="slot-pill${s.discountPercent ? ' sale' : ''}${s.match || s.teamMode ? ' team' : ''}" href="${slotLink(v.id, s)}" aria-label="${s.start}, ${money(s.price)}${s.discountPercent ? `, giảm ${s.discountPercent}%` : ''}${s.match || s.teamMode ? `, ${teamSlotLabel(s)}, chốt khi đủ hai đội` : ''}"><span class="t">${s.start}</span><span class="p">${s.match || s.teamMode ? `Ghép trận · ${moneyShort(s.price)}` : `${moneyShort(s.price)}${s.discountPercent ? ` · -${s.discountPercent}%` : ''}`}</span></a>`;
+
+function card(v, i, allPills) {
+  const team = allPills.filter((s) => kind(s));
+  const pills = allPills.filter((s) => !kind(s));
   const shown = pills.slice(0, MAX_PILLS);
   const more = pills.length - shown.length;
   const best = pills.reduce((m, s) => Math.max(m, s.discountPercent), 0);
@@ -75,10 +87,15 @@ function card(v, i, pills) {
       <p class="slot-row-label">Giờ còn trống · ${relativeDayLabel(state.date, today)}</p>
       ${
         shown.length
-          ? `<div class="slot-pills">${shown
-              .map((s) => `<a class="slot-pill${s.discountPercent ? ' sale' : ''}" href="${slotLink(v.id, s)}" aria-label="${s.start}, ${money(s.price)}${s.discountPercent ? `, giảm ${s.discountPercent}%` : ''}"><span class="t">${s.start}</span><span class="p">${moneyShort(s.price)}${s.discountPercent ? ` · -${s.discountPercent}%` : ''}</span></a>`)
-              .join('')}${more > 0 ? `<a class="slot-pill more" href="${detail}"><span class="t">+${more}</span><span class="p">giờ khác</span></a>` : ''}</div>`
-          : `<p class="none">Không còn giờ phù hợp.</p><a class="btn btn-sm" href="${detail}">Xem lịch cả ngày</a>`
+          ? `<div class="slot-pills">${shown.map((s) => pillHtml(v, s)).join('')}${more > 0 ? `<a class="slot-pill more" href="${detail}"><span class="t">+${more}</span><span class="p">giờ khác</span></a>` : ''}</div>`
+          : team.length
+            ? ''
+            : `<p class="none">Không còn giờ phù hợp.</p><a class="btn btn-sm" href="${detail}">Xem lịch cả ngày</a>`
+      }
+      ${
+        team.length
+          ? `<p class="slot-row-label">Ghép trận · chốt khi đủ hai đội</p><div class="slot-pills">${team.slice(0, 6).map((s) => pillHtml(v, s)).join('')}${team.length > 6 ? `<a class="slot-pill more" href="${detail}"><span class="t">+${team.length - 6}</span><span class="p">giờ khác</span></a>` : ''}</div>`
+          : ''
       }
     </div>
   </article>`;
@@ -98,6 +115,7 @@ async function load() {
       : `Không sân nào còn giờ trống · ${relativeDayLabel(state.date, today)}${state.at ? ` · quanh ${state.at}` : ''}`;
     $('results').innerHTML = [...withSlots, ...without].map((x, i) => card(x.v, i, x.pills)).join('');
     $('empty').hidden = withSlots.length > 0 || rows.length > 0;
+    $('req-cta').innerHTML = `<div class="card card-pad req-cta"><div><b>Chưa thấy giờ hợp ý?</b><br><span class="muted">Đăng nhu cầu (quận, giờ, ngân sách), các sân phù hợp sẽ gửi chào giá để bạn chọn.</span></div><a class="btn btn-lime" href="/request-new.html?${new URLSearchParams({ date: state.date, ...(state.district && { district: state.district }), ...(state.fieldType && { fieldType: state.fieldType }), ...(state.at && { from: state.at }) })}">Đăng nhu cầu</a></div>`;
     $('empty-why').textContent = 'Thử đổi ngày, bỏ bớt bộ lọc hoặc chọn giờ khác.';
     decorate();
   } catch (e) {

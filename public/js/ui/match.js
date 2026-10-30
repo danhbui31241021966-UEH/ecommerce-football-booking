@@ -20,4 +20,12 @@ export function partsHtml(m) {
   </ul>`;
 }
 
+/** Ô giờ đủ hai đội trong kết quả tìm: dẫn tới trận đang chờ đội thứ hai hoặc trang mở trận. Trả null nếu là ô đặt thường. */
+export function teamSlotHref(venueId, date, s) {
+  if (s.match) return `/match.html?id=${s.match.id}`;
+  if (s.teamMode) return `/match-new.html?venue=${venueId}&court=${s.courtId}&date=${date}&start=${s.start}`;
+  return null;
+}
+export const teamSlotLabel = (s) => (s.match ? 'Ghép trận · vào trận' : s.teamMode ? 'Ghép trận · mở trận' : '');
+
 export const refundText = (r) => (r ? `${r.status === 'done' ? 'Đã hoàn' : 'Chưa hoàn'} ${money(r.amount)}` : '');

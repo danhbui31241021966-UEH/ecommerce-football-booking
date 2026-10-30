@@ -6,6 +6,11 @@
   "transferCloseMinutes": 60,
   "matchCloseMinutes": 120,
   "matchMinOpenMinutes": 60,
+  "requestCloseMinutes": 60,
+  "requestMinOpenMinutes": 30,
+  "requestMaxOpen": 3,
+  "requestMaxOffers": 5,
+  "offerMinMinutes": 15,
   "reliabilityWindowDays": 60,
   "reliabilityMaxViolations": 2,
   "banks": [

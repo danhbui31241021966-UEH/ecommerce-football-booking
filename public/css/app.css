@@ -919,6 +919,7 @@ body:has(.booking-bar) .role-dock {
 /* Thẻ sân trong danh sách */
 .venue-card {
   display: grid;
+  grid-template-rows: auto 1fr;
   overflow: hidden;
 }
 .venue-card .media {
@@ -942,6 +943,7 @@ body:has(.booking-bar) .role-dock {
 .venue-card .body {
   padding: var(--sp-4) var(--sp-4) var(--sp-5);
   display: grid;
+  align-content: start;
   gap: var(--sp-2);
 }
 .venue-card .title {
@@ -2887,4 +2889,37 @@ a.slot-team {
   border-color: var(--lime-400);
   background: var(--lime-100);
   color: var(--text);
+}
+
+/* Giờ đủ hai đội trong kết quả tìm: viền nét đứt như ô trong lưới, luôn kèm chữ "Ghép trận" */
+.slot-pill.team {
+  border-style: dashed;
+  background: var(--surface-2);
+}
+.slot-pill.team .p {
+  color: var(--text);
+  font-weight: 600;
+}
+.tag-team {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border: 1px dashed var(--text);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Nhu cầu và chào giá */
+.req-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+}
+.offer-item.off {
+  opacity: 0.8;
 }

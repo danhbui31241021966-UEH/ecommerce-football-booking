@@ -15,12 +15,14 @@ const NAV = {
     { href: '/venues.html', label: 'Tìm sân' },
     { href: '/transfers.html', label: 'Nhượng sân' },
     { href: '/matches.html', label: 'Ghép trận' },
+    { href: '/requests.html', label: 'Nhu cầu' },
     { href: '/my-bookings.html', label: 'Booking của tôi' },
   ],
   owner: [
     { href: '/owner.html', label: 'Tổng quan' },
     { href: '/owner-schedule.html', label: 'Lịch sân' },
     { href: '/owner-bookings.html', label: 'Booking' },
+    { href: '/owner-requests.html', label: 'Nhu cầu' },
     { href: '/owner-settings.html', label: 'Cài đặt sân' },
   ],
   admin: [

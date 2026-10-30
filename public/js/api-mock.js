@@ -6,7 +6,7 @@ import {
   vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs, weekdayOf,
 } from './ui/format.js';
 
-const STORE_KEY = 'sannhanh.mock.v6';
+const STORE_KEY = 'sannhanh.mock.v7';
 const STATUSES = ['pending', 'confirmed', 'rejected', 'cancelled', 'expired', 'completed', 'no_show', 'transferred', 'matching'];
 
 let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
@@ -24,9 +24,9 @@ const realNow = () => msToVn(Date.now());
 async function loadSeeds() {
   if (!seedPromise) {
     seedPromise = Promise.all(
-      ['meta', 'users', 'venues', 'bookings', 'matches'].map((n) => fetch(`/mock/${n}.json`).then((r) => r.json())),
-    ).then(([meta, users, venues, bookings, matches]) => {
-      seeds = { meta, users, venues, bookings, matches };
+      ['meta', 'users', 'venues', 'bookings', 'matches', 'requests'].map((n) => fetch(`/mock/${n}.json`).then((r) => r.json())),
+    ).then(([meta, users, venues, bookings, matches, requests]) => {
+      seeds = { meta, users, venues, bookings, matches, requests };
     });
   }
   return seedPromise;
@@ -61,12 +61,14 @@ function buildState() {
     waitlist: [],
     transfers: [],
     matches: [],
+    requests: [],
+    offers: [],
     notifications: [],
     logs: [],
   };
   S = st;
   for (const u of st.users) delete u.createdDaysAgo;
-  st.ids = { user: Math.max(...st.users.map((u) => u.id)), venue: 6, court: 14, booking: 0, block: 0, waitlist: 0, transfer: 0, match: 0, notification: 0, log: 0 };
+  st.ids = { user: Math.max(...st.users.map((u) => u.id)), venue: 6, court: 14, booking: 0, block: 0, waitlist: 0, transfer: 0, match: 0, request: 0, offer: 0, notification: 0, log: 0 };
 
   const keyToBooking = {};
   const keyToWait = {};
@@ -149,6 +151,7 @@ function buildState() {
   }
   seedTransfers(st, keyToBooking, ago);
   seedMatches(st, ago);
+  seedRequests(st, ago);
   for (const n of seeds.bookings.notifications) {
     let bookingId = null;
     let link = '/notifications.html';
@@ -516,6 +519,7 @@ function toBooking(b, { admin = false } = {}) {
     acquiredByTransfer: !!b.transferFromId,
     transfer: transferBrief(b, admin),
     match: matchBrief(b, admin),
+    fromOffer: !!b.offerId,
   };
   if (admin) {
     const u = userOf(b.userId);
@@ -629,6 +633,7 @@ function tick() {
   }
   if (tickTransfers()) changed = true;
   if (tickMatches()) changed = true;
+  if (tickRequests()) changed = true;
   for (const w of [...S.waitlist]) {
     if (vnToMs(`${w.date} ${w.start}`) <= nowMs()) {
       S.waitlist.splice(S.waitlist.indexOf(w), 1);
@@ -689,10 +694,11 @@ function availableOn(v, date, params, viewer) {
     for (const s of slotGrid(v)) {
       if (hmToMin(s) < fromMin) continue;
       const slot = slotInfo(c, v, date, s, viewer);
-      if (!(slot.status === 'available' || slot.offeredToYou)) continue;
-      if (slot.teamMode) continue; // chỉ chốt qua trận đủ hai đội
+      // Giờ đủ hai đội vẫn hiện trong kết quả tìm kèm nhãn; ô đang có trận chờ đội thứ hai dẫn tới trận đó.
+      const joinableMatch = slot.match?.joinable ? slot.match : null;
+      if (!(slot.status === 'available' || slot.offeredToYou) && !joinableMatch) continue;
       if (max && slot.price > max) continue;
-      out.push({ courtId: c.id, courtName: c.name, fieldType: c.fieldType, start: slot.start, end: slot.end, price: slot.price, basePrice: slot.basePrice, discountPercent: slot.discountPercent, peak: slot.peak, offeredToYou: !!slot.offeredToYou });
+      out.push({ courtId: c.id, courtName: c.name, fieldType: c.fieldType, start: slot.start, end: slot.end, price: slot.price, basePrice: slot.basePrice, discountPercent: slot.discountPercent, peak: slot.peak, offeredToYou: !!slot.offeredToYou, teamMode: !!slot.teamMode, match: joinableMatch ? { id: joinableMatch.id } : null });
     }
   }
   return out;
@@ -725,6 +731,11 @@ function createBooking(ctx) {
   if (slot.status === 'offered' && !slot.offeredToYou) fail(409, 'Slot đang được giữ cho người trong danh sách chờ');
   if (teamModeAt(court, start)) fail(409, 'Giờ này chỉ chốt khi đủ hai đội: hãy mở trận hoặc vào một trận có sẵn');
 
+  return toBooking(insertBooking(user, venue, court, date, start, slot, { note, idempotencyKey }));
+}
+
+/** Tạo booking theo luồng đặt chung (R3 chế độ nhận, R6 giá chốt, R10 độ tin cậy). extra: { price, offerId, logNote } cho đặt từ chào giá (R14). */
+function insertBooking(user, venue, court, date, start, slot, extra = {}) {
   const rel = reliabilityOf(user.id);
   const needsApproval = venue.requiresApproval || rel.restricted; // R3, R10
   const b = {
@@ -737,9 +748,10 @@ function createBooking(ctx) {
     endAt: `${date} ${slot.end}:00`,
     status: needsApproval ? 'pending' : 'confirmed',
     expiresAt: needsApproval ? msToVn(nowMs() + meta().holdMinutes * 60000) : null,
-    price: slot.price, // R6: giá chốt tại lúc đặt
+    price: extra.price ?? slot.price, // R6: giá chốt tại lúc đặt
     basePrice: slot.basePrice,
-    discountPercent: slot.discountPercent,
+    discountPercent: extra.price == null ? slot.discountPercent : 0,
+    offerId: extra.offerId || null,
     paymentStatus: 'unpaid',
     refundStatus: 'none',
     refundPercent: 0,
@@ -747,10 +759,10 @@ function createBooking(ctx) {
     cancelledBy: null,
     cancelReason: null,
     lateCancel: false,
-    customerNote: String(note).slice(0, 300),
+    customerNote: String(extra.note || '').slice(0, 300),
     rulesSnapshot: venue.rules,
     policySnapshot: venue.cancelPolicy,
-    idempotencyKey: idempotencyKey || null,
+    idempotencyKey: extra.idempotencyKey || null,
     createdAt: now(),
     cancelledAt: null,
   };
@@ -758,7 +770,7 @@ function createBooking(ctx) {
   S.bookings.push(b);
   // Người đặt được giữ quyền thì lượt chờ coi như đã hoàn tất.
   S.waitlist = S.waitlist.filter((w) => !(w.userId === user.id && w.courtId === court.id && w.date === date && w.start === start));
-  addLog(b, 'create', null, b.status, user, rel.restricted && !venue.requiresApproval ? 'Chờ duyệt do độ tin cậy của khách' : '');
+  addLog(b, 'create', null, b.status, user, extra.logNote || (rel.restricted && !venue.requiresApproval ? 'Chờ duyệt do độ tin cậy của khách' : ''));
   if (needsApproval) {
     notify(venue.ownerId, `Booking ${b.code} (${user.fullName}) đang chờ duyệt, còn ${meta().holdMinutes} phút.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
     notify(user.id, `Đã gửi yêu cầu đặt ${court.name} ${shortTs(b.startAt)}, chờ chủ sân duyệt trong ${meta().holdMinutes} phút.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
@@ -766,7 +778,7 @@ function createBooking(ctx) {
     notify(user.id, `Booking ${b.code} đã được xác nhận. Vui lòng thanh toán bằng VietQR.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }
   save();
-  return toBooking(b);
+  return b;
 }
 
 function findBooking(id) {
@@ -1549,6 +1561,333 @@ function seedMatches(st, ago) {
   }
 }
 
+/* ---------- Nhu cầu và chào giá (R14) ---------- */
+
+const ACTIVE_OFFER = ['open'];
+const requestOf = (id) => S.requests.find((r) => r.id === Number(id));
+const offerOf = (id) => S.offers.find((o) => o.id === Number(id));
+const offerDate = (o) => dateOf(o.startAt);
+const offerStart = (o) => timeOf(o.startAt);
+const reqLabel = (r) => `${r.district}, ${dayLabelVn(r.date)} ${r.from}–${r.to}, sân ${r.fieldType}`;
+const dayLabelVn = (d) => `${d.slice(8, 10)}/${d.slice(5, 7)}`;
+
+/** Các slot của sân con còn nằm trọn trong khung giờ của nhu cầu (dữ liệu, không đọc chữ). */
+const slotsInWindow = (venue, r) => slotGrid(venue).filter((s) => s >= r.from && slotEnd(venue, s) <= r.to);
+
+/** Sân "phù hợp" với nhu cầu: cùng quận, có sân con đang mở đúng loại, có giờ trọn trong khung. Ngân sách chỉ để hiển thị. */
+const venueFits = (venue, r) =>
+  venue.isActive && venue.district === r.district && venue.courts.some((c) => c.isActive && c.fieldType === r.fieldType) && slotsInWindow(venue, r).length > 0;
+
+/** Lý do chào giá không dùng được ngay lúc này (null = dùng được). Không giữ slot: chỉ đọc trạng thái hiện tại. */
+function offerBlock(o, viewer) {
+  const [venue, court] = courtOf(o.courtId);
+  if (!venue || !court || !venue.isActive || !court.isActive) return 'Sân con không còn nhận đặt';
+  const slot = slotInfo(court, venue, offerDate(o), offerStart(o), viewer);
+  if (slot.status === 'past') return 'Đã quá giờ bắt đầu';
+  if (slot.status === 'blocked') return 'Chủ sân đã chặn giờ này';
+  if (slot.status === 'booked' || slot.status === 'held') return 'Slot đã có người khác đặt';
+  if (slot.status === 'offered' && !slot.offeredToYou) return 'Slot đang giữ cho người trong danh sách chờ';
+  if (teamModeAt(court, offerStart(o))) return 'Giờ này chỉ chốt khi đủ hai đội';
+  if (slot.basePrice < o.price) return 'Giá niêm yết của sân đã đổi, thấp hơn giá chào';
+  return null;
+}
+
+function toOffer(o, viewer, r = requestOf(o.requestId)) {
+  const [venue, court] = courtOf(o.courtId);
+  const block = o.status === 'open' ? offerBlock(o, userOf(r.userId)) : null;
+  return {
+    id: o.id,
+    requestId: o.requestId,
+    status: o.status,
+    venueId: venue.id,
+    venueName: venue.name,
+    venueAddress: venue.address,
+    venueDistrict: venue.district,
+    requiresApproval: venue.requiresApproval,
+    courtId: court.id,
+    courtName: court.name,
+    fieldType: court.fieldType,
+    startAt: o.startAt,
+    endAt: o.endAt,
+    price: o.price,
+    listedPrice: o.listedPrice,
+    overBudget: o.price > r.budget,
+    note: o.note || '',
+    validUntil: o.validUntil,
+    createdAt: o.createdAt,
+    endReason: o.endReason || null,
+    usable: o.status === 'open' && !block,
+    unusableReason: block,
+    bookingId: o.status === 'chosen' ? r.bookingId : null,
+  };
+}
+
+function toRequest(r, viewer) {
+  const isOwnerView = viewer?.role === 'owner';
+  const mineVenues = isOwnerView ? S.venues.filter((v) => v.ownerId === viewer.id && venueFits(v, r)) : [];
+  const offers = S.offers.filter((o) => o.requestId === r.id && (!isOwnerView || mineVenues.some((v) => v.id === courtOf(o.courtId)[0].id)));
+  const out = {
+    id: r.id,
+    status: r.status,
+    district: r.district,
+    date: r.date,
+    from: r.from,
+    to: r.to,
+    fieldType: r.fieldType,
+    budget: r.budget,
+    note: r.note,
+    closesAt: r.closesAt,
+    createdAt: r.createdAt,
+    endReason: r.endReason || null,
+    bookingId: r.status === 'chosen' ? r.bookingId : null,
+    offers: offers.map((o) => toOffer(o, viewer, r)).sort((a, b) => (a.status === 'open' ? 0 : 1) - (b.status === 'open' ? 0 : 1) || a.price - b.price),
+  };
+  if (isOwnerView) {
+    out.customerName = userOf(r.userId).fullName;
+    out.customerReliability = reliabilityOf(r.userId);
+    out.venues = mineVenues.map((v) => ({ id: v.id, name: v.name }));
+    out.openOfferCount = S.offers.filter((o) => o.requestId === r.id && o.status === 'open').length;
+    out.maxOffers = meta().requestMaxOffers;
+    out.options = r.status === 'open' ? requestOptions(r, mineVenues) : [];
+  }
+  return out;
+}
+
+/** Slot chủ sân có thể chào: trọn trong khung giờ, còn trống, không thuộc chế độ đủ hai đội. */
+function requestOptions(r, venues) {
+  const out = [];
+  for (const v of venues) {
+    for (const c of v.courts.filter((x) => x.isActive && x.fieldType === r.fieldType)) {
+      const slots = [];
+      for (const s of slotsInWindow(v, r)) {
+        const info = slotInfo(c, v, r.date, s, null);
+        if (info.status !== 'available' || info.teamMode) continue;
+        slots.push({ start: s, end: info.end, basePrice: info.basePrice });
+      }
+      if (slots.length) out.push({ venueId: v.id, venueName: v.name, courtId: c.id, courtName: c.name, slots });
+    }
+  }
+  return out;
+}
+
+function endOffer(o, status, reason) {
+  o.status = status;
+  o.endReason = reason;
+}
+
+/** Đóng một nhu cầu chưa chốt: mọi chào giá đang mở đóng theo. */
+function closeRequest(r, status, reason, { notifyOwners = true, notifyCustomer = false } = {}) {
+  const open = S.offers.filter((o) => o.requestId === r.id && o.status === 'open');
+  r.status = status;
+  r.endReason = reason;
+  for (const o of open) {
+    endOffer(o, status === 'cancelled' ? 'void' : 'expired', status === 'cancelled' ? 'Đội đã hủy nhu cầu' : 'Nhu cầu hết hạn nhận chào giá');
+    if (notifyOwners) notify(courtOf(o.courtId)[0].ownerId, `Nhu cầu ${reqLabel(r)} ${status === 'cancelled' ? 'đã được đội hủy' : 'đã hết hạn'}, chào giá ${o.price.toLocaleString('vi-VN')}đ của bạn đóng theo.`, { link: '/owner-requests.html' });
+  }
+  if (notifyCustomer) notify(r.userId, `Nhu cầu ${reqLabel(r)} đã hết hạn nhận chào giá${open.length ? `, ${open.length} chào giá chưa được chọn` : ''}.`, { link: `/request.html?id=${r.id}` });
+}
+
+function tickRequests() {
+  let changed = false;
+  for (const r of S.requests) {
+    if (r.status !== 'open') continue;
+    if (vnToMs(r.closesAt) <= nowMs()) {
+      closeRequest(r, 'expired', 'Hết hạn nhận chào giá', { notifyCustomer: true });
+      changed = true;
+      continue;
+    }
+    for (const o of S.offers) {
+      if (o.requestId === r.id && o.status === 'open' && vnToMs(o.validUntil) <= nowMs()) {
+        endOffer(o, 'expired', 'Hết hạn hiệu lực của chào giá');
+        changed = true;
+      }
+    }
+  }
+  return changed;
+}
+
+function openRequest(ctx) {
+  const user = need(ctx, 'customer');
+  const { district, date, from, to, fieldType, budget, closesAt, note = '' } = ctx.body || {};
+  const m = meta();
+  req(S.venues.some((v) => v.isActive && v.district === district), 'Chưa có sân nào ở quận này');
+  req(['5', '7'].includes(String(fieldType)), 'Loại sân là 5 hoặc 7');
+  checkDate(date);
+  const today = dateOf(now());
+  req(date >= today && date <= addDays(today, m.bookingWindowDays - 1), `Chỉ đăng nhu cầu trong ${m.bookingWindowDays} ngày tới (R1)`);
+  req(/^\d{2}:\d{2}$/.test(from || '') && /^\d{2}:\d{2}$/.test(to || ''), 'Khung giờ không hợp lệ');
+  req(hmToMin(to) - hmToMin(from) >= 60, 'Khung giờ cần dài ít nhất 60 phút');
+  const bud = num(budget);
+  req(Number.isInteger(bud) && bud >= 1000 && bud <= 5000000 && bud % 1000 === 0, 'Ngân sách là số nguyên, bội số 1.000đ, tối đa 5.000.000đ');
+  const startMs = vnToMs(`${date} ${from}`);
+  const latest = startMs - m.requestCloseMinutes * 60000;
+  const earliest = nowMs() + m.requestMinOpenMinutes * 60000;
+  req(latest >= earliest, 'Còn quá ít thời gian: cần ít nhất 90 phút từ bây giờ đến giờ bắt đầu để sân kịp chào giá');
+  const closeMs = vnToMs(closesAt || '');
+  req(Number.isFinite(closeMs) && closeMs >= earliest && closeMs <= latest, `Hạn nhận chào giá cần từ ${m.requestMinOpenMinutes} phút sau bây giờ đến ${m.requestCloseMinutes} phút trước giờ bắt đầu khung giờ`);
+  if (S.requests.filter((r) => r.userId === user.id && r.status === 'open').length >= m.requestMaxOpen) {
+    fail(409, `Bạn đang có ${m.requestMaxOpen} nhu cầu chờ chào giá. Hãy chọn hoặc hủy bớt rồi đăng tiếp`);
+  }
+  const r = { id: nextId('request'), userId: user.id, district, date, from, to, fieldType: String(fieldType), budget: bud, note: String(note).slice(0, 300), status: 'open', closesAt, createdAt: now(), chosenOfferId: null, bookingId: null, endReason: null };
+  req(S.venues.some((v) => venueFits(v, r)), 'Chưa có sân nào ở quận này có sân con loại này và giờ mở cửa phù hợp khung giờ bạn chọn');
+  S.requests.push(r);
+  const owners = new Set(S.venues.filter((v) => venueFits(v, r)).map((v) => v.ownerId));
+  for (const id of owners) notify(id, `Nhu cầu mới: ${reqLabel(r)}, ngân sách ${bud.toLocaleString('vi-VN')}đ. Gửi chào giá trước ${timeOf(r.closesAt)}.`, { link: '/owner-requests.html' });
+  save();
+  return toRequest(r, user);
+}
+
+function ownRequest(ctx) {
+  const user = need(ctx, 'customer');
+  const r = requestOf(ctx.params.id);
+  if (!r || r.userId !== user.id) fail(404, 'Không tìm thấy nhu cầu');
+  return r;
+}
+
+function cancelRequest(ctx) {
+  const r = ownRequest(ctx);
+  if (r.status === 'chosen') fail(409, 'Nhu cầu đã chốt thành booking, hãy hủy booking nếu cần');
+  if (r.status !== 'open') fail(409, 'Nhu cầu này đã kết thúc');
+  closeRequest(r, 'cancelled', 'Đội đã hủy nhu cầu');
+  save();
+  return toRequest(r, ctx.user);
+}
+
+function acceptOffer(ctx) {
+  const user = need(ctx, 'customer');
+  const r = ownRequest(ctx);
+  const offerId = Number(ctx.body?.offerId);
+  const o = offerOf(offerId);
+  if (!o || o.requestId !== r.id) fail(404, 'Không tìm thấy chào giá');
+  if (r.status === 'chosen' && r.chosenOfferId === o.id) return toBooking(S.bookings.find((b) => b.id === r.bookingId)); // bấm lặp
+  if (r.status !== 'open') fail(409, 'Nhu cầu này đã kết thúc');
+  if (o.status !== 'open') fail(409, 'Chào giá này không còn hiệu lực');
+  if (vnToMs(o.validUntil) <= nowMs()) {
+    endOffer(o, 'expired', 'Hết hạn hiệu lực của chào giá');
+    save();
+    fail(409, 'Chào giá này đã hết hạn');
+  }
+  // Kiểm lại slot và giá ngay lúc chọn: chào giá không giữ slot nên người khác có thể đã đặt trước.
+  const block = offerBlock(o, user);
+  if (block) {
+    endOffer(o, 'void', block);
+    save();
+    fail(409, `Chào giá này không còn dùng được: ${block.charAt(0).toLowerCase()}${block.slice(1)}`);
+  }
+  const [venue, court] = courtOf(o.courtId);
+  const slot = slotInfo(court, venue, offerDate(o), offerStart(o), user);
+  const b = insertBooking(user, venue, court, offerDate(o), offerStart(o), slot, { price: o.price, offerId: o.id });
+  addLog(b, 'offer_accept', null, b.status, user, `Chào giá #${o.id} của sân: ${o.price.toLocaleString('vi-VN')}đ (niêm yết ${slot.basePrice.toLocaleString('vi-VN')}đ)`);
+  r.status = 'chosen';
+  r.chosenOfferId = o.id;
+  r.bookingId = b.id;
+  o.status = 'chosen';
+  notify(venue.ownerId, `${user.fullName} đã chọn chào giá ${o.price.toLocaleString('vi-VN')}đ của bạn: ${court.name} ${shortTs(b.startAt)} (booking ${b.code}).`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
+  for (const other of S.offers.filter((x) => x.requestId === r.id && x.status === 'open')) {
+    endOffer(other, 'lost', 'Đội đã chọn chào giá khác');
+    notify(courtOf(other.courtId)[0].ownerId, `Nhu cầu ${reqLabel(r)} đã chốt ở sân khác, chào giá ${other.price.toLocaleString('vi-VN')}đ của bạn đóng.`, { link: '/owner-requests.html' });
+  }
+  save();
+  return toBooking(b);
+}
+
+function ownerRequests(user) {
+  const mine = S.venues.filter((v) => v.ownerId === user.id);
+  return S.requests
+    .filter((r) => mine.some((v) => venueFits(v, r)) && (r.status === 'open' || S.offers.some((o) => o.requestId === r.id && mine.some((v) => v.id === courtOf(o.courtId)[0].id))))
+    .sort((a, b) => (a.status === 'open' ? 0 : 1) - (b.status === 'open' ? 0 : 1) || a.closesAt.localeCompare(b.closesAt))
+    .map((r) => toRequest(r, user));
+}
+
+function sendOffer(ctx) {
+  const user = need(ctx, 'owner');
+  const r = requestOf(ctx.params.id);
+  if (!r) fail(404, 'Không tìm thấy nhu cầu');
+  const { courtId, start, price, validUntil, note = '' } = ctx.body || {};
+  const [venue, court] = courtOf(courtId);
+  if (!venue || !court) fail(404, 'Không tìm thấy sân con');
+  if (venue.ownerId !== user.id) fail(403, 'Sân này không thuộc tài khoản của bạn');
+  if (!venueFits(venue, r) || court.fieldType !== r.fieldType || !court.isActive) fail(403, 'Nhu cầu này không phù hợp với sân của bạn');
+  if (r.status !== 'open') fail(409, 'Nhu cầu này đã kết thúc');
+  req(slotsInWindow(venue, r).includes(start), 'Giờ chào phải nằm trọn trong khung giờ khách chọn');
+  const slot = slotInfo(court, venue, r.date, start, null);
+  if (teamModeAt(court, start)) fail(409, 'Giờ này chỉ chốt khi đủ hai đội, không chào giá riêng được');
+  if (slot.status !== 'available') fail(409, 'Slot này không còn trống');
+  const p = num(price);
+  req(Number.isInteger(p) && p >= 1000 && p % 1000 === 0, 'Giá chào là số nguyên, bội số 1.000đ');
+  req(p <= slot.basePrice, `Giá chào không vượt giá niêm yết của slot (${slot.basePrice.toLocaleString('vi-VN')}đ)`);
+  const until = vnToMs(validUntil || '');
+  req(Number.isFinite(until) && until >= nowMs() + meta().offerMinMinutes * 60000 && until <= vnToMs(r.closesAt), `Hiệu lực chào giá từ ${meta().offerMinMinutes} phút sau bây giờ đến hết hạn nhận chào giá của nhu cầu (${timeOf(r.closesAt)})`);
+  const open = S.offers.filter((o) => o.requestId === r.id && o.status === 'open');
+  if (open.some((o) => courtOf(o.courtId)[0].id === venue.id)) fail(409, 'Sân của bạn đã có chào giá đang mở cho nhu cầu này. Hãy rút chào giá cũ rồi chào lại');
+  if (open.length >= meta().requestMaxOffers) fail(409, `Nhu cầu đã đủ ${meta().requestMaxOffers} chào giá đang mở`);
+  const o = { id: nextId('offer'), requestId: r.id, courtId: court.id, startAt: `${r.date} ${start}:00`, endAt: `${r.date} ${slot.end}:00`, price: p, listedPrice: slot.basePrice, validUntil, note: String(note).slice(0, 200), status: 'open', endReason: null, createdAt: now() };
+  S.offers.push(o);
+  notify(r.userId, `${venue.name} chào giá ${p.toLocaleString('vi-VN')}đ cho ${court.name} ${start}–${slot.end}${p > r.budget ? ' (vượt ngân sách)' : ''}. Xem và chọn trước ${timeOf(validUntil)}.`, { link: `/request.html?id=${r.id}` });
+  save();
+  return toOffer(o, user, r);
+}
+
+function withdrawOffer(ctx) {
+  const user = need(ctx, 'owner');
+  const o = offerOf(ctx.params.id);
+  if (!o) fail(404, 'Không tìm thấy chào giá');
+  const [venue, court] = courtOf(o.courtId);
+  if (venue.ownerId !== user.id) fail(403, 'Chào giá này không thuộc sân của bạn');
+  if (o.status !== 'open') fail(409, 'Chào giá này đã kết thúc');
+  endOffer(o, 'withdrawn', 'Sân đã rút chào giá');
+  const r = requestOf(o.requestId);
+  notify(r.userId, `${venue.name} đã rút chào giá ${court.name} ${shortTs(o.startAt)}.`, { link: `/request.html?id=${r.id}` });
+  save();
+  return toOffer(o, user, r);
+}
+
+/** Dữ liệu demo: nhu cầu mở, nhu cầu có chào giá, nhu cầu đã chốt thành booking (chọn slot trống thật lúc dựng). */
+function seedRequests(st, ago) {
+  const today = dateOf(now());
+  const taken = (courtId, startAt) => st.bookings.some((b) => b.courtId === courtId && b.startAt === startAt && ['pending', 'confirmed', 'matching'].includes(b.status));
+  const blocked = (courtId, date, s, e) => st.blocks.some((k) => k.courtId === courtId && k.date === date && k.start < e && k.end > s);
+  for (const spec of seeds.requests.requests) {
+    const date = addDays(today, spec.day);
+    const created = ago(spec.minAgo);
+    const startMs = vnToMs(`${date} ${spec.from}`);
+    const r = { id: nextId('request'), userId: spec.userId, district: spec.district, date, from: spec.from, to: spec.to, fieldType: spec.fieldType, budget: spec.budget, note: spec.note || '', status: 'open', closesAt: msToVn(startMs - meta().requestCloseMinutes * 60000), createdAt: created, chosenOfferId: null, bookingId: null, endReason: null };
+    st.requests.push(r);
+    const fitters = st.venues.filter((v) => venueFits(v, r));
+    for (const id of new Set(fitters.map((v) => v.ownerId))) {
+      st.notifications.push({ id: nextId('notification'), userId: id, bookingId: null, message: `Nhu cầu mới: ${reqLabel(r)}, ngân sách ${spec.budget.toLocaleString('vi-VN')}đ.`, link: '/owner-requests.html', isRead: !!spec.offers?.length, createdAt: created });
+    }
+    for (const of of spec.offers || []) {
+      const venue = st.venues.find((v) => v.id === of.venueId);
+      let picked = null;
+      for (const c of venue.courts.filter((x) => x.isActive && x.fieldType === r.fieldType && !x.teamMode?.enabled)) {
+        for (const s of slotsInWindow(venue, r)) {
+          const startAt = `${date} ${s}:00`;
+          const e = slotEnd(venue, s);
+          if (!picked && !taken(c.id, startAt) && !blocked(c.id, date, s, e) && !teamModeAt(c, s)) picked = { c, s, e, startAt };
+        }
+      }
+      if (!picked) continue;
+      const listed = isPeak(venue, picked.s) ? picked.c.peakPrice : picked.c.price;
+      const o = { id: nextId('offer'), requestId: r.id, courtId: picked.c.id, startAt: picked.startAt, endAt: `${date} ${picked.e}:00`, price: Math.min(of.price, listed), listedPrice: listed, validUntil: r.closesAt, note: of.note || '', status: 'open', endReason: null, createdAt: ago(of.minAgo) };
+      st.offers.push(o);
+      st.notifications.push({ id: nextId('notification'), userId: spec.userId, bookingId: null, message: `${venue.name} chào giá ${o.price.toLocaleString('vi-VN')}đ cho ${picked.c.name} ${picked.s}–${picked.e}.`, link: `/request.html?id=${r.id}`, isRead: spec.state === 'chosen', createdAt: o.createdAt });
+      if (spec.state === 'chosen' && of.chosen) {
+        const b = { id: nextId('booking'), code: '', userId: spec.userId, venueId: venue.id, courtId: picked.c.id, startAt: o.startAt, endAt: o.endAt, status: venue.requiresApproval ? 'pending' : 'confirmed', expiresAt: venue.requiresApproval ? msToVn(Date.now() + meta().holdMinutes * 60000) : null, price: o.price, basePrice: listed, discountPercent: 0, offerId: o.id, paymentStatus: 'unpaid', refundStatus: 'none', refundPercent: 0, refundAmount: 0, cancelledBy: null, cancelReason: null, lateCancel: false, customerNote: '', rulesSnapshot: venue.rules, policySnapshot: venue.cancelPolicy, idempotencyKey: null, createdAt: ago(spec.minAgo - 20), cancelledAt: null };
+        b.code = bookingCode(b.id);
+        st.bookings.push(b);
+        o.status = 'chosen';
+        r.status = 'chosen';
+        r.chosenOfferId = o.id;
+        r.bookingId = b.id;
+        addLog(b, 'create', null, b.status, userOf(spec.userId), '', b.createdAt);
+        addLog(b, 'offer_accept', null, b.status, userOf(spec.userId), `Chào giá #${o.id} của sân: ${o.price.toLocaleString('vi-VN')}đ (niêm yết ${listed.toLocaleString('vi-VN')}đ)`, b.createdAt);
+      }
+    }
+    if (r.status === 'chosen') for (const o of st.offers.filter((x) => x.requestId === r.id && x.status === 'open')) endOffer(o, 'lost', 'Đội đã chọn chào giá khác');
+  }
+}
+
 /* ---------- Bảng định tuyến ---------- */
 
 const routes = [];
@@ -1739,7 +2078,19 @@ route('POST', '/api/notifications/read-all', (c) => {
   return { ok: true };
 });
 
+route('POST', '/api/requests', openRequest);
+route('GET', '/api/requests/mine', (c) => {
+  const u = need(c, 'customer');
+  return S.requests.filter((r) => r.userId === u.id).sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id - a.id).map((r) => toRequest(r, u));
+});
+route('GET', '/api/requests/:id', (c) => toRequest(ownRequest(c), c.user));
+route('DELETE', '/api/requests/:id', cancelRequest);
+route('POST', '/api/requests/:id/accept', acceptOffer);
+
 /* Chủ sân */
+route('GET', '/api/owner/requests', (c) => ownerRequests(need(c, 'owner')));
+route('POST', '/api/owner/requests/:id/offers', sendOffer);
+route('DELETE', '/api/owner/offers/:id', withdrawOffer);
 const myVenue = (c, id) => {
   const u = need(c, 'owner');
   const v = venueOf(id);
