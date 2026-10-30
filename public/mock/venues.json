@@ -330,7 +330,7 @@
     "district": "Gò Vấp",
     "address": "1426 Đường số 7, Phường 15, Quận Gò Vấp, Hồ Chí Minh",
     "phone": "",
-    "imageUrl": null,
+    "imageUrl": "/img/photos/pexels-35050450.jpg",
     "amenities": [],
     "openTime": "06:00",
     "closeTime": "23:00",
@@ -409,8 +409,12 @@
       ],
       "derived": []
     },
-    "imageIsIllustrative": false,
-    "imageCredit": null
+    "imageIsIllustrative": true,
+    "imageCredit": {
+      "source": "Pexels",
+      "contributor": "ANH LÊ (chưa đối chiếu)",
+      "url": "https://www.pexels.com/photo/35050450/"
+    }
   },
   {
     "id": 9,
@@ -419,7 +423,7 @@
     "district": "Bình Thạnh",
     "address": "218 Đ. Đặng Thuỳ Trâm, Phường 13, Quận Bình Thạnh, Hồ Chí Minh",
     "phone": "",
-    "imageUrl": null,
+    "imageUrl": "/img/photos/pexels-35050463.jpg",
     "amenities": [],
     "openTime": "06:00",
     "closeTime": "23:00",
@@ -469,8 +473,12 @@
       ],
       "derived": []
     },
-    "imageIsIllustrative": false,
-    "imageCredit": null
+    "imageIsIllustrative": true,
+    "imageCredit": {
+      "source": "Pexels",
+      "contributor": "ANH LÊ (chưa đối chiếu)",
+      "url": "https://www.pexels.com/photo/35050463/"
+    }
   },
   {
     "id": 10,
@@ -548,7 +556,7 @@
     "district": "Quận 4",
     "address": "Đ. Số 48/229 Đ. Vĩnh Hội, Phường, Vĩnh Hội, Hồ Chí Minh, Việt Nam, Quận 4",
     "phone": "02822118026",
-    "imageUrl": null,
+    "imageUrl": "/img/photos/pexels-35050484.jpg",
     "amenities": [],
     "openTime": "06:00",
     "closeTime": "23:00",
@@ -603,8 +611,12 @@
         "district"
       ]
     },
-    "imageIsIllustrative": false,
-    "imageCredit": null
+    "imageIsIllustrative": true,
+    "imageCredit": {
+      "source": "Pexels",
+      "contributor": "ANH LÊ (chưa đối chiếu)",
+      "url": "https://www.pexels.com/photo/35050484/"
+    }
   },
   {
     "id": 12,
@@ -1090,7 +1102,7 @@
     "district": "Bình Chánh",
     "address": "6 Đường số 6, Tân Nhựt, Hồ Chí Minh, Việt Nam, Bình Chánh",
     "phone": "0907111145",
-    "imageUrl": null,
+    "imageUrl": "/img/photos/pexels-35064775.jpg",
     "amenities": [],
     "openTime": "06:00",
     "closeTime": "23:00",
@@ -1143,8 +1155,12 @@
       ],
       "derived": []
     },
-    "imageIsIllustrative": false,
-    "imageCredit": null
+    "imageIsIllustrative": true,
+    "imageCredit": {
+      "source": "Pexels",
+      "contributor": "ANH LÊ (chưa đối chiếu)",
+      "url": "https://www.pexels.com/photo/35064775/"
+    }
   },
   {
     "id": 20,
@@ -1153,7 +1169,7 @@
     "district": "Nhà Bè",
     "address": "902a Đường Lê Văn Lương, Hiệp Phước, Hồ Chí Minh, Việt Nam, Nhà Bè",
     "phone": "0915061122",
-    "imageUrl": null,
+    "imageUrl": "/img/photos/pexels-35064777.jpg",
     "amenities": [],
     "openTime": "06:00",
     "closeTime": "23:00",
@@ -1206,8 +1222,12 @@
       ],
       "derived": []
     },
-    "imageIsIllustrative": false,
-    "imageCredit": null
+    "imageIsIllustrative": true,
+    "imageCredit": {
+      "source": "Pexels",
+      "contributor": "ANH LÊ (chưa đối chiếu)",
+      "url": "https://www.pexels.com/photo/35064777/"
+    }
   },
   {
     "id": 22,
@@ -1354,7 +1374,7 @@
     "district": "Quận 6",
     "address": "249 Nguyễn Văn Luông, Bình Phú, Hồ Chí Minh 70000, Việt Nam, Quận 6",
     "phone": "0393159109",
-    "imageUrl": null,
+    "imageUrl": "/img/photos/pexels-35064789.jpg",
     "amenities": [],
     "openTime": "06:00",
     "closeTime": "23:00",
@@ -1407,8 +1427,12 @@
       ],
       "derived": []
     },
-    "imageIsIllustrative": false,
-    "imageCredit": null
+    "imageIsIllustrative": true,
+    "imageCredit": {
+      "source": "Pexels",
+      "contributor": "ANH LÊ (chưa đối chiếu)",
+      "url": "https://www.pexels.com/photo/35064789/"
+    }
   },
   {
     "id": 25,
@@ -2505,7 +2529,7 @@
     "district": "Bình Chánh",
     "address": "MHMW+7RV, Bờ Huệ, Bình Chánh, Hồ Chí Minh, Việt Nam",
     "phone": "",
-    "imageUrl": null,
+    "imageUrl": "/img/photos/pexels-35064793.jpg",
     "amenities": [],
     "openTime": "06:00",
     "closeTime": "23:00",
@@ -2558,8 +2582,12 @@
       ],
       "derived": []
     },
-    "imageIsIllustrative": false,
-    "imageCredit": null
+    "imageIsIllustrative": true,
+    "imageCredit": {
+      "source": "Pexels",
+      "contributor": "ANH LÊ (chưa đối chiếu)",
+      "url": "https://www.pexels.com/photo/35064793/"
+    }
   },
   {
     "id": 42,
@@ -2568,7 +2596,7 @@
     "district": "Nhà Bè",
     "address": "16/2 ấp 2, Nhà Bè, Hồ Chí Minh, Việt Nam",
     "phone": "0961821565",
-    "imageUrl": null,
+    "imageUrl": "/img/photos/pexels-35064795.jpg",
     "amenities": [],
     "openTime": "06:00",
     "closeTime": "21:00",
@@ -2621,7 +2649,11 @@
       ],
       "derived": []
     },
-    "imageIsIllustrative": false,
-    "imageCredit": null
+    "imageIsIllustrative": true,
+    "imageCredit": {
+      "source": "Pexels",
+      "contributor": "ANH LÊ (chưa đối chiếu)",
+      "url": "https://www.pexels.com/photo/35064795/"
+    }
   }
 ]
