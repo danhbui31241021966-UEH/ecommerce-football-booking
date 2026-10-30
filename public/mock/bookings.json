@@ -1,5 +1,21 @@
 {
   "_doc": "Mẫu booking. day = số ngày so với hôm nay; startAfterMin = bắt đầu sau bấy nhiêu phút (làm tròn lên lưới giờ của sân). Engine tính giá, mã, lịch sử từ các trường này mỗi lần dựng dữ liệu demo.",
+  "crowd": {
+    "_doc": "Booking nền cho sân thật (id >= firstVenueId): engine sinh lại mỗi lần dựng dữ liệu, tất định theo ngày. Xác suất một ô có người đặt = hourWeights theo giờ bắt đầu x độ hút khách của sân x giảm dần theo số ngày tới. Booking thuộc khách nền, không sinh thông báo.",
+    "firstVenueId": 7,
+    "customerIds": [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18],
+    "hourWeights": {
+      "weekday": [[0, 0.04], [8, 0.1], [10, 0.12], [15, 0.3], [17, 0.75], [21, 0.6], [22, 0.35]],
+      "weekend": [[0, 0.2], [8, 0.4], [15, 0.6], [17, 0.85], [22, 0.5]]
+    },
+    "popularity": [0.55, 1.15],
+    "dayDecay": 0.1,
+    "soonHours": 3,
+    "soonFactor": 0.4,
+    "maxFill": 0.7,
+    "pendingShare": 0.12,
+    "paidShare": 0.55
+  },
   "bookings": [
     { "key": "k1", "userId": 4, "courtId": 2, "day": 1, "start": "19:00", "status": "confirmed", "paid": false, "createdMinAgo": 30 },
     { "key": "k2", "userId": 4, "courtId": 4, "day": 2, "start": "20:00", "status": "pending", "expiresInMin": 9, "createdMinAgo": 6, "note": "Đội 10 người, cần thêm áo bib" },

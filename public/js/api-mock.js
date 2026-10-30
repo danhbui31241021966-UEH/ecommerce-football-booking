@@ -3,10 +3,10 @@
 // không phân quyền chi tiết ngoài vai trò/sở hữu, không tối ưu, không xử lý đồng thời.
 import { ApiError } from './api.js';
 import {
-  vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs,
+  vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs, weekdayOf,
 } from './ui/format.js';
 
-const STORE_KEY = 'sannhanh.mock.v2';
+const STORE_KEY = 'sannhanh.mock.v3';
 const STATUSES = ['pending', 'confirmed', 'rejected', 'cancelled', 'expired', 'completed', 'no_show'];
 
 let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
@@ -64,7 +64,7 @@ function buildState() {
   };
   S = st;
   for (const u of st.users) delete u.createdDaysAgo;
-  st.ids = { user: 6, venue: 6, court: 14, booking: 0, block: 0, waitlist: 0, notification: 0, log: 0 };
+  st.ids = { user: Math.max(...st.users.map((u) => u.id)), venue: 6, court: 14, booking: 0, block: 0, waitlist: 0, notification: 0, log: 0 };
 
   const keyToBooking = {};
   const keyToWait = {};
@@ -125,6 +125,7 @@ function buildState() {
     keyToBooking[b.key] = rec;
     seedHistory(rec, venue, b);
   }
+  seedCrowd(st, t, today, courts);
   for (const k of seeds.bookings.blocks) {
     const [venue] = courts[k.courtId];
     st.blocks.push({ id: nextId('block'), courtId: k.courtId, date: addDays(today, k.day), start: k.start, end: k.end, reason: k.reason, ownerId: venue.ownerId });
@@ -158,6 +159,86 @@ function buildState() {
     st.notifications.push({ id: nextId('notification'), userId: n.userId, bookingId, message: n.message, link, isRead: !!n.isRead, createdAt: ago(n.minAgo) });
   }
   return st;
+}
+
+const hash32 = (s) => {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) h = Math.imul(h ^ s.charCodeAt(i), 16777619);
+  return h >>> 0;
+};
+/** Số ngẫu nhiên tất định trong [0,1) theo khóa: cùng ngày dựng thì cùng kết quả. */
+const rand01 = (key) => hash32(key) / 4294967296;
+
+/**
+ * Booking nền cho sân thật để lịch trông có người dùng (tham số trong bookings.json → crowd).
+ * Không ghi lịch sử, không sinh thông báo. Booking chờ duyệt hết hạn tự nhiên như mọi booking (còn 2–15 phút lúc dựng, so le nhau).
+ */
+function seedCrowd(st, t, today, courts) {
+  const cfg = seeds.bookings.crowd;
+  if (!cfg) return;
+  const nowTs = msToVn(t);
+  const weight = (table, h) => table.reduce((w, [from, v]) => (h >= from ? v : w), 0);
+  const taken = new Set();
+  for (const venue of st.venues) {
+    if (venue.id < cfg.firstVenueId || !venue.isActive) continue;
+    const grid = slotGrid(venue);
+    const pop = cfg.popularity[0] + rand01(`pop|${today}|${venue.id}`) * (cfg.popularity[1] - cfg.popularity[0]);
+    const pendingShare = venue.requiresApproval ? cfg.pendingShare : cfg.pendingShare / 4;
+    for (const court of venue.courts) {
+      if (!court.isActive) continue;
+      for (let d = 0; d <= meta().bookingWindowDays; d++) {
+        const date = addDays(today, d);
+        const table = [0, 6].includes(weekdayOf(date)) ? cfg.hourWeights.weekend : cfg.hourWeights.weekday;
+        const future = grid.filter((s) => vnToMs(`${date} ${s}`) > t);
+        let filled = 0;
+        for (const start of future) {
+          if (filled >= Math.floor(future.length * cfg.maxFill)) break;
+          const hoursAhead = (vnToMs(`${date} ${start}`) - t) / 3600000;
+          let p = weight(table, hmToMin(start) / 60) * pop * (1 - cfg.dayDecay * d);
+          if (hoursAhead <= cfg.soonHours) p *= cfg.soonFactor;
+          const key = `${today}|${court.id}|${date}|${start}`;
+          if (rand01(`fill|${key}`) >= Math.min(p, 0.92)) continue;
+          let ci = hash32(`who|${key}`) % cfg.customerIds.length;
+          // Một khách nền không đặt hai sân cùng giờ trong cùng một cụm sân (cụm nào cũng ít sân hơn số khách nền).
+          while (taken.has(`${venue.id}|${ci}|${date} ${start}`)) ci = (ci + 1) % cfg.customerIds.length;
+          taken.add(`${venue.id}|${ci}|${date} ${start}`);
+          const pending = rand01(`st|${key}`) < pendingShare;
+          const slot = slotInfo(court, venue, date, start, null, true);
+          const holdLeft = 2 + Math.floor(rand01(`hold|${key}`) * (meta().holdMinutes - 1));
+          const createdMin = pending ? meta().holdMinutes - holdLeft : 40 + Math.floor(rand01(`new|${key}`) * 4000);
+          const id = nextId('booking');
+          st.bookings.push({
+            id,
+            code: bookingCode(id),
+            userId: cfg.customerIds[ci],
+            venueId: venue.id,
+            courtId: court.id,
+            startAt: `${date} ${start}:00`,
+            endAt: `${date} ${slot.end}:00`,
+            status: pending ? 'pending' : 'confirmed',
+            expiresAt: pending ? msToVn(t + holdLeft * 60000) : null,
+            price: slot.basePrice,
+            basePrice: slot.basePrice,
+            discountPercent: 0,
+            paymentStatus: !pending && rand01(`pay|${key}`) < cfg.paidShare ? 'paid' : 'unpaid',
+            refundStatus: 'none',
+            refundPercent: 0,
+            refundAmount: 0,
+            cancelledBy: null,
+            cancelReason: null,
+            lateCancel: false,
+            customerNote: '',
+            rulesSnapshot: venue.rules,
+            policySnapshot: venue.cancelPolicy,
+            idempotencyKey: null,
+            createdAt: msToVn(t - createdMin * 60000),
+            cancelledAt: null,
+          });
+          filled++;
+        }
+      }
+    }
+  }
 }
 
 /** Lịch sử mẫu suy ra từ trạng thái hiện có của booking (đủ để màn chi tiết và nhật ký có nội dung). */
@@ -711,6 +792,8 @@ function doAttendance(b, actor, result) {
   save();
 }
 
+// Backend thật: list() mặc định limit = 200, ORDER BY start_at DESC, dùng chung cho khách, chủ sân và admin.
+const LIST_LIMIT = 200;
 function listBookings(user, query) {
   let rows = S.bookings.filter((b) => (user.role === 'admin' ? true : courtOf(b.courtId)[0].ownerId === user.id));
   if (query.status) rows = rows.filter((b) => b.status === query.status);
@@ -724,7 +807,7 @@ function listBookings(user, query) {
       return `${b.code} ${c.fullName} ${c.phone} ${v.name}`.toLowerCase().includes(q);
     });
   }
-  return rows.sort((a, b) => (a.startAt < b.startAt ? 1 : -1)).map((b) => toBooking(b, { admin: true }));
+  return rows.sort((a, b) => (a.startAt < b.startAt ? 1 : -1)).slice(0, LIST_LIMIT).map((b) => toBooking(b, { admin: true }));
 }
 
 /* ---------- Bảng định tuyến ---------- */
@@ -804,7 +887,7 @@ route('POST', '/api/auth/logout', () => {
 route('POST', '/api/bookings', createBooking);
 route('GET', '/api/bookings/mine', (c) => {
   const u = need(c, 'customer');
-  return S.bookings.filter((b) => b.userId === u.id).sort((a, b) => (a.startAt < b.startAt ? 1 : -1)).map((b) => toBooking(b));
+  return S.bookings.filter((b) => b.userId === u.id).sort((a, b) => (a.startAt < b.startAt ? 1 : -1)).slice(0, LIST_LIMIT).map((b) => toBooking(b));
 });
 route('GET', '/api/bookings/reliability', (c) => reliabilityOf(need(c, 'customer').id));
 route('GET', '/api/bookings/:id', (c) => {
