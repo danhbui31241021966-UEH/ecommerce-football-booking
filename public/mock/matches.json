@@ -1,0 +1,13 @@
+{
+  "_doc": "Chế độ đủ hai đội: sân con nào bật (khung giờ from–to) và các trận mẫu. state: open = A đã trả, chờ đội B; joined = B đã vào, chưa trả đủ; confirmed = đủ hai phần, đã chốt. hostId/guestId là user id khách nền.",
+  "courtModes": [
+    { "courtId": 6, "from": "18:00", "to": "22:00" },
+    { "courtId": 7, "from": "18:00", "to": "22:00" }
+  ],
+  "matches": [
+    { "courtId": 6, "day": 1, "start": "19:00", "hostId": 12, "hostPercent": 50, "state": "open", "minAgo": 25 },
+    { "courtId": 6, "day": 1, "start": "20:00", "hostId": 13, "hostPercent": 60, "state": "joined", "guestId": 14, "joinedMinAgo": 2, "minAgo": 40 },
+    { "courtId": 7, "day": 1, "start": "19:00", "hostId": 15, "hostPercent": 50, "state": "confirmed", "guestId": 16, "minAgo": 200 },
+    { "courtId": 7, "day": 2, "start": "20:00", "hostId": 17, "hostPercent": 40, "state": "open", "minAgo": 10 }
+  ]
+}

@@ -2,17 +2,19 @@
 import { api } from '/js/api.js';
 import { getUser, mountShell, toast } from '/js/ui/shell.js';
 import { $, countdown, decorate, esc, paymentBadge, redirectToLogin, statusBadge } from '/js/ui/page.js';
+import { matchLabel, refundText } from '/js/ui/match.js';
 import { dayLabel, mmss, money, secondsLeft, timeOf, vnToMs } from '/js/ui/format.js';
 
-const TABS = [['upcoming', 'Sắp tới'], ['past', 'Đã qua'], ['waiting', 'Đang chờ slot'], ['transfers', 'Nhượng sân']];
+const TABS = [['upcoming', 'Sắp tới'], ['past', 'Đã qua'], ['waiting', 'Đang chờ slot'], ['transfers', 'Nhượng sân'], ['matches', 'Ghép trận']];
 let meta;
 let bookings = [];
 let waits = [];
 let transfers = [];
+let matches = [];
 let tab = new URLSearchParams(location.search).get('tab') || 'upcoming';
 let stops = [];
 
-const isUpcoming = (b) => ['pending', 'confirmed'].includes(b.status) && vnToMs(b.endAt) > vnToMs(meta.now);
+const isUpcoming = (b) => ['pending', 'confirmed', 'matching'].includes(b.status) && vnToMs(b.endAt) > vnToMs(meta.now);
 const offerOf = (w) => w.status === 'offered' && w.offerActive;
 const venueLink = (w) => `/venue.html?id=${w.venueId}&date=${w.startAt.slice(0, 10)}&slot=${timeOf(w.startAt)}&court=${w.courtId}`;
 
@@ -41,6 +43,18 @@ function transferCard(t) {
   </article>`;
 }
 
+function matchCard(m) {
+  const [label, cls] = matchLabel(m);
+  const rf = m.yourPart?.refund ? `<p><b>Hoàn tiền cho đội bạn:</b> ${refundText(m.yourPart.refund)}<span class="muted"> · chưa hoàn nghĩa là chủ sân chưa chuyển lại</span></p>` : '';
+  return `<article class="card booking-item">
+    <div class="top"><div><div class="when">${timeOf(m.startAt)}–${timeOf(m.endAt)} · ${dayLabel(m.startAt.slice(0, 10))}</div>
+      <div class="where">${esc(m.venueName)} · ${esc(m.courtName)} (sân ${m.fieldType}) · phần của bạn <b class="num">${money(m.yourPart?.amount ?? 0)}</b> · ${m.role === 'host' ? 'đội mở trận' : 'đội vào trận'}</div></div>
+      <div class="badges"><span class="badge badge-${cls}">${label}</span></div></div>
+    ${rf}
+    <div class="actions"><a class="btn btn-sm" href="/match.html?id=${m.id}">Xem trận</a></div>
+  </article>`;
+}
+
 function waitCard(w) {
   const offer = offerOf(w);
   return `<article class="card booking-item${offer ? ' offer' : ''}">
@@ -59,12 +73,13 @@ function render() {
   const past = bookings.filter((b) => !isUpcoming(b));
   const waiting = waits.filter((w) => ['waiting', 'offered'].includes(w.status));
   const offers = waiting.filter(offerOf);
-  const counts = { upcoming: upcoming.length, past: past.length, waiting: waiting.length, transfers: transfers.length };
-  const lists = { upcoming, past, waiting, transfers };
+  const counts = { upcoming: upcoming.length, past: past.length, waiting: waiting.length, transfers: transfers.length, matches: matches.length };
+  const lists = { upcoming, past, waiting, transfers, matches };
   const empty = {
     upcoming: ['Chưa có booking sắp tới', 'Tìm một sân trống và đặt thử nhé.', '/venues.html', 'Tìm sân'],
     past: ['Chưa có booking đã qua', 'Các booking đã đá, đã hủy hoặc hết hạn sẽ nằm ở đây.', '/venues.html', 'Tìm sân'],
     transfers: ['Bạn chưa nhượng booking nào', 'Booking đã xác nhận mà bạn không đá được có thể nhượng lại cho đội khác thay vì hủy. Mở booking và chọn “Nhượng lại”.', '/transfers.html', 'Xem booking đang nhượng'],
+    matches: ['Bạn chưa có trận ghép nào', 'Ở sân bật chế độ đủ hai đội, bạn mở trận hoặc vào một trận đang chờ đội thứ hai.', '/matches.html', 'Xem trận đang chờ'],
     waiting: ['Bạn không chờ slot nào', 'Ở slot đang có người giữ, bấm “Báo tôi khi trống” để xếp hàng chờ.', '/venues.html', 'Tìm sân'],
   }[tab];
   $('root').innerHTML = `
@@ -75,7 +90,7 @@ function render() {
     <div class="tabs" role="tablist" style="margin-top:var(--sp-5)">${TABS.map(([k, label]) => `<button type="button" role="tab" data-tab="${k}" aria-selected="${k === tab}">${label}${counts[k] ? `<span class="count">${counts[k]}</span>` : ''}</button>`).join('')}</div>
     <div class="booking-list" role="tabpanel">${
       lists[tab].length
-        ? lists[tab].map(tab === 'waiting' ? waitCard : tab === 'transfers' ? transferCard : bookingCard).join('')
+        ? lists[tab].map(tab === 'waiting' ? waitCard : tab === 'transfers' ? transferCard : tab === 'matches' ? matchCard : bookingCard).join('')
         : `<div class="card empty"><div class="art" data-icon="calendar"></div><p><b style="color:var(--text)">${empty[0]}</b><br>${empty[1]}</p><a class="btn btn-lime" href="${empty[2]}">${empty[3]}</a></div>`
     }</div>`;
   decorate();
@@ -88,7 +103,7 @@ function render() {
 
 async function load() {
   try {
-    [meta, bookings, waits, transfers] = await Promise.all([api.meta(), api.myBookings(), api.myWaitlist(), api.myTransfers()]);
+    [meta, bookings, waits, transfers, matches] = await Promise.all([api.meta(), api.myBookings(), api.myWaitlist(), api.myTransfers(), api.myMatches()]);
     render();
   } catch (e) {
     $('root').innerHTML = `<div class="card empty"><p><b style="color:var(--text)">Không tải được dữ liệu</b><br>${esc(e.message)}</p></div>`;

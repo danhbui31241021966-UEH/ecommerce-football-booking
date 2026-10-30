@@ -2,15 +2,18 @@
 import { api } from '/js/api.js';
 import { getUser, mountShell, toast } from '/js/ui/shell.js';
 import { $, countdown, decorate, esc, paymentBadge, policyStepsHtml, qrHtml, redirectToLogin, statusBadge } from '/js/ui/page.js';
+import { matchLabel, partsHtml } from '/js/ui/match.js';
 import { dayLabel, mmss, money, refundFor, REFUND_LABEL, STATUS_LABEL, secondsLeft, shortTs, timeOf, vnToMs, msToVn } from '/js/ui/format.js';
 
 const id = Number(new URLSearchParams(location.search).get('id'));
 let b;
 let meta;
+let match = null;
 
 const ACTION = {
   create: 'Tạo booking', approve: 'Chủ sân duyệt', reject: 'Chủ sân từ chối', cancel: 'Hủy booking', expire: 'Hết hạn chưa duyệt',
   paid: 'Xác nhận đã thanh toán', refund: 'Xác nhận đã hoàn tiền', attendance: 'Điểm danh',
+  match_part_paid: 'Chủ sân nhận một phần tiền', match_join: 'Có đội vào trận', match_release: 'Đội vào trận rời trận', match_confirm: 'Đủ hai đội, chốt sân', match_expire: 'Hết hạn, trận không thành', match_cancel: 'Hủy trận',
   transfer_open: 'Đăng nhượng', transfer_withdraw: 'Đóng đăng nhượng', transfer_claim: 'Có đội nhận nhượng', transfer_release: 'Mở lại đăng nhượng',
   transfer_reject: 'Chủ sân từ chối đội nhận', transfer_expire: 'Hết hạn nhượng', transfer_done: 'Đã nhượng cho đội khác',
 };
@@ -18,11 +21,12 @@ const BY = { customer: 'bạn', owner: 'chủ sân', admin: 'quản trị viên'
 
 const at = (ts) => `${timeOf(ts)} ${dayLabel(ts.slice(0, 10))}`;
 const claimed = () => b.transfer?.status === 'claimed';
-const canCancel = () => ['pending', 'confirmed'].includes(b.status) && secondsLeft(b.startAt, meta.now) > 0 && !claimed();
+const canCancel = () => !b.match && ['pending', 'confirmed'].includes(b.status) && secondsLeft(b.startAt, meta.now) > 0 && !claimed();
 
 const policyHtml = () => `<div class="policy">${policyStepsHtml(b.startAt, meta.now)}</div>`;
 
 function refundNote() {
+  if (b.match) return '';
   if (b.status === 'transferred') {
     const done = b.refundStatus === 'done';
     return `<div class="refund-box"><b>${done ? 'Đã hoàn' : 'Chưa hoàn'}</b> · khoản hoàn cho đội nhượng <b class="num">${money(b.refundAmount)}</b>. ${done ? 'Chủ sân đã chuyển khoản lại cho bạn.' : 'Booking đã chuyển cho đội khác nhưng chủ sân chưa chuyển khoản lại cho bạn; khi xong, chủ sân sẽ ghi nhận ở đây.'}</div>`;
@@ -33,7 +37,15 @@ function refundNote() {
 }
 
 // Nhượng booking: chỉ booking đã xác nhận và đã thanh toán, đăng trước giờ đá transferCloseMinutes phút.
+function matchBox() {
+  if (!b.match || !match) return '';
+  const [label, cls] = matchLabel(match);
+  const rf = match.yourPart?.refund ? `<div class="refund-box"><b>${match.yourPart.refund.status === 'done' ? 'Đã hoàn' : 'Chưa hoàn'}</b> · khoản hoàn cho đội bạn <b class="num">${money(match.yourPart.refund.amount)}</b>.</div>` : '';
+  return `<div class="card card-pad stack"><div class="row"><h2 class="h3">Trận đủ hai đội</h2><span class="spacer"></span><span class="badge badge-${cls}">${label}</span></div>${partsHtml(match)}${rf}<div class="row"><a class="btn btn-sm" href="/match.html?id=${match.id}">Mở trang trận</a></div></div>`;
+}
+
 function transferBox() {
+  if (b.match) return '';
   const t = b.transfer;
   if (b.status === 'transferred') return `<div class="card card-pad stack"><h2 class="h3">Đã nhượng cho đội khác</h2><p class="muted" style="font-size:var(--fs-sm)">Chủ sân đã xác nhận nhận tiền của đội nhận, booking này không còn thuộc về bạn. Việc đổi chủ và việc hoàn tiền là hai bước riêng: xem khoản hoàn ở trên.</p></div>`;
   if (b.status !== 'confirmed') return '';
@@ -88,6 +100,7 @@ function render() {
       </div>
       ${hasQr ? qrHtml(b.paymentQr) : ''}
       <div class="stack area-rest">
+        ${matchBox()}
         ${transferBox()}
         ${canCancel() ? `<div class="card card-pad stack">
           <h2 class="h3">Chính sách hủy</h2>
@@ -141,6 +154,7 @@ async function doCancel() {
 async function load() {
   try {
     [meta, b] = await Promise.all([api.meta(), api.booking(id)]);
+    match = b.match && getUser()?.role === 'customer' ? await api.match(b.match.id).catch(() => null) : null;
     render();
   } catch (e) {
     $('root').innerHTML = `<div class="card empty"><div class="art" data-icon="info"></div><p><b style="color:var(--text)">${e.status === 404 ? 'Không tìm thấy booking' : 'Không tải được booking'}</b><br>${esc(e.message)}</p><a class="btn btn-lime" href="/my-bookings.html">Booking của tôi</a></div>`;

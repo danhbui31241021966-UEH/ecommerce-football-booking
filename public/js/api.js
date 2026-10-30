@@ -113,6 +113,14 @@ export const api = {
   transfer: (id) => get(`/api/transfers/${id}`),
   claimTransfer: (id) => post(`/api/transfers/${id}/claim`),
   withdrawTransfer: (id) => request('DELETE', `/api/transfers/${id}`),
+  /** Trận đủ hai đội. openMatch: { courtId, date, start, hostPercent, closesAt } → Match. */
+  openMatch: (body) => post('/api/matches', body),
+  /** params: { venueId, date, district } → [Match] đã có phần đội mở trận và còn nhận đội thứ hai. */
+  matches: (params) => get('/api/matches', params),
+  myMatches: () => get('/api/matches/mine'),
+  match: (id) => get(`/api/matches/${id}`),
+  joinMatch: (id) => post(`/api/matches/${id}/join`),
+  withdrawMatch: (id) => request('DELETE', `/api/matches/${id}`),
   notifications: () => get('/api/notifications'),
   readAllNotifications: () => post('/api/notifications/read-all'),
 
@@ -136,6 +144,12 @@ export const api = {
     transfers: () => get('/api/owner/transfers'),
     confirmTransfer: (id, note) => post(`/api/owner/transfers/${id}/confirm`, { note }),
     rejectTransfer: (id, reason) => post(`/api/owner/transfers/${id}/reject`, { reason }),
+    /** Trận đủ hai đội: danh sách cần xử lý; confirmMatchPart(id, 'host'|'guest', note); hoàn từng đội: refundMatch(id, part, note). */
+    matches: () => get('/api/owner/matches'),
+    confirmMatchPart: (id, part, note) => post(`/api/owner/matches/${id}/confirm-part`, { part, note }),
+    rejectMatchGuest: (id, reason) => post(`/api/owner/matches/${id}/reject-guest`, { reason }),
+    cancelMatch: (id, reason) => post(`/api/owner/matches/${id}/cancel`, { reason }),
+    refundMatch: (id, part, note) => post(`/api/owner/matches/${id}/refund`, { part, note }),
     markPaid: (id, note) => post(`/api/owner/bookings/${id}/paid`, { note }),
     markRefunded: (id, note) => post(`/api/owner/bookings/${id}/refund`, { note }),
     /** result: 'completed' | 'no_show' */
@@ -152,7 +166,7 @@ export const api = {
     bookings: (params) => get('/api/admin/bookings', params),
     cancel: (id, reason) => post(`/api/admin/bookings/${id}/cancel`, { reason }),
     markPaid: (id, note) => post(`/api/admin/bookings/${id}/paid`, { note }),
-    markRefunded: (id, note) => post(`/api/admin/bookings/${id}/refund`, { note }),
+    markRefunded: (id, note, part) => post(`/api/admin/bookings/${id}/refund`, { note, part }),
     attendance: (id, result) => post(`/api/admin/bookings/${id}/attendance`, { result }),
     logs: () => get('/api/admin/logs'),
   },

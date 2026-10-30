@@ -21,6 +21,12 @@ function courtRow(c) {
     ${field('Loại sân', `<select class="select" id="ct-${c.id}" name="fieldType">${opts([['5', 'Sân 5'], ['7', 'Sân 7']], c.fieldType)}</select>`, { id: `ct-${c.id}` })}
     ${field('Giá thường (đ/giờ)', `<input class="input" id="cp-${c.id}" name="price" type="number" inputmode="numeric" min="0" step="1000" value="${c.price}">`, { id: `cp-${c.id}` })}
     ${field('Giá cao điểm (đ/giờ)', `<input class="input" id="cpp-${c.id}" name="peakPrice" type="number" inputmode="numeric" min="0" step="1000" value="${c.peakPrice}">`, { id: `cpp-${c.id}` })}
+    <div class="c-team">
+      <label class="switch"><input type="checkbox" name="teamMode" ${c.teamMode ? 'checked' : ''}><span class="track"></span><span class="sw-text">Chế độ đủ hai đội</span></label>
+      <label class="c-time">Từ <input class="input" type="time" name="teamFrom" value="${esc(c.teamMode?.from || '')}" aria-label="Chế độ đủ hai đội từ giờ"></label>
+      <label class="c-time">đến <input class="input" type="time" name="teamTo" value="${esc(c.teamMode?.to || '')}" aria-label="Chế độ đủ hai đội đến giờ"></label>
+      <span class="hint">Giờ trong khung này chỉ chốt khi đủ hai đội cùng trả phần của mình. Để trống khung giờ = cả ngày. Giờ ngoài khung đặt như bình thường.</span>
+    </div>
     <div class="c-foot">
       <label class="switch"><input type="checkbox" name="isActive" ${c.isActive ? 'checked' : ''}><span class="track"></span><span class="sw-text">${c.isActive ? 'Đang mở đặt' : 'Tạm tắt'}</span></label>
       <button class="btn btn-sm btn-primary" type="submit">Lưu sân con</button>
@@ -206,7 +212,7 @@ content.addEventListener('submit', (e) => {
     if (!validateCourt(f)) return;
     guard(btn, async () => {
       const el = f.elements;
-      await api.owner.updateCourt(Number(f.dataset.court), { name: el.name.value.trim(), fieldType: el.fieldType.value, price: Number(el.price.value), peakPrice: Number(el.peakPrice.value), isActive: el.isActive.checked });
+      await api.owner.updateCourt(Number(f.dataset.court), { name: el.name.value.trim(), fieldType: el.fieldType.value, price: Number(el.price.value), peakPrice: Number(el.peakPrice.value), isActive: el.isActive.checked, teamMode: el.teamMode.checked ? { from: el.teamFrom.value || null, to: el.teamTo.value || null } : null });
       toast(`Đã lưu ${el.name.value.trim()}`);
       await reload();
     });

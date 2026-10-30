@@ -205,3 +205,10 @@
   align-items: center;
   gap: var(--sp-2);
 }
+
+/* Chế độ đủ hai đội trong cài đặt sân con */
+.court .c-team { grid-column: 1 / -1; display: flex; align-items: center; gap: var(--sp-3); flex-wrap: wrap; }
+.court .c-team .hint { flex-basis: 100%; font-size: var(--fs-xs); color: var(--muted); }
+.court .c-time { display: inline-flex; align-items: center; gap: var(--sp-2); font-size: var(--fs-sm); font-weight: 600; }
+.court .c-time .input { width: 120px; }
+@media (min-width: 900px) { .court .c-team { grid-column: 1 / -1; } }

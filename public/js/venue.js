@@ -121,12 +121,16 @@ function cell(court, s, layout) {
       return `<div class="slot slot-blocked">${top('')}<span class="s">Bị chặn</span></div>`;
     case 'booked':
     case 'held':
-      return `<div class="slot slot-${s.status}">${top('')}${s.mine ? `<span class="s">${s.status === 'booked' ? 'Bạn đã đặt' : 'Bạn đang giữ'}</span>` : wait(s.status === 'booked' ? 'Đã đặt' : 'Đang giữ')}${s.transfer && !s.mine ? `<a class="slot-transfer" href="/transfer.html?id=${s.transfer.id}">Đang nhượng · ${moneyShort(s.transfer.askPrice)}</a>` : ''}</div>`;
+      return `<div class="slot slot-${s.status}">${top('')}${s.mine ? `<span class="s">${s.status === 'booked' ? 'Bạn đã đặt' : 'Bạn đang giữ'}</span>` : wait(s.status === 'booked' ? 'Đã đặt' : 'Đang giữ')}${s.match?.joinable ? `<a class="slot-transfer" href="/match.html?id=${s.match.id}">Chờ đội thứ hai · vào trận</a>` : s.match ? `<a class="slot-transfer" href="/match.html?id=${s.match.id}">${s.mine ? 'Trận của bạn' : 'Trận đủ hai đội'}</a>` : ''}${s.transfer && !s.mine ? `<a class="slot-transfer" href="/transfer.html?id=${s.transfer.id}">Đang nhượng · ${moneyShort(s.transfer.askPrice)}</a>` : ''}</div>`;
     case 'offered':
       if (s.offeredToYou)
         return `<button type="button" class="slot slot-for-you" data-pick ${key} aria-pressed="${!!sel}">${top(moneyShort(s.price))}<span class="s" data-offer="${esc(s.offerExpiresAt)}">Giữ cho bạn</span></button>`;
       return `<div class="slot slot-offered">${top('')}${s.onWaitlist ? '<span class="s">Người chờ đang đặt · bạn chờ tiếp</span>' : `<span class="s">Người chờ đang đặt</span>${isCustomer() || !getUser() ? `<button type="button" class="wait-btn" data-wait ${key}>Báo tôi khi trống</button>` : ''}`}</div>`;
     default: {
+      if (s.teamMode) {
+        const q = `venue=${venue.id}&court=${court.id}&date=${date}&start=${s.start}`;
+        return `<a class="slot slot-available slot-team" href="/match-new.html?${q}" aria-label="${s.start}, ${money(s.basePrice)}, chỉ chốt khi đủ hai đội">${top(moneyShort(s.basePrice))}<span class="s">${layout === 'm' ? 'Đủ 2 đội' : 'Đủ hai đội'}</span></a>`;
+      }
       const sale = s.discountPercent > 0;
       const sub = layout === 'm' ? moneyShort(s.price) : sale ? `-${s.discountPercent}% giờ chót` : s.peak ? 'Cao điểm' : 'Trống';
       return `<button type="button" class="slot slot-available${sale ? ' sale' : ''}" data-pick ${key} aria-pressed="${!!sel}" aria-label="${s.start}, ${money(s.price)}${sale ? `, giảm ${s.discountPercent}%` : ''}${sel ? ', đang chọn' : ''}">${sale && layout === 'm' ? `<span class="corner tag-sale" style="padding:0 5px">-${s.discountPercent}%</span>` : ''}${top(moneyShort(s.price))}<span class="s">${layout === 'm' ? 'Trống' : sub}</span></button>`;

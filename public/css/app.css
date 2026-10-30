@@ -831,6 +831,7 @@ body:has(.booking-bar) .role-dock {
   background: var(--danger-bg);
   color: var(--danger);
 }
+.badge-matching,
 .badge-transferred {
   background: var(--violet-bg, var(--info-bg));
   color: var(--violet, var(--info));
@@ -2855,4 +2856,35 @@ dialog.modal .total dd {
   background: var(--lime-400);
   border-color: var(--lime-400);
   color: #000;
+}
+
+/* Ghép trận (đủ hai đội) */
+a.slot-team {
+  text-decoration: none;
+  color: inherit;
+  border-style: dashed;
+}
+.match-parts {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-2);
+}
+.match-parts li {
+  display: grid;
+  gap: 2px;
+  padding: var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md, 8px);
+  color: var(--muted);
+}
+.match-parts li b {
+  color: var(--text);
+  font-size: var(--fs-sm);
+}
+.match-parts li.on {
+  border-color: var(--lime-400);
+  background: var(--lime-100);
+  color: var(--text);
 }

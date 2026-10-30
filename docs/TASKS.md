@@ -45,7 +45,8 @@ Ký hiệu: `[ ]` chưa làm · `[~]` đang làm · `[x]` xong.
 ## Tính năng bổ sung: nhượng sân thay vì hủy (R12)
 
 - [x] **C.** Nhượng booking — engine mock + `api.js` (đăng, nhận, rút, chủ sân xác nhận/từ chối), màn 17–18, tab "Nhượng sân" ở Booking của tôi, chip ở lưới slot, bảng "Nhượng sân" ở Quản lý booking, thông báo cho người chờ slot, nhật ký `transfer_*`, demo có sẵn 5 đăng nhượng; contract ở PRD mục 7. **Kiểm:** `/tmp/flows/f-transfer.mjs` (390 + 1280), f12, f345.
-- [ ] **A, B.** Hai tính năng tiếp theo theo brief của lead.
+- [x] **A.** Đủ hai đội mới chốt sân (R13) — chế độ bật theo sân con + khung giờ (`teamMode`), mở trận / vào trận, hai phần tiền xác nhận riêng, giữ slot bằng booking `matching`, hết hạn thì nhả slot và ghi hoàn từng đội; màn 19–21, tab "Ghép trận", bảng trận ở Quản lý booking, công tắc ở Cài đặt sân, admin ghi hoàn từng đội; demo có 4 trận (chờ đội B, đã có B chưa đủ tiền, đã chốt); key lưu v6. **Kiểm:** `/tmp/flows/f-match.mjs` (390 + 1280, 08:00/15:00/22:30), f12, f345, f-transfer.
+- [ ] **B.** Tính năng tiếp theo theo brief của lead.
 
 ## Giai đoạn 3 – Backend và nối FE
 

@@ -47,6 +47,7 @@ export const STATUS_LABEL = {
   completed: 'Đã đá',
   no_show: 'Bùng sân',
   transferred: 'Đã nhượng',
+  matching: 'Chờ đủ hai đội',
 };
 export const badge = (status, label = STATUS_LABEL[status]) => `<span class="badge badge-${status}">${esc(label)}</span>`;
 export const payBadge = (b) =>
@@ -218,7 +219,7 @@ export function actionsFor(b) {
     }
   }
   if (b.status === 'completed' && b.paymentStatus === 'unpaid') a.push({ k: 'paid', label: 'Đã thu tiền', cls: 'btn-primary' });
-  if (b.refundStatus === 'pending') a.push({ k: 'refund', label: `Đã hoàn ${money(b.refundAmount)}`, cls: 'btn-lime' });
+  if (b.refundStatus === 'pending' && !b.match) a.push({ k: 'refund', label: `Đã hoàn ${money(b.refundAmount)}`, cls: 'btn-lime' });
   return a;
 }
 export const actionButtons = (b, size = 'btn-sm') =>

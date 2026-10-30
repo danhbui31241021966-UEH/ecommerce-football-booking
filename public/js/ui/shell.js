@@ -8,11 +8,13 @@ const NAV = {
     { href: '/', label: 'Trang chủ' },
     { href: '/venues.html', label: 'Tìm sân' },
     { href: '/transfers.html', label: 'Nhượng sân' },
+    { href: '/matches.html', label: 'Ghép trận' },
   ],
   customer: [
     { href: '/', label: 'Trang chủ' },
     { href: '/venues.html', label: 'Tìm sân' },
     { href: '/transfers.html', label: 'Nhượng sân' },
+    { href: '/matches.html', label: 'Ghép trận' },
     { href: '/my-bookings.html', label: 'Booking của tôi' },
   ],
   owner: [
