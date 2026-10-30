@@ -2,6 +2,7 @@
 import { api } from '/js/api.js';
 import { mountShell, toast } from '/js/ui/shell.js';
 import { icon } from '/js/ui/icons.js';
+import { hoursFor, nearestHour, settleChoice } from '/js/ui/hours.js';
 import { addDays, dateOf, hmToMin, minToHm, money, moneyShort, relativeDayLabel, timeOf } from '/js/ui/format.js';
 
 const $ = (id) => document.getElementById(id);
@@ -31,13 +32,17 @@ function defaultChoice(nowTs, window) {
 
 function fillSearch(meta, districts) {
   const today = dateOf(meta.now);
-  const choice = defaultChoice(meta.now);
+  const choice = settleChoice(defaultChoice(meta.now), meta.now, meta.bookingWindowDays);
   $('f-date').innerHTML = Array.from({ length: meta.bookingWindowDays }, (_, i) => addDays(today, i))
     .map((d) => `<option value="${d}"${d === choice.date ? ' selected' : ''}>${relativeDayLabel(d, today)}</option>`)
     .join('');
-  const hours = [];
-  for (let h = 6; h <= 22; h++) hours.push(minToHm(h * 60));
-  $('f-at').innerHTML = hours.map((t) => `<option${t === choice.at ? ' selected' : ''}>${t}</option>`).join('');
+  const paintHours = (keep) => {
+    const list = hoursFor($('f-date').value, meta.now);
+    const at = nearestHour(list, keep);
+    $('f-at').innerHTML = list.map((t) => `<option${t === at ? ' selected' : ''}>${t}</option>`).join('');
+  };
+  paintHours(choice.at);
+  $('f-date').addEventListener('change', () => paintHours($('f-at').value));
   $('f-district').insertAdjacentHTML('beforeend', districts.map((d) => `<option>${esc(d)}</option>`).join(''));
   $('search').addEventListener('submit', (e) => {
     e.preventDefault();

@@ -1,106 +1,1972 @@
 [
   {
-    "id": 1, "ownerId": 2, "name": "Sân bóng Thành Phát", "district": "Quận 7",
-    "address": "33 Nguyễn Thị Thập, P. Tân Phú, Quận 7", "phone": "0281234561",
+    "id": 1,
+    "ownerId": 2,
+    "name": "Sân bóng Thành Phát",
+    "district": "Quận 7",
+    "address": "33 Nguyễn Thị Thập, P. Tân Phú, Quận 7",
+    "phone": "0281234561",
     "imageUrl": "/img/photos/kids-900.jpg",
-    "amenities": ["Bãi giữ xe", "Nước uống", "Phòng thay đồ", "Đèn LED"],
-    "openTime": "06:00", "closeTime": "23:00", "slotMinutes": 60, "requiresApproval": false, "lastMinutePercent": 20,
-    "peakStart": "17:00", "peakEnd": "22:00", "isActive": true,
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống",
+      "Phòng thay đồ",
+      "Đèn LED"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
     "description": "Cụm 3 sân cỏ nhân tạo thế hệ mới, đèn LED, có mái che khu khán đài nhỏ. Cách Crescent Mall 5 phút chạy xe.",
     "rules": "Mang giày đinh dăm/TF, không dùng giày đinh sắt. Có mặt trước giờ đá 10 phút. Không hút thuốc trong sân.",
     "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
     "mapsUrl": "https://www.google.com/maps/search/?api=1&query=33+Nguyễn+Thị+Thập+Quận+7",
-    "bank": { "bin": "970436", "account": "0123456789", "accountName": "CTY SAN THANH PHAT" },
+    "bank": {
+      "bin": "970436",
+      "account": "0123456789",
+      "accountName": "CTY SAN THANH PHAT"
+    },
     "courts": [
-      { "id": 1, "name": "Sân 1", "fieldType": "5", "price": 300000, "peakPrice": 450000, "isActive": true },
-      { "id": 2, "name": "Sân 2", "fieldType": "5", "price": 300000, "peakPrice": 450000, "isActive": true },
-      { "id": 3, "name": "Sân 3", "fieldType": "7", "price": 400000, "peakPrice": 550000, "isActive": true }
+      {
+        "id": 1,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 2,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 3,
+        "name": "Sân 3",
+        "fieldType": "7",
+        "price": 400000,
+        "peakPrice": 550000,
+        "isActive": true
+      }
     ]
   },
   {
-    "id": 2, "ownerId": 3, "name": "Sân cỏ nhân tạo Hoàng Gia", "district": "Bình Thạnh",
-    "address": "88 Điện Biên Phủ, P. 15, Bình Thạnh", "phone": "0281234562",
+    "id": 2,
+    "ownerId": 3,
+    "name": "Sân cỏ nhân tạo Hoàng Gia",
+    "district": "Bình Thạnh",
+    "address": "88 Điện Biên Phủ, P. 15, Bình Thạnh",
+    "phone": "0281234562",
     "imageUrl": "/img/photos/venue2-900.jpg",
-    "amenities": ["Nước uống", "Phòng thay đồ", "Căng tin"],
-    "openTime": "07:00", "closeTime": "23:00", "slotMinutes": 60, "requiresApproval": true, "lastMinutePercent": 25,
-    "peakStart": "18:00", "peakEnd": "22:00", "isActive": true,
+    "amenities": [
+      "Nước uống",
+      "Phòng thay đồ",
+      "Căng tin"
+    ],
+    "openTime": "07:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 25,
+    "peakStart": "18:00",
+    "peakEnd": "22:00",
+    "isActive": true,
     "description": "Hai sân 5 người sát trung tâm Bình Thạnh, mặt cỏ mới thay, có căng tin cho cả đội ngồi sau trận.",
     "rules": "Giữ vệ sinh sân, không mang đồ uống có cồn. Đến muộn quá 15 phút chủ sân có quyền giao sân cho đội khác.",
     "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
     "mapsUrl": "https://www.google.com/maps/search/?api=1&query=88+Điện+Biên+Phủ+Bình+Thạnh",
-    "bank": { "bin": "970422", "account": "9876543210", "accountName": "TRAN THI SAN" },
+    "bank": {
+      "bin": "970422",
+      "account": "9876543210",
+      "accountName": "TRAN THI SAN"
+    },
     "courts": [
-      { "id": 4, "name": "Sân 1", "fieldType": "5", "price": 280000, "peakPrice": 420000, "isActive": true },
-      { "id": 5, "name": "Sân 2", "fieldType": "5", "price": 280000, "peakPrice": 420000, "isActive": true }
+      {
+        "id": 4,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 280000,
+        "peakPrice": 420000,
+        "isActive": true
+      },
+      {
+        "id": 5,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 280000,
+        "peakPrice": 420000,
+        "isActive": true
+      }
     ]
   },
   {
-    "id": 3, "ownerId": 2, "name": "Sân bóng Phú Mỹ Hưng", "district": "Quận 7",
-    "address": "20 Nguyễn Lương Bằng, P. Tân Phú, Quận 7", "phone": "0281234563",
+    "id": 3,
+    "ownerId": 2,
+    "name": "Sân bóng Phú Mỹ Hưng",
+    "district": "Quận 7",
+    "address": "20 Nguyễn Lương Bằng, P. Tân Phú, Quận 7",
+    "phone": "0281234563",
     "imageUrl": "/img/photos/aerial-900.jpg",
-    "amenities": ["Bãi giữ xe rộng", "Nước uống", "Đèn LED", "Camera"],
-    "openTime": "06:00", "closeTime": "23:00", "slotMinutes": 60, "requiresApproval": false, "lastMinutePercent": 20,
-    "peakStart": "17:00", "peakEnd": "22:00", "isActive": true,
+    "amenities": [
+      "Bãi giữ xe rộng",
+      "Nước uống",
+      "Đèn LED",
+      "Camera"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
     "description": "Ba sân 7 người trong khu Phú Mỹ Hưng, bãi xe rộng, phù hợp đội đông và đá giao hữu công ty.",
     "rules": "Mang giày đinh dăm/TF. Không đá bóng ngoài khung giờ đã đặt.",
     "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
     "mapsUrl": "https://www.google.com/maps/search/?api=1&query=20+Nguyễn+Lương+Bằng+Quận+7",
-    "bank": { "bin": "970407", "account": "1903456789", "accountName": "SAN PHU MY HUNG" },
+    "bank": {
+      "bin": "970407",
+      "account": "1903456789",
+      "accountName": "SAN PHU MY HUNG"
+    },
     "courts": [
-      { "id": 6, "name": "Sân 1", "fieldType": "7", "price": 450000, "peakPrice": 650000, "isActive": true },
-      { "id": 7, "name": "Sân 2", "fieldType": "7", "price": 450000, "peakPrice": 650000, "isActive": true },
-      { "id": 8, "name": "Sân 3", "fieldType": "7", "price": 450000, "peakPrice": 650000, "isActive": true }
+      {
+        "id": 6,
+        "name": "Sân 1",
+        "fieldType": "7",
+        "price": 450000,
+        "peakPrice": 650000,
+        "isActive": true
+      },
+      {
+        "id": 7,
+        "name": "Sân 2",
+        "fieldType": "7",
+        "price": 450000,
+        "peakPrice": 650000,
+        "isActive": true
+      },
+      {
+        "id": 8,
+        "name": "Sân 3",
+        "fieldType": "7",
+        "price": 450000,
+        "peakPrice": 650000,
+        "isActive": true
+      }
     ]
   },
   {
-    "id": 4, "ownerId": 3, "name": "Sân bóng Thủ Đức Riverside", "district": "Thủ Đức",
-    "address": "150 Võ Văn Ngân, P. Bình Thọ, TP. Thủ Đức", "phone": "0281234564",
+    "id": 4,
+    "ownerId": 3,
+    "name": "Sân bóng Thủ Đức Riverside",
+    "district": "TP Thủ Đức",
+    "address": "150 Võ Văn Ngân, P. Bình Thọ, TP. Thủ Đức",
+    "phone": "0281234564",
     "imageUrl": "/img/photos/stats-1400.jpg",
-    "amenities": ["Bãi giữ xe rộng", "Nước uống", "Phòng thay đồ"],
-    "openTime": "05:30", "closeTime": "22:30", "slotMinutes": 90, "requiresApproval": false, "lastMinutePercent": 15,
-    "peakStart": null, "peakEnd": null, "isActive": true,
+    "amenities": [
+      "Bãi giữ xe rộng",
+      "Nước uống",
+      "Phòng thay đồ"
+    ],
+    "openTime": "05:30",
+    "closeTime": "22:30",
+    "slotMinutes": 90,
+    "requiresApproval": false,
+    "lastMinutePercent": 15,
+    "peakStart": null,
+    "peakEnd": null,
+    "isActive": true,
     "description": "Sân đá theo ca 90 phút, giá một mức cả ngày. Gần ký túc xá và các trường đại học khu Thủ Đức.",
     "rules": "Mang giày đinh dăm/TF. Sinh viên mang theo thẻ để được ưu tiên khung sáng.",
     "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
     "mapsUrl": "https://www.google.com/maps/search/?api=1&query=150+Võ+Văn+Ngân+Thủ+Đức",
-    "bank": { "bin": "970415", "account": "5566778899", "accountName": "SAN THU DUC RIVERSIDE" },
+    "bank": {
+      "bin": "970415",
+      "account": "5566778899",
+      "accountName": "SAN THU DUC RIVERSIDE"
+    },
     "courts": [
-      { "id": 9, "name": "Sân 1", "fieldType": "7", "price": 500000, "peakPrice": 500000, "isActive": true },
-      { "id": 10, "name": "Sân 2", "fieldType": "5", "price": 280000, "peakPrice": 280000, "isActive": true }
+      {
+        "id": 9,
+        "name": "Sân 1",
+        "fieldType": "7",
+        "price": 500000,
+        "peakPrice": 500000,
+        "isActive": true
+      },
+      {
+        "id": 10,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 280000,
+        "peakPrice": 280000,
+        "isActive": true
+      }
     ]
   },
   {
-    "id": 5, "ownerId": 2, "name": "Sân Phú Nhuận Arena", "district": "Phú Nhuận",
-    "address": "20 Phan Xích Long, P. 2, Phú Nhuận", "phone": "0281234565",
+    "id": 5,
+    "ownerId": 2,
+    "name": "Sân Phú Nhuận Arena",
+    "district": "Phú Nhuận",
+    "address": "20 Phan Xích Long, P. 2, Phú Nhuận",
+    "phone": "0281234565",
     "imageUrl": "/img/photos/venue2-900.jpg",
-    "amenities": ["Bãi giữ xe", "Đèn LED", "Camera"],
-    "openTime": "06:00", "closeTime": "22:00", "slotMinutes": 60, "requiresApproval": false, "lastMinutePercent": 0,
-    "peakStart": "17:00", "peakEnd": "21:00", "isActive": true,
+    "amenities": [
+      "Bãi giữ xe",
+      "Đèn LED",
+      "Camera"
+    ],
+    "openTime": "06:00",
+    "closeTime": "22:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 0,
+    "peakStart": "17:00",
+    "peakEnd": "21:00",
+    "isActive": true,
     "description": "Sân 5 và sân 7 nằm gần Phan Xích Long, nhiều quán ăn quanh sân. Không áp dụng giảm giá giờ chót.",
     "rules": "Mang giày đinh dăm/TF. Giữ gìn đèn và lưới sân.",
     "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
     "mapsUrl": "https://www.google.com/maps/search/?api=1&query=20+Phan+Xích+Long+Phú+Nhuận",
-    "bank": { "bin": "970407", "account": "1903456000", "accountName": "SAN PHU NHUAN ARENA" },
+    "bank": {
+      "bin": "970407",
+      "account": "1903456000",
+      "accountName": "SAN PHU NHUAN ARENA"
+    },
     "courts": [
-      { "id": 11, "name": "Sân A", "fieldType": "5", "price": 320000, "peakPrice": 480000, "isActive": true },
-      { "id": 12, "name": "Sân B", "fieldType": "7", "price": 550000, "peakPrice": 750000, "isActive": true }
+      {
+        "id": 11,
+        "name": "Sân A",
+        "fieldType": "5",
+        "price": 320000,
+        "peakPrice": 480000,
+        "isActive": true
+      },
+      {
+        "id": 12,
+        "name": "Sân B",
+        "fieldType": "7",
+        "price": 550000,
+        "peakPrice": 750000,
+        "isActive": true
+      }
     ]
   },
   {
-    "id": 6, "ownerId": 3, "name": "Sân mini Gò Vấp Star", "district": "Gò Vấp",
-    "address": "45 Phan Văn Trị, P. 10, Gò Vấp", "phone": "0281234566",
+    "id": 6,
+    "ownerId": 3,
+    "name": "Sân mini Gò Vấp Star",
+    "district": "Gò Vấp",
+    "address": "45 Phan Văn Trị, P. 10, Gò Vấp",
+    "phone": "0281234566",
     "imageUrl": "/img/photos/aerial-900.jpg",
-    "amenities": ["Bãi giữ xe", "Nước uống", "Wifi"],
-    "openTime": "06:00", "closeTime": "22:00", "slotMinutes": 60, "requiresApproval": true, "lastMinutePercent": 20,
-    "peakStart": "17:00", "peakEnd": "21:00", "isActive": true,
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống",
+      "Wifi"
+    ],
+    "openTime": "06:00",
+    "closeTime": "22:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "21:00",
+    "isActive": true,
     "description": "Hai sân 5 người đá đêm, chủ sân duyệt từng booking để giữ lịch ổn định cho các đội quen.",
     "rules": "Mang giày đinh dăm/TF. Báo trước nếu đến muộn.",
     "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
     "mapsUrl": "https://www.google.com/maps/search/?api=1&query=45+Phan+Văn+Trị+Gò+Vấp",
-    "bank": { "bin": "970418", "account": "7788990011", "accountName": "SAN GO VAP STAR" },
+    "bank": {
+      "bin": "970418",
+      "account": "7788990011",
+      "accountName": "SAN GO VAP STAR"
+    },
     "courts": [
-      { "id": 13, "name": "Sân 1", "fieldType": "5", "price": 250000, "peakPrice": 380000, "isActive": true },
-      { "id": 14, "name": "Sân 2", "fieldType": "5", "price": 250000, "peakPrice": 380000, "isActive": true }
+      {
+        "id": 13,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 250000,
+        "peakPrice": 380000,
+        "isActive": true
+      },
+      {
+        "id": 14,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 250000,
+        "peakPrice": 380000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 7,
+    "ownerId": 2,
+    "name": "Sân bóng đá Mini Tý Đô",
+    "district": "Gò Vấp",
+    "address": "1426 Đường số 7, Phường 15, Quận Gò Vấp, Hồ Chí Minh",
+    "phone": "",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống",
+      "Căng tin"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng đá Mini Tý Đô — thông tin tên, địa chỉ và số sân lấy từ nguồn công khai; giá mock ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://thegioithethao.vn/san-bong-da-mini-ty-do-f-WCE69",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456780",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 15,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 16,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 17,
+        "name": "Sân 3",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 18,
+        "name": "Sân 4",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 19,
+        "name": "Sân 5",
+        "fieldType": "7",
+        "price": 450000,
+        "peakPrice": 600000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 9,
+    "ownerId": 2,
+    "name": "Sân bóng Mini 218 Đặng Thuỳ Trâm",
+    "district": "Bình Thạnh",
+    "address": "218 Đ. Đặng Thuỳ Trâm, Phường 13, Quận Bình Thạnh, Hồ Chí Minh",
+    "phone": "",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống",
+      "Căng tin"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng Mini 218 Đặng Thuỳ Trâm — thông tin tên, địa chỉ và số sân lấy từ nguồn công khai; giá mock ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://thegioithethao.vn/san-bong-mini-218-dang-thuy-tram-f-6W9Hb",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456782",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 22,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 23,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 10,
+    "ownerId": 2,
+    "name": "Sân Bóng Đá Mini Cỏ Nhân Tạo Trương Quyền",
+    "district": "Quận 3",
+    "address": "Số 946 Trường Sa, Nhiêu Lộc, Hồ Chí Minh, Việt Nam, Quận 3",
+    "phone": "0903076026",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "16:30",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng Đá Mini Cỏ Nhân Tạo Trương Quyền — thông tin địa điểm từ Maps; số sân, loại sân và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+C%E1%BB%8F+Nh%C3%A2n+T%E1%BA%A1o+Tr%C6%B0%C6%A1ng+Quy%E1%BB%81n/data=!4m7!3m6!1s0x31752f2a18e5da09:0x843f39877be59ec0!8m2!3d10.7853935!4d106.6776192!16s%2Fg%2F11flt8z2qf!19sChIJCdrlGCovdTERwJ7le4c5P4Q?authuser=0&hl=vi",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456720",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 24,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 25,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 11,
+    "ownerId": 3,
+    "name": "Khu vui chơi thiếu nhi Khánh Hội sân bóng đá mini khánh hội",
+    "district": "Quận 4",
+    "address": "Đ. Số 48/229 Đ. Vĩnh Hội, Phường, Vĩnh Hội, Hồ Chí Minh, Việt Nam, Quận 4",
+    "phone": "02822118026",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Khu vui chơi thiếu nhi Khánh Hội sân bóng đá mini khánh hội — thông tin địa điểm từ Maps; số sân, loại sân và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/Khu+vui+ch%C6%A1i+thi%E1%BA%BFu+nhi+Kh%C3%A1nh+H%E1%BB%99i+s%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+kh%C3%A1nh+h%E1%BB%99i/data=!4m7!3m6!1s0x31752f12e9b19a17:0xaca3ce111e84908b!8m2!3d10.7574601!4d106.6989149!16s%2Fg%2F1vyj__t8!19sChIJF5qx6RIvdTERi5CEHhHOo6w?authuser=0&hl=vi",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456721",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 26,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 27,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 12,
+    "ownerId": 2,
+    "name": "Sân Bóng đá Phương Thảo (Quận 7)",
+    "district": "Quận 7",
+    "address": "206/6 Đ. Đào Trí, quận 7, Hồ Chí Minh, Việt Nam, Quận 7",
+    "phone": "0908902290",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng đá Phương Thảo (Quận 7) — thông tin địa điểm từ Maps; số sân, loại sân và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ph%C6%B0%C6%A1ng+Th%E1%BA%A3o+%28Qu%E1%BA%ADn+7%29/data=!4m7!3m6!1s0x317525fc656b6bff:0xaafe33c99fed07cb!8m2!3d10.7116147!4d106.742912!16s%2Fg%2F11h06sdj3m!19sChIJ_2trZfwldTERywftn8kz_qo?authuser=0&hl=vi",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456722",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 28,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 29,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 13,
+    "ownerId": 3,
+    "name": "Sân bóng Quốc Hưng ARENA",
+    "district": "Quận 8",
+    "address": "Phạm Hùng Hẻm C4, Đường Phạm Hùng, Quận 8, Gần Khu Trung Sơn, Bình Hưng, Hồ Chí Minh 739500, Việt Nam",
+    "phone": "0838661166",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng Quốc Hưng ARENA — thông tin địa điểm từ Maps; số sân, loại sân và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Qu%E1%BB%91c+H%C6%B0ng+ARENA/data=!4m7!3m6!1s0x31752f3fed39b465:0x45eb5486849354a7!8m2!3d10.7289439!4d106.6725948!16s%2Fg%2F11fmwv6tzz!19sChIJZbQ57T8vdTERp1SThIZU60U?authuser=0&hl=vi",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456723",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 30,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 31,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 14,
+    "ownerId": 2,
+    "name": "Sân Bóng đá Tiểu Ngư",
+    "district": "Quận 10",
+    "address": "780/14e Sư Vạn Hạnh, Hòa Hưng, Hồ Chí Minh, Việt Nam, Quận 10",
+    "phone": "02838680433",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng đá Tiểu Ngư — thông tin địa điểm từ Maps; số sân, loại sân và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ti%E1%BB%83u+Ng%C6%B0/data=!4m7!3m6!1s0x31752edc1a966807:0x3ca1685aa48db267!8m2!3d10.7741779!4d106.6703107!16s%2Fg%2F11bccghkk7!19sChIJB2iWGtwudTERZ7KNpFpooTw?authuser=0&hl=vi",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456724",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 32,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 33,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 15,
+    "ownerId": 3,
+    "name": "Sân Bóng Lạc Long Quân",
+    "district": "Quận 11",
+    "address": "258 Lò Siêu, Bình Thới, Hồ Chí Minh, Việt Nam, Quận 11",
+    "phone": "0902999545",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng Lạc Long Quân — thông tin địa điểm từ Maps; số sân, loại sân và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+L%E1%BA%A1c+Long+Qu%C3%A2n/data=!4m7!3m6!1s0x31752e931ed7b235:0x7d5b12f86cbd5f19!8m2!3d10.7622074!4d106.6510439!16s%2Fg%2F11c1g6dw16!19sChIJNbLXHpMudTERGV-9bPgSW30?authuser=0&hl=vi",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456725",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 34,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 35,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 16,
+    "ownerId": 2,
+    "name": "Sân Bóng MiNi Hiệp Thành",
+    "district": "Quận 12",
+    "address": "Đ. Nguyễn Thị Đặng, Tân Thới Hiệp, Hồ Chí Minh, Việt Nam, Quận 12",
+    "phone": "0904040456",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng MiNi Hiệp Thành — thông tin địa điểm từ Maps; số sân, loại sân và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+MiNi+Hi%E1%BB%87p+Th%C3%A0nh/data=!4m7!3m6!1s0x3175298fc4b31839:0xb2c290c515b2fb55!8m2!3d10.8718486!4d106.6434256!16s%2Fg%2F11v0qk411f!19sChIJORizxI8pdTERVfuyFcWQwrI?authuser=0&hl=vi",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456726",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 36,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 37,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 17,
+    "ownerId": 3,
+    "name": "Sân bóng đá mini Cầu Xéo",
+    "district": "Tân Phú",
+    "address": "12 Cầu Xéo, Tân Sơn Nhì, Hồ Chí Minh, Việt Nam, Tân Phú",
+    "phone": "0918148227",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng đá mini Cầu Xéo — thông tin địa điểm từ Maps; số sân, loại sân và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+C%E1%BA%A7u+X%C3%A9o/data=!4m7!3m6!1s0x31752b40c95150a5:0x5f93bf4359ad3aa!8m2!3d10.7982772!4d106.6248646!16s%2Fg%2F11hz2m1lqt!19sChIJpVBRyUArdTERqtOaNfQ7-QU?authuser=0&hl=vi",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456727",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 38,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 39,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 18,
+    "ownerId": 2,
+    "name": "Sân Bóng Đá Mini Sake",
+    "district": "TP Thủ Đức",
+    "address": "12a Đ. số 42, Khu Phố 6, Thủ Đức, Hồ Chí Minh, Việt Nam, TP Thủ Đức",
+    "phone": "0775050086",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng Đá Mini Sake — thông tin địa điểm từ Maps; số sân, loại sân và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Sake/data=!4m7!3m6!1s0x317527beee03e805:0xaa38294b1f8a7756!8m2!3d10.8482715!4d106.7511819!16s%2Fg%2F11g6ww0lql!19sChIJBegD7r4ndTERVneKH0spOKo?authuser=0&hl=vi",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456728",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 40,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 41,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 19,
+    "ownerId": 3,
+    "name": "Sân Bóng Đá Trung Tâm Huyện Bình Chánh",
+    "district": "Bình Chánh",
+    "address": "6 Đường số 6, Tân Nhựt, Hồ Chí Minh, Việt Nam, Bình Chánh",
+    "phone": "0907111145",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng Đá Trung Tâm Huyện Bình Chánh — thông tin địa điểm từ Maps; số sân, loại sân và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Trung+T%C3%A2m+Huy%E1%BB%87n+B%C3%ACnh+Ch%C3%A1nh/data=!4m7!3m6!1s0x317533fad4e86287:0xbbb841026bc271cd!8m2!3d10.6900734!4d106.582479!16s%2Fg%2F11tk4b3qfl!19sChIJh2Lo1PozdTERzXHCawJBuLs?authuser=0&hl=vi",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456729",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 42,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 43,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 20,
+    "ownerId": 2,
+    "name": "Sân bóng đá Nhơn Đức Nhà Bè",
+    "district": "Nhà Bè",
+    "address": "902a Đường Lê Văn Lương, Hiệp Phước, Hồ Chí Minh, Việt Nam, Nhà Bè",
+    "phone": "0915061122",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng đá Nhơn Đức Nhà Bè — thông tin địa điểm từ Maps; số sân, loại sân và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Nh%C6%A1n+%C4%90%E1%BB%A9c+Nh%C3%A0+B%C3%A8/data=!4m7!3m6!1s0x317531001198c865:0x184f7f6abc110fb8!8m2!3d10.683838!4d106.700494!16s%2Fg%2F11vwm54p2g!19sChIJZciYEQAxdTERuA8RvGp_Txg?authuser=0&hl=vi",
+    "bank": {
+      "bin": "970436",
+      "account": "0123456730",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 44,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 45,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 22,
+    "ownerId": 3,
+    "name": "Sân bóng đá Phong Sơn Hùng Vương",
+    "district": "Quận 5",
+    "address": "2 Nguyễn Kim, Chợ Lớn, Hồ Chí Minh, Việt Nam, Quận 5",
+    "phone": "0938589509",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "00:00",
+    "closeTime": "23:59",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng đá Phong Sơn Hùng Vương — thông tin tên, địa chỉ, điện thoại từ Maps; loại sân, số sân và giá mock là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Phong+S%C6%A1n+H%C3%B9ng+V%C6%B0%C6%A1ng/data=!4m7!3m6!1s0x31752f0739efe7e1:0x79f201c9f37adfff!8m2!3d10.757401!4d106.6633321!16s%2Fg%2F11h2cl8nq8!19sChIJ4efvOQcvdTER_99688kB8nk?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0123999901",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 48,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 49,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 23,
+    "ownerId": 2,
+    "name": "Sân bóng đá cỏ nhân tạo Sông Quê",
+    "district": "Bình Tân",
+    "address": "298/55 Tân Hòa Đông, Bình Trị Đông, Hồ Chí Minh, Việt Nam, Bình Tân",
+    "phone": "0908388277",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "22:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng đá cỏ nhân tạo Sông Quê — thông tin tên, địa chỉ, điện thoại từ Maps; loại sân, số sân và giá mock là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+c%E1%BB%8F+nh%C3%A2n+t%E1%BA%A1o+S%C3%B4ng+Qu%C3%AA/data=!4m7!3m6!1s0x31752d60a4de9feb:0x95b3398f15362212!8m2!3d10.7642222!4d106.620457!16s%2Fg%2F11fl_1yhh4!19sChIJ65_epGAtdTEREiI2FY85s5U?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0123999902",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 50,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 51,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 24,
+    "ownerId": 3,
+    "name": "Sân Bóng Đá Nguyễn Tất Thành Quận 6",
+    "district": "Quận 6",
+    "address": "249 Nguyễn Văn Luông, Bình Phú, Hồ Chí Minh 70000, Việt Nam, Quận 6",
+    "phone": "0393159109",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng Đá Nguyễn Tất Thành Quận 6 — thông tin tên, địa chỉ, điện thoại từ Maps; loại sân, số sân và giá mock là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Nguy%E1%BB%85n+T%E1%BA%A5t+Th%C3%A0nh+Qu%E1%BA%ADn+6/data=!4m7!3m6!1s0x31752e7dd7501721:0x65d0bb77030fc16c!8m2!3d10.747066!4d106.635352!16s%2Fg%2F11vkz8mqk5!19sChIJIRdQ130udTERbMEPA3e70GU?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0123999903",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 52,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 53,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 25,
+    "ownerId": 2,
+    "name": "Sân cỏ Nhân tạo Trường THPT Phú Nhuận",
+    "district": "Phú Nhuận",
+    "address": "5 Hoàng Minh Giám, Đức Nhuận, Hồ Chí Minh, Việt Nam, Phú Nhuận",
+    "phone": "0945286099",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân cỏ Nhân tạo Trường THPT Phú Nhuận — thông tin tên, địa chỉ, điện thoại từ Maps; loại sân, số sân và giá mock là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+c%E1%BB%8F+Nh%C3%A2n+t%E1%BA%A1o+Tr%C6%B0%E1%BB%9Dng+THPT+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x317528df62daf8a5:0x9d97b3cf04e4c467!8m2!3d10.809126!4d106.6763311!16s%2Fg%2F11c6q4mjjh!19sChIJpfjaYt8odTERZ8TkBM-zl50?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0123999904",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 54,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 55,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 26,
+    "ownerId": 3,
+    "name": "Câu lạc bộ Bóng đá Phú Nhuận",
+    "district": "Phú Nhuận",
+    "address": "03 Hoàng Minh Giám, Đức Nhuận, Hồ Chí Minh 00008, Việt Nam, Phú Nhuận",
+    "phone": "02838477668",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Câu lạc bộ Bóng đá Phú Nhuận — thông tin tên, địa chỉ, điện thoại từ Maps; loại sân, số sân và giá mock là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/C%C3%A2u+l%E1%BA%A1c+b%E1%BB%99+B%C3%B3ng+%C4%91%C3%A1+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x3175292077c7d70d:0x2df50a42185f5813!8m2!3d10.8105795!4d106.6759295!16s%2Fg%2F1tg32pyn!19sChIJDdfHdyApdTERE1hfGEIK9S0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0123999905",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 56,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 57,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 27,
+    "ownerId": 2,
+    "name": "Sân banh mini 20 Cộng Hòa Gardens",
+    "district": "Tân Bình",
+    "address": "20 Cộng Hòa, Tân Sơn Nhất, Hồ Chí Minh, Việt Nam, Tân Bình",
+    "phone": "0901500777",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "00:00",
+    "closeTime": "23:59",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân banh mini 20 Cộng Hòa Gardens — thông tin tên, địa chỉ, điện thoại từ Maps; loại sân, số sân và giá mock là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+banh+mini+20+C%E1%BB%99ng+H%C3%B2a+Gardens/data=!4m7!3m6!1s0x31752937fdf8b72d:0xaea554b5f0cf9a15!8m2!3d10.8036037!4d106.6529099!16s%2Fg%2F11c53070sf!19sChIJLbf4_TcpdTERFZrP8LVUpa4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0123999906",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 58,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 59,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 28,
+    "ownerId": 3,
+    "name": "Sân bóng đá mini K334",
+    "district": "Tân Bình",
+    "address": "119/13 Trần Văn Dư, Tân Bình, Hồ Chí Minh 700000, Việt Nam",
+    "phone": "0916668188",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:30",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng đá mini K334 — thông tin tên, địa chỉ, điện thoại từ Maps; loại sân, số sân và giá mock là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+K334/data=!4m7!3m6!1s0x317529436ceb5c1b:0x383cd468f855f12c!8m2!3d10.8100782!4d106.6442831!16s%2Fg%2F11b7hjckmm!19sChIJG1zrbEMpdTERLPFV-GjUPDg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0123999907",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 60,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 61,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 29,
+    "ownerId": 2,
+    "name": "SÂN SỐ 3 KCN TÂN TẠO| SÂN BÓNG ĐÁ BÌNH TÂN",
+    "district": "Bình Tân",
+    "address": "PHVV+GVF, Đường Số 3, Tân Tạo, Hồ Chí Minh, Việt Nam, Bình Tân",
+    "phone": "0915916733",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "00:00",
+    "closeTime": "23:59",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "SÂN SỐ 3 KCN TÂN TẠO| SÂN BÓNG ĐÁ BÌNH TÂN — thông tin tên, địa chỉ, điện thoại từ Maps; loại sân, số sân và giá mock là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%82N+S%E1%BB%90+3+KCN+T%C3%82N+T%E1%BA%A0O%7C+S%C3%82N+B%C3%93NG+%C4%90%C3%81+B%C3%8CNH+T%C3%82N/data=!4m7!3m6!1s0x31752de203731aab:0xb82894a52fe0f48b!8m2!3d10.7406906!4d106.5964771!16s%2Fg%2F11vf586hnm!19sChIJqxpzA-ItdTERi_TgL6WUKLg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0123999908",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 62,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 63,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 30,
+    "ownerId": 3,
+    "name": "Sân bóng Bình Tân",
+    "district": "Bình Tân",
+    "address": "QJ77+V32, Bình Trị Đông, Hồ Chí Minh, Việt Nam, Bình Tân",
+    "phone": "0903684107",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng Bình Tân — thông tin tên, địa chỉ, điện thoại từ Maps; loại sân, số sân và giá mock là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+B%C3%ACnh+T%C3%A2n/data=!4m7!3m6!1s0x31752c3bc897a6d1:0x67e682cf7deed16f!8m2!3d10.7646353!4d106.6126553!16s%2Fg%2F1pzpr63zb!19sChIJ0aaXyDssdTERb9Hufc-C5mc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0123999909",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 64,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 65,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 31,
+    "ownerId": 2,
+    "name": "Sân Bóng Mini Trường Ntmk",
+    "district": "Quận 3",
+    "address": "Ngô Thời Nhiệm/28 Võ Thị Sáu, Xuân Hòa, Hồ Chí Minh 700000, Việt Nam, Quận 3",
+    "phone": "",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng Mini Trường Ntmk — Maps công khai; sân con và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+Mini+Tr%C6%B0%E1%BB%9Dng+Ntmk/data=!4m7!3m6!1s0x31752f2ffff9dda3:0xe38cc870d55507f1!8m2!3d10.7786975!4d106.6878012!16s%2Fg%2F11c1nxn_js!19sChIJo935_y8vdTER8QdV1XDIjOM?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0133777700",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 66,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 67,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 32,
+    "ownerId": 3,
+    "name": "Sân Bóng Đá Khánh Hội",
+    "district": "Quận 4",
+    "address": "1 Đ. Số 48, Vĩnh Hội, Hồ Chí Minh, Việt Nam, Quận 4",
+    "phone": "",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng Đá Khánh Hội — Maps công khai; sân con và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Kh%C3%A1nh+H%E1%BB%99i/data=!4m7!3m6!1s0x31752f72bc0d3e89:0x898aeab5504dd975!8m2!3d10.7569011!4d106.6994293!16s%2Fg%2F11fnwhmhkb!19sChIJiT4NvHIvdTERddlNULXqiok?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0133777701",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 68,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 69,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 33,
+    "ownerId": 2,
+    "name": "Sân Kfootball quận 7",
+    "district": "Quận 7",
+    "address": "1135/45/60D Huynh Tan Phat, Phú Thuận, Hồ Chí Minh, Việt Nam, Quận 7",
+    "phone": "0962107078",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:01",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Kfootball quận 7 — Maps công khai; sân con và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+Kfootball+qu%E1%BA%ADn+7/data=!4m7!3m6!1s0x31752581690cf22f:0x973089cb0c798604!8m2!3d10.7269045!4d106.7388303!16s%2Fg%2F11ss6rvh3m!19sChIJL_IMaYEldTERBIZ5DMuJMJc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0133777702",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 70,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 71,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 34,
+    "ownerId": 3,
+    "name": "Sân bóng đá mini Vạn Nguyên",
+    "district": "Quận 8",
+    "address": "118/29/15/6 Phú Định, Hồ Chí Minh, Việt Nam, Quận 8",
+    "phone": "0908180190",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "0:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng đá mini Vạn Nguyên — Maps công khai; sân con và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+V%E1%BA%A1n+Nguy%C3%AAn/data=!4m7!3m6!1s0x31752e754d35b5c9:0xde7a952259d8bbd9!8m2!3d10.7276704!4d106.6299484!16s%2Fg%2F11fxc82t5g!19sChIJybU1TXUudTER2bvYWSKVet4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0133777703",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 72,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 73,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 35,
+    "ownerId": 2,
+    "name": "Sân bóng đá 780 (Sân 3K)",
+    "district": "Quận 10",
+    "address": "780 Sư Vạn Hạnh, Hòa Hưng, Hồ Chí Minh, Việt Nam, Quận 10",
+    "phone": "0967031375",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng đá 780 (Sân 3K) — Maps công khai; sân con và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+780+%28S%C3%A2n+3K%29/data=!4m7!3m6!1s0x31752f7d22fe8945:0x31e30285c5d714d1!8m2!3d10.7737221!4d106.6696885!16s%2Fg%2F11thc_0c2h!19sChIJRYn-In0vdTER0RTXxYUC4zE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0133777704",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 74,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 75,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 36,
+    "ownerId": 3,
+    "name": "Sân số 1 - Sân banh Phú Thọ",
+    "district": "Quận 11",
+    "address": "2 Lê Đại Hành, Phú Thọ, Hồ Chí Minh, Việt Nam, Quận 11",
+    "phone": "",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân số 1 - Sân banh Phú Thọ — Maps công khai; sân con và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+s%E1%BB%91+1+-+S%C3%A2n+banh+Ph%C3%BA+Th%E1%BB%8D/data=!4m7!3m6!1s0x31752eeaf2ac1233:0x532eaac62b8965c5!8m2!3d10.7684756!4d106.6549472!16s%2Fg%2F11c765l2bs!19sChIJMxKs8uoudTERxWWJK8aqLlM?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0133777705",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 76,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 77,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 37,
+    "ownerId": 2,
+    "name": "Sân Bóng Đá Cầu Suối Quận 12",
+    "district": "Quận 12",
+    "address": "52 Dương Thị Mười KP1 TCH Q12, Trung Mỹ Tây, Hồ Chí Minh, Việt Nam, Quận 12",
+    "phone": "0965093575",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "00:00",
+    "closeTime": "23:59",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng Đá Cầu Suối Quận 12 — Maps công khai; sân con và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+C%E1%BA%A7u+Su%E1%BB%91i+Qu%E1%BA%ADn+12/data=!4m7!3m6!1s0x317529cbb676cec7:0xa1a9b50ce98b5046!8m2!3d10.8595988!4d106.6309448!16s%2Fg%2F11g23rwntg!19sChIJx852tsspdTERRlCL6Qy1qaE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0133777706",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 78,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 79,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 38,
+    "ownerId": 3,
+    "name": "Sân bóng Mini Bình Minh",
+    "district": "Bình Thạnh",
+    "address": "158 Bình Quới, Cư xá Thanh Đa, Bình Quới, Hồ Chí Minh 70000, Việt Nam, Bình Thạnh",
+    "phone": "0888896565",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "22:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng Mini Bình Minh — Maps công khai; sân con và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Mini+B%C3%ACnh+Minh/data=!4m7!3m6!1s0x3175262783a85ab3:0x9c8e1a80b667d86b!8m2!3d10.8181128!4d106.7240921!16s%2Fg%2F11fz0d3kyd!19sChIJs1qogycmdTERa9hntoAajpw?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0133777707",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 80,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 81,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 39,
+    "ownerId": 2,
+    "name": "Sân Bóng Đá Mini Hiệp Phát",
+    "district": "Tân Phú",
+    "address": "18 Nguyễn Sáng, Tây Thạnh, Hồ Chí Minh, Việt Nam, Tân Phú",
+    "phone": "02866571391",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "00:00",
+    "closeTime": "23:59",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng Đá Mini Hiệp Phát — Maps công khai; sân con và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Hi%E1%BB%87p+Ph%C3%A1t/data=!4m7!3m6!1s0x31752958610129bd:0xd245543eb710fb7!8m2!3d10.8064558!4d106.6305583!16s%2Fg%2F1hc192wnr!19sChIJvSkBYVgpdTERtw9x60NVJA0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0133777708",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 82,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 83,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 40,
+    "ownerId": 3,
+    "name": "Sân banh cỏ nhân tạo TDC (Lasan)",
+    "district": "TP Thủ Đức",
+    "address": "53 Đ. Võ Văn Ngân, Thủ Đức, Hồ Chí Minh, Việt Nam, TP Thủ Đức",
+    "phone": "0979825050",
+    "imageUrl": "/img/photos/kids-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "22:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân banh cỏ nhân tạo TDC (Lasan) — Maps công khai; sân con và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/search/S%C3%A2n%20banh%20c%E1%BB%8F%20nh%C3%A2n%20t%E1%BA%A1o%20TDC%20%28Lasan%29%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c%20TP%20H%E1%BB%93%20Ch%C3%AD%20Minh",
+    "bank": {
+      "bin": "970436",
+      "account": "0133777709",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 84,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 85,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 41,
+    "ownerId": 2,
+    "name": "Sân Bóng Đá Mini Cỏ Nhân Tạo Tánh",
+    "district": "Bình Chánh",
+    "address": "MHMW+7RV, Bờ Huệ, Bình Chánh, Hồ Chí Minh, Việt Nam",
+    "phone": "",
+    "imageUrl": "/img/photos/aerial-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "23:00",
+    "slotMinutes": 60,
+    "requiresApproval": false,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân Bóng Đá Mini Cỏ Nhân Tạo Tánh — Maps công khai; sân con và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+C%E1%BB%8F+Nh%C3%A2n+T%E1%BA%A1o+T%C3%A1nh/data=!4m7!3m6!1s0x3175324254a8a9bb:0x9cb9426a2e75155c!8m2!3d10.6832343!4d106.5970599!16s%2Fg%2F11mtc_dvsn!19sChIJu6moVEIydTERXBV1LmpCuZw?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0133777710",
+      "accountName": "DEMO OWNER 2"
+    },
+    "courts": [
+      {
+        "id": 86,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 87,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
+    ]
+  },
+  {
+    "id": 42,
+    "ownerId": 3,
+    "name": "Sân bóng đá Đào Gia Viên",
+    "district": "Nhà Bè",
+    "address": "16/2 ấp 2, Nhà Bè, Hồ Chí Minh, Việt Nam",
+    "phone": "0961821565",
+    "imageUrl": "/img/photos/venue2-900.jpg",
+    "amenities": [
+      "Bãi giữ xe",
+      "Nước uống"
+    ],
+    "openTime": "06:00",
+    "closeTime": "21:00",
+    "slotMinutes": 60,
+    "requiresApproval": true,
+    "lastMinutePercent": 20,
+    "peakStart": "17:00",
+    "peakEnd": "22:00",
+    "isActive": true,
+    "description": "Sân bóng đá Đào Gia Viên — Maps công khai; sân con và giá là ước lượng.",
+    "rules": "Mang giày đinh dăm/TF. Giữ vệ sinh sân.",
+    "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
+    "mapsUrl": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+%C4%90%C3%A0o+Gia+Vi%C3%AAn/data=!4m7!3m6!1s0x31753b6a7b4d3965:0xe481d733b812e035!8m2!3d10.6759937!4d106.7411658!16s%2Fg%2F11jh27v91r!19sChIJZTlNe2o7dTERNeASuDPXgeQ?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+    "bank": {
+      "bin": "970436",
+      "account": "0133777711",
+      "accountName": "DEMO OWNER 3"
+    },
+    "courts": [
+      {
+        "id": 88,
+        "name": "Sân 1",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      },
+      {
+        "id": 89,
+        "name": "Sân 2",
+        "fieldType": "5",
+        "price": 300000,
+        "peakPrice": 450000,
+        "isActive": true
+      }
     ]
   }
 ]

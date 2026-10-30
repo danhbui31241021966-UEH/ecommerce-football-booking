@@ -2504,6 +2504,16 @@ body:has(.booking-bar) .toast-stack {
 }
 .slot-mobile .court-switch {
   margin-bottom: var(--sp-4);
+  max-width: 100%;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -webkit-overflow-scrolling: touch;
+}
+.slot-mobile .court-switch::-webkit-scrollbar {
+  display: none;
+}
+.slot-mobile .court-switch button {
+  flex: 0 0 auto;
 }
 .slot-desktop {
   display: none;

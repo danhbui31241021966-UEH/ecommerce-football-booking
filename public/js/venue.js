@@ -45,7 +45,7 @@ function renderTop() {
         <p><span class="price">${money(venue.minPrice)}</span> <span class="muted">– ${money(venue.maxPrice)} / ${unit} · mở ${venue.openTime}–${venue.closeTime}</span></p>
         <p class="muted">${esc(venue.description)}</p>
         <div class="amenities" aria-label="Tiện ích">${venue.amenities.map((a) => `<span>${esc(a)}</span>`).join('')}</div>
-        <p class="muted" style="font-size:var(--fs-sm)">Điện thoại: <a href="tel:${esc(venue.phone)}">${esc(venue.phone)}</a></p>
+        ${venue.phone ? `<p class="muted" style="font-size:var(--fs-sm)">Điện thoại: <a href="tel:${esc(venue.phone)}">${esc(venue.phone)}</a></p>` : ''}
       </div>
     </div>
     <div class="rules-grid card card-pad" style="margin-bottom:var(--sp-8)">

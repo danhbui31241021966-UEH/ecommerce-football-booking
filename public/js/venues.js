@@ -1,6 +1,7 @@
 // Màn 2: danh sách sân. Điều kiện lọc nằm trên URL: ?date&at&fieldType&district&maxPrice&lastMinute&q
 import { api } from '/js/api.js';
 import { mountShell, toast } from '/js/ui/shell.js';
+import { hoursFor, nearestHour, settleChoice } from '/js/ui/hours.js';
 import { $, decorate, esc, modeTag } from '/js/ui/page.js';
 import { addDays, dateOf, dayLabel, hmToMin, minToHm, money, moneyShort, relativeDayLabel, weekdayOf } from '/js/ui/format.js';
 
@@ -9,13 +10,15 @@ const MAX_PILLS = 8;
 const PHOTOS = ['/img/photos/kids-900.jpg', '/img/photos/venue2-900.jpg', '/img/photos/aerial-900.jpg'];
 
 let today;
+let nowTs;
 let windowDays = 3;
 const state = { date: '', at: '', fieldType: '', district: '', maxPrice: '', lastMinute: '', q: '' };
 
 function readUrl() {
   const p = new URLSearchParams(location.search);
   for (const k of Object.keys(state)) state[k] = p.get(k) || '';
-  if (!state.date || state.date < today || state.date > addDays(today, windowDays - 1)) state.date = today;
+  if (!state.date || state.date > addDays(today, windowDays - 1)) state.date = today;
+  if (state.at || state.date < today) Object.assign(state, settleChoice({ ...state, date: state.date < today ? today : state.date }, nowTs, windowDays));
 }
 function writeUrl() {
   const p = new URLSearchParams();
@@ -30,9 +33,8 @@ function paintFilters(districts) {
       return `<button type="button" class="day-chip" data-date="${d}" aria-pressed="${d === state.date}" aria-label="${dayLabel(d)}"><span class="dow">${rel === 'Hôm nay' || rel === 'Mai' ? rel : DOW[weekdayOf(d)]}</span><span class="dnum">${d.slice(8)}</span><span class="dsub">${rel === 'Hôm nay' || rel === 'Mai' ? DOW[weekdayOf(d)] : `Th${+d.slice(5, 7)}`}</span></button>`;
     })
     .join('');
-  const hours = ['<option value="">Cả ngày</option>'];
-  for (let h = 6; h <= 22; h++) hours.push(`<option value="${minToHm(h * 60)}">${minToHm(h * 60)}</option>`);
-  $('f-at').innerHTML = hours.join('');
+  const list = hoursFor(state.date, nowTs);
+  $('f-at').innerHTML = ['<option value="">Cả ngày</option>', ...list.map((t) => `<option value="${t}">${t}</option>`)].join('');
   $('f-at').value = state.at;
   if (districts) $('f-district').insertAdjacentHTML('beforeend', districts.map((d) => `<option>${esc(d)}</option>`).join(''));
   $('f-district').value = state.district;
@@ -110,6 +112,7 @@ function wire() {
     const b = e.target.closest('[data-date]');
     if (!b) return;
     state.date = b.dataset.date;
+    state.at = nearestHour(hoursFor(state.date, nowTs), state.at);
     paintFilters();
     load();
   });
@@ -141,6 +144,7 @@ async function main() {
   decorate();
   try {
     const [meta, districts] = await Promise.all([api.meta(), api.districts()]);
+    nowTs = meta.now;
     today = dateOf(meta.now);
     windowDays = meta.bookingWindowDays;
     readUrl();

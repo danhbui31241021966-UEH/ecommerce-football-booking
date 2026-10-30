@@ -1,0 +1,1773 @@
+{
+  "retrievedOn": "2026-10-30",
+  "venues": [
+    {
+      "name": {
+        "value": "Sân bóng đá Mini Tý Đô",
+        "source": "https://thegioithethao.vn/san-bong-da-mini-ty-do-f-WCE69",
+        "evidence": "Sân bóng đá Mini Tý Đô"
+      },
+      "district": {
+        "value": "Gò Vấp",
+        "source": "https://thegioithethao.vn/san-bong-da-mini-ty-do-f-WCE69",
+        "evidence": "1426 Đường số 7, Phường 15, Quận Gò Vấp, Hồ Chí Minh"
+      },
+      "address": {
+        "value": "1426 Đường số 7, Phường 15, Quận Gò Vấp, Hồ Chí Minh",
+        "source": "https://thegioithethao.vn/san-bong-da-mini-ty-do-f-WCE69",
+        "evidence": "1426 Đường số 7, Phường 15, Quận Gò Vấp, Hồ Chí Minh"
+      },
+      "phone": {
+        "value": null,
+        "source": null
+      },
+      "fieldTypes": {
+        "value": [
+          "5",
+          "7"
+        ],
+        "source": "https://thegioithethao.vn/san-bong-da-mini-ty-do-f-WCE69",
+        "evidence": [
+          "Bóng đá 01 (Sân 5)",
+          "Bóng đá 02 (Sân 5)",
+          "Bóng đá 03 (Sân 5)",
+          "Bóng đá 04 (Sân 5)",
+          "Bóng đá 01 (Sân 7)"
+        ]
+      },
+      "courtCount": {
+        "value": 5,
+        "source": "https://thegioithethao.vn/san-bong-da-mini-ty-do-f-WCE69",
+        "evidence": [
+          "Số sân thi đấu:",
+          "5 Sân"
+        ]
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Trang ghi liên hệ; mock tham khảo 300.000 VND/giờ",
+        "evidence": "Giá sân: Liên hệ"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "evidence": "Giờ mở cửa: 6h - 23h"
+      },
+      "sources": [
+        "https://thegioithethao.vn/san-bong-da-mini-ty-do-f-WCE69",
+        "https://www.sporta.vn/san/san-bong-da-mini-ty-do"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân bóng Mini 218 Đặng Thuỳ Trâm",
+        "source": "https://thegioithethao.vn/san-bong-mini-218-dang-thuy-tram-f-6W9Hb",
+        "evidence": "Sân bóng Mini 218 Đặng Thuỳ Trâm"
+      },
+      "district": {
+        "value": "Bình Thạnh",
+        "source": "https://thegioithethao.vn/san-bong-mini-218-dang-thuy-tram-f-6W9Hb",
+        "evidence": "218 Đ. Đặng Thuỳ Trâm, Phường 13, Quận Bình Thạnh, Hồ Chí Minh"
+      },
+      "address": {
+        "value": "218 Đ. Đặng Thuỳ Trâm, Phường 13, Quận Bình Thạnh, Hồ Chí Minh",
+        "source": "https://thegioithethao.vn/san-bong-mini-218-dang-thuy-tram-f-6W9Hb",
+        "evidence": "218 Đ. Đặng Thuỳ Trâm, Phường 13, Quận Bình Thạnh, Hồ Chí Minh"
+      },
+      "phone": {
+        "value": null,
+        "source": null
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "source": "https://thegioithethao.vn/san-bong-mini-218-dang-thuy-tram-f-6W9Hb",
+        "evidence": [
+          "Bóng đá 01 (Sân 5)",
+          "Bóng đá 02 (Sân 5)"
+        ]
+      },
+      "courtCount": {
+        "value": 2,
+        "source": "https://thegioithethao.vn/san-bong-mini-218-dang-thuy-tram-f-6W9Hb",
+        "evidence": [
+          "Số sân thi đấu:",
+          "2 Sân"
+        ]
+      },
+      "priceVnd": {
+        "value": 280000,
+        "estimated": true,
+        "source": null,
+        "note": "Trang ghi liên hệ; mock tham khảo 280.000 VND/giờ"
+      },
+      "openingHours": {
+        "value": "6-23",
+        "source": "https://thegioithethao.vn/san-bong-mini-218-dang-thuy-tram-f-6W9Hb",
+        "evidence": "Giờ mở cửa:\n6h - 23h"
+      },
+      "sources": [
+        "https://thegioithethao.vn/san-bong-mini-218-dang-thuy-tram-f-6W9Hb"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng Đá Mini Cỏ Nhân Tạo Trương Quyền",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+C%E1%BB%8F+Nh%C3%A2n+T%E1%BA%A1o+Tr%C6%B0%C6%A1ng+Quy%E1%BB%81n/data=!4m7!3m6!1s0x31752f2a18e5da09:0x843f39877be59ec0!8m2!3d10.7853935!4d106.6776192!16s%2Fg%2F11flt8z2qf!19sChIJCdrlGCovdTERwJ7le4c5P4Q?authuser=0&hl=vi",
+        "evidence": "Sân Bóng Đá Mini Cỏ Nhân Tạo Trương Quyền"
+      },
+      "district": {
+        "value": "Quận 3",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+C%E1%BB%8F+Nh%C3%A2n+T%E1%BA%A1o+Tr%C6%B0%C6%A1ng+Quy%E1%BB%81n/data=!4m7!3m6!1s0x31752f2a18e5da09:0x843f39877be59ec0!8m2!3d10.7853935!4d106.6776192!16s%2Fg%2F11flt8z2qf!19sChIJCdrlGCovdTERwJ7le4c5P4Q?authuser=0&hl=vi",
+        "evidence": "Số 946 Trường Sa, Nhiêu Lộc, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Quận 3 cũ từ địa chỉ Maps (Nhiêu Lộc); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "Số 946 Trường Sa, Nhiêu Lộc, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+C%E1%BB%8F+Nh%C3%A2n+T%E1%BA%A1o+Tr%C6%B0%C6%A1ng+Quy%E1%BB%81n/data=!4m7!3m6!1s0x31752f2a18e5da09:0x843f39877be59ec0!8m2!3d10.7853935!4d106.6776192!16s%2Fg%2F11flt8z2qf!19sChIJCdrlGCovdTERwJ7le4c5P4Q?authuser=0&hl=vi",
+        "evidence": "Số 946 Trường Sa, Nhiêu Lộc, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0903076026",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+C%E1%BB%8F+Nh%C3%A2n+T%E1%BA%A1o+Tr%C6%B0%C6%A1ng+Quy%E1%BB%81n/data=!4m7!3m6!1s0x31752f2a18e5da09:0x843f39877be59ec0!8m2!3d10.7853935!4d106.6776192!16s%2Fg%2F11flt8z2qf!19sChIJCdrlGCovdTERwJ7le4c5P4Q?authuser=0&hl=vi",
+        "evidence": "+84 903 076 026"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Giá tham khảo mock, không có trên Maps"
+      },
+      "openingHours": {
+        "value": "16:30",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+C%E1%BB%8F+Nh%C3%A2n+T%E1%BA%A1o+Tr%C6%B0%C6%A1ng+Quy%E1%BB%81n/data=!4m7!3m6!1s0x31752f2a18e5da09:0x843f39877be59ec0!8m2!3d10.7853935!4d106.6776192!16s%2Fg%2F11flt8z2qf!19sChIJCdrlGCovdTERwJ7le4c5P4Q?authuser=0&hl=vi",
+        "evidence": "Đã đóng cửa · Mở cửa lúc 16:30",
+        "note": "Maps chỉ công bố giờ mở cửa, không công bố giờ đóng cửa."
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+C%E1%BB%8F+Nh%C3%A2n+T%E1%BA%A1o+Tr%C6%B0%C6%A1ng+Quy%E1%BB%81n/data=!4m7!3m6!1s0x31752f2a18e5da09:0x843f39877be59ec0!8m2!3d10.7853935!4d106.6776192!16s%2Fg%2F11flt8z2qf!19sChIJCdrlGCovdTERwJ7le4c5P4Q?authuser=0&hl=vi"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Khu vui chơi thiếu nhi Khánh Hội sân bóng đá mini khánh hội",
+        "source": "https://www.google.com/maps/place/Khu+vui+ch%C6%A1i+thi%E1%BA%BFu+nhi+Kh%C3%A1nh+H%E1%BB%99i+s%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+kh%C3%A1nh+h%E1%BB%99i/data=!4m7!3m6!1s0x31752f12e9b19a17:0xaca3ce111e84908b!8m2!3d10.7574601!4d106.6989149!16s%2Fg%2F1vyj__t8!19sChIJF5qx6RIvdTERi5CEHhHOo6w?authuser=0&hl=vi",
+        "evidence": "Khu vui chơi thiếu nhi Khánh Hội sân bóng đá mini khánh hội"
+      },
+      "district": {
+        "value": "Quận 4",
+        "source": "https://www.google.com/maps/place/Khu+vui+ch%C6%A1i+thi%E1%BA%BFu+nhi+Kh%C3%A1nh+H%E1%BB%99i+s%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+kh%C3%A1nh+h%E1%BB%99i/data=!4m7!3m6!1s0x31752f12e9b19a17:0xaca3ce111e84908b!8m2!3d10.7574601!4d106.6989149!16s%2Fg%2F1vyj__t8!19sChIJF5qx6RIvdTERi5CEHhHOo6w?authuser=0&hl=vi",
+        "evidence": "Đ. Số 48/229 Đ. Vĩnh Hội, Phường, Vĩnh Hội, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Quận 4 cũ từ địa chỉ Maps (Vĩnh Hội); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "Đ. Số 48/229 Đ. Vĩnh Hội, Phường, Vĩnh Hội, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/Khu+vui+ch%C6%A1i+thi%E1%BA%BFu+nhi+Kh%C3%A1nh+H%E1%BB%99i+s%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+kh%C3%A1nh+h%E1%BB%99i/data=!4m7!3m6!1s0x31752f12e9b19a17:0xaca3ce111e84908b!8m2!3d10.7574601!4d106.6989149!16s%2Fg%2F1vyj__t8!19sChIJF5qx6RIvdTERi5CEHhHOo6w?authuser=0&hl=vi",
+        "evidence": "Đ. Số 48/229 Đ. Vĩnh Hội, Phường, Vĩnh Hội, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "02822118026",
+        "source": "https://www.google.com/maps/place/Khu+vui+ch%C6%A1i+thi%E1%BA%BFu+nhi+Kh%C3%A1nh+H%E1%BB%99i+s%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+kh%C3%A1nh+h%E1%BB%99i/data=!4m7!3m6!1s0x31752f12e9b19a17:0xaca3ce111e84908b!8m2!3d10.7574601!4d106.6989149!16s%2Fg%2F1vyj__t8!19sChIJF5qx6RIvdTERi5CEHhHOo6w?authuser=0&hl=vi",
+        "evidence": "+84 28 2211 8026"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Giá tham khảo mock, không có trên Maps"
+      },
+      "openingHours": {
+        "value": "23:00",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/Khu+vui+ch%C6%A1i+thi%E1%BA%BFu+nhi+Kh%C3%A1nh+H%E1%BB%99i+s%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+kh%C3%A1nh+h%E1%BB%99i/data=!4m7!3m6!1s0x31752f12e9b19a17:0xaca3ce111e84908b!8m2!3d10.7574601!4d106.6989149!16s%2Fg%2F1vyj__t8!19sChIJF5qx6RIvdTERi5CEHhHOo6w?authuser=0&hl=vi",
+        "evidence": "Đang mở cửa · Đóng cửa vào 23:00",
+        "note": "Maps chỉ công bố giờ đóng cửa; giờ mở cửa mock được ước lượng."
+      },
+      "sources": [
+        "https://www.google.com/maps/place/Khu+vui+ch%C6%A1i+thi%E1%BA%BFu+nhi+Kh%C3%A1nh+H%E1%BB%99i+s%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+kh%C3%A1nh+h%E1%BB%99i/data=!4m7!3m6!1s0x31752f12e9b19a17:0xaca3ce111e84908b!8m2!3d10.7574601!4d106.6989149!16s%2Fg%2F1vyj__t8!19sChIJF5qx6RIvdTERi5CEHhHOo6w?authuser=0&hl=vi"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng đá Phương Thảo (Quận 7)",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ph%C6%B0%C6%A1ng+Th%E1%BA%A3o+%28Qu%E1%BA%ADn+7%29/data=!4m7!3m6!1s0x317525fc656b6bff:0xaafe33c99fed07cb!8m2!3d10.7116147!4d106.742912!16s%2Fg%2F11h06sdj3m!19sChIJ_2trZfwldTERywftn8kz_qo?authuser=0&hl=vi",
+        "evidence": "Sân Bóng đá Phương Thảo (Quận 7)"
+      },
+      "district": {
+        "value": "Quận 7",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ph%C6%B0%C6%A1ng+Th%E1%BA%A3o+%28Qu%E1%BA%ADn+7%29/data=!4m7!3m6!1s0x317525fc656b6bff:0xaafe33c99fed07cb!8m2!3d10.7116147!4d106.742912!16s%2Fg%2F11h06sdj3m!19sChIJ_2trZfwldTERywftn8kz_qo?authuser=0&hl=vi",
+        "evidence": "206/6 Đ. Đào Trí, quận 7, Hồ Chí Minh, Việt Nam"
+      },
+      "address": {
+        "value": "206/6 Đ. Đào Trí, quận 7, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ph%C6%B0%C6%A1ng+Th%E1%BA%A3o+%28Qu%E1%BA%ADn+7%29/data=!4m7!3m6!1s0x317525fc656b6bff:0xaafe33c99fed07cb!8m2!3d10.7116147!4d106.742912!16s%2Fg%2F11h06sdj3m!19sChIJ_2trZfwldTERywftn8kz_qo?authuser=0&hl=vi",
+        "evidence": "206/6 Đ. Đào Trí, quận 7, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0908902290",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ph%C6%B0%C6%A1ng+Th%E1%BA%A3o+%28Qu%E1%BA%ADn+7%29/data=!4m7!3m6!1s0x317525fc656b6bff:0xaafe33c99fed07cb!8m2!3d10.7116147!4d106.742912!16s%2Fg%2F11h06sdj3m!19sChIJ_2trZfwldTERywftn8kz_qo?authuser=0&hl=vi",
+        "evidence": "+84 908 902 290"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Giá tham khảo mock, không có trên Maps"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ph%C6%B0%C6%A1ng+Th%E1%BA%A3o+%28Qu%E1%BA%ADn+7%29/data=!4m7!3m6!1s0x317525fc656b6bff:0xaafe33c99fed07cb!8m2!3d10.7116147!4d106.742912!16s%2Fg%2F11h06sdj3m!19sChIJ_2trZfwldTERywftn8kz_qo?authuser=0&hl=vi"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân bóng Quốc Hưng ARENA",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Qu%E1%BB%91c+H%C6%B0ng+ARENA/data=!4m7!3m6!1s0x31752f3fed39b465:0x45eb5486849354a7!8m2!3d10.7289439!4d106.6725948!16s%2Fg%2F11fmwv6tzz!19sChIJZbQ57T8vdTERp1SThIZU60U?authuser=0&hl=vi",
+        "evidence": "Sân bóng Quốc Hưng ARENA"
+      },
+      "district": {
+        "value": "Quận 8",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Qu%E1%BB%91c+H%C6%B0ng+ARENA/data=!4m7!3m6!1s0x31752f3fed39b465:0x45eb5486849354a7!8m2!3d10.7289439!4d106.6725948!16s%2Fg%2F11fmwv6tzz!19sChIJZbQ57T8vdTERp1SThIZU60U?authuser=0&hl=vi",
+        "evidence": "Phạm Hùng Hẻm C4, Đường Phạm Hùng, Quận 8, Gần Khu Trung Sơn, Bình Hưng, Hồ Chí Minh 739500, Việt Nam"
+      },
+      "address": {
+        "value": "Phạm Hùng Hẻm C4, Đường Phạm Hùng, Quận 8, Gần Khu Trung Sơn, Bình Hưng, Hồ Chí Minh 739500, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Qu%E1%BB%91c+H%C6%B0ng+ARENA/data=!4m7!3m6!1s0x31752f3fed39b465:0x45eb5486849354a7!8m2!3d10.7289439!4d106.6725948!16s%2Fg%2F11fmwv6tzz!19sChIJZbQ57T8vdTERp1SThIZU60U?authuser=0&hl=vi",
+        "evidence": "Phạm Hùng Hẻm C4, Đường Phạm Hùng, Quận 8, Gần Khu Trung Sơn, Bình Hưng, Hồ Chí Minh 739500, Việt Nam"
+      },
+      "phone": {
+        "value": "0838661166",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Qu%E1%BB%91c+H%C6%B0ng+ARENA/data=!4m7!3m6!1s0x31752f3fed39b465:0x45eb5486849354a7!8m2!3d10.7289439!4d106.6725948!16s%2Fg%2F11fmwv6tzz!19sChIJZbQ57T8vdTERp1SThIZU60U?authuser=0&hl=vi",
+        "evidence": "+84 838 661 166"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Giá tham khảo mock, không có trên Maps"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Qu%E1%BB%91c+H%C6%B0ng+ARENA/data=!4m7!3m6!1s0x31752f3fed39b465:0x45eb5486849354a7!8m2!3d10.7289439!4d106.6725948!16s%2Fg%2F11fmwv6tzz!19sChIJZbQ57T8vdTERp1SThIZU60U?authuser=0&hl=vi"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng đá Tiểu Ngư",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ti%E1%BB%83u+Ng%C6%B0/data=!4m7!3m6!1s0x31752edc1a966807:0x3ca1685aa48db267!8m2!3d10.7741779!4d106.6703107!16s%2Fg%2F11bccghkk7!19sChIJB2iWGtwudTERZ7KNpFpooTw?authuser=0&hl=vi",
+        "evidence": "Sân Bóng đá Tiểu Ngư"
+      },
+      "district": {
+        "value": "Quận 10",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ti%E1%BB%83u+Ng%C6%B0/data=!4m7!3m6!1s0x31752edc1a966807:0x3ca1685aa48db267!8m2!3d10.7741779!4d106.6703107!16s%2Fg%2F11bccghkk7!19sChIJB2iWGtwudTERZ7KNpFpooTw?authuser=0&hl=vi",
+        "evidence": "780/14e Sư Vạn Hạnh, Hòa Hưng, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Quận 10 cũ từ địa chỉ Maps (Hòa Hưng); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "780/14e Sư Vạn Hạnh, Hòa Hưng, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ti%E1%BB%83u+Ng%C6%B0/data=!4m7!3m6!1s0x31752edc1a966807:0x3ca1685aa48db267!8m2!3d10.7741779!4d106.6703107!16s%2Fg%2F11bccghkk7!19sChIJB2iWGtwudTERZ7KNpFpooTw?authuser=0&hl=vi",
+        "evidence": "780/14e Sư Vạn Hạnh, Hòa Hưng, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "02838680433",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ti%E1%BB%83u+Ng%C6%B0/data=!4m7!3m6!1s0x31752edc1a966807:0x3ca1685aa48db267!8m2!3d10.7741779!4d106.6703107!16s%2Fg%2F11bccghkk7!19sChIJB2iWGtwudTERZ7KNpFpooTw?authuser=0&hl=vi",
+        "evidence": "+84 28 3868 0433"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Giá tham khảo mock, không có trên Maps"
+      },
+      "openingHours": {
+        "value": "23:00",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ti%E1%BB%83u+Ng%C6%B0/data=!4m7!3m6!1s0x31752edc1a966807:0x3ca1685aa48db267!8m2!3d10.7741779!4d106.6703107!16s%2Fg%2F11bccghkk7!19sChIJB2iWGtwudTERZ7KNpFpooTw?authuser=0&hl=vi",
+        "evidence": "Đang mở cửa · Đóng cửa vào 23:00",
+        "note": "Maps chỉ công bố giờ đóng cửa; giờ mở cửa mock được ước lượng."
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ti%E1%BB%83u+Ng%C6%B0/data=!4m7!3m6!1s0x31752edc1a966807:0x3ca1685aa48db267!8m2!3d10.7741779!4d106.6703107!16s%2Fg%2F11bccghkk7!19sChIJB2iWGtwudTERZ7KNpFpooTw?authuser=0&hl=vi"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng Lạc Long Quân",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+L%E1%BA%A1c+Long+Qu%C3%A2n/data=!4m7!3m6!1s0x31752e931ed7b235:0x7d5b12f86cbd5f19!8m2!3d10.7622074!4d106.6510439!16s%2Fg%2F11c1g6dw16!19sChIJNbLXHpMudTERGV-9bPgSW30?authuser=0&hl=vi",
+        "evidence": "Sân Bóng Lạc Long Quân"
+      },
+      "district": {
+        "value": "Quận 11",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+L%E1%BA%A1c+Long+Qu%C3%A2n/data=!4m7!3m6!1s0x31752e931ed7b235:0x7d5b12f86cbd5f19!8m2!3d10.7622074!4d106.6510439!16s%2Fg%2F11c1g6dw16!19sChIJNbLXHpMudTERGV-9bPgSW30?authuser=0&hl=vi",
+        "evidence": "258 Lò Siêu, Bình Thới, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Quận 11 cũ từ địa chỉ Maps (Bình Thới); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "258 Lò Siêu, Bình Thới, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+L%E1%BA%A1c+Long+Qu%C3%A2n/data=!4m7!3m6!1s0x31752e931ed7b235:0x7d5b12f86cbd5f19!8m2!3d10.7622074!4d106.6510439!16s%2Fg%2F11c1g6dw16!19sChIJNbLXHpMudTERGV-9bPgSW30?authuser=0&hl=vi",
+        "evidence": "258 Lò Siêu, Bình Thới, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0902999545",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+L%E1%BA%A1c+Long+Qu%C3%A2n/data=!4m7!3m6!1s0x31752e931ed7b235:0x7d5b12f86cbd5f19!8m2!3d10.7622074!4d106.6510439!16s%2Fg%2F11c1g6dw16!19sChIJNbLXHpMudTERGV-9bPgSW30?authuser=0&hl=vi",
+        "evidence": "+84 902 999 545"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Giá tham khảo mock, không có trên Maps"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+L%E1%BA%A1c+Long+Qu%C3%A2n/data=!4m7!3m6!1s0x31752e931ed7b235:0x7d5b12f86cbd5f19!8m2!3d10.7622074!4d106.6510439!16s%2Fg%2F11c1g6dw16!19sChIJNbLXHpMudTERGV-9bPgSW30?authuser=0&hl=vi"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng MiNi Hiệp Thành",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+MiNi+Hi%E1%BB%87p+Th%C3%A0nh/data=!4m7!3m6!1s0x3175298fc4b31839:0xb2c290c515b2fb55!8m2!3d10.8718486!4d106.6434256!16s%2Fg%2F11v0qk411f!19sChIJORizxI8pdTERVfuyFcWQwrI?authuser=0&hl=vi",
+        "evidence": "Sân Bóng MiNi Hiệp Thành"
+      },
+      "district": {
+        "value": "Quận 12",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+MiNi+Hi%E1%BB%87p+Th%C3%A0nh/data=!4m7!3m6!1s0x3175298fc4b31839:0xb2c290c515b2fb55!8m2!3d10.8718486!4d106.6434256!16s%2Fg%2F11v0qk411f!19sChIJORizxI8pdTERVfuyFcWQwrI?authuser=0&hl=vi",
+        "evidence": "Đ. Nguyễn Thị Đặng, Tân Thới Hiệp, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Quận 12 cũ từ địa chỉ Maps (Tân Thới Hiệp); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "Đ. Nguyễn Thị Đặng, Tân Thới Hiệp, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+MiNi+Hi%E1%BB%87p+Th%C3%A0nh/data=!4m7!3m6!1s0x3175298fc4b31839:0xb2c290c515b2fb55!8m2!3d10.8718486!4d106.6434256!16s%2Fg%2F11v0qk411f!19sChIJORizxI8pdTERVfuyFcWQwrI?authuser=0&hl=vi",
+        "evidence": "Đ. Nguyễn Thị Đặng, Tân Thới Hiệp, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0904040456",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+MiNi+Hi%E1%BB%87p+Th%C3%A0nh/data=!4m7!3m6!1s0x3175298fc4b31839:0xb2c290c515b2fb55!8m2!3d10.8718486!4d106.6434256!16s%2Fg%2F11v0qk411f!19sChIJORizxI8pdTERVfuyFcWQwrI?authuser=0&hl=vi",
+        "evidence": "+84 904 040 456"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Giá tham khảo mock, không có trên Maps"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+MiNi+Hi%E1%BB%87p+Th%C3%A0nh/data=!4m7!3m6!1s0x3175298fc4b31839:0xb2c290c515b2fb55!8m2!3d10.8718486!4d106.6434256!16s%2Fg%2F11v0qk411f!19sChIJORizxI8pdTERVfuyFcWQwrI?authuser=0&hl=vi"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân bóng đá mini Cầu Xéo",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+C%E1%BA%A7u+X%C3%A9o/data=!4m7!3m6!1s0x31752b40c95150a5:0x5f93bf4359ad3aa!8m2!3d10.7982772!4d106.6248646!16s%2Fg%2F11hz2m1lqt!19sChIJpVBRyUArdTERqtOaNfQ7-QU?authuser=0&hl=vi",
+        "evidence": "Sân bóng đá mini Cầu Xéo"
+      },
+      "district": {
+        "value": "Tân Phú",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+C%E1%BA%A7u+X%C3%A9o/data=!4m7!3m6!1s0x31752b40c95150a5:0x5f93bf4359ad3aa!8m2!3d10.7982772!4d106.6248646!16s%2Fg%2F11hz2m1lqt!19sChIJpVBRyUArdTERqtOaNfQ7-QU?authuser=0&hl=vi",
+        "evidence": "12 Cầu Xéo, Tân Sơn Nhì, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Tân Phú cũ từ địa chỉ Maps (Tân Sơn Nhì); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "12 Cầu Xéo, Tân Sơn Nhì, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+C%E1%BA%A7u+X%C3%A9o/data=!4m7!3m6!1s0x31752b40c95150a5:0x5f93bf4359ad3aa!8m2!3d10.7982772!4d106.6248646!16s%2Fg%2F11hz2m1lqt!19sChIJpVBRyUArdTERqtOaNfQ7-QU?authuser=0&hl=vi",
+        "evidence": "12 Cầu Xéo, Tân Sơn Nhì, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0918148227",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+C%E1%BA%A7u+X%C3%A9o/data=!4m7!3m6!1s0x31752b40c95150a5:0x5f93bf4359ad3aa!8m2!3d10.7982772!4d106.6248646!16s%2Fg%2F11hz2m1lqt!19sChIJpVBRyUArdTERqtOaNfQ7-QU?authuser=0&hl=vi",
+        "evidence": "+84 918 148 227"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Giá tham khảo mock, không có trên Maps"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+C%E1%BA%A7u+X%C3%A9o/data=!4m7!3m6!1s0x31752b40c95150a5:0x5f93bf4359ad3aa!8m2!3d10.7982772!4d106.6248646!16s%2Fg%2F11hz2m1lqt!19sChIJpVBRyUArdTERqtOaNfQ7-QU?authuser=0&hl=vi"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng Đá Mini Sake",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Sake/data=!4m7!3m6!1s0x317527beee03e805:0xaa38294b1f8a7756!8m2!3d10.8482715!4d106.7511819!16s%2Fg%2F11g6ww0lql!19sChIJBegD7r4ndTERVneKH0spOKo?authuser=0&hl=vi",
+        "evidence": "Sân Bóng Đá Mini Sake"
+      },
+      "district": {
+        "value": "TP Thủ Đức",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Sake/data=!4m7!3m6!1s0x317527beee03e805:0xaa38294b1f8a7756!8m2!3d10.8482715!4d106.7511819!16s%2Fg%2F11g6ww0lql!19sChIJBegD7r4ndTERVneKH0spOKo?authuser=0&hl=vi",
+        "evidence": "12a Đ. số 42, Khu Phố 6, Thủ Đức, Hồ Chí Minh, Việt Nam"
+      },
+      "address": {
+        "value": "12a Đ. số 42, Khu Phố 6, Thủ Đức, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Sake/data=!4m7!3m6!1s0x317527beee03e805:0xaa38294b1f8a7756!8m2!3d10.8482715!4d106.7511819!16s%2Fg%2F11g6ww0lql!19sChIJBegD7r4ndTERVneKH0spOKo?authuser=0&hl=vi",
+        "evidence": "12a Đ. số 42, Khu Phố 6, Thủ Đức, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0775050086",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Sake/data=!4m7!3m6!1s0x317527beee03e805:0xaa38294b1f8a7756!8m2!3d10.8482715!4d106.7511819!16s%2Fg%2F11g6ww0lql!19sChIJBegD7r4ndTERVneKH0spOKo?authuser=0&hl=vi",
+        "evidence": "+84 775 050 086"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Giá tham khảo mock, không có trên Maps"
+      },
+      "openingHours": {
+        "value": "23:00",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Sake/data=!4m7!3m6!1s0x317527beee03e805:0xaa38294b1f8a7756!8m2!3d10.8482715!4d106.7511819!16s%2Fg%2F11g6ww0lql!19sChIJBegD7r4ndTERVneKH0spOKo?authuser=0&hl=vi",
+        "evidence": "Đang mở cửa · Đóng cửa vào 23:00",
+        "note": "Maps chỉ công bố giờ đóng cửa; giờ mở cửa mock được ước lượng."
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Sake/data=!4m7!3m6!1s0x317527beee03e805:0xaa38294b1f8a7756!8m2!3d10.8482715!4d106.7511819!16s%2Fg%2F11g6ww0lql!19sChIJBegD7r4ndTERVneKH0spOKo?authuser=0&hl=vi"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng Đá Trung Tâm Huyện Bình Chánh",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Trung+T%C3%A2m+Huy%E1%BB%87n+B%C3%ACnh+Ch%C3%A1nh/data=!4m7!3m6!1s0x317533fad4e86287:0xbbb841026bc271cd!8m2!3d10.6900734!4d106.582479!16s%2Fg%2F11tk4b3qfl!19sChIJh2Lo1PozdTERzXHCawJBuLs?authuser=0&hl=vi",
+        "evidence": "Sân Bóng Đá Trung Tâm Huyện Bình Chánh"
+      },
+      "district": {
+        "value": "Bình Chánh",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Trung+T%C3%A2m+Huy%E1%BB%87n+B%C3%ACnh+Ch%C3%A1nh/data=!4m7!3m6!1s0x317533fad4e86287:0xbbb841026bc271cd!8m2!3d10.6900734!4d106.582479!16s%2Fg%2F11tk4b3qfl!19sChIJh2Lo1PozdTERzXHCawJBuLs?authuser=0&hl=vi",
+        "evidence": "Sân Bóng Đá Trung Tâm Huyện Bình Chánh"
+      },
+      "address": {
+        "value": "6 Đường số 6, Tân Nhựt, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Trung+T%C3%A2m+Huy%E1%BB%87n+B%C3%ACnh+Ch%C3%A1nh/data=!4m7!3m6!1s0x317533fad4e86287:0xbbb841026bc271cd!8m2!3d10.6900734!4d106.582479!16s%2Fg%2F11tk4b3qfl!19sChIJh2Lo1PozdTERzXHCawJBuLs?authuser=0&hl=vi",
+        "evidence": "6 Đường số 6, Tân Nhựt, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0907111145",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Trung+T%C3%A2m+Huy%E1%BB%87n+B%C3%ACnh+Ch%C3%A1nh/data=!4m7!3m6!1s0x317533fad4e86287:0xbbb841026bc271cd!8m2!3d10.6900734!4d106.582479!16s%2Fg%2F11tk4b3qfl!19sChIJh2Lo1PozdTERzXHCawJBuLs?authuser=0&hl=vi",
+        "evidence": "+84 907 111 145"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Giá tham khảo mock, không có trên Maps"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Trung+T%C3%A2m+Huy%E1%BB%87n+B%C3%ACnh+Ch%C3%A1nh/data=!4m7!3m6!1s0x317533fad4e86287:0xbbb841026bc271cd!8m2!3d10.6900734!4d106.582479!16s%2Fg%2F11tk4b3qfl!19sChIJh2Lo1PozdTERzXHCawJBuLs?authuser=0&hl=vi"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân bóng đá Nhơn Đức Nhà Bè",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Nh%C6%A1n+%C4%90%E1%BB%A9c+Nh%C3%A0+B%C3%A8/data=!4m7!3m6!1s0x317531001198c865:0x184f7f6abc110fb8!8m2!3d10.683838!4d106.700494!16s%2Fg%2F11vwm54p2g!19sChIJZciYEQAxdTERuA8RvGp_Txg?authuser=0&hl=vi",
+        "evidence": "Sân bóng đá Nhơn Đức Nhà Bè"
+      },
+      "district": {
+        "value": "Nhà Bè",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Nh%C6%A1n+%C4%90%E1%BB%A9c+Nh%C3%A0+B%C3%A8/data=!4m7!3m6!1s0x317531001198c865:0x184f7f6abc110fb8!8m2!3d10.683838!4d106.700494!16s%2Fg%2F11vwm54p2g!19sChIJZciYEQAxdTERuA8RvGp_Txg?authuser=0&hl=vi",
+        "evidence": "Sân bóng đá Nhơn Đức Nhà Bè"
+      },
+      "address": {
+        "value": "902a Đường Lê Văn Lương, Hiệp Phước, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Nh%C6%A1n+%C4%90%E1%BB%A9c+Nh%C3%A0+B%C3%A8/data=!4m7!3m6!1s0x317531001198c865:0x184f7f6abc110fb8!8m2!3d10.683838!4d106.700494!16s%2Fg%2F11vwm54p2g!19sChIJZciYEQAxdTERuA8RvGp_Txg?authuser=0&hl=vi",
+        "evidence": "902a Đường Lê Văn Lương, Hiệp Phước, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0915061122",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Nh%C6%A1n+%C4%90%E1%BB%A9c+Nh%C3%A0+B%C3%A8/data=!4m7!3m6!1s0x317531001198c865:0x184f7f6abc110fb8!8m2!3d10.683838!4d106.700494!16s%2Fg%2F11vwm54p2g!19sChIJZciYEQAxdTERuA8RvGp_Txg?authuser=0&hl=vi",
+        "evidence": "+84 915 061 122"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Giá tham khảo mock, không có trên Maps"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Nh%C6%A1n+%C4%90%E1%BB%A9c+Nh%C3%A0+B%C3%A8/data=!4m7!3m6!1s0x317531001198c865:0x184f7f6abc110fb8!8m2!3d10.683838!4d106.700494!16s%2Fg%2F11vwm54p2g!19sChIJZciYEQAxdTERuA8RvGp_Txg?authuser=0&hl=vi"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân bóng đá Phong Sơn Hùng Vương",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Phong+S%C6%A1n+H%C3%B9ng+V%C6%B0%C6%A1ng/data=!4m7!3m6!1s0x31752f0739efe7e1:0x79f201c9f37adfff!8m2!3d10.757401!4d106.6633321!16s%2Fg%2F11h2cl8nq8!19sChIJ4efvOQcvdTER_99688kB8nk?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân bóng đá Phong Sơn Hùng Vương"
+      },
+      "district": {
+        "value": "Quận 5",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Phong+S%C6%A1n+H%C3%B9ng+V%C6%B0%C6%A1ng/data=!4m7!3m6!1s0x31752f0739efe7e1:0x79f201c9f37adfff!8m2!3d10.757401!4d106.6633321!16s%2Fg%2F11h2cl8nq8!19sChIJ4efvOQcvdTER_99688kB8nk?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "2 Nguyễn Kim, Chợ Lớn, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Quận 5 cũ từ địa chỉ Maps (Chợ Lớn); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "2 Nguyễn Kim, Chợ Lớn, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Phong+S%C6%A1n+H%C3%B9ng+V%C6%B0%C6%A1ng/data=!4m7!3m6!1s0x31752f0739efe7e1:0x79f201c9f37adfff!8m2!3d10.757401!4d106.6633321!16s%2Fg%2F11h2cl8nq8!19sChIJ4efvOQcvdTER_99688kB8nk?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "2 Nguyễn Kim, Chợ Lớn, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0938589509",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Phong+S%C6%A1n+H%C3%B9ng+V%C6%B0%C6%A1ng/data=!4m7!3m6!1s0x31752f0739efe7e1:0x79f201c9f37adfff!8m2!3d10.757401!4d106.6633321!16s%2Fg%2F11h2cl8nq8!19sChIJ4efvOQcvdTER_99688kB8nk?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 938 589 509"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận; Maps không nêu giá"
+      },
+      "openingHours": {
+        "value": "Mở cả ngày",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Phong+S%C6%A1n+H%C3%B9ng+V%C6%B0%C6%A1ng/data=!4m7!3m6!1s0x31752f0739efe7e1:0x79f201c9f37adfff!8m2!3d10.757401!4d106.6633321!16s%2Fg%2F11h2cl8nq8!19sChIJ4efvOQcvdTER_99688kB8nk?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Mở cả ngày"
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+Phong+S%C6%A1n+H%C3%B9ng+V%C6%B0%C6%A1ng/data=!4m7!3m6!1s0x31752f0739efe7e1:0x79f201c9f37adfff!8m2!3d10.757401!4d106.6633321!16s%2Fg%2F11h2cl8nq8!19sChIJ4efvOQcvdTER_99688kB8nk?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân bóng đá cỏ nhân tạo Sông Quê",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+c%E1%BB%8F+nh%C3%A2n+t%E1%BA%A1o+S%C3%B4ng+Qu%C3%AA/data=!4m7!3m6!1s0x31752d60a4de9feb:0x95b3398f15362212!8m2!3d10.7642222!4d106.620457!16s%2Fg%2F11fl_1yhh4!19sChIJ65_epGAtdTEREiI2FY85s5U?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân bóng đá cỏ nhân tạo Sông Quê"
+      },
+      "district": {
+        "value": "Bình Tân",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+c%E1%BB%8F+nh%C3%A2n+t%E1%BA%A1o+S%C3%B4ng+Qu%C3%AA/data=!4m7!3m6!1s0x31752d60a4de9feb:0x95b3398f15362212!8m2!3d10.7642222!4d106.620457!16s%2Fg%2F11fl_1yhh4!19sChIJ65_epGAtdTEREiI2FY85s5U?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "298/55 Tân Hòa Đông, Bình Trị Đông, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Bình Tân cũ từ địa chỉ Maps (Bình Trị Đông); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "298/55 Tân Hòa Đông, Bình Trị Đông, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+c%E1%BB%8F+nh%C3%A2n+t%E1%BA%A1o+S%C3%B4ng+Qu%C3%AA/data=!4m7!3m6!1s0x31752d60a4de9feb:0x95b3398f15362212!8m2!3d10.7642222!4d106.620457!16s%2Fg%2F11fl_1yhh4!19sChIJ65_epGAtdTEREiI2FY85s5U?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "298/55 Tân Hòa Đông, Bình Trị Đông, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0908388277",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+c%E1%BB%8F+nh%C3%A2n+t%E1%BA%A1o+S%C3%B4ng+Qu%C3%AA/data=!4m7!3m6!1s0x31752d60a4de9feb:0x95b3398f15362212!8m2!3d10.7642222!4d106.620457!16s%2Fg%2F11fl_1yhh4!19sChIJ65_epGAtdTEREiI2FY85s5U?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 908 388 277"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận; Maps không nêu giá"
+      },
+      "openingHours": {
+        "value": "22:00",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+c%E1%BB%8F+nh%C3%A2n+t%E1%BA%A1o+S%C3%B4ng+Qu%C3%AA/data=!4m7!3m6!1s0x31752d60a4de9feb:0x95b3398f15362212!8m2!3d10.7642222!4d106.620457!16s%2Fg%2F11fl_1yhh4!19sChIJ65_epGAtdTEREiI2FY85s5U?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Đang mở cửa · Đóng cửa vào 22:00",
+        "note": "Maps chỉ công bố giờ đóng cửa; giờ mở cửa mock được ước lượng."
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+c%E1%BB%8F+nh%C3%A2n+t%E1%BA%A1o+S%C3%B4ng+Qu%C3%AA/data=!4m7!3m6!1s0x31752d60a4de9feb:0x95b3398f15362212!8m2!3d10.7642222!4d106.620457!16s%2Fg%2F11fl_1yhh4!19sChIJ65_epGAtdTEREiI2FY85s5U?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng Đá Nguyễn Tất Thành Quận 6",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Nguy%E1%BB%85n+T%E1%BA%A5t+Th%C3%A0nh+Qu%E1%BA%ADn+6/data=!4m7!3m6!1s0x31752e7dd7501721:0x65d0bb77030fc16c!8m2!3d10.747066!4d106.635352!16s%2Fg%2F11vkz8mqk5!19sChIJIRdQ130udTERbMEPA3e70GU?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân Bóng Đá Nguyễn Tất Thành Quận 6"
+      },
+      "district": {
+        "value": "Quận 6",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Nguy%E1%BB%85n+T%E1%BA%A5t+Th%C3%A0nh+Qu%E1%BA%ADn+6/data=!4m7!3m6!1s0x31752e7dd7501721:0x65d0bb77030fc16c!8m2!3d10.747066!4d106.635352!16s%2Fg%2F11vkz8mqk5!19sChIJIRdQ130udTERbMEPA3e70GU?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân Bóng Đá Nguyễn Tất Thành Quận 6"
+      },
+      "address": {
+        "value": "249 Nguyễn Văn Luông, Bình Phú, Hồ Chí Minh 70000, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Nguy%E1%BB%85n+T%E1%BA%A5t+Th%C3%A0nh+Qu%E1%BA%ADn+6/data=!4m7!3m6!1s0x31752e7dd7501721:0x65d0bb77030fc16c!8m2!3d10.747066!4d106.635352!16s%2Fg%2F11vkz8mqk5!19sChIJIRdQ130udTERbMEPA3e70GU?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "249 Nguyễn Văn Luông, Bình Phú, Hồ Chí Minh 70000, Việt Nam"
+      },
+      "phone": {
+        "value": "0393159109",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Nguy%E1%BB%85n+T%E1%BA%A5t+Th%C3%A0nh+Qu%E1%BA%ADn+6/data=!4m7!3m6!1s0x31752e7dd7501721:0x65d0bb77030fc16c!8m2!3d10.747066!4d106.635352!16s%2Fg%2F11vkz8mqk5!19sChIJIRdQ130udTERbMEPA3e70GU?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 393 159 109"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận; Maps không nêu giá"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Nguy%E1%BB%85n+T%E1%BA%A5t+Th%C3%A0nh+Qu%E1%BA%ADn+6/data=!4m7!3m6!1s0x31752e7dd7501721:0x65d0bb77030fc16c!8m2!3d10.747066!4d106.635352!16s%2Fg%2F11vkz8mqk5!19sChIJIRdQ130udTERbMEPA3e70GU?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân cỏ Nhân tạo Trường THPT Phú Nhuận",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+c%E1%BB%8F+Nh%C3%A2n+t%E1%BA%A1o+Tr%C6%B0%E1%BB%9Dng+THPT+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x317528df62daf8a5:0x9d97b3cf04e4c467!8m2!3d10.809126!4d106.6763311!16s%2Fg%2F11c6q4mjjh!19sChIJpfjaYt8odTERZ8TkBM-zl50?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân cỏ Nhân tạo Trường THPT Phú Nhuận"
+      },
+      "district": {
+        "value": "Phú Nhuận",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+c%E1%BB%8F+Nh%C3%A2n+t%E1%BA%A1o+Tr%C6%B0%E1%BB%9Dng+THPT+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x317528df62daf8a5:0x9d97b3cf04e4c467!8m2!3d10.809126!4d106.6763311!16s%2Fg%2F11c6q4mjjh!19sChIJpfjaYt8odTERZ8TkBM-zl50?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân cỏ Nhân tạo Trường THPT Phú Nhuận"
+      },
+      "address": {
+        "value": "5 Hoàng Minh Giám, Đức Nhuận, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+c%E1%BB%8F+Nh%C3%A2n+t%E1%BA%A1o+Tr%C6%B0%E1%BB%9Dng+THPT+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x317528df62daf8a5:0x9d97b3cf04e4c467!8m2!3d10.809126!4d106.6763311!16s%2Fg%2F11c6q4mjjh!19sChIJpfjaYt8odTERZ8TkBM-zl50?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "5 Hoàng Minh Giám, Đức Nhuận, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0945286099",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+c%E1%BB%8F+Nh%C3%A2n+t%E1%BA%A1o+Tr%C6%B0%E1%BB%9Dng+THPT+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x317528df62daf8a5:0x9d97b3cf04e4c467!8m2!3d10.809126!4d106.6763311!16s%2Fg%2F11c6q4mjjh!19sChIJpfjaYt8odTERZ8TkBM-zl50?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 945 286 099"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận; Maps không nêu giá"
+      },
+      "openingHours": {
+        "value": "23:00",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+c%E1%BB%8F+Nh%C3%A2n+t%E1%BA%A1o+Tr%C6%B0%E1%BB%9Dng+THPT+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x317528df62daf8a5:0x9d97b3cf04e4c467!8m2!3d10.809126!4d106.6763311!16s%2Fg%2F11c6q4mjjh!19sChIJpfjaYt8odTERZ8TkBM-zl50?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Đang mở cửa · Đóng cửa vào 23:00",
+        "note": "Maps chỉ công bố giờ đóng cửa; giờ mở cửa mock được ước lượng."
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+c%E1%BB%8F+Nh%C3%A2n+t%E1%BA%A1o+Tr%C6%B0%E1%BB%9Dng+THPT+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x317528df62daf8a5:0x9d97b3cf04e4c467!8m2!3d10.809126!4d106.6763311!16s%2Fg%2F11c6q4mjjh!19sChIJpfjaYt8odTERZ8TkBM-zl50?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Câu lạc bộ Bóng đá Phú Nhuận",
+        "source": "https://www.google.com/maps/place/C%C3%A2u+l%E1%BA%A1c+b%E1%BB%99+B%C3%B3ng+%C4%91%C3%A1+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x3175292077c7d70d:0x2df50a42185f5813!8m2!3d10.8105795!4d106.6759295!16s%2Fg%2F1tg32pyn!19sChIJDdfHdyApdTERE1hfGEIK9S0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Câu lạc bộ Bóng đá Phú Nhuận"
+      },
+      "district": {
+        "value": "Phú Nhuận",
+        "source": "https://www.google.com/maps/place/C%C3%A2u+l%E1%BA%A1c+b%E1%BB%99+B%C3%B3ng+%C4%91%C3%A1+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x3175292077c7d70d:0x2df50a42185f5813!8m2!3d10.8105795!4d106.6759295!16s%2Fg%2F1tg32pyn!19sChIJDdfHdyApdTERE1hfGEIK9S0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Câu lạc bộ Bóng đá Phú Nhuận"
+      },
+      "address": {
+        "value": "03 Hoàng Minh Giám, Đức Nhuận, Hồ Chí Minh 00008, Việt Nam",
+        "source": "https://www.google.com/maps/place/C%C3%A2u+l%E1%BA%A1c+b%E1%BB%99+B%C3%B3ng+%C4%91%C3%A1+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x3175292077c7d70d:0x2df50a42185f5813!8m2!3d10.8105795!4d106.6759295!16s%2Fg%2F1tg32pyn!19sChIJDdfHdyApdTERE1hfGEIK9S0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "03 Hoàng Minh Giám, Đức Nhuận, Hồ Chí Minh 00008, Việt Nam"
+      },
+      "phone": {
+        "value": "02838477668",
+        "source": "https://www.google.com/maps/place/C%C3%A2u+l%E1%BA%A1c+b%E1%BB%99+B%C3%B3ng+%C4%91%C3%A1+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x3175292077c7d70d:0x2df50a42185f5813!8m2!3d10.8105795!4d106.6759295!16s%2Fg%2F1tg32pyn!19sChIJDdfHdyApdTERE1hfGEIK9S0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 28 3847 7668"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận; Maps không nêu giá"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/C%C3%A2u+l%E1%BA%A1c+b%E1%BB%99+B%C3%B3ng+%C4%91%C3%A1+Ph%C3%BA+Nhu%E1%BA%ADn/data=!4m7!3m6!1s0x3175292077c7d70d:0x2df50a42185f5813!8m2!3d10.8105795!4d106.6759295!16s%2Fg%2F1tg32pyn!19sChIJDdfHdyApdTERE1hfGEIK9S0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân banh mini 20 Cộng Hòa Gardens",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+banh+mini+20+C%E1%BB%99ng+H%C3%B2a+Gardens/data=!4m7!3m6!1s0x31752937fdf8b72d:0xaea554b5f0cf9a15!8m2!3d10.8036037!4d106.6529099!16s%2Fg%2F11c53070sf!19sChIJLbf4_TcpdTERFZrP8LVUpa4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân banh mini 20 Cộng Hòa Gardens"
+      },
+      "district": {
+        "value": "Tân Bình",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+banh+mini+20+C%E1%BB%99ng+H%C3%B2a+Gardens/data=!4m7!3m6!1s0x31752937fdf8b72d:0xaea554b5f0cf9a15!8m2!3d10.8036037!4d106.6529099!16s%2Fg%2F11c53070sf!19sChIJLbf4_TcpdTERFZrP8LVUpa4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "20 Cộng Hòa, Tân Sơn Nhất, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Tân Bình cũ từ địa chỉ Maps (Tân Sơn Nhất); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "20 Cộng Hòa, Tân Sơn Nhất, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+banh+mini+20+C%E1%BB%99ng+H%C3%B2a+Gardens/data=!4m7!3m6!1s0x31752937fdf8b72d:0xaea554b5f0cf9a15!8m2!3d10.8036037!4d106.6529099!16s%2Fg%2F11c53070sf!19sChIJLbf4_TcpdTERFZrP8LVUpa4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "20 Cộng Hòa, Tân Sơn Nhất, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0901500777",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+banh+mini+20+C%E1%BB%99ng+H%C3%B2a+Gardens/data=!4m7!3m6!1s0x31752937fdf8b72d:0xaea554b5f0cf9a15!8m2!3d10.8036037!4d106.6529099!16s%2Fg%2F11c53070sf!19sChIJLbf4_TcpdTERFZrP8LVUpa4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 901 500 777"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận; Maps không nêu giá"
+      },
+      "openingHours": {
+        "value": "Mở cả ngày",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+banh+mini+20+C%E1%BB%99ng+H%C3%B2a+Gardens/data=!4m7!3m6!1s0x31752937fdf8b72d:0xaea554b5f0cf9a15!8m2!3d10.8036037!4d106.6529099!16s%2Fg%2F11c53070sf!19sChIJLbf4_TcpdTERFZrP8LVUpa4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Mở cả ngày"
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+banh+mini+20+C%E1%BB%99ng+H%C3%B2a+Gardens/data=!4m7!3m6!1s0x31752937fdf8b72d:0xaea554b5f0cf9a15!8m2!3d10.8036037!4d106.6529099!16s%2Fg%2F11c53070sf!19sChIJLbf4_TcpdTERFZrP8LVUpa4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân bóng đá mini K334",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+K334/data=!4m7!3m6!1s0x317529436ceb5c1b:0x383cd468f855f12c!8m2!3d10.8100782!4d106.6442831!16s%2Fg%2F11b7hjckmm!19sChIJG1zrbEMpdTERLPFV-GjUPDg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân bóng đá mini K334"
+      },
+      "district": {
+        "value": "Tân Bình",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+K334/data=!4m7!3m6!1s0x317529436ceb5c1b:0x383cd468f855f12c!8m2!3d10.8100782!4d106.6442831!16s%2Fg%2F11b7hjckmm!19sChIJG1zrbEMpdTERLPFV-GjUPDg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "119/13 Trần Văn Dư, Tân Bình, Hồ Chí Minh 700000, Việt Nam"
+      },
+      "address": {
+        "value": "119/13 Trần Văn Dư, Tân Bình, Hồ Chí Minh 700000, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+K334/data=!4m7!3m6!1s0x317529436ceb5c1b:0x383cd468f855f12c!8m2!3d10.8100782!4d106.6442831!16s%2Fg%2F11b7hjckmm!19sChIJG1zrbEMpdTERLPFV-GjUPDg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "119/13 Trần Văn Dư, Tân Bình, Hồ Chí Minh 700000, Việt Nam"
+      },
+      "phone": {
+        "value": "0916668188",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+K334/data=!4m7!3m6!1s0x317529436ceb5c1b:0x383cd468f855f12c!8m2!3d10.8100782!4d106.6442831!16s%2Fg%2F11b7hjckmm!19sChIJG1zrbEMpdTERLPFV-GjUPDg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 916 668 188"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận; Maps không nêu giá"
+      },
+      "openingHours": {
+        "value": "23:30",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+K334/data=!4m7!3m6!1s0x317529436ceb5c1b:0x383cd468f855f12c!8m2!3d10.8100782!4d106.6442831!16s%2Fg%2F11b7hjckmm!19sChIJG1zrbEMpdTERLPFV-GjUPDg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Đang mở cửa · Đóng cửa vào 23:30",
+        "note": "Maps chỉ công bố giờ đóng cửa; giờ mở cửa mock được ước lượng."
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+K334/data=!4m7!3m6!1s0x317529436ceb5c1b:0x383cd468f855f12c!8m2!3d10.8100782!4d106.6442831!16s%2Fg%2F11b7hjckmm!19sChIJG1zrbEMpdTERLPFV-GjUPDg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "SÂN SỐ 3 KCN TÂN TẠO| SÂN BÓNG ĐÁ BÌNH TÂN",
+        "source": "https://www.google.com/maps/place/S%C3%82N+S%E1%BB%90+3+KCN+T%C3%82N+T%E1%BA%A0O%7C+S%C3%82N+B%C3%93NG+%C4%90%C3%81+B%C3%8CNH+T%C3%82N/data=!4m7!3m6!1s0x31752de203731aab:0xb82894a52fe0f48b!8m2!3d10.7406906!4d106.5964771!16s%2Fg%2F11vf586hnm!19sChIJqxpzA-ItdTERi_TgL6WUKLg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "SÂN SỐ 3 KCN TÂN TẠO| SÂN BÓNG ĐÁ BÌNH TÂN"
+      },
+      "district": {
+        "value": "Bình Tân",
+        "source": "https://www.google.com/maps/place/S%C3%82N+S%E1%BB%90+3+KCN+T%C3%82N+T%E1%BA%A0O%7C+S%C3%82N+B%C3%93NG+%C4%90%C3%81+B%C3%8CNH+T%C3%82N/data=!4m7!3m6!1s0x31752de203731aab:0xb82894a52fe0f48b!8m2!3d10.7406906!4d106.5964771!16s%2Fg%2F11vf586hnm!19sChIJqxpzA-ItdTERi_TgL6WUKLg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "SÂN SỐ 3 KCN TÂN TẠO| SÂN BÓNG ĐÁ BÌNH TÂN"
+      },
+      "address": {
+        "value": "PHVV+GVF, Đường Số 3, Tân Tạo, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%82N+S%E1%BB%90+3+KCN+T%C3%82N+T%E1%BA%A0O%7C+S%C3%82N+B%C3%93NG+%C4%90%C3%81+B%C3%8CNH+T%C3%82N/data=!4m7!3m6!1s0x31752de203731aab:0xb82894a52fe0f48b!8m2!3d10.7406906!4d106.5964771!16s%2Fg%2F11vf586hnm!19sChIJqxpzA-ItdTERi_TgL6WUKLg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "PHVV+GVF, Đường Số 3, Tân Tạo, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0915916733",
+        "source": "https://www.google.com/maps/place/S%C3%82N+S%E1%BB%90+3+KCN+T%C3%82N+T%E1%BA%A0O%7C+S%C3%82N+B%C3%93NG+%C4%90%C3%81+B%C3%8CNH+T%C3%82N/data=!4m7!3m6!1s0x31752de203731aab:0xb82894a52fe0f48b!8m2!3d10.7406906!4d106.5964771!16s%2Fg%2F11vf586hnm!19sChIJqxpzA-ItdTERi_TgL6WUKLg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 915 916 733"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận; Maps không nêu giá"
+      },
+      "openingHours": {
+        "value": "Mở cả ngày",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%82N+S%E1%BB%90+3+KCN+T%C3%82N+T%E1%BA%A0O%7C+S%C3%82N+B%C3%93NG+%C4%90%C3%81+B%C3%8CNH+T%C3%82N/data=!4m7!3m6!1s0x31752de203731aab:0xb82894a52fe0f48b!8m2!3d10.7406906!4d106.5964771!16s%2Fg%2F11vf586hnm!19sChIJqxpzA-ItdTERi_TgL6WUKLg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Mở cả ngày"
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%82N+S%E1%BB%90+3+KCN+T%C3%82N+T%E1%BA%A0O%7C+S%C3%82N+B%C3%93NG+%C4%90%C3%81+B%C3%8CNH+T%C3%82N/data=!4m7!3m6!1s0x31752de203731aab:0xb82894a52fe0f48b!8m2!3d10.7406906!4d106.5964771!16s%2Fg%2F11vf586hnm!19sChIJqxpzA-ItdTERi_TgL6WUKLg?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân bóng Bình Tân",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+B%C3%ACnh+T%C3%A2n/data=!4m7!3m6!1s0x31752c3bc897a6d1:0x67e682cf7deed16f!8m2!3d10.7646353!4d106.6126553!16s%2Fg%2F1pzpr63zb!19sChIJ0aaXyDssdTERb9Hufc-C5mc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân bóng Bình Tân"
+      },
+      "district": {
+        "value": "Bình Tân",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+B%C3%ACnh+T%C3%A2n/data=!4m7!3m6!1s0x31752c3bc897a6d1:0x67e682cf7deed16f!8m2!3d10.7646353!4d106.6126553!16s%2Fg%2F1pzpr63zb!19sChIJ0aaXyDssdTERb9Hufc-C5mc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân bóng Bình Tân"
+      },
+      "address": {
+        "value": "QJ77+V32, Bình Trị Đông, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+B%C3%ACnh+T%C3%A2n/data=!4m7!3m6!1s0x31752c3bc897a6d1:0x67e682cf7deed16f!8m2!3d10.7646353!4d106.6126553!16s%2Fg%2F1pzpr63zb!19sChIJ0aaXyDssdTERb9Hufc-C5mc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "QJ77+V32, Bình Trị Đông, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0903684107",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+B%C3%ACnh+T%C3%A2n/data=!4m7!3m6!1s0x31752c3bc897a6d1:0x67e682cf7deed16f!8m2!3d10.7646353!4d106.6126553!16s%2Fg%2F1pzpr63zb!19sChIJ0aaXyDssdTERb9Hufc-C5mc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 903 684 107"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận; Maps không nêu giá"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+B%C3%ACnh+T%C3%A2n/data=!4m7!3m6!1s0x31752c3bc897a6d1:0x67e682cf7deed16f!8m2!3d10.7646353!4d106.6126553!16s%2Fg%2F1pzpr63zb!19sChIJ0aaXyDssdTERb9Hufc-C5mc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng Mini Trường Ntmk",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+Mini+Tr%C6%B0%E1%BB%9Dng+Ntmk/data=!4m7!3m6!1s0x31752f2ffff9dda3:0xe38cc870d55507f1!8m2!3d10.7786975!4d106.6878012!16s%2Fg%2F11c1nxn_js!19sChIJo935_y8vdTER8QdV1XDIjOM?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân Bóng Mini Trường Ntmk"
+      },
+      "district": {
+        "value": "Quận 3",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+Mini+Tr%C6%B0%E1%BB%9Dng+Ntmk/data=!4m7!3m6!1s0x31752f2ffff9dda3:0xe38cc870d55507f1!8m2!3d10.7786975!4d106.6878012!16s%2Fg%2F11c1nxn_js!19sChIJo935_y8vdTER8QdV1XDIjOM?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Ngô Thời Nhiệm/28 Võ Thị Sáu, Xuân Hòa, Hồ Chí Minh 700000, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Quận 3 cũ từ địa chỉ Maps (Xuân Hòa); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "Ngô Thời Nhiệm/28 Võ Thị Sáu, Xuân Hòa, Hồ Chí Minh 700000, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+Mini+Tr%C6%B0%E1%BB%9Dng+Ntmk/data=!4m7!3m6!1s0x31752f2ffff9dda3:0xe38cc870d55507f1!8m2!3d10.7786975!4d106.6878012!16s%2Fg%2F11c1nxn_js!19sChIJo935_y8vdTER8QdV1XDIjOM?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Ngô Thời Nhiệm/28 Võ Thị Sáu, Xuân Hòa, Hồ Chí Minh 700000, Việt Nam"
+      },
+      "phone": {
+        "value": null,
+        "source": null
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+Mini+Tr%C6%B0%E1%BB%9Dng+Ntmk/data=!4m7!3m6!1s0x31752f2ffff9dda3:0xe38cc870d55507f1!8m2!3d10.7786975!4d106.6878012!16s%2Fg%2F11c1nxn_js!19sChIJo935_y8vdTER8QdV1XDIjOM?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng Đá Khánh Hội",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Kh%C3%A1nh+H%E1%BB%99i/data=!4m7!3m6!1s0x31752f72bc0d3e89:0x898aeab5504dd975!8m2!3d10.7569011!4d106.6994293!16s%2Fg%2F11fnwhmhkb!19sChIJiT4NvHIvdTERddlNULXqiok?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân Bóng Đá Khánh Hội"
+      },
+      "district": {
+        "value": "Quận 4",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Kh%C3%A1nh+H%E1%BB%99i/data=!4m7!3m6!1s0x31752f72bc0d3e89:0x898aeab5504dd975!8m2!3d10.7569011!4d106.6994293!16s%2Fg%2F11fnwhmhkb!19sChIJiT4NvHIvdTERddlNULXqiok?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "1 Đ. Số 48, Vĩnh Hội, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Quận 4 cũ từ địa chỉ Maps (Vĩnh Hội); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "1 Đ. Số 48, Vĩnh Hội, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Kh%C3%A1nh+H%E1%BB%99i/data=!4m7!3m6!1s0x31752f72bc0d3e89:0x898aeab5504dd975!8m2!3d10.7569011!4d106.6994293!16s%2Fg%2F11fnwhmhkb!19sChIJiT4NvHIvdTERddlNULXqiok?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "1 Đ. Số 48, Vĩnh Hội, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": null,
+        "source": null
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Kh%C3%A1nh+H%E1%BB%99i/data=!4m7!3m6!1s0x31752f72bc0d3e89:0x898aeab5504dd975!8m2!3d10.7569011!4d106.6994293!16s%2Fg%2F11fnwhmhkb!19sChIJiT4NvHIvdTERddlNULXqiok?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Kfootball quận 7",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+Kfootball+qu%E1%BA%ADn+7/data=!4m7!3m6!1s0x31752581690cf22f:0x973089cb0c798604!8m2!3d10.7269045!4d106.7388303!16s%2Fg%2F11ss6rvh3m!19sChIJL_IMaYEldTERBIZ5DMuJMJc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân Kfootball quận 7"
+      },
+      "district": {
+        "value": "Quận 7",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+Kfootball+qu%E1%BA%ADn+7/data=!4m7!3m6!1s0x31752581690cf22f:0x973089cb0c798604!8m2!3d10.7269045!4d106.7388303!16s%2Fg%2F11ss6rvh3m!19sChIJL_IMaYEldTERBIZ5DMuJMJc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân Kfootball quận 7"
+      },
+      "address": {
+        "value": "1135/45/60D Huynh Tan Phat, Phú Thuận, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+Kfootball+qu%E1%BA%ADn+7/data=!4m7!3m6!1s0x31752581690cf22f:0x973089cb0c798604!8m2!3d10.7269045!4d106.7388303!16s%2Fg%2F11ss6rvh3m!19sChIJL_IMaYEldTERBIZ5DMuJMJc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "1135/45/60D Huynh Tan Phat, Phú Thuận, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0962107078",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+Kfootball+qu%E1%BA%ADn+7/data=!4m7!3m6!1s0x31752581690cf22f:0x973089cb0c798604!8m2!3d10.7269045!4d106.7388303!16s%2Fg%2F11ss6rvh3m!19sChIJL_IMaYEldTERBIZ5DMuJMJc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 962 107 078"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận"
+      },
+      "openingHours": {
+        "value": "23:01",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+Kfootball+qu%E1%BA%ADn+7/data=!4m7!3m6!1s0x31752581690cf22f:0x973089cb0c798604!8m2!3d10.7269045!4d106.7388303!16s%2Fg%2F11ss6rvh3m!19sChIJL_IMaYEldTERBIZ5DMuJMJc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Đang mở cửa · Đóng cửa vào 23:01",
+        "note": "Maps chỉ công bố giờ đóng cửa; giờ mở cửa mock được ước lượng."
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+Kfootball+qu%E1%BA%ADn+7/data=!4m7!3m6!1s0x31752581690cf22f:0x973089cb0c798604!8m2!3d10.7269045!4d106.7388303!16s%2Fg%2F11ss6rvh3m!19sChIJL_IMaYEldTERBIZ5DMuJMJc?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân bóng đá mini Vạn Nguyên",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+V%E1%BA%A1n+Nguy%C3%AAn/data=!4m7!3m6!1s0x31752e754d35b5c9:0xde7a952259d8bbd9!8m2!3d10.7276704!4d106.6299484!16s%2Fg%2F11fxc82t5g!19sChIJybU1TXUudTER2bvYWSKVet4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân bóng đá mini Vạn Nguyên"
+      },
+      "district": {
+        "value": "Quận 8",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+V%E1%BA%A1n+Nguy%C3%AAn/data=!4m7!3m6!1s0x31752e754d35b5c9:0xde7a952259d8bbd9!8m2!3d10.7276704!4d106.6299484!16s%2Fg%2F11fxc82t5g!19sChIJybU1TXUudTER2bvYWSKVet4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "118/29/15/6 Phú Định, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Quận 8 cũ từ địa chỉ Maps (Phú Định); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "118/29/15/6 Phú Định, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+V%E1%BA%A1n+Nguy%C3%AAn/data=!4m7!3m6!1s0x31752e754d35b5c9:0xde7a952259d8bbd9!8m2!3d10.7276704!4d106.6299484!16s%2Fg%2F11fxc82t5g!19sChIJybU1TXUudTER2bvYWSKVet4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "118/29/15/6 Phú Định, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0908180190",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+V%E1%BA%A1n+Nguy%C3%AAn/data=!4m7!3m6!1s0x31752e754d35b5c9:0xde7a952259d8bbd9!8m2!3d10.7276704!4d106.6299484!16s%2Fg%2F11fxc82t5g!19sChIJybU1TXUudTER2bvYWSKVet4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 908 180 190"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận"
+      },
+      "openingHours": {
+        "value": "0:00",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+V%E1%BA%A1n+Nguy%C3%AAn/data=!4m7!3m6!1s0x31752e754d35b5c9:0xde7a952259d8bbd9!8m2!3d10.7276704!4d106.6299484!16s%2Fg%2F11fxc82t5g!19sChIJybU1TXUudTER2bvYWSKVet4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Đang mở cửa · Đóng cửa vào 0:00",
+        "note": "Maps chỉ công bố giờ đóng cửa; giờ mở cửa mock được ước lượng."
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+V%E1%BA%A1n+Nguy%C3%AAn/data=!4m7!3m6!1s0x31752e754d35b5c9:0xde7a952259d8bbd9!8m2!3d10.7276704!4d106.6299484!16s%2Fg%2F11fxc82t5g!19sChIJybU1TXUudTER2bvYWSKVet4?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân bóng đá 780 (Sân 3K)",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+780+%28S%C3%A2n+3K%29/data=!4m7!3m6!1s0x31752f7d22fe8945:0x31e30285c5d714d1!8m2!3d10.7737221!4d106.6696885!16s%2Fg%2F11thc_0c2h!19sChIJRYn-In0vdTER0RTXxYUC4zE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân bóng đá 780 (Sân 3K)"
+      },
+      "district": {
+        "value": "Quận 10",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+780+%28S%C3%A2n+3K%29/data=!4m7!3m6!1s0x31752f7d22fe8945:0x31e30285c5d714d1!8m2!3d10.7737221!4d106.6696885!16s%2Fg%2F11thc_0c2h!19sChIJRYn-In0vdTER0RTXxYUC4zE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "780 Sư Vạn Hạnh, Hòa Hưng, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Quận 10 cũ từ địa chỉ Maps (Hòa Hưng); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "780 Sư Vạn Hạnh, Hòa Hưng, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+780+%28S%C3%A2n+3K%29/data=!4m7!3m6!1s0x31752f7d22fe8945:0x31e30285c5d714d1!8m2!3d10.7737221!4d106.6696885!16s%2Fg%2F11thc_0c2h!19sChIJRYn-In0vdTER0RTXxYUC4zE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "780 Sư Vạn Hạnh, Hòa Hưng, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0967031375",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+780+%28S%C3%A2n+3K%29/data=!4m7!3m6!1s0x31752f7d22fe8945:0x31e30285c5d714d1!8m2!3d10.7737221!4d106.6696885!16s%2Fg%2F11thc_0c2h!19sChIJRYn-In0vdTER0RTXxYUC4zE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 967 031 375"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+780+%28S%C3%A2n+3K%29/data=!4m7!3m6!1s0x31752f7d22fe8945:0x31e30285c5d714d1!8m2!3d10.7737221!4d106.6696885!16s%2Fg%2F11thc_0c2h!19sChIJRYn-In0vdTER0RTXxYUC4zE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân số 1 - Sân banh Phú Thọ",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+s%E1%BB%91+1+-+S%C3%A2n+banh+Ph%C3%BA+Th%E1%BB%8D/data=!4m7!3m6!1s0x31752eeaf2ac1233:0x532eaac62b8965c5!8m2!3d10.7684756!4d106.6549472!16s%2Fg%2F11c765l2bs!19sChIJMxKs8uoudTERxWWJK8aqLlM?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân số 1 - Sân banh Phú Thọ"
+      },
+      "district": {
+        "value": "Quận 11",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+s%E1%BB%91+1+-+S%C3%A2n+banh+Ph%C3%BA+Th%E1%BB%8D/data=!4m7!3m6!1s0x31752eeaf2ac1233:0x532eaac62b8965c5!8m2!3d10.7684756!4d106.6549472!16s%2Fg%2F11c765l2bs!19sChIJMxKs8uoudTERxWWJK8aqLlM?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "2 Lê Đại Hành, Phú Thọ, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Quận 11 cũ từ địa chỉ Maps (Phú Thọ); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "2 Lê Đại Hành, Phú Thọ, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+s%E1%BB%91+1+-+S%C3%A2n+banh+Ph%C3%BA+Th%E1%BB%8D/data=!4m7!3m6!1s0x31752eeaf2ac1233:0x532eaac62b8965c5!8m2!3d10.7684756!4d106.6549472!16s%2Fg%2F11c765l2bs!19sChIJMxKs8uoudTERxWWJK8aqLlM?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "2 Lê Đại Hành, Phú Thọ, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": null,
+        "source": null
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+s%E1%BB%91+1+-+S%C3%A2n+banh+Ph%C3%BA+Th%E1%BB%8D/data=!4m7!3m6!1s0x31752eeaf2ac1233:0x532eaac62b8965c5!8m2!3d10.7684756!4d106.6549472!16s%2Fg%2F11c765l2bs!19sChIJMxKs8uoudTERxWWJK8aqLlM?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng Đá Cầu Suối Quận 12",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+C%E1%BA%A7u+Su%E1%BB%91i+Qu%E1%BA%ADn+12/data=!4m7!3m6!1s0x317529cbb676cec7:0xa1a9b50ce98b5046!8m2!3d10.8595988!4d106.6309448!16s%2Fg%2F11g23rwntg!19sChIJx852tsspdTERRlCL6Qy1qaE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân Bóng Đá Cầu Suối Quận 12"
+      },
+      "district": {
+        "value": "Quận 12",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+C%E1%BA%A7u+Su%E1%BB%91i+Qu%E1%BA%ADn+12/data=!4m7!3m6!1s0x317529cbb676cec7:0xa1a9b50ce98b5046!8m2!3d10.8595988!4d106.6309448!16s%2Fg%2F11g23rwntg!19sChIJx852tsspdTERRlCL6Qy1qaE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân Bóng Đá Cầu Suối Quận 12"
+      },
+      "address": {
+        "value": "52 Dương Thị Mười KP1 TCH Q12, Trung Mỹ Tây, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+C%E1%BA%A7u+Su%E1%BB%91i+Qu%E1%BA%ADn+12/data=!4m7!3m6!1s0x317529cbb676cec7:0xa1a9b50ce98b5046!8m2!3d10.8595988!4d106.6309448!16s%2Fg%2F11g23rwntg!19sChIJx852tsspdTERRlCL6Qy1qaE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "52 Dương Thị Mười KP1 TCH Q12, Trung Mỹ Tây, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0965093575",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+C%E1%BA%A7u+Su%E1%BB%91i+Qu%E1%BA%ADn+12/data=!4m7!3m6!1s0x317529cbb676cec7:0xa1a9b50ce98b5046!8m2!3d10.8595988!4d106.6309448!16s%2Fg%2F11g23rwntg!19sChIJx852tsspdTERRlCL6Qy1qaE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 965 093 575"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận"
+      },
+      "openingHours": {
+        "value": "Mở cả ngày",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+C%E1%BA%A7u+Su%E1%BB%91i+Qu%E1%BA%ADn+12/data=!4m7!3m6!1s0x317529cbb676cec7:0xa1a9b50ce98b5046!8m2!3d10.8595988!4d106.6309448!16s%2Fg%2F11g23rwntg!19sChIJx852tsspdTERRlCL6Qy1qaE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Mở cả ngày"
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+C%E1%BA%A7u+Su%E1%BB%91i+Qu%E1%BA%ADn+12/data=!4m7!3m6!1s0x317529cbb676cec7:0xa1a9b50ce98b5046!8m2!3d10.8595988!4d106.6309448!16s%2Fg%2F11g23rwntg!19sChIJx852tsspdTERRlCL6Qy1qaE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân bóng Mini Bình Minh",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Mini+B%C3%ACnh+Minh/data=!4m7!3m6!1s0x3175262783a85ab3:0x9c8e1a80b667d86b!8m2!3d10.8181128!4d106.7240921!16s%2Fg%2F11fz0d3kyd!19sChIJs1qogycmdTERa9hntoAajpw?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân bóng Mini Bình Minh"
+      },
+      "district": {
+        "value": "Bình Thạnh",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Mini+B%C3%ACnh+Minh/data=!4m7!3m6!1s0x3175262783a85ab3:0x9c8e1a80b667d86b!8m2!3d10.8181128!4d106.7240921!16s%2Fg%2F11fz0d3kyd!19sChIJs1qogycmdTERa9hntoAajpw?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "158 Bình Quới, Cư xá Thanh Đa, Bình Quới, Hồ Chí Minh 70000, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Bình Thạnh cũ từ địa chỉ Maps (Bình Quới); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "158 Bình Quới, Cư xá Thanh Đa, Bình Quới, Hồ Chí Minh 70000, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Mini+B%C3%ACnh+Minh/data=!4m7!3m6!1s0x3175262783a85ab3:0x9c8e1a80b667d86b!8m2!3d10.8181128!4d106.7240921!16s%2Fg%2F11fz0d3kyd!19sChIJs1qogycmdTERa9hntoAajpw?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "158 Bình Quới, Cư xá Thanh Đa, Bình Quới, Hồ Chí Minh 70000, Việt Nam"
+      },
+      "phone": {
+        "value": "0888896565",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Mini+B%C3%ACnh+Minh/data=!4m7!3m6!1s0x3175262783a85ab3:0x9c8e1a80b667d86b!8m2!3d10.8181128!4d106.7240921!16s%2Fg%2F11fz0d3kyd!19sChIJs1qogycmdTERa9hntoAajpw?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 888 896 565"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận"
+      },
+      "openingHours": {
+        "value": "22:00",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Mini+B%C3%ACnh+Minh/data=!4m7!3m6!1s0x3175262783a85ab3:0x9c8e1a80b667d86b!8m2!3d10.8181128!4d106.7240921!16s%2Fg%2F11fz0d3kyd!19sChIJs1qogycmdTERa9hntoAajpw?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Đang mở cửa · Đóng cửa vào 22:00",
+        "note": "Maps chỉ công bố giờ đóng cửa; giờ mở cửa mock được ước lượng."
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+Mini+B%C3%ACnh+Minh/data=!4m7!3m6!1s0x3175262783a85ab3:0x9c8e1a80b667d86b!8m2!3d10.8181128!4d106.7240921!16s%2Fg%2F11fz0d3kyd!19sChIJs1qogycmdTERa9hntoAajpw?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng Đá Mini Hiệp Phát",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Hi%E1%BB%87p+Ph%C3%A1t/data=!4m7!3m6!1s0x31752958610129bd:0xd245543eb710fb7!8m2!3d10.8064558!4d106.6305583!16s%2Fg%2F1hc192wnr!19sChIJvSkBYVgpdTERtw9x60NVJA0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân Bóng Đá Mini Hiệp Phát"
+      },
+      "district": {
+        "value": "Tân Phú",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Hi%E1%BB%87p+Ph%C3%A1t/data=!4m7!3m6!1s0x31752958610129bd:0xd245543eb710fb7!8m2!3d10.8064558!4d106.6305583!16s%2Fg%2F1hc192wnr!19sChIJvSkBYVgpdTERtw9x60NVJA0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "18 Nguyễn Sáng, Tây Thạnh, Hồ Chí Minh, Việt Nam",
+        "derived": true,
+        "note": "Suy ra địa bàn Tân Phú cũ từ địa chỉ Maps (Tây Thạnh); nguồn chỉ ghi địa chỉ/phường hiện nay."
+      },
+      "address": {
+        "value": "18 Nguyễn Sáng, Tây Thạnh, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Hi%E1%BB%87p+Ph%C3%A1t/data=!4m7!3m6!1s0x31752958610129bd:0xd245543eb710fb7!8m2!3d10.8064558!4d106.6305583!16s%2Fg%2F1hc192wnr!19sChIJvSkBYVgpdTERtw9x60NVJA0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "18 Nguyễn Sáng, Tây Thạnh, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "02866571391",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Hi%E1%BB%87p+Ph%C3%A1t/data=!4m7!3m6!1s0x31752958610129bd:0xd245543eb710fb7!8m2!3d10.8064558!4d106.6305583!16s%2Fg%2F1hc192wnr!19sChIJvSkBYVgpdTERtw9x60NVJA0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 28 6657 1391"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận"
+      },
+      "openingHours": {
+        "value": "Mở cả ngày",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Hi%E1%BB%87p+Ph%C3%A1t/data=!4m7!3m6!1s0x31752958610129bd:0xd245543eb710fb7!8m2!3d10.8064558!4d106.6305583!16s%2Fg%2F1hc192wnr!19sChIJvSkBYVgpdTERtw9x60NVJA0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Mở cả ngày"
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+Hi%E1%BB%87p+Ph%C3%A1t/data=!4m7!3m6!1s0x31752958610129bd:0xd245543eb710fb7!8m2!3d10.8064558!4d106.6305583!16s%2Fg%2F1hc192wnr!19sChIJvSkBYVgpdTERtw9x60NVJA0?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân banh cỏ nhân tạo TDC (Lasan)",
+        "source": "https://www.google.com/maps/search/S%C3%A2n%20banh%20c%E1%BB%8F%20nh%C3%A2n%20t%E1%BA%A1o%20TDC%20%28Lasan%29%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c%20TP%20H%E1%BB%93%20Ch%C3%AD%20Minh",
+        "evidence": "Sân banh cỏ nhân tạo TDC (Lasan)"
+      },
+      "district": {
+        "value": "TP Thủ Đức",
+        "source": "https://www.google.com/maps/search/S%C3%A2n%20banh%20c%E1%BB%8F%20nh%C3%A2n%20t%E1%BA%A1o%20TDC%20%28Lasan%29%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c%20TP%20H%E1%BB%93%20Ch%C3%AD%20Minh",
+        "evidence": "53 Đ. Võ Văn Ngân, Thủ Đức, Hồ Chí Minh, Việt Nam"
+      },
+      "address": {
+        "value": "53 Đ. Võ Văn Ngân, Thủ Đức, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/search/S%C3%A2n%20banh%20c%E1%BB%8F%20nh%C3%A2n%20t%E1%BA%A1o%20TDC%20%28Lasan%29%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c%20TP%20H%E1%BB%93%20Ch%C3%AD%20Minh",
+        "evidence": "53 Đ. Võ Văn Ngân, Thủ Đức, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0979825050",
+        "source": "https://www.google.com/maps/search/S%C3%A2n%20banh%20c%E1%BB%8F%20nh%C3%A2n%20t%E1%BA%A1o%20TDC%20%28Lasan%29%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c%20TP%20H%E1%BB%93%20Ch%C3%AD%20Minh",
+        "evidence": "+84 979 825 050"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận"
+      },
+      "openingHours": {
+        "value": "22:00",
+        "estimated": true,
+        "source": "https://www.google.com/maps/search/S%C3%A2n%20banh%20c%E1%BB%8F%20nh%C3%A2n%20t%E1%BA%A1o%20TDC%20%28Lasan%29%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c%20TP%20H%E1%BB%93%20Ch%C3%AD%20Minh",
+        "evidence": "Đang mở cửa · Đóng cửa vào 22:00",
+        "note": "Maps chỉ công bố giờ đóng cửa; giờ mở cửa mock được ước lượng."
+      },
+      "sources": [
+        "https://www.google.com/maps/search/S%C3%A2n%20banh%20c%E1%BB%8F%20nh%C3%A2n%20t%E1%BA%A1o%20TDC%20%28Lasan%29%20Th%E1%BB%A7%20%C4%90%E1%BB%A9c%20TP%20H%E1%BB%93%20Ch%C3%AD%20Minh"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân Bóng Đá Mini Cỏ Nhân Tạo Tánh",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+C%E1%BB%8F+Nh%C3%A2n+T%E1%BA%A1o+T%C3%A1nh/data=!4m7!3m6!1s0x3175324254a8a9bb:0x9cb9426a2e75155c!8m2!3d10.6832343!4d106.5970599!16s%2Fg%2F11mtc_dvsn!19sChIJu6moVEIydTERXBV1LmpCuZw?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân Bóng Đá Mini Cỏ Nhân Tạo Tánh"
+      },
+      "district": {
+        "value": "Bình Chánh",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+C%E1%BB%8F+Nh%C3%A2n+T%E1%BA%A1o+T%C3%A1nh/data=!4m7!3m6!1s0x3175324254a8a9bb:0x9cb9426a2e75155c!8m2!3d10.6832343!4d106.5970599!16s%2Fg%2F11mtc_dvsn!19sChIJu6moVEIydTERXBV1LmpCuZw?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "MHMW+7RV, Bờ Huệ, Bình Chánh, Hồ Chí Minh, Việt Nam"
+      },
+      "address": {
+        "value": "MHMW+7RV, Bờ Huệ, Bình Chánh, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+C%E1%BB%8F+Nh%C3%A2n+T%E1%BA%A1o+T%C3%A1nh/data=!4m7!3m6!1s0x3175324254a8a9bb:0x9cb9426a2e75155c!8m2!3d10.6832343!4d106.5970599!16s%2Fg%2F11mtc_dvsn!19sChIJu6moVEIydTERXBV1LmpCuZw?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "MHMW+7RV, Bờ Huệ, Bình Chánh, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": null,
+        "source": null
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận"
+      },
+      "openingHours": {
+        "value": "06:00-23:00",
+        "estimated": true,
+        "source": null
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Mini+C%E1%BB%8F+Nh%C3%A2n+T%E1%BA%A1o+T%C3%A1nh/data=!4m7!3m6!1s0x3175324254a8a9bb:0x9cb9426a2e75155c!8m2!3d10.6832343!4d106.5970599!16s%2Fg%2F11mtc_dvsn!19sChIJu6moVEIydTERXBV1LmpCuZw?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    },
+    {
+      "name": {
+        "value": "Sân bóng đá Đào Gia Viên",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+%C4%90%C3%A0o+Gia+Vi%C3%AAn/data=!4m7!3m6!1s0x31753b6a7b4d3965:0xe481d733b812e035!8m2!3d10.6759937!4d106.7411658!16s%2Fg%2F11jh27v91r!19sChIJZTlNe2o7dTERNeASuDPXgeQ?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Sân bóng đá Đào Gia Viên"
+      },
+      "district": {
+        "value": "Nhà Bè",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+%C4%90%C3%A0o+Gia+Vi%C3%AAn/data=!4m7!3m6!1s0x31753b6a7b4d3965:0xe481d733b812e035!8m2!3d10.6759937!4d106.7411658!16s%2Fg%2F11jh27v91r!19sChIJZTlNe2o7dTERNeASuDPXgeQ?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "16/2 ấp 2, Nhà Bè, Hồ Chí Minh, Việt Nam"
+      },
+      "address": {
+        "value": "16/2 ấp 2, Nhà Bè, Hồ Chí Minh, Việt Nam",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+%C4%90%C3%A0o+Gia+Vi%C3%AAn/data=!4m7!3m6!1s0x31753b6a7b4d3965:0xe481d733b812e035!8m2!3d10.6759937!4d106.7411658!16s%2Fg%2F11jh27v91r!19sChIJZTlNe2o7dTERNeASuDPXgeQ?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "16/2 ấp 2, Nhà Bè, Hồ Chí Minh, Việt Nam"
+      },
+      "phone": {
+        "value": "0961821565",
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+%C4%90%C3%A0o+Gia+Vi%C3%AAn/data=!4m7!3m6!1s0x31753b6a7b4d3965:0xe481d733b812e035!8m2!3d10.6759937!4d106.7411658!16s%2Fg%2F11jh27v91r!19sChIJZTlNe2o7dTERNeASuDPXgeQ?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "+84 961 821 565"
+      },
+      "fieldTypes": {
+        "value": [
+          "5"
+        ],
+        "estimated": true,
+        "source": null
+      },
+      "courtCount": {
+        "value": 2,
+        "estimated": true,
+        "source": null
+      },
+      "priceVnd": {
+        "value": 300000,
+        "estimated": true,
+        "source": null,
+        "note": "Ước lượng mặt bằng quận"
+      },
+      "openingHours": {
+        "value": "21:00",
+        "estimated": true,
+        "source": "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+%C4%90%C3%A0o+Gia+Vi%C3%AAn/data=!4m7!3m6!1s0x31753b6a7b4d3965:0xe481d733b812e035!8m2!3d10.6759937!4d106.7411658!16s%2Fg%2F11jh27v91r!19sChIJZTlNe2o7dTERNeASuDPXgeQ?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1",
+        "evidence": "Đang mở cửa · Đóng cửa vào 21:00",
+        "note": "Maps chỉ công bố giờ đóng cửa; giờ mở cửa mock được ước lượng."
+      },
+      "sources": [
+        "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+%C4%90%C3%A0o+Gia+Vi%C3%AAn/data=!4m7!3m6!1s0x31753b6a7b4d3965:0xe481d733b812e035!8m2!3d10.6759937!4d106.7411658!16s%2Fg%2F11jh27v91r!19sChIJZTlNe2o7dTERNeASuDPXgeQ?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ],
+      "retrievedOn": "2026-10-30"
+    }
+  ],
+  "coverageNotes": [
+    "Google Maps public queries (2026-10-30): `sân bóng đá mini <quận>, Hồ Chí Minh` cho 17 quận/TP; truy vấn bổ sung `sân bóng mini Phường 4 Tân Bình Hồ Chí Minh`, `sân cỏ nhân tạo Cộng Hòa Tân Bình`, `sân bóng mini Quận 5 Hồ Chí Minh`, `sân cỏ nhân tạo Quận 5 TP HCM`, `sân bóng mini Quận 6 Hồ Chí Minh`, `sân cỏ nhân tạo Quận 6 TP HCM`, `sân bóng mini Phú Nhuận Hồ Chí Minh`, `sân cỏ nhân tạo Phú Nhuận`, `sân bóng mini Bình Tân Hồ Chí Minh`, `sân cỏ nhân tạo Bình Tân`. Quận 1 không còn sân mini đã xác minh sau khi loại Tao Đàn; Gò Vấp hiện có 1 sân đã xác minh, chưa tìm được sân thứ hai. Huyện Củ Chi, Hóc Môn, Cần Giờ: thử `sân bóng đá mini <tên huyện>, Hồ Chí Minh`; kết quả không nêu địa chỉ đủ xác minh thuộc huyện (nhiều kết quả ở quận/huyện khác), nên không đưa vào. Không gặp captcha hoặc đăng nhập.",
+    "Đã loại Tao Đàn (Maps phân loại sân vận động; trang đặt sân ghi sân kích thước 90m × 62m), Lam Sơn (Maps chỉ phân loại tổ hợp thể thao, không xác nhận bóng đá), và Sông Quê được chuyển sang Bình Tân theo address Maps “Bình Trị Đông”. Không tìm thấy sân mini đủ chứng cứ ở Quận 1 sau truy vấn “sân bóng đá mini Quận 1 TP HCM”, “sân cỏ nhân tạo quận 1 Hồ Chí Minh”, “sân bóng đá mini phường Bến Thành Quận 1”.",
+    "Từ 7/2025, TP.HCM bỏ cấp quận/huyện; tên quận trong dataset là địa bàn quận cũ được giữ làm nhãn bộ lọc. Trường district nào evidence không nêu tên quận được đánh dấu derived và ghi căn cứ địa chỉ/phường."
+  ],
+  "deduplicationNotes": [
+    {
+      "venues": [
+        "Khu vui chơi thiếu nhi Khánh Hội sân bóng đá mini khánh hội",
+        "Sân Bóng Đá Khánh Hội"
+      ],
+      "decision": "Giữ riêng. Google Maps công khai hiển thị hai tên địa điểm, hai địa chỉ khác nhau (48/229 Đ. Vĩnh Hội và 1 Đ. Số 48), cùng tọa độ/pin khác nhau (10.7574601,106.6989149 và 10.7569011,106.6994293); chưa thấy nguồn xác nhận là cùng một cơ sở.",
+      "sourceUrls": [
+        "https://www.google.com/maps/place/Khu+vui+ch%C6%A1i+thi%E1%BA%BFu+nhi+Kh%C3%A1nh+H%E1%BB%99i+s%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+mini+kh%C3%A1nh+h%E1%BB%99i/data=!4m7!3m6!1s0x31752f12e9b19a17:0xaca3ce111e84908b!8m2!3d10.7574601!4d106.6989149!16s%2Fg%2F1vyj__t8!19sChIJF5qx6RIvdTERi5CEHhHOo6w?authuser=0&hl=vi",
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%90%C3%A1+Kh%C3%A1nh+H%E1%BB%99i/data=!4m7!3m6!1s0x31752f72bc0d3e89:0x898aeab5504dd975!8m2!3d10.7569011!4d106.6994293!16s%2Fg%2F11fnwhmhkb!19sChIJiT4NvHIvdTERddlNULXqiok?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ]
+    },
+    {
+      "venues": [
+        "Sân Bóng đá Tiểu Ngư",
+        "Sân bóng đá 780 (Sân 3K)"
+      ],
+      "decision": "Giữ riêng. Google Maps hiển thị địa chỉ 780/14e và 780 Sư Vạn Hạnh, hai phone khác nhau (02838680433 và 0967031375), hai pin khác nhau; chưa có nguồn công khai nào xác nhận là cùng cơ sở.",
+      "sourceUrls": [
+        "https://www.google.com/maps/place/S%C3%A2n+B%C3%B3ng+%C4%91%C3%A1+Ti%E1%BB%83u+Ng%C6%B0/data=!4m7!3m6!1s0x31752edc1a966807:0x3ca1685aa48db267!8m2!3d10.7741779!4d106.6703107!16s%2Fg%2F11bccghkk7!19sChIJB2iWGtwudTERZ7KNpFpooTw?authuser=0&hl=vi",
+        "https://www.google.com/maps/place/S%C3%A2n+b%C3%B3ng+%C4%91%C3%A1+780+%28S%C3%A2n+3K%29/data=!4m7!3m6!1s0x31752f7d22fe8945:0x31e30285c5d714d1!8m2!3d10.7737221!4d106.6696885!16s%2Fg%2F11thc_0c2h!19sChIJRYn-In0vdTER0RTXxYUC4zE?authuser=0&hl=vi&g_ep=EgoyMDI2MTAyNy4wIJJjKgBIAVAD&rclk=1"
+      ]
+    }
+  ]
+}
