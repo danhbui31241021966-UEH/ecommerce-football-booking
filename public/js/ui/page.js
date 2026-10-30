@@ -1,7 +1,7 @@
 // Tiện ích chung cho các trang khách: thoát HTML, gắn icon, bắt buộc đăng nhập, nhãn trạng thái.
 import { icon } from '/js/ui/icons.js';
 import { getUser } from '/js/ui/shell.js';
-import { cancelDeadlines, dayLabel, PAYMENT_LABEL, refundFor, STATUS_LABEL, vnToMs } from '/js/ui/format.js';
+import { cancelDeadlines, dayLabel, money, PAYMENT_LABEL, refundFor, STATUS_LABEL, vnToMs } from '/js/ui/format.js';
 
 export const $ = (id) => document.getElementById(id);
 export const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -57,4 +57,20 @@ export function policyStepsHtml(startAt, nowTs) {
   if (vnToMs(d.half) > now) steps.push(`<div class="step"><b>50%</b><span>nếu hủy trước <b>${at(d.half)}</b>${vnToMs(d.full) <= now ? ' (mốc 100% đã qua)' : ''}</span></div>`);
   steps.push(`<div class="step"><b>0%</b><span>${vnToMs(d.half) > now ? 'nếu hủy sau đó' : 'mốc hoàn 100% và 50% đều đã qua, hủy bây giờ không được hoàn'} (tính vào độ tin cậy của bạn)</span></div>`);
   return `<p class="muted" style="font-size:var(--fs-sm);margin-bottom:8px">Nếu hủy ngay bây giờ: hoàn <b>${percent}%</b>.</p>${steps.join('')}`;
+}
+
+/** Khung VietQR dùng ở chi tiết booking và chi tiết nhượng: tiền vào thẳng tài khoản chủ sân. */
+export function qrHtml(q, title = 'Chuyển khoản để giữ sân') {
+  const row = (k, v, copy) => `<div class="copy-row"><div><div class="k">${k}</div><div class="v">${esc(v)}</div></div>${copy ? `<button type="button" data-copy="${esc(copy)}" aria-label="Sao chép ${k.toLowerCase()}">Sao chép</button>` : ''}</div>`;
+  return `<aside class="qr-card" aria-labelledby="qr-title">
+    <div class="row"><span class="h3" id="qr-title">${esc(title)}</span></div>
+    <img class="qr" alt="Mã VietQR chuyển khoản ${money(q.amount)}, nội dung ${esc(q.content)}" src="${esc(q.url)}" width="260" height="260">
+    <p class="amount num">${money(q.amount)}</p>
+    ${row('Ngân hàng', q.bankName)}
+    ${row('Số tài khoản', q.account, q.account)}
+    ${row('Chủ tài khoản', q.accountName)}
+    ${row('Số tiền', String(q.amount), String(q.amount))}
+    ${row('Nội dung', q.content, q.content)}
+    <p style="font-size:12px;color:var(--on-dark-muted)">Tiền vào thẳng tài khoản chủ sân. Chủ sân xác nhận đã nhận tiền trên SânNhanh, SânNhanh không giữ tiền của bạn.</p>
+  </aside>`;
 }

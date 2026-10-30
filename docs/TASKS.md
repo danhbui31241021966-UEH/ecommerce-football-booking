@@ -42,6 +42,11 @@ Ký hiệu: `[ ]` chưa làm · `[~]` đang làm · `[x]` xong.
 - [x] **T11.** Admin: tài khoản, booking, nhật ký (màn 14–16).
 - [ ] Review đợt 2.
 
+## Tính năng bổ sung: nhượng sân thay vì hủy (R12)
+
+- [x] **C.** Nhượng booking — engine mock + `api.js` (đăng, nhận, rút, chủ sân xác nhận/từ chối), màn 17–18, tab "Nhượng sân" ở Booking của tôi, chip ở lưới slot, bảng "Nhượng sân" ở Quản lý booking, thông báo cho người chờ slot, nhật ký `transfer_*`, demo có sẵn 5 đăng nhượng; contract ở PRD mục 7. **Kiểm:** `/tmp/flows/f-transfer.mjs` (390 + 1280), f12, f345.
+- [ ] **A, B.** Hai tính năng tiếp theo theo brief của lead.
+
 ## Giai đoạn 3 – Backend và nối FE
 
 - [ ] **T12.** Đưa phần BE từ `draft/backend-additions` vào `main`, rà lại theo PRD; chuyển response sang camelCase theo contract.

@@ -89,6 +89,7 @@ export const STATUS_LABEL = {
   expired: 'Hết hạn',
   completed: 'Đã đá',
   no_show: 'Bùng sân',
+  transferred: 'Đã nhượng',
 };
 export const PAYMENT_LABEL = { unpaid: 'Chưa thanh toán', paid: 'Đã thanh toán' };
 export const REFUND_LABEL = { none: 'Không hoàn', pending: 'Chờ hoàn tiền', done: 'Đã hoàn tiền' };

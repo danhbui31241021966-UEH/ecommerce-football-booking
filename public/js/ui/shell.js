@@ -7,10 +7,12 @@ const NAV = {
   guest: [
     { href: '/', label: 'Trang chủ' },
     { href: '/venues.html', label: 'Tìm sân' },
+    { href: '/transfers.html', label: 'Nhượng sân' },
   ],
   customer: [
     { href: '/', label: 'Trang chủ' },
     { href: '/venues.html', label: 'Tìm sân' },
+    { href: '/transfers.html', label: 'Nhượng sân' },
     { href: '/my-bookings.html', label: 'Booking của tôi' },
   ],
   owner: [

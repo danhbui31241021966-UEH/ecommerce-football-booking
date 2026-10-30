@@ -23,7 +23,7 @@
     { "key": "k4", "userId": 4, "courtId": 3, "day": -5, "start": "20:00", "status": "cancelled", "paid": true, "cancelledBy": "customer", "lateCancel": true, "refundPercent": 0, "refundStatus": "none", "cancelReason": "Đội thiếu người", "createdMinAgo": 8000 },
     { "key": "k5", "userId": 4, "courtId": 1, "day": -1, "start": "19:00", "status": "confirmed", "paid": true, "createdMinAgo": 3000 },
     { "key": "k6", "userId": 5, "courtId": 1, "day": 1, "start": "20:00", "status": "confirmed", "paid": true, "createdMinAgo": 500 },
-    { "key": "k7", "userId": 5, "courtId": 3, "day": 1, "start": "20:00", "status": "confirmed", "paid": true, "createdMinAgo": 600 },
+    { "key": "k7", "userId": 5, "courtId": 3, "day": 1, "start": "20:00", "status": "confirmed", "paid": true, "createdMinAgo": 600, "transfer": { "askPercent": 80, "minAgo": 3 } },
     { "key": "k8", "userId": 6, "courtId": 5, "day": 1, "start": "19:00", "status": "pending", "expiresInMin": 11, "createdMinAgo": 4 },
     { "key": "k9", "userId": 6, "courtId": 2, "day": 1, "start": "21:00", "status": "pending", "expiresInMin": 12, "createdMinAgo": 3, "note": "Chờ duyệt do độ tin cậy thấp" },
     { "key": "k10", "userId": 5, "courtId": 2, "day": 2, "start": "19:00", "status": "cancelled", "paid": true, "cancelledBy": "customer", "refundPercent": 100, "refundStatus": "pending", "cancelReason": "Trùng lịch giải", "createdMinAgo": 2000, "cancelledMinAgo": 120 },
@@ -33,7 +33,10 @@
     { "key": "k14", "userId": 6, "courtId": 1, "day": -10, "start": "19:00", "status": "no_show", "paid": false, "createdMinAgo": 15000 },
     { "key": "k15", "userId": 6, "courtId": 2, "day": -20, "start": "20:00", "status": "no_show", "paid": false, "createdMinAgo": 30000 },
     { "key": "k16", "userId": 5, "courtId": 2, "day": -1, "start": "20:00", "status": "confirmed", "paid": false, "createdMinAgo": 2800 },
-    { "key": "k17", "userId": 5, "courtId": 11, "day": 1, "start": "19:00", "status": "confirmed", "paid": true, "createdMinAgo": 400 }
+    { "key": "k17", "userId": 5, "courtId": 11, "day": 1, "start": "19:00", "status": "confirmed", "paid": true, "createdMinAgo": 400, "transfer": { "askPercent": 70, "minAgo": 25 } },
+    { "key": "k18", "userId": 7, "courtId": 8, "day": 1, "start": "20:00", "status": "confirmed", "paid": true, "createdMinAgo": 900, "transfer": { "askPercent": 90, "minAgo": 40, "claimedBy": 8, "claimedMinAgo": 1 } },
+    { "key": "k19", "userId": 9, "courtId": 10, "day": 1, "start": "20:00", "status": "confirmed", "paid": true, "createdMinAgo": 1500, "transfer": { "askPercent": 85, "minAgo": 300, "claimedBy": 10, "claimedMinAgo": 120, "done": true } },
+    { "key": "k20", "userId": 11, "courtId": 14, "day": 2, "start": "20:00", "status": "confirmed", "paid": true, "createdMinAgo": 700, "transfer": { "askPercent": 75, "minAgo": 8 } }
   ],
   "blocks": [
     { "courtId": 1, "day": 2, "start": "06:00", "end": "08:00", "reason": "Bảo trì mặt sân" },

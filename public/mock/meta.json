@@ -3,6 +3,7 @@
   "holdMinutes": 15,
   "waitlistOfferMinutes": 10,
   "lastMinuteHours": 3,
+  "transferCloseMinutes": 60,
   "reliabilityWindowDays": 60,
   "reliabilityMaxViolations": 2,
   "banks": [

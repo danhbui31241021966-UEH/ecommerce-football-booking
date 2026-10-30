@@ -831,6 +831,10 @@ body:has(.booking-bar) .role-dock {
   background: var(--danger-bg);
   color: var(--danger);
 }
+.badge-transferred {
+  background: var(--violet-bg, var(--info-bg));
+  color: var(--violet, var(--info));
+}
 .badge-cancelled,
 .badge-expired,
 .badge-unpaid {
@@ -2806,4 +2810,49 @@ dialog.modal .total dd {
 }
 .venue-top a.photo-note:hover {
   text-decoration: underline;
+}
+
+/* Nhượng sân */
+.slot-transfer {
+  display: block;
+  margin-top: var(--sp-1);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.transfer-item .transfer-price {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+.transfer-steps {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--sp-3);
+}
+.transfer-steps li {
+  display: grid;
+  grid-template-columns: 24px 1fr;
+  gap: var(--sp-3);
+  color: var(--muted);
+}
+.transfer-steps li b {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line);
+  font-size: var(--fs-xs);
+}
+.transfer-steps li.on {
+  color: var(--text);
+}
+.transfer-steps li.on b {
+  background: var(--lime-400);
+  border-color: var(--lime-400);
+  color: #000;
 }

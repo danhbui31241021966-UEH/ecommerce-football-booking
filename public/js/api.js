@@ -105,6 +105,14 @@ export const api = {
   joinWaitlist: (body) => post('/api/waitlist', body),
   myWaitlist: () => get('/api/waitlist/mine'),
   leaveWaitlist: (id) => request('DELETE', `/api/waitlist/${id}`),
+  /** Nhượng booking. offerTransfer: body { askPrice } (≤ giá đã trả, làm tròn 1.000đ) → Transfer. */
+  offerTransfer: (bookingId, body) => post(`/api/bookings/${bookingId}/transfer`, body),
+  /** params: { venueId, date, district } → [Transfer] đang mở nhận. */
+  transfers: (params) => get('/api/transfers', params),
+  myTransfers: () => get('/api/transfers/mine'),
+  transfer: (id) => get(`/api/transfers/${id}`),
+  claimTransfer: (id) => post(`/api/transfers/${id}/claim`),
+  withdrawTransfer: (id) => request('DELETE', `/api/transfers/${id}`),
   notifications: () => get('/api/notifications'),
   readAllNotifications: () => post('/api/notifications/read-all'),
 
@@ -124,6 +132,10 @@ export const api = {
     approve: (id) => post(`/api/owner/bookings/${id}/approve`),
     reject: (id, reason) => post(`/api/owner/bookings/${id}/reject`, { reason }),
     cancel: (id, reason) => post(`/api/owner/bookings/${id}/cancel`, { reason }),
+    /** Nhượng booking: danh sách cần xử lý, xác nhận đã nhận tiền của đội nhận, từ chối đội nhận. Hoàn cho đội cũ dùng markRefunded(bookingId). */
+    transfers: () => get('/api/owner/transfers'),
+    confirmTransfer: (id, note) => post(`/api/owner/transfers/${id}/confirm`, { note }),
+    rejectTransfer: (id, reason) => post(`/api/owner/transfers/${id}/reject`, { reason }),
     markPaid: (id, note) => post(`/api/owner/bookings/${id}/paid`, { note }),
     markRefunded: (id, note) => post(`/api/owner/bookings/${id}/refund`, { note }),
     /** result: 'completed' | 'no_show' */

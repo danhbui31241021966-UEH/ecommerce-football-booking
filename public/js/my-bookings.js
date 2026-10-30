@@ -4,10 +4,11 @@ import { getUser, mountShell, toast } from '/js/ui/shell.js';
 import { $, countdown, decorate, esc, paymentBadge, redirectToLogin, statusBadge } from '/js/ui/page.js';
 import { dayLabel, mmss, money, secondsLeft, timeOf, vnToMs } from '/js/ui/format.js';
 
-const TABS = [['upcoming', 'Sắp tới'], ['past', 'Đã qua'], ['waiting', 'Đang chờ slot']];
+const TABS = [['upcoming', 'Sắp tới'], ['past', 'Đã qua'], ['waiting', 'Đang chờ slot'], ['transfers', 'Nhượng sân']];
 let meta;
 let bookings = [];
 let waits = [];
+let transfers = [];
 let tab = new URLSearchParams(location.search).get('tab') || 'upcoming';
 let stops = [];
 
@@ -20,9 +21,23 @@ function bookingCard(b) {
   return `<article class="card booking-item">
     <div class="top"><div><div class="when">${timeOf(b.startAt)}–${timeOf(b.endAt)} · ${dayLabel(b.startAt.slice(0, 10))}</div>
       <div class="where">${esc(b.venueName)} · ${esc(b.courtName)} (sân ${b.fieldType}) · <b class="num">${money(b.price)}</b></div></div>
-      <div class="badges">${statusBadge(b.status)}${['pending', 'confirmed'].includes(b.status) ? paymentBadge(b.paymentStatus) : ''}</div></div>
+      <div class="badges">${statusBadge(b.status)}${['pending', 'confirmed'].includes(b.status) ? paymentBadge(b.paymentStatus) : ''}${['open', 'claimed'].includes(b.transfer?.status) ? '<span class="badge badge-transferred">Đang nhượng</span>' : ''}${b.acquiredByTransfer ? '<span class="badge badge-pending">Nhận nhượng</span>' : ''}</div></div>
     ${pending ? `<span class="countdown" data-cd="${esc(b.expiresAt)}"></span>` : ''}
     <div class="actions"><a class="btn btn-sm${b.status === 'confirmed' && b.paymentStatus === 'unpaid' ? ' btn-lime' : ''}" href="/booking.html?id=${b.id}">${b.status === 'confirmed' && b.paymentStatus === 'unpaid' ? 'Xem mã QR thanh toán' : 'Xem chi tiết'}</a><span class="muted num" style="font-size:var(--fs-sm)">Mã ${esc(b.code)}</span></div>
+  </article>`;
+}
+
+const TR_STATUS = { open: 'Đang nhượng', claimed: 'Đã có đội nhận', completed: 'Đã đổi chủ', cancelled: 'Đã đóng', expired: 'Hết hạn nhượng' };
+const TR_CLASS = { open: 'transferred', claimed: 'pending', completed: 'confirmed', cancelled: 'cancelled', expired: 'expired' };
+
+function transferCard(t) {
+  const refund = t.status === 'completed' ? `<p><b>Hoàn tiền cho bạn:</b> ${t.refund?.status === 'done' ? 'Đã hoàn' : 'Chưa hoàn'} <span class="num">${money(t.refund?.amount ?? t.askPrice)}</span><span class="muted"> · đổi chủ và hoàn tiền là hai bước riêng</span></p>` : '';
+  return `<article class="card booking-item">
+    <div class="top"><div><div class="when">${timeOf(t.startAt)}–${timeOf(t.endAt)} · ${dayLabel(t.startAt.slice(0, 10))}</div>
+      <div class="where">${esc(t.venueName)} · ${esc(t.courtName)} (sân ${t.fieldType}) · giá nhượng <b class="num">${money(t.askPrice)}</b></div></div>
+      <div class="badges"><span class="badge badge-${TR_CLASS[t.status]}">${TR_STATUS[t.status]}</span></div></div>
+    ${refund}
+    <div class="actions"><a class="btn btn-sm" href="/transfer.html?id=${t.id}">Xem đăng nhượng</a><a class="btn btn-sm btn-ghost" href="/booking.html?id=${t.bookingId}">Mở booking</a></div>
   </article>`;
 }
 
@@ -44,11 +59,12 @@ function render() {
   const past = bookings.filter((b) => !isUpcoming(b));
   const waiting = waits.filter((w) => ['waiting', 'offered'].includes(w.status));
   const offers = waiting.filter(offerOf);
-  const counts = { upcoming: upcoming.length, past: past.length, waiting: waiting.length };
-  const lists = { upcoming, past, waiting };
+  const counts = { upcoming: upcoming.length, past: past.length, waiting: waiting.length, transfers: transfers.length };
+  const lists = { upcoming, past, waiting, transfers };
   const empty = {
     upcoming: ['Chưa có booking sắp tới', 'Tìm một sân trống và đặt thử nhé.', '/venues.html', 'Tìm sân'],
     past: ['Chưa có booking đã qua', 'Các booking đã đá, đã hủy hoặc hết hạn sẽ nằm ở đây.', '/venues.html', 'Tìm sân'],
+    transfers: ['Bạn chưa nhượng booking nào', 'Booking đã xác nhận mà bạn không đá được có thể nhượng lại cho đội khác thay vì hủy. Mở booking và chọn “Nhượng lại”.', '/transfers.html', 'Xem booking đang nhượng'],
     waiting: ['Bạn không chờ slot nào', 'Ở slot đang có người giữ, bấm “Báo tôi khi trống” để xếp hàng chờ.', '/venues.html', 'Tìm sân'],
   }[tab];
   $('root').innerHTML = `
@@ -59,7 +75,7 @@ function render() {
     <div class="tabs" role="tablist" style="margin-top:var(--sp-5)">${TABS.map(([k, label]) => `<button type="button" role="tab" data-tab="${k}" aria-selected="${k === tab}">${label}${counts[k] ? `<span class="count">${counts[k]}</span>` : ''}</button>`).join('')}</div>
     <div class="booking-list" role="tabpanel">${
       lists[tab].length
-        ? lists[tab].map(tab === 'waiting' ? waitCard : bookingCard).join('')
+        ? lists[tab].map(tab === 'waiting' ? waitCard : tab === 'transfers' ? transferCard : bookingCard).join('')
         : `<div class="card empty"><div class="art" data-icon="calendar"></div><p><b style="color:var(--text)">${empty[0]}</b><br>${empty[1]}</p><a class="btn btn-lime" href="${empty[2]}">${empty[3]}</a></div>`
     }</div>`;
   decorate();
@@ -72,7 +88,7 @@ function render() {
 
 async function load() {
   try {
-    [meta, bookings, waits] = await Promise.all([api.meta(), api.myBookings(), api.myWaitlist()]);
+    [meta, bookings, waits, transfers] = await Promise.all([api.meta(), api.myBookings(), api.myWaitlist(), api.myTransfers()]);
     render();
   } catch (e) {
     $('root').innerHTML = `<div class="card empty"><p><b style="color:var(--text)">Không tải được dữ liệu</b><br>${esc(e.message)}</p></div>`;

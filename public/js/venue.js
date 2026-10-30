@@ -121,7 +121,7 @@ function cell(court, s, layout) {
       return `<div class="slot slot-blocked">${top('')}<span class="s">Bị chặn</span></div>`;
     case 'booked':
     case 'held':
-      return `<div class="slot slot-${s.status}">${top('')}${s.mine ? `<span class="s">${s.status === 'booked' ? 'Bạn đã đặt' : 'Bạn đang giữ'}</span>` : wait(s.status === 'booked' ? 'Đã đặt' : 'Đang giữ')}</div>`;
+      return `<div class="slot slot-${s.status}">${top('')}${s.mine ? `<span class="s">${s.status === 'booked' ? 'Bạn đã đặt' : 'Bạn đang giữ'}</span>` : wait(s.status === 'booked' ? 'Đã đặt' : 'Đang giữ')}${s.transfer && !s.mine ? `<a class="slot-transfer" href="/transfer.html?id=${s.transfer.id}">Đang nhượng · ${moneyShort(s.transfer.askPrice)}</a>` : ''}</div>`;
     case 'offered':
       if (s.offeredToYou)
         return `<button type="button" class="slot slot-for-you" data-pick ${key} aria-pressed="${!!sel}">${top(moneyShort(s.price))}<span class="s" data-offer="${esc(s.offerExpiresAt)}">Giữ cho bạn</span></button>`;

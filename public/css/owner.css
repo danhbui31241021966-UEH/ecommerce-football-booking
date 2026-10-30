@@ -177,3 +177,31 @@
 @media (min-width: 900px) { .sched-bar .day-chips { width: 360px; } }
 
 .panel-head a { display: inline-flex; align-items: center; min-height: 32px; }
+
+/* Nhượng sân ở Quản lý booking */
+.tr-panel {
+  padding: var(--sp-4);
+  margin-bottom: var(--sp-4);
+}
+.tr-list {
+  list-style: none;
+  margin: var(--sp-3) 0 0;
+  padding: 0;
+}
+.tr-row {
+  display: grid;
+  gap: var(--sp-2);
+  padding: var(--sp-3) 0;
+  border-top: 1px solid var(--line);
+}
+.tr-row .row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+}
+.tr-state {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+}

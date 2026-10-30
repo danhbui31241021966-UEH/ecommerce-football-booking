@@ -27,8 +27,8 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 | Vai trò | Làm gì |
 |---|---|
 | Khách vãng lai | Tìm sân, xem giá và lịch trống. Không cần đăng nhập. |
-| Khách hàng | Đặt sân, thanh toán qua QR, hủy, xếp hàng chờ, nhận thông báo. |
-| Chủ sân | Quản lý sân/sân con, giá, lịch, chặn lịch, duyệt booking, ghi nhận thanh toán/hoàn tiền, đánh dấu có mặt/bùng. |
+| Khách hàng | Đặt sân, thanh toán qua QR, hủy, xếp hàng chờ, nhận thông báo. Nhượng booking đã trả tiền cho đội khác thay vì hủy; nhận nhượng booking của đội khác. |
+| Chủ sân | Quản lý sân/sân con, giá, lịch, chặn lịch, duyệt booking, ghi nhận thanh toán/hoàn tiền, đánh dấu có mặt/bùng, xác nhận đã nhận tiền của đội nhận nhượng (hoặc từ chối đội đó). |
 | Admin | Cấp và khóa tài khoản chủ sân, can thiệp booking ngoại lệ, xem nhật ký. |
 
 ## 3. Phạm vi MVP
@@ -51,9 +51,10 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 | R8 | **VietQR:** chỉ hiện khi booking đã xác nhận và chưa thanh toán. QR theo tài khoản chủ sân, số tiền = giá booking, nội dung = mã booking. Chủ sân tự xác nhận đã nhận tiền. |
 | R9 | **Danh sách chờ:** chỉ đăng ký được cho slot đang có người giữ (không phải slot bị chặn hay đang trống). Khi slot trống lại, người chờ sớm nhất được giữ quyền đặt **10 phút** (không quá giờ bắt đầu); hết hạn thì chuyển cho người kế tiếp. |
 | R10 | **Độ tin cậy:** đếm số lần *bùng sân* (chủ sân đánh dấu no-show) + *hủy muộn* (hủy booking đã xác nhận khi còn <12h) trong **60 ngày**. Từ **2 lần** trở lên, mọi booking mới của khách đó phải chờ chủ sân duyệt, kể cả ở sân tự xác nhận. Chủ sân thấy chỉ số này khi duyệt. |
-| R11 | Trạng thái booking: `pending` chờ duyệt · `confirmed` đã xác nhận · `rejected` bị từ chối · `cancelled` đã hủy · `expired` hết hạn · `completed` đã đá · `no_show` bùng sân. Thanh toán: `unpaid`/`paid`. Hoàn tiền: `none`/`pending`/`done`. |
+| R11 | Trạng thái booking: `pending` chờ duyệt · `confirmed` đã xác nhận · `rejected` bị từ chối · `cancelled` đã hủy · `expired` hết hạn · `completed` đã đá · `no_show` bùng sân · `transferred` đã nhượng cho đội khác (booking của đội cũ; đội nhận có booking `confirmed` + `paid` mới). Thanh toán: `unpaid`/`paid`. Hoàn tiền: `none`/`pending`/`done`. |
+| R12 | **Nhượng booking** (thay cho hủy). Chỉ booking `confirmed` + `paid`. (a) *Đăng:* khách đặt đăng nhượng với giá nhượng là số nguyên, bội số 1.000đ, **không vượt giá đã trả** (không bán lời); chủ sân không phải duyệt việc đăng, chỉ được báo. (b) *Hạn:* đăng và nhận được đến `transferCloseMinutes` (60 phút) trước giờ đá. (c) *Người chờ slot* (R9) được báo ngay lúc đăng và có quyền nhận riêng `waitlistOfferMinutes` phút (không quá hạn nhượng); người khác bị chặn trong lúc đó. (d) *Nhận:* đội đầu tiên bấm nhận thắng, đội thứ hai nhận 409. Nhận xong giữ chỗ `holdMinutes` phút và thấy VietQR của chủ sân, số tiền = giá nhượng, nội dung `NH<mã booking>`; tiền đi thẳng chủ sân. Quá hạn mà chủ sân chưa xác nhận thì đăng nhượng mở lại cho đội khác. (e) *Đổi chủ:* chỉ khi chủ sân bấm xác nhận đã nhận tiền; một bước duy nhất: booking đội cũ → `transferred`, đội nhận có booking `confirmed` + `paid`. Slot không bao giờ trống trong quá trình nhượng. Chủ sân có thể từ chối đội nhận (kèm lý do; thấy độ tin cậy của đội đó). (f) *Hoàn cho đội cũ* là việc **riêng**: số tiền = giá nhượng, `refundStatus` `pending` → `done` do chủ sân ghi nhận như R7; giao diện không được nói "đã hoàn" khi chưa `done`. Đội cũ không bị tính hủy muộn/bùng sân (R10). (g) *Không ai nhận* đến hạn nhượng: đăng nhượng `expired`, booking vẫn của đội cũ, hủy sau đó theo R7 như bình thường. Đội cũ rút đăng nhượng hoặc hủy booking khi chưa có người nhận thì đăng nhượng tự đóng; đã có người nhận thì chưa hủy được cho đến khi chủ sân xác nhận hoặc từ chối. (h) *Độ tin cậy đội nhận:* không chặn đặt nhưng chủ sân thấy R10 của đội nhận khi xác nhận và có quyền từ chối; booking nhận được tính vào R10 như booking thường khi đá/bùng. |
 
-## 5. Danh sách màn hình (16)
+## 5. Danh sách màn hình (18)
 
 ### Khách hàng
 
@@ -64,10 +65,12 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 | 3 | Chi tiết sân | Ảnh, địa chỉ + link Google Maps, tiện ích, nội quy, chính sách hủy. **Lưới slot**: 3 chip ngày; mobile chia Sáng/Chiều/Tối, desktop mỗi cột một sân con. Trạng thái ô: trống / đã đặt / đang giữ / bị chặn / đã qua / đang giữ cho người khác / **đang giữ cho bạn**. Ô đã có người giữ có nút "Báo tôi khi trống". Thanh dưới cùng tóm tắt lựa chọn + giá + nút Đặt. |
 | 4 | Xác nhận đặt (hộp thoại) | Sân, giờ, giá gốc/giảm/tổng, ghi chú, chính sách hủy kèm **mốc giờ cụ thể** ("hủy trước 19:00 30/10 hoàn 100%"). Báo trước nếu booking sẽ phải chờ duyệt (do sân hoặc do độ tin cậy). |
 | 5 | Chi tiết booking + thanh toán | Mã booking, trạng thái, đồng hồ đếm ngược nếu đang chờ duyệt. **VietQR** + ngân hàng, số TK, tên TK, số tiền, nội dung – mỗi dòng có nút Sao chép. Nút hủy hiện số tiền sẽ được hoàn. Lịch sử trạng thái. |
-| 6 | Booking của tôi | Tab: Sắp tới / Đã qua / Đang chờ slot (danh sách chờ, có nút rời hàng; lượt đang được giữ quyền nổi bật kèm hạn). |
+| 6 | Booking của tôi | Tab: Sắp tới / Đã qua / Đang chờ slot (danh sách chờ, có nút rời hàng; lượt đang được giữ quyền nổi bật kèm hạn) / Nhượng sân (các lần mình đăng, kèm Chưa hoàn / Đã hoàn). Trang chi tiết booking (màn 5) có form "Nhượng lại" và nút rút đăng nhượng. |
 | 7 | Thông báo | Danh sách, đánh dấu đã đọc, bấm để mở trang liên quan. *(Dùng chung cho chủ sân.)* |
 | 8 | Đăng nhập | |
 | 9 | Đăng ký | Họ tên, email, số điện thoại, mật khẩu. |
+| 17 | Nhượng sân (danh sách) | Booking đang được nhượng, lọc theo ngày; giá nhượng cạnh giá gốc gạch ngang; nhãn ưu tiên người chờ. Cũng có chip "Đang nhượng · giá" ở ô đã đặt trong lưới slot (màn 3) và mục "Nhượng sân" trên thanh điều hướng. |
+| 18 | Chi tiết nhượng | Giá gốc/giá nhượng, hạn nhận, nút Nhận; sau khi nhận hiện VietQR + đồng hồ; 4 bước giải thích đổi chủ và hoàn tiền là hai việc riêng. |
 
 ### Chủ sân
 
@@ -93,6 +96,7 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 3. **Danh sách chờ:** slot đã có người giữ → "Báo tôi khi trống" → người kia hủy → khách nhận thông báo "slot đang giữ cho bạn đến 19:10" → vào đặt.
 4. **Hủy và hoàn tiền:** khách hủy → web hiện % và số tiền hoàn theo R7 → chủ sân chuyển khoản lại và ghi nhận `done`.
 5. **Bùng sân:** sau giờ đá chủ sân đánh dấu `no_show` → đủ 2 lần trong 60 ngày thì lần đặt sau của khách phải chờ duyệt.
+6. **Nhượng sân:** khách A có booking đã trả tiền nhưng bận → "Nhượng lại" với giá ≤ giá gốc → người đang chờ slot được báo và ưu tiên → đội B nhận, thấy QR, chuyển khoản thẳng chủ sân → chủ sân xác nhận đã nhận tiền → booking sang B, A hiện *Chưa hoàn* → chủ sân chuyển lại tiền cho A và ghi nhận *Đã hoàn*.
 
 ## 7. API contract
 
@@ -104,7 +108,7 @@ Prototype FE dùng dữ liệu giả **đúng theo contract này**; khi có BE c
 
 | Method | Đường dẫn | Mô tả |
 |---|---|---|
-| GET | `/api/meta` | Cấu hình hiển thị: `bookingWindowDays`, `holdMinutes`, `waitlistOfferMinutes`, `lastMinuteHours`, `reliabilityWindowDays`, `reliabilityMaxViolations`, `banks` (BIN + tên ngân hàng). |
+| GET | `/api/meta` | Cấu hình hiển thị: `bookingWindowDays`, `holdMinutes`, `waitlistOfferMinutes`, `lastMinuteHours`, `reliabilityWindowDays`, `reliabilityMaxViolations`, `transferCloseMinutes`, `banks` (BIN + tên ngân hàng). |
 | GET | `/api/venues/districts` | Danh sách quận có sân. |
 | GET | `/api/venues?q=&district=&fieldType=&maxPrice=&date=&from=` | Danh sách sân → `{ date, venues: [Venue] }`. Có `date` thì mỗi sân kèm `availableSlots`. |
 | GET | `/api/venues/slots?date=&at=&district=&fieldType=&maxPrice=&lastMinute=1` | Tìm theo giờ → `{ date, at, slots: [SlotResult] }`; khớp slot bắt đầu trong [at−30 phút, at+60 phút], gần giờ chọn nhất lên trước. |
@@ -133,6 +137,12 @@ Prototype FE dùng dữ liệu giả **đúng theo contract này**; khi có BE c
 | POST | `/api/waitlist` | `{ courtId, date, start }` → `{ position }` |
 | GET | `/api/waitlist/mine` | `[WaitlistEntry]` |
 | DELETE | `/api/waitlist/:id` | Rời hàng chờ. |
+| POST | `/api/bookings/:id/transfer` | `{ askPrice }` → `Transfer`. Chủ booking, booking `confirmed` + `paid`, trước giờ đá `transferCloseMinutes` phút. 400: giá không nguyên/bội 1.000đ, vượt giá đã trả, quá hạn; 409: chưa xác nhận/chưa trả tiền, đã có đăng nhượng; 404: không phải booking của mình. |
+| GET | `/api/transfers?venueId=&date=&district=` | `[Transfer]` đang mở nhận (xem không cần đăng nhập; có đăng nhập thì `role` và `priorityLocked` theo người xem). |
+| GET | `/api/transfers/mine` | `[Transfer]` các lần mình đăng và các lần mình nhận. |
+| GET | `/api/transfers/:id` | `Transfer`. `paymentQr` chỉ có cho đội nhận khi `status = claimed`. |
+| POST | `/api/transfers/:id/claim` | → `Transfer` (kèm `paymentQr`). 409: không còn mở, đã có đội khác nhận, đang ưu tiên người chờ; 400/409: quá hạn hoặc tự nhận booking của mình. |
+| DELETE | `/api/transfers/:id` | Đội đăng rút. 409 nếu đã có đội nhận. |
 | GET | `/api/notifications` | `{ unread, items: [Notification] }` |
 | POST | `/api/notifications/read-all` | |
 
@@ -150,6 +160,11 @@ Prototype FE dùng dữ liệu giả **đúng theo contract này**; khi có BE c
 | POST | `/bookings/:id/approve` · `/reject` · `/cancel` | Duyệt / từ chối / hủy (`{ reason }`). |
 | POST | `/bookings/:id/paid` · `/refund` | Ghi nhận đã thu / đã hoàn (`{ note }`). |
 | POST | `/bookings/:id/attendance` | `{ result: "completed" hoặc "no_show" }` |
+| GET | `/transfers` | `[Transfer]` của sân mình cần xử lý: `claimed` (chờ xác nhận tiền), `open`, và `completed` còn chờ hoàn cho đội cũ. |
+| POST | `/transfers/:id/confirm` | `{ note }` → `Transfer`. Chỉ khi `claimed` và còn hạn giữ chỗ. Đổi chủ trong một bước. 409 nếu không hợp lệ. |
+| POST | `/transfers/:id/reject` | `{ reason }` (bắt buộc) → `Transfer`. Báo đội nhận; mở lại nếu còn hạn nhượng, ngược lại `expired`. |
+
+Hoàn cho đội cũ dùng `POST /bookings/:bookingId/refund` có sẵn (booking `transferred`, `refundAmount` = giá nhượng).
 
 ### Admin (`/api/admin`)
 
@@ -164,14 +179,15 @@ Venue        { id, name, district, address, phone, imageUrl, amenities[], openTi
 VenueDetail  Venue + { description, rules, peakStart, peakEnd, cancelPolicy, mapsUrl,
                courts: [{ id, name, fieldType, price, peakPrice }] }
 Schedule     { date, slotMinutes, courts: [{ id, name, fieldType, slots: [Slot] }] }
-Slot         { start, end, basePrice, discountPercent, price, peak,
+Slot         { start, end, transfer? { id, askPrice, originalPrice } (ô đã đặt đang nhượng), basePrice, discountPercent, price, peak,
                status: "available"|"booked"|"held"|"blocked"|"past"|"offered",
                offeredToYou?, offerExpiresAt?, onWaitlist? }
 SlotResult   { venueId, venueName, district, address, requiresApproval, courtId, courtName,
                fieldType, start, end, price, basePrice, discountPercent, peak, offeredToYou }
 Booking      { id, code, venueId, venueName, courtId, courtName, fieldType, startAt, endAt,
                status, expiresAt, price, basePrice, discountPercent, paymentStatus,
-               refundStatus, refundPercent, refundAmount, cancelledBy, cancelReason, createdAt }
+               refundStatus, refundPercent, refundAmount, cancelledBy, cancelReason, createdAt,
+               acquiredByTransfer, transfer? { id, status, askPrice, closesAt, claimExpiresAt } }
 BookingDetail Booking + { customerNote, rulesSnapshot, policySnapshot, history: [{ action,
                fromStatus, toStatus, actorName, note, createdAt }], paymentQr: PaymentQr|null,
                customerReliability: Reliability|null }
@@ -179,6 +195,13 @@ PaymentQr    { url, bankName, account, accountName, amount, content }
 Reliability  { noShows, lateCancels, completed, violations, windowDays, maxViolations, restricted }
 WaitlistEntry { id, venueId, venueName, courtId, courtName, fieldType, startAt, endAt,
                status: "waiting"|"offered", offerExpiresAt, offerActive }
+Transfer     { id, status: "open"|"claimed"|"completed"|"cancelled"|"expired", askPrice, originalPrice,
+               discountPercent, venueId, venueName, courtId, courtName, fieldType, startAt, endAt,
+               createdAt, closesAt, priorityUntil, priorityLocked, role: "giver"|"claimer"|"staff"|null,
+               claimedAt, claimExpiresAt, endReason,
+               giver/staff: bookingId, bookingCode, refund { status, amount }|null;
+               claimer: newBookingId, paymentQr|null;
+               staff: giverName, claimerName, claimerPhone, claimerReliability, newBookingId, paymentContent }
 Notification { id, bookingId, message, link, isRead, createdAt }
 User         { id, fullName, email, phone, role: "customer"|"owner"|"admin" }
 ```

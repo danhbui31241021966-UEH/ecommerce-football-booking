@@ -46,6 +46,7 @@ export const STATUS_LABEL = {
   expired: 'Hết hạn',
   completed: 'Đã đá',
   no_show: 'Bùng sân',
+  transferred: 'Đã nhượng',
 };
 export const badge = (status, label = STATUS_LABEL[status]) => `<span class="badge badge-${status}">${esc(label)}</span>`;
 export const payBadge = (b) =>
@@ -271,7 +272,7 @@ export async function runAction(kind, b) {
       const r = await dialog({
         title: 'Ghi nhận đã hoàn tiền',
         confirm: `Đã hoàn ${money(b.refundAmount)}`,
-        body: `${who(b)}<p>Hoàn <b>${money(b.refundAmount)}</b> (${b.refundPercent}%) cho khách bằng chuyển khoản, rồi ghi nhận ở đây.</p>${noteField('Ghi chú (không bắt buộc)', 'Ví dụ: mã giao dịch')}`,
+        body: `${who(b)}<p>${b.status === 'transferred' ? `Booking đã nhượng cho đội khác. Hoàn <b>${money(b.refundAmount)}</b> (số tiền đội nhận đã chuyển) cho đội cũ` : `Hoàn <b>${money(b.refundAmount)}</b> (${b.refundPercent}%) cho khách`} bằng chuyển khoản, rồi ghi nhận ở đây.</p>${noteField('Ghi chú (không bắt buộc)', 'Ví dụ: mã giao dịch')}`,
       });
       return r && call(() => api.owner.markRefunded(b.id, r.note.trim()));
     }

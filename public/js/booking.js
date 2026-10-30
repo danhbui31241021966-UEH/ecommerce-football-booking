@@ -1,8 +1,8 @@
 // Màn 5: chi tiết booking, QR thanh toán, hạn duyệt, hủy kèm số tiền hoàn, lịch sử.
 import { api } from '/js/api.js';
 import { getUser, mountShell, toast } from '/js/ui/shell.js';
-import { $, countdown, decorate, esc, paymentBadge, policyStepsHtml, redirectToLogin, statusBadge } from '/js/ui/page.js';
-import { dayLabel, mmss, money, refundFor, REFUND_LABEL, STATUS_LABEL, secondsLeft, shortTs, timeOf } from '/js/ui/format.js';
+import { $, countdown, decorate, esc, paymentBadge, policyStepsHtml, qrHtml, redirectToLogin, statusBadge } from '/js/ui/page.js';
+import { dayLabel, mmss, money, refundFor, REFUND_LABEL, STATUS_LABEL, secondsLeft, shortTs, timeOf, vnToMs, msToVn } from '/js/ui/format.js';
 
 const id = Number(new URLSearchParams(location.search).get('id'));
 let b;
@@ -11,33 +11,48 @@ let meta;
 const ACTION = {
   create: 'Tạo booking', approve: 'Chủ sân duyệt', reject: 'Chủ sân từ chối', cancel: 'Hủy booking', expire: 'Hết hạn chưa duyệt',
   paid: 'Xác nhận đã thanh toán', refund: 'Xác nhận đã hoàn tiền', attendance: 'Điểm danh',
+  transfer_open: 'Đăng nhượng', transfer_withdraw: 'Đóng đăng nhượng', transfer_claim: 'Có đội nhận nhượng', transfer_release: 'Mở lại đăng nhượng',
+  transfer_reject: 'Chủ sân từ chối đội nhận', transfer_expire: 'Hết hạn nhượng', transfer_done: 'Đã nhượng cho đội khác',
 };
 const BY = { customer: 'bạn', owner: 'chủ sân', admin: 'quản trị viên' };
 
 const at = (ts) => `${timeOf(ts)} ${dayLabel(ts.slice(0, 10))}`;
-const canCancel = () => ['pending', 'confirmed'].includes(b.status) && secondsLeft(b.startAt, meta.now) > 0;
+const claimed = () => b.transfer?.status === 'claimed';
+const canCancel = () => ['pending', 'confirmed'].includes(b.status) && secondsLeft(b.startAt, meta.now) > 0 && !claimed();
 
 const policyHtml = () => `<div class="policy">${policyStepsHtml(b.startAt, meta.now)}</div>`;
 
 function refundNote() {
+  if (b.status === 'transferred') {
+    const done = b.refundStatus === 'done';
+    return `<div class="refund-box"><b>${done ? 'Đã hoàn' : 'Chưa hoàn'}</b> · khoản hoàn cho đội nhượng <b class="num">${money(b.refundAmount)}</b>. ${done ? 'Chủ sân đã chuyển khoản lại cho bạn.' : 'Booking đã chuyển cho đội khác nhưng chủ sân chưa chuyển khoản lại cho bạn; khi xong, chủ sân sẽ ghi nhận ở đây.'}</div>`;
+  }
   if (b.status !== 'cancelled' && b.status !== 'rejected' && b.status !== 'expired') return '';
   if (b.paymentStatus !== 'paid') return `<div class="refund-box">Booking này chưa thanh toán nên không phát sinh hoàn tiền.</div>`;
   return `<div class="refund-box"><b>${REFUND_LABEL[b.refundStatus] || ''}</b> · hoàn ${b.refundPercent}% = <b class="num">${money(b.refundAmount)}</b>. Chủ sân chuyển khoản lại cho bạn.</div>`;
 }
 
-function qrHtml(q) {
-  const row = (k, v, copy) => `<div class="copy-row"><div><div class="k">${k}</div><div class="v">${esc(v)}</div></div>${copy ? `<button type="button" data-copy="${esc(copy)}" aria-label="Sao chép ${k.toLowerCase()}">Sao chép</button>` : ''}</div>`;
-  return `<aside class="qr-card" aria-labelledby="qr-title">
-    <div class="row"><span class="h3" id="qr-title">Chuyển khoản để giữ sân</span></div>
-    <img class="qr" alt="Mã VietQR chuyển khoản ${money(q.amount)}, nội dung ${esc(q.content)}" src="${esc(q.url)}" width="260" height="260">
-    <p class="amount num">${money(q.amount)}</p>
-    ${row('Ngân hàng', q.bankName)}
-    ${row('Số tài khoản', q.account, q.account)}
-    ${row('Chủ tài khoản', q.accountName)}
-    ${row('Số tiền', String(q.amount), String(q.amount))}
-    ${row('Nội dung', q.content, q.content)}
-    <p style="font-size:12px;color:var(--on-dark-muted)">Tiền vào thẳng tài khoản chủ sân. Chủ sân xác nhận đã nhận tiền trên SânNhanh, SânNhanh không giữ tiền của bạn.</p>
-  </aside>`;
+// Nhượng booking: chỉ booking đã xác nhận và đã thanh toán, đăng trước giờ đá transferCloseMinutes phút.
+function transferBox() {
+  const t = b.transfer;
+  if (b.status === 'transferred') return `<div class="card card-pad stack"><h2 class="h3">Đã nhượng cho đội khác</h2><p class="muted" style="font-size:var(--fs-sm)">Chủ sân đã xác nhận nhận tiền của đội nhận, booking này không còn thuộc về bạn. Việc đổi chủ và việc hoàn tiền là hai bước riêng: xem khoản hoàn ở trên.</p></div>`;
+  if (b.status !== 'confirmed') return '';
+  if (t && ['open', 'claimed'].includes(t.status)) {
+    const lines = t.status === 'claimed'
+      ? `<div class="notice warn" role="status"><div><b>Đã có đội nhận.</b> Chờ chủ sân xác nhận đã nhận tiền của đội đó (còn <span id="tr-cd"></span>). Trước khi xác nhận, booking vẫn của bạn và chưa có khoản hoàn nào; bạn chưa hủy hay rút được lúc này.</div></div>`
+      : `<div class="notice" role="status"><div><b>Đang đăng nhượng ${money(t.askPrice)}</b> (giá bạn đã trả ${money(b.price)}). Đội khác nhận được đến ${timeOf(t.closesAt)}. Không ai nhận thì booking vẫn của bạn.</div></div>`;
+    return `<div class="card card-pad stack"><h2 class="h3">Nhượng booking</h2>${lines}<div class="row"><a class="btn btn-sm" href="/transfer.html?id=${t.id}">Xem trang nhượng</a>${t.status === 'open' ? '<button type="button" class="btn btn-sm btn-ghost" id="withdraw-transfer">Rút đăng nhượng</button>' : ''}</div></div>`;
+  }
+  const closes = secondsLeft(b.startAt, meta.now) - meta.transferCloseMinutes * 60;
+  if (b.paymentStatus !== 'paid') return `<div class="card card-pad stack"><h2 class="h3">Nhượng booking</h2><p class="muted" style="font-size:var(--fs-sm)">Chỉ nhượng được booking đã thanh toán: khoản hoàn cho bạn lấy từ tiền đội nhận trả.</p></div>`;
+  if (closes <= 0) return `<div class="card card-pad stack"><h2 class="h3">Nhượng booking</h2><p class="muted" style="font-size:var(--fs-sm)">Đã quá hạn nhượng (phải đăng trước giờ đá ${meta.transferCloseMinutes} phút).</p></div>`;
+  return `<form class="card card-pad stack" id="transfer-form">
+    <h2 class="h3">Bận không đá được? Nhượng lại</h2>
+    <p class="muted" style="font-size:var(--fs-sm)">Đội khác nhận và chuyển tiền thẳng chủ sân; chủ sân xác nhận xong thì booking chuyển sang họ, bạn không bị tính hủy muộn hay bùng sân. Bạn được hoàn đúng số tiền đội nhận trả, chủ sân chuyển lại sau.</p>
+    <div class="field"><label for="ask-price">Giá nhượng (không vượt ${money(b.price)})</label><input class="input num" id="ask-price" type="number" inputmode="numeric" min="1000" max="${b.price}" step="1000" value="${b.price}" required></div>
+    <p class="dlg-error" id="transfer-error" role="alert" hidden></p>
+    <div class="row"><button type="submit" class="btn btn-primary">Đăng nhượng</button><span class="muted" style="font-size:var(--fs-sm)">Hạn nhận: trước ${timeOf(msToVn(vnToMs(b.startAt) - meta.transferCloseMinutes * 60000))}</span></div>
+  </form>`;
 }
 
 function render() {
@@ -56,7 +71,7 @@ function render() {
       <div class="area-sum">
         <div class="card card-pad stack">
           <div class="row"><h1 class="booking-code">${esc(b.code)}</h1><span class="spacer"></span>${statusBadge(b.status)}${paymentBadge(b.paymentStatus)}</div>
-          ${pending ? `<div class="notice warn" role="status"><span class="countdown" id="cd"></span></div>${pendingReason ? `<p class="muted" style="font-size:var(--fs-sm)">${esc(pendingReason)}</p>` : ''}` : ''}
+          ${pending ? `<div class="notice warn" role="status"><div><span class="countdown" id="cd"></span></div></div>${pendingReason ? `<p class="muted" style="font-size:var(--fs-sm)">${esc(pendingReason)}</p>` : ''}` : ''}
           ${b.status === 'confirmed' && b.paymentStatus === 'unpaid' && !hasQr ? '<div class="notice">Booking đã được xác nhận. Sân này chưa cấu hình VietQR, vui lòng liên hệ chủ sân để thanh toán.</div>' : ''}
           ${b.status === 'confirmed' && b.paymentStatus === 'paid' ? '<div class="notice">Chủ sân đã nhận tiền. Hẹn gặp bạn trên sân.</div>' : ''}
           <dl class="kv">
@@ -73,6 +88,7 @@ function render() {
       </div>
       ${hasQr ? qrHtml(b.paymentQr) : ''}
       <div class="stack area-rest">
+        ${transferBox()}
         ${canCancel() ? `<div class="card card-pad stack">
           <h2 class="h3">Chính sách hủy</h2>
           ${policyHtml()}
@@ -88,6 +104,7 @@ function render() {
     </div>`;
   document.title = `${b.code} – SânNhanh`;
   decorate();
+  if (claimed()) countdown($('tr-cd'), secondsLeft(b.transfer.claimExpiresAt, meta.now), (n) => (n > 0 ? mmss(n) : 'hết hạn'), load);
   if (pending) {
     countdown($('cd'), secondsLeft(b.expiresAt, meta.now), (n) => (n > 0 ? `Chờ chủ sân duyệt · còn ${mmss(n)}` : 'Đã hết thời gian chờ duyệt'), load);
   }
@@ -138,9 +155,30 @@ document.addEventListener('click', async (e) => {
     toast(`Đã sao chép ${copy.dataset.copy}`);
   }
   if (e.target.closest('#open-cancel')) openCancel();
+  if (e.target.closest('#withdraw-transfer')) {
+    try {
+      await api.withdrawTransfer(b.transfer.id);
+      toast('Đã rút đăng nhượng.');
+      await load();
+    } catch (err) {
+      toast(err.message, { error: true });
+    }
+  }
   if (e.target.closest('[data-close]')) $('cancel-dialog').close();
 });
 $('do-cancel').addEventListener('click', doCancel);
+document.addEventListener('submit', async (e) => {
+  if (e.target.id !== 'transfer-form') return;
+  e.preventDefault();
+  try {
+    await api.offerTransfer(id, { askPrice: Number($('ask-price').value) });
+    toast('Đã đăng nhượng. Bạn sẽ được báo khi có đội nhận.');
+    await load();
+  } catch (err) {
+    $('transfer-error').textContent = err.message;
+    $('transfer-error').hidden = false;
+  }
+});
 
 await mountShell();
 if (!getUser()) redirectToLogin();
