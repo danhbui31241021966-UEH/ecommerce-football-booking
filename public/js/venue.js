@@ -8,6 +8,20 @@ const DOW = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
 const params = new URLSearchParams(location.search);
 const venueId = Number(params.get('id'));
 
+const ESTIMATED_LABEL = { courtCount: 'số sân con', fieldTypes: 'loại sân', openingHours: 'giờ mở cửa', priceVnd: 'giá' };
+const DERIVED_LABEL = { district: 'khu vực', address: 'địa chỉ', name: 'tên', phone: 'số điện thoại' };
+
+// Sân lấy từ nguồn công khai: ghi nguồn, ngày lấy và các trường chỉ là ước lượng (dataSource do dữ liệu cung cấp).
+function sourceNote(ds) {
+  if (!ds) return '';
+  const links = ds.sources.map((s) => `<a href="${esc(s.url)}" target="_blank" rel="noopener">${esc(s.label)}</a>`).join(', ');
+  const [y, m, d] = ds.retrievedOn.split('-');
+  const parts = [`Nguồn dữ liệu: ${links}, lấy ngày ${d}/${m}/${y}.`];
+  if (ds.estimated.length) parts.push(`Ước lượng: ${ds.estimated.map((k) => ESTIMATED_LABEL[k] || k).join(', ')}.`);
+  if (ds.derived?.length) parts.push(`Suy ra từ địa chỉ: ${ds.derived.map((k) => DERIVED_LABEL[k] || k).join(', ')}.`);
+  return `<p class="muted source-note">${parts.join(' ')}</p>`;
+}
+
 let venue;
 let meta;
 let today;
@@ -36,7 +50,7 @@ function renderTop() {
   $('venue-root').innerHTML = `
     <p class="crumb"><a href="/">Trang chủ</a> / <a href="/venues.html?date=${date}">Tìm sân</a> / ${esc(venue.name)}</p>
     <div class="venue-top" style="margin-top:var(--sp-3)">
-      <div class="photo"><img src="${esc(venue.imageUrl)}" width="900" height="506" alt="Ảnh ${esc(venue.name)}"></div>
+      <div class="photo"><img src="${esc(venue.imageUrl)}" width="900" height="506" alt="${venue.imageIsIllustrative ? 'Ảnh minh họa, không phải ảnh của sân' : `Ảnh ${esc(venue.name)}`}">${venue.imageIsIllustrative ? '<span class="photo-note">Ảnh minh họa</span>' : ''}</div>
       <div class="info">
         <div class="row" style="gap:8px">${modeTag(venue.requiresApproval)}${venue.lastMinutePercent ? `<span class="tag-sale">Giờ chót -${venue.lastMinutePercent}%</span>` : ''}</div>
         <h1 class="h1">${esc(venue.name)}</h1>
@@ -44,12 +58,13 @@ function renderTop() {
           <a href="${esc(venue.mapsUrl)}" target="_blank" rel="noopener">Mở Google Maps</a></div>
         <p><span class="price">${money(venue.minPrice)}</span> <span class="muted">– ${money(venue.maxPrice)} / ${unit} · mở ${venue.openTime}–${venue.closeTime}</span></p>
         <p class="muted">${esc(venue.description)}</p>
-        <div class="amenities" aria-label="Tiện ích">${venue.amenities.map((a) => `<span>${esc(a)}</span>`).join('')}</div>
+        ${venue.amenities.length ? `<div class="amenities" aria-label="Tiện ích">${venue.amenities.map((a) => `<span>${esc(a)}</span>`).join('')}</div>` : ''}
         ${venue.phone ? `<p class="muted" style="font-size:var(--fs-sm)">Điện thoại: <a href="tel:${esc(venue.phone)}">${esc(venue.phone)}</a></p>` : ''}
+        ${sourceNote(venue.dataSource)}
       </div>
     </div>
     <div class="rules-grid card card-pad" style="margin-bottom:var(--sp-8)">
-      <div><h3>Nội quy sân</h3><p>${esc(venue.rules)}</p></div>
+      ${venue.rules ? `<div><h3>Nội quy sân</h3><p>${esc(venue.rules)}</p></div>` : ''}
       <div><h3>Chính sách hủy</h3><p>${esc(venue.cancelPolicy)}</p></div>
     </div>
     <section aria-labelledby="pick-title">

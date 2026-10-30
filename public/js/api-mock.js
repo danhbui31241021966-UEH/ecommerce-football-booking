@@ -318,6 +318,7 @@ function toVenue(v, extra = {}) {
     address: v.address,
     phone: v.phone,
     imageUrl: v.imageUrl,
+    imageIsIllustrative: !!v.dataSource,
     amenities: v.amenities,
     openTime: v.openTime,
     closeTime: v.closeTime,
@@ -343,6 +344,7 @@ function toVenueDetail(v, owner = false) {
     peakEnd: v.peakEnd,
     cancelPolicy: v.cancelPolicy,
     mapsUrl: v.mapsUrl,
+    ...(v.dataSource ? { dataSource: v.dataSource } : {}),
     courts: (owner ? v.courts : activeCourts(v)).map((c) => courtOut(c, owner)),
     ...(owner ? { isActive: v.isActive, bankBin: v.bank?.bin || '', bankAccount: v.bank?.account || '', bankAccountName: v.bank?.accountName || '' } : {}),
   };

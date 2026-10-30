@@ -2437,10 +2437,22 @@ body:has(.booking-bar) .toast-stack {
   margin-bottom: var(--sp-8);
 }
 .venue-top .photo {
+  position: relative;
   aspect-ratio: 16 / 9;
   border-radius: var(--r-lg);
   overflow: hidden;
   background: var(--pitch-800);
+}
+.venue-top .photo-note {
+  position: absolute;
+  left: var(--sp-2);
+  bottom: var(--sp-2);
+  padding: 2px 8px;
+  border-radius: var(--r-full);
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
 }
 .venue-top .photo img {
   display: block;
@@ -2452,6 +2464,11 @@ body:has(.booking-bar) .toast-stack {
   display: grid;
   gap: var(--sp-3);
   align-content: start;
+}
+.venue-top .source-note {
+  font-size: 12px;
+  line-height: 1.5;
+  overflow-wrap: anywhere;
 }
 .venue-top .addr {
   display: flex;

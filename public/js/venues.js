@@ -66,7 +66,7 @@ function card(v, i, pills) {
   const unit = v.slotMinutes === 60 ? 'giờ' : `ca ${v.slotMinutes} phút`;
   const detail = `/venue.html?id=${v.id}&date=${state.date}`;
   return `<article class="card card-hover venue-card">
-    <div class="media"><img src="${esc(v.imageUrl || PHOTOS[i % 3])}" width="900" height="450" loading="lazy" alt="Ảnh ${esc(v.name)}">
+    <div class="media"><img src="${esc(v.imageUrl || PHOTOS[i % 3])}" width="900" height="450" loading="lazy" alt="${v.imageIsIllustrative ? 'Ảnh minh họa, không phải ảnh của sân' : `Ảnh ${esc(v.name)}`}">
       ${best ? `<div class="tags"><span class="tag-sale">-${best}% giờ chót</span></div>` : ''}</div>
     <div class="body">
       <div class="row" style="gap:8px">${modeTag(v.requiresApproval)}</div>
