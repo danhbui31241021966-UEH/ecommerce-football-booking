@@ -3034,3 +3034,37 @@ a.slot-team {
 .sim-box summary { cursor: pointer; font-size: 12px; color: var(--on-dark-muted); }
 .sim-wrong { display: flex; flex-wrap: wrap; gap: var(--sp-2); margin-top: var(--sp-2); }
 .sim-note { font-size: 12px; color: var(--on-dark-muted); }
+
+/* ---------- Giải đấu ---------- */
+.slot-league { border-color: #bcd3f5; background: #eef4fd; color: #1d4e9a; }
+.slot-league .s { color: #1d4e9a; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; line-height: 1.25; }
+.venue-leagues ul { margin: var(--sp-2) 0 0; padding-left: 1.1em; }
+.lg-head { display: grid; gap: var(--sp-2); margin-bottom: var(--sp-4); }
+.lg-actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.lg-sec { margin-bottom: var(--sp-4); }
+.lg-sec > .h2 { margin-bottom: var(--sp-3); }
+.lg-table-wrap { overflow-x: auto; }
+.lg-table { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+.lg-table th, .lg-table td { padding: 8px 6px; text-align: center; border-bottom: 1px solid var(--line); font-size: var(--fs-sm); }
+.lg-table th:nth-child(2), .lg-table td:nth-child(2) { text-align: left; overflow-wrap: anywhere; width: 100%; }
+.lg-table tbody tr:first-child td { font-weight: 700; }
+.lg-table td.pts { font-weight: 800; }
+.lg-out { color: var(--muted); font-size: var(--fs-xs); font-weight: 600; }
+.lg-round { margin: var(--sp-3) 0 var(--sp-1); font-size: var(--fs-sm); font-weight: 800; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+.lg-match { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; padding: var(--sp-3) 0; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+.lg-match .teams { font-weight: 700; }
+.lg-match .score { font-weight: 800; font-variant-numeric: tabular-nums; }
+.lg-match .when { color: var(--text-2); font-size: var(--fs-sm); }
+.lg-match .row-actions { display: flex; flex-wrap: wrap; gap: var(--sp-2); }
+.lg-hist { font-size: var(--fs-xs); color: var(--muted); }
+.lg-hist li { margin-top: 2px; }
+.lg-rules { white-space: pre-line; overflow-wrap: anywhere; font-size: var(--fs-sm); color: var(--text-2); }
+.lg-team { display: grid; grid-template-columns: minmax(0, 1fr); gap: 4px; padding: var(--sp-3) 0; border-top: 1px solid var(--line); overflow-wrap: anywhere; }
+.lg-card { display: grid; gap: 4px; padding: var(--sp-3) var(--sp-4); border-top: 1px solid var(--line); text-decoration: none; color: inherit; }
+.plain-list { list-style: none; margin: 0; padding: 0; }
+.badge-lg-draft { background: var(--surface-2, #eef0f3); color: var(--text-2); }
+.badge-lg-published { background: #eef4fd; color: #1d4e9a; }
+.badge-lg-ongoing { background: #e6f6ea; color: #1b6b36; }
+.badge-lg-finished { background: #eef0f3; color: var(--text-2); }
+.slot.slot-league .s { white-space: normal; text-overflow: clip; max-width: 100%; }
+

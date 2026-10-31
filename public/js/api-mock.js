@@ -6,7 +6,7 @@ import {
   vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs, weekdayOf,
 } from './ui/format.js';
 
-const STORE_KEY = 'sannhanh.mock.v10';
+const STORE_KEY = 'sannhanh.mock.v11';
 const STATUSES = ['pending', 'confirmed', 'rejected', 'cancelled', 'expired', 'completed', 'no_show', 'transferred', 'matching'];
 
 let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
@@ -66,6 +66,9 @@ function buildState() {
     notifications: [],
     logs: [],
     bankEvents: [], // mọi khoản "ngân hàng báo có tiền" đã nhận (khớp, lệch, trùng), như webhook SePay
+    leagues: [], // giải tại một sân (chủ sân tạo)
+    leagueTeams: [],
+    leagueMatches: [],
     bankQueue: [], // khoản khách bấm "giả lập chuyển khoản", chờ vài giây rồi mới báo về
   };
   S = st;
@@ -154,6 +157,7 @@ function buildState() {
   seedTransfers(st, keyToBooking, ago);
   seedMatches(st, ago);
   seedPhoneBookings(st);
+  seedLeagues(st);
   seedRequests(st, ago);
   for (const n of seeds.bookings.notifications) {
     let bookingId = null;
@@ -407,6 +411,7 @@ function slotInfo(court, venue, date, start, viewer, forSeed = false, detail = f
     }
   }
   if (mine) slot.mine = true;
+  if (block?.leagueId) slot.league = { id: block.leagueId, name: S.leagues.find((l) => l.id === block.leagueId)?.name || '' };
   const teamMode = teamModeAt(court, start);
   const matchOf = booking && matchOfBooking(booking);
   if (matchOf) slot.match = { id: matchOf.id, status: matchOf.status, joinable: joinable(matchOf) && !mine };
@@ -427,7 +432,7 @@ function slotInfo(court, venue, date, start, viewer, forSeed = false, detail = f
       const u = customerOf(booking);
       slot.booking = { id: booking.id, code: booking.code, status: booking.status, paymentStatus: booking.paymentStatus, customerName: u.fullName, customerPhone: u.phone, source: booking.walkIn ? 'phone' : 'web' };
     }
-    if (block) slot.block = { id: block.id, reason: block.reason };
+    if (block) slot.block = { id: block.id, reason: block.reason, ...(block.leagueId ? { leagueId: block.leagueId } : {}) };
     const waiting = slotWaiters(court.id, date, start).length;
     if (waiting) slot.waitlistCount = waiting;
   }
@@ -491,6 +496,7 @@ function toVenueDetail(v, owner = false) {
     peakEnd: v.peakEnd,
     cancelPolicy: v.cancelPolicy,
     mapsUrl: v.mapsUrl,
+    leagues: venueLeagues(v.id),
     ...(v.dataSource ? { dataSource: v.dataSource } : {}),
     courts: (owner ? v.courts : activeCourts(v)).map((c) => courtOut(c, owner)),
     ...(owner ? { isActive: v.isActive, bankBin: v.bank?.bin || '', bankAccount: v.bank?.account || '', bankAccountName: v.bank?.accountName || '' } : {}),
@@ -2652,6 +2658,7 @@ route('DELETE', '/api/owner/blocks/:id', (c) => {
   const k = S.blocks.find((x) => x.id === Number(c.params.id));
   if (!k) fail(404, 'Không tìm thấy lịch chặn');
   if (k.ownerId !== u.id) fail(403, 'Lịch chặn này không thuộc sân của bạn');
+  if (k.leagueId) fail(409, `Giờ này đang giữ cho giải "${S.leagues.find((l) => l.id === k.leagueId)?.name || ''}". Hoãn trận hoặc xóa giải ở mục Giải đấu để trả giờ.`);
   S.blocks.splice(S.blocks.indexOf(k), 1);
   const [venue] = courtOf(k.courtId);
   for (const s of slotGrid(venue)) if (s >= k.start && s < k.end) offerSlot(k.courtId, k.date, s);
@@ -2686,6 +2693,524 @@ route('POST', '/api/owner/bookings/:id/cancel', ownerAction((b, u, p) => doCance
 route('POST', '/api/owner/bookings/:id/paid', ownerAction((b, u, p) => doPaid(b, u, p.note)));
 route('POST', '/api/owner/bookings/:id/refund', ownerAction((b, u, p) => doRefunded(b, u, p.note, p.part)));
 route('POST', '/api/owner/bookings/:id/attendance', ownerAction((b, u, p) => doAttendance(b, u, p.result)));
+
+/* ---------- Giải đấu tại một sân (vòng tròn một lượt) ----------
+ * Giờ đá của giải được giữ bằng "chặn giờ" có gắn mã giải (block.leagueId), nên lưới khách và lưới chủ sân, kiểm trùng, người chờ giờ
+ * đều dùng lại luồng chặn giờ sẵn có. Tỉ số, rút đội là dữ liệu có cấu trúc; code chỉ cộng điểm, không đọc chữ. */
+const LEAGUE_WIN = 3;
+const LEAGUE_DRAW = 1;
+const LEAGUE_RULES_DEFAULT = [
+  '1. Đá vòng tròn một lượt: mỗi đội gặp mọi đội còn lại đúng một trận.',
+  '2. Thắng 3 điểm, hòa 1 điểm, thua 0 điểm.',
+  '3. Xếp hạng theo điểm, rồi hiệu số (bàn thắng trừ bàn thua), rồi tổng bàn thắng. Nếu vẫn bằng nhau thì xếp theo tên đội A–Z.',
+  '4. Tỉ số do chủ sân nhập. Sửa tỉ số phải ghi lý do và được lưu lại.',
+  '5. Đội rút giữa giải: kết quả đã đá giữ nguyên, các trận còn lại của đội đó bị xử thua 0-3, giờ sân các trận này được trả lại. Bảng xếp hạng ghi "Đã rút".',
+  '6. Hoãn trận do chủ sân đổi giờ; mọi đội xem giờ mới trên trang giải.',
+  '7. Lệ phí do chủ sân thu ngoài web (tiền mặt hoặc chuyển khoản riêng), web chỉ ghi đội đã nộp hay chưa.',
+].join('\n');
+
+const leagueOf = (id) => S.leagues.find((l) => l.id === Number(id));
+const teamsOf = (l) => S.leagueTeams.filter((t) => t.leagueId === l.id).sort((a, b) => a.id - b.id);
+const lmatchesOf = (l) => S.leagueMatches.filter((m) => m.leagueId === l.id).sort((a, b) => a.id - b.id);
+const lmStart = (m) => (m.date && m.start ? `${m.date} ${m.start}:00` : null);
+const lmDone = (m) => !!m.score;
+const lmStarted = (m) => !!lmStart(m) && vnToMs(lmStart(m)) <= nowMs();
+const lmDayText = (m) => `${m.start} ${m.date.slice(8, 10)}/${m.date.slice(5, 7)}`;
+
+function leagueStatus(l) {
+  if (!l.publishedAt) return 'draft';
+  const ms = lmatchesOf(l);
+  if (ms.length && ms.every(lmDone)) return 'finished';
+  if (ms.some(lmDone) || ms.some((m) => m.blockId && lmStarted(m))) return 'ongoing';
+  return 'published';
+}
+
+/** Bảng xếp hạng: điểm, hiệu số, bàn thắng, rồi tên A–Z. Trận xử thua tính 0-3 như tỉ số thật. */
+function standingsOf(l) {
+  const rows = new Map(teamsOf(l).map((t) => [t.id, { teamId: t.id, name: t.name, withdrawn: !!t.withdrawn, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, points: 0 }]));
+  for (const m of lmatchesOf(l)) {
+    if (!m.score) continue;
+    const h = rows.get(m.homeId);
+    const a = rows.get(m.awayId);
+    for (const [r, f, g] of [[h, m.score.home, m.score.away], [a, m.score.away, m.score.home]]) {
+      r.played += 1;
+      r.gf += f;
+      r.ga += g;
+      if (f > g) { r.won += 1; r.points += LEAGUE_WIN; } else if (f === g) { r.drawn += 1; r.points += LEAGUE_DRAW; } else r.lost += 1;
+    }
+  }
+  const out = [...rows.values()];
+  for (const r of out) r.gd = r.gf - r.ga;
+  out.sort((x, y) => y.points - x.points || y.gd - x.gd || y.gf - x.gf || x.name.localeCompare(y.name, 'vi'));
+  return out.map((r, i) => ({ rank: i + 1, ...r }));
+}
+
+function toLeagueMatch(m, l, staff) {
+  const [, court] = m.courtId ? courtOf(m.courtId) : [null, null];
+  const nameOf = (id) => S.leagueTeams.find((t) => t.id === id)?.name || '';
+  const venue = venueOf(l.venueId);
+  const status = m.forfeitBy ? 'forfeit' : m.score ? 'played' : m.blockId ? 'scheduled' : m.date ? 'planned' : 'unscheduled';
+  return {
+    id: m.id,
+    round: m.round,
+    homeId: m.homeId,
+    awayId: m.awayId,
+    homeName: nameOf(m.homeId),
+    awayName: nameOf(m.awayId),
+    status,
+    courtId: m.courtId || null,
+    courtName: court?.name || null,
+    date: m.date || null,
+    start: m.start || null,
+    end: m.start ? slotEnd(venue, m.start) : null,
+    held: !!m.blockId,
+    score: m.score ? { ...m.score } : null,
+    forfeitBy: m.forfeitBy || null,
+    started: lmStarted(m),
+    ...(staff ? { history: m.history.map((h) => ({ ...h })) } : {}),
+  };
+}
+
+function toLeague(l, staff = false) {
+  const venue = venueOf(l.venueId);
+  const ms = lmatchesOf(l);
+  return {
+    id: l.id,
+    venueId: venue.id,
+    venueName: venue.name,
+    venueAddress: venue.address,
+    indexable: !!venue.dataSource,
+    name: l.name,
+    fieldType: l.fieldType,
+    teamCount: l.teamCount,
+    rules: l.rules,
+    link: l.link || '',
+    status: leagueStatus(l),
+    publishedAt: l.publishedAt || null,
+    createdAt: l.createdAt,
+    teams: teamsOf(l).map((t) => ({
+      id: t.id, name: t.name, withdrawn: !!t.withdrawn,
+      ...(staff ? { contactName: t.contactName, contactPhone: t.contactPhone, feePaid: !!t.feePaid } : {}),
+    })),
+    matches: ms.map((m) => toLeagueMatch(m, l, staff)),
+    standings: standingsOf(l),
+    counts: { matches: ms.length, done: ms.filter(lmDone).length, held: ms.filter((m) => m.blockId).length, planned: ms.filter((m) => m.date).length },
+  };
+}
+
+function ownerLeague(ctx) {
+  const u = need(ctx, 'owner');
+  const l = leagueOf(ctx.params.id);
+  if (!l) fail(404, 'Không tìm thấy giải');
+  if (l.ownerId !== u.id) fail(403, 'Giải này không thuộc sân của bạn');
+  return [l, u];
+}
+const draftOnly = (l, what) => {
+  if (l.publishedAt) fail(409, `Giải đã công bố, không ${what} được nữa`);
+};
+
+function cleanLeagueFields(b, partial = false) {
+  const out = {};
+  if (!partial || b.name !== undefined) {
+    out.name = String(b.name || '').trim().slice(0, 80);
+    req(out.name, 'Nhập tên giải');
+  }
+  if (b.rules !== undefined) {
+    out.rules = String(b.rules).trim().slice(0, 3000);
+    req(out.rules, 'Điều lệ không được để trống');
+  }
+  if (b.link !== undefined) {
+    out.link = String(b.link || '').trim().slice(0, 300);
+    req(!out.link || /^https?:\/\//i.test(out.link), 'Link nhóm Zalo hoặc fanpage phải bắt đầu bằng http:// hoặc https://');
+  }
+  return out;
+}
+function cleanTeam(t) {
+  const name = String(t.name || '').trim().slice(0, 40);
+  req(name, 'Nhập tên đội');
+  return { name, contactName: String(t.contactName || '').trim().slice(0, 60), contactPhone: String(t.contactPhone || '').trim().slice(0, 20) };
+}
+function addLeagueTeam(l, t) {
+  const c = cleanTeam(t);
+  if (teamsOf(l).some((x) => x.name.toLowerCase() === c.name.toLowerCase())) fail(409, `Đã có đội tên "${c.name}"`);
+  const rec = { id: nextId('leagueTeam'), leagueId: l.id, ...c, feePaid: false, withdrawn: false, withdrawnAt: null };
+  S.leagueTeams.push(rec);
+  return rec;
+}
+
+function createLeague(ctx) {
+  const u = need(ctx, 'owner');
+  const b = ctx.body || {};
+  const venue = myVenue(ctx, b.venueId);
+  const fieldType = String(b.fieldType || '');
+  req(['5', '7'].includes(fieldType), 'Chọn sân 5 hoặc 7 người');
+  req(venue.courts.some((c) => c.isActive && c.fieldType === fieldType), `Sân của bạn chưa có sân con ${fieldType} người`);
+  const teamCount = Number(b.teamCount);
+  req(Number.isInteger(teamCount) && teamCount >= 4 && teamCount <= 8, 'Giải có từ 4 đến 8 đội');
+  const f = cleanLeagueFields({ ...b, rules: b.rules || LEAGUE_RULES_DEFAULT });
+  const l = { id: nextId('league'), venueId: venue.id, ownerId: u.id, ...f, link: f.link || '', fieldType, teamCount, publishedAt: null, createdAt: now() };
+  S.leagues.push(l);
+  const names = Array.isArray(b.teams) ? b.teams : [];
+  req(names.length <= teamCount, `Giải chỉ có ${teamCount} đội`);
+  for (const t of names) addLeagueTeam(l, t);
+  save();
+  return toLeague(l, true);
+}
+
+function ownerLeagues(ctx) {
+  const u = need(ctx, 'owner');
+  const vid = ctx.query.venueId ? Number(ctx.query.venueId) : null;
+  return S.leagues
+    .filter((l) => l.ownerId === u.id && (!vid || l.venueId === vid))
+    .sort((a, b) => b.createdAt.localeCompare(a.createdAt) || b.id - a.id)
+    .map((l) => {
+      const o = toLeague(l, true);
+      return { id: o.id, venueId: o.venueId, name: o.name, fieldType: o.fieldType, teamCount: o.teamCount, teams: o.teams.length, status: o.status, matches: o.counts.matches, done: o.counts.done };
+    });
+}
+
+/** Vòng tròn một lượt (thuật toán xoay vòng). Số đội lẻ thì mỗi vòng một đội nghỉ. */
+function roundRobin(ids) {
+  const list = ids.length % 2 ? [...ids, null] : [...ids];
+  const n = list.length;
+  const out = [];
+  for (let r = 0; r < n - 1; r++) {
+    for (let i = 0; i < n / 2; i++) {
+      const a = list[i];
+      const b = list[n - 1 - i];
+      if (a == null || b == null) continue;
+      out.push(r % 2 && i === 0 ? { round: r + 1, home: b, away: a } : { round: r + 1, home: a, away: b });
+    }
+    list.splice(1, 0, list.pop());
+  }
+  return out;
+}
+
+function makeFixtures(ctx) {
+  const [l] = ownerLeague(ctx);
+  draftOnly(l, 'tạo lại trận');
+  const teams = teamsOf(l);
+  req(teams.length === l.teamCount, `Cần đủ ${l.teamCount} đội trước khi tạo các trận (đang có ${teams.length})`);
+  S.leagueMatches = S.leagueMatches.filter((m) => m.leagueId !== l.id);
+  for (const p of roundRobin(teams.map((t) => t.id))) {
+    S.leagueMatches.push({ id: nextId('leagueMatch'), leagueId: l.id, round: p.round, homeId: p.home, awayId: p.away, courtId: null, date: null, start: null, blockId: null, score: null, forfeitBy: null, history: [] });
+  }
+  save();
+  return toLeague(l, true);
+}
+
+/** Lý do một ô không giữ được cho giải (null nếu giữ được). ownBlockId: ô đang giữ của chính trận này thì bỏ qua. */
+function leagueSlotProblem(l, courtId, date, start, ownBlockId = null) {
+  const [venue, court] = courtOf(courtId);
+  if (!court || venue.id !== l.venueId || !court.isActive) return 'sân con không thuộc sân này';
+  if (court.fieldType !== l.fieldType) return `${court.name} là sân ${court.fieldType} người, giải đá sân ${l.fieldType}`;
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(date || '') || !slotGrid(venue).includes(start)) return 'giờ không khớp lịch của sân';
+  if (vnToMs(`${date} ${start}`) <= nowMs()) return 'giờ đã qua';
+  if (teamModeAt(court, start)) return `${court.name} giờ này chỉ nhận ghép kèo`;
+  const bk = activeBookingAt(court.id, date, start);
+  if (bk) return `${court.name} đã có lịch đặt ${bk.code}`;
+  const end = slotEnd(venue, start);
+  const blk = S.blocks.find((k) => k.courtId === court.id && k.date === date && k.start < end && k.end > start && k.id !== ownBlockId);
+  if (blk) return `${court.name} đang bị chặn${blk.leagueId ? ' cho giải khác' : ''}`;
+  if (activeOffer(court.id, date, start)) return `${court.name} đang giữ cho người chờ giờ này`;
+  return null;
+}
+const lmLabel = (m) => `${S.leagueTeams.find((t) => t.id === m.homeId)?.name} – ${S.leagueTeams.find((t) => t.id === m.awayId)?.name}`;
+
+/** Kiểm cả loạt trước (ô tự trùng nhau, đội đá hai trận cùng giờ, ô đã có lịch) rồi mới giữ; có một lỗi thì không giữ ô nào. */
+function leaguePlanProblems(l, matches) {
+  const problems = [];
+  const seen = new Map();
+  const teamAt = new Map();
+  for (const m of matches) {
+    const label = `Trận ${lmLabel(m)}`;
+    if (!m.date) { problems.push(`${label}: chưa chọn giờ`); continue; }
+    const why = leagueSlotProblem(l, m.courtId, m.date, m.start, m.blockId);
+    if (why) problems.push(`${label} (${lmDayText(m)}): ${why}`);
+    const key = `${m.courtId}|${m.date}|${m.start}`;
+    if (seen.has(key)) problems.push(`${label} (${lmDayText(m)}): trùng giờ với trận ${lmLabel(seen.get(key))}`);
+    else seen.set(key, m);
+    for (const tid of [m.homeId, m.awayId]) {
+      const tk = `${tid}|${m.date}|${m.start}`;
+      if (teamAt.has(tk) && teamAt.get(tk) !== m) problems.push(`${label} (${lmDayText(m)}): một đội phải đá hai trận cùng giờ`);
+      teamAt.set(tk, m);
+    }
+  }
+  return problems;
+}
+const problemText = (ps) => `${ps.slice(0, 3).join('; ')}${ps.length > 3 ? `; và ${ps.length - 3} lỗi nữa` : ''}`;
+
+function holdLeagueSlot(l, m, owner) {
+  const venue = venueOf(l.venueId);
+  const k = { id: nextId('block'), courtId: m.courtId, date: m.date, start: m.start, end: slotEnd(venue, m.start), reason: `Giải: ${l.name}`, ownerId: owner.id, leagueId: l.id, leagueMatchId: m.id };
+  S.blocks.push(k);
+  m.blockId = k.id;
+}
+function releaseLeagueSlot(m) {
+  if (!m.blockId) return;
+  const k = S.blocks.find((x) => x.id === m.blockId);
+  m.blockId = null;
+  if (!k) return;
+  S.blocks.splice(S.blocks.indexOf(k), 1);
+  offerSlot(k.courtId, k.date, k.start);
+}
+
+function savePlan(ctx) {
+  const [l] = ownerLeague(ctx);
+  draftOnly(l, 'xếp lại giờ ở bước nháp');
+  const ms = lmatchesOf(l);
+  req(ms.length, 'Hãy tạo các trận trước');
+  const slots = ctx.body?.slots;
+  req(Array.isArray(slots), 'Thiếu danh sách giờ');
+  for (const s of slots) {
+    const m = ms.find((x) => x.id === Number(s.matchId));
+    if (!m) fail(404, 'Không tìm thấy trận');
+    if (!s.courtId && !s.date && !s.start) {
+      m.courtId = null; m.date = null; m.start = null;
+      continue;
+    }
+    req(courtOf(s.courtId)[1], 'Chọn sân con');
+    req(/^\d{4}-\d{2}-\d{2}$/.test(s.date || '') && /^\d{2}:\d{2}$/.test(s.start || ''), 'Chọn ngày và giờ');
+    m.courtId = Number(s.courtId); m.date = s.date; m.start = s.start;
+  }
+  save();
+  return toLeague(l, true);
+}
+
+/** Xếp tự động: lần lượt các trận chưa có giờ vào ô trống kế tiếp của một sân con, tối đa perDay trận mỗi ngày, từ giờ start trở đi. */
+function autoPlan(ctx) {
+  const [l] = ownerLeague(ctx);
+  draftOnly(l, 'xếp lại giờ ở bước nháp');
+  const { courtId, date, start } = ctx.body || {};
+  const perDay = Number(ctx.body?.perDay);
+  const [venue, court] = courtOf(courtId);
+  req(court && venue.id === l.venueId, 'Chọn sân con');
+  req(/^\d{4}-\d{2}-\d{2}$/.test(date || ''), 'Chọn ngày bắt đầu');
+  req(Number.isInteger(perDay) && perDay >= 1 && perDay <= 8, 'Số trận mỗi ngày từ 1 đến 8');
+  const ms = lmatchesOf(l);
+  req(ms.length, 'Hãy tạo các trận trước');
+  const grid = slotGrid(venue).filter((s) => s >= (start || '00:00'));
+  req(grid.length, 'Không có giờ nào từ giờ đó trở đi');
+  const todo = ms.filter((m) => !m.date);
+  const used = new Set(ms.filter((m) => m.date).map((m) => `${m.courtId}|${m.date}|${m.start}`));
+  let d = date;
+  for (let day = 0; todo.length && day < 90; day++, d = addDays(d, 1)) {
+    let n = 0;
+    for (const s of grid) {
+      if (!todo.length || n >= perDay) break;
+      if (used.has(`${court.id}|${d}|${s}`) || leagueSlotProblem(l, court.id, d, s)) continue;
+      const m = todo.shift();
+      m.courtId = court.id; m.date = d; m.start = s;
+      used.add(`${court.id}|${d}|${s}`);
+      n += 1;
+    }
+  }
+  req(!todo.length, 'Không đủ giờ trống trong 90 ngày để xếp hết các trận');
+  save();
+  return toLeague(l, true);
+}
+
+function publishLeague(ctx) {
+  const [l, u] = ownerLeague(ctx);
+  draftOnly(l, 'công bố lại');
+  const ms = lmatchesOf(l);
+  req(ms.length, 'Hãy tạo các trận trước');
+  const problems = leaguePlanProblems(l, ms);
+  if (problems.length) fail(409, `Chưa giữ được giờ nên chưa công bố: ${problemText(problems)}`);
+  for (const m of ms) holdLeagueSlot(l, m, u);
+  l.publishedAt = now();
+  save();
+  return toLeague(l, true);
+}
+
+function rescheduleLeagueMatch(ctx) {
+  const [l, u] = ownerLeague(ctx);
+  const m = S.leagueMatches.find((x) => x.id === Number(ctx.params.mid) && x.leagueId === l.id);
+  if (!m) fail(404, 'Không tìm thấy trận');
+  req(l.publishedAt, 'Giải chưa công bố: đổi giờ ở bước xếp lịch');
+  if (m.score || m.forfeitBy) fail(409, 'Trận này đã có kết quả, không hoãn được');
+  const { courtId, date, start } = ctx.body || {};
+  const note = String(ctx.body?.note || '').trim().slice(0, 300);
+  const why = leagueSlotProblem(l, courtId, date, start, m.blockId);
+  if (why) fail(409, `Giờ mới không giữ được: ${why}`);
+  if (m.courtId === Number(courtId) && m.date === date && m.start === start) fail(409, 'Giờ mới trùng giờ cũ');
+  const clash = lmatchesOf(l).find((x) => x.id !== m.id && x.date === date && x.start === start && [m.homeId, m.awayId].some((t) => [x.homeId, x.awayId].includes(t)) && !x.forfeitBy);
+  if (clash) fail(409, 'Một trong hai đội đã có trận khác cùng giờ đó');
+  const from = `${courtOf(m.courtId)[1].name} ${lmDayText(m)}`;
+  releaseLeagueSlot(m);
+  m.courtId = Number(courtId); m.date = date; m.start = start;
+  holdLeagueSlot(l, m, u);
+  m.history.push({ id: nextId('leagueEvent'), kind: 'reschedule', at: now(), by: u.fullName, from, to: `${courtOf(m.courtId)[1].name} ${lmDayText(m)}`, note });
+  save();
+  return toLeague(l, true);
+}
+
+function scoreLeagueMatch(ctx) {
+  const [l, u] = ownerLeague(ctx);
+  const m = S.leagueMatches.find((x) => x.id === Number(ctx.params.mid) && x.leagueId === l.id);
+  if (!m) fail(404, 'Không tìm thấy trận');
+  req(l.publishedAt, 'Giải chưa công bố');
+  if (m.forfeitBy) fail(409, 'Trận này đã xử thua do đội rút');
+  if (!lmStarted(m)) fail(409, 'Trận chưa đến giờ đá nên chưa nhập tỉ số được');
+  const home = Number(ctx.body?.home);
+  const away = Number(ctx.body?.away);
+  req(Number.isInteger(home) && Number.isInteger(away) && home >= 0 && away >= 0 && home <= 99 && away <= 99, 'Tỉ số mỗi đội là số nguyên từ 0 đến 99');
+  const note = String(ctx.body?.note || '').trim().slice(0, 300);
+  if (m.score) {
+    req(note, 'Sửa tỉ số phải ghi lý do');
+    if (m.score.home === home && m.score.away === away) fail(409, 'Tỉ số mới giống tỉ số cũ');
+  }
+  const from = m.score ? `${m.score.home}-${m.score.away}` : null;
+  m.score = { home, away };
+  m.history.push({ id: nextId('leagueEvent'), kind: 'score', at: now(), by: u.fullName, from, to: `${home}-${away}`, note });
+  save();
+  return toLeague(l, true);
+}
+
+function withdrawLeagueTeam(ctx) {
+  const [l, u] = ownerLeague(ctx);
+  const t = S.leagueTeams.find((x) => x.id === Number(ctx.params.tid) && x.leagueId === l.id);
+  if (!t) fail(404, 'Không tìm thấy đội');
+  req(l.publishedAt, 'Giải chưa công bố: xóa đội thay vì cho rút');
+  if (t.withdrawn) fail(409, 'Đội này đã rút');
+  const note = String(ctx.body?.note || '').trim().slice(0, 300);
+  t.withdrawn = true;
+  t.withdrawnAt = now();
+  for (const m of lmatchesOf(l)) {
+    if (m.score || m.forfeitBy || (m.homeId !== t.id && m.awayId !== t.id)) continue;
+    releaseLeagueSlot(m);
+    m.forfeitBy = t.id;
+    m.score = m.homeId === t.id ? { home: 0, away: LEAGUE_WIN } : { home: LEAGUE_WIN, away: 0 };
+    m.history.push({ id: nextId('leagueEvent'), kind: 'forfeit', at: now(), by: u.fullName, from: null, to: `${m.score.home}-${m.score.away}`, note: `${t.name} rút khỏi giải, xử thua 0-3${note ? `. ${note}` : ''}` });
+  }
+  save();
+  return toLeague(l, true);
+}
+
+function deleteLeague(ctx) {
+  const [l] = ownerLeague(ctx);
+  for (const m of lmatchesOf(l)) releaseLeagueSlot(m);
+  S.leagueMatches = S.leagueMatches.filter((m) => m.leagueId !== l.id);
+  S.leagueTeams = S.leagueTeams.filter((t) => t.leagueId !== l.id);
+  S.leagues.splice(S.leagues.indexOf(l), 1);
+  save();
+  return { ok: true };
+}
+
+const publicLeague = (id) => {
+  const l = leagueOf(id);
+  if (!l || !l.publishedAt) fail(404, 'Không tìm thấy giải');
+  return l;
+};
+const venueLeagues = (venueId) =>
+  S.leagues
+    .filter((l) => l.venueId === venueId && l.publishedAt && leagueStatus(l) !== 'finished')
+    .map((l) => ({ id: l.id, name: l.name, fieldType: l.fieldType, status: leagueStatus(l) }));
+
+route('GET', '/api/leagues/:id', (c) => toLeague(publicLeague(c.params.id), false));
+route('GET', '/api/owner/leagues', (c) => ownerLeagues(c));
+route('POST', '/api/owner/leagues', createLeague);
+route('GET', '/api/owner/leagues/:id', (c) => toLeague(ownerLeague(c)[0], true));
+route('PUT', '/api/owner/leagues/:id', (c) => {
+  const [l] = ownerLeague(c);
+  Object.assign(l, cleanLeagueFields(c.body || {}, true));
+  for (const k of S.blocks) if (k.leagueId === l.id) k.reason = `Giải: ${l.name}`;
+  save();
+  return toLeague(l, true);
+});
+route('DELETE', '/api/owner/leagues/:id', deleteLeague);
+route('POST', '/api/owner/leagues/:id/teams', (c) => {
+  const [l] = ownerLeague(c);
+  draftOnly(l, 'thêm đội');
+  if (lmatchesOf(l).length) fail(409, 'Đã tạo các trận, không thêm đội được. Làm lại các trận nếu cần đổi đội');
+  req(teamsOf(l).length < l.teamCount, `Giải đã đủ ${l.teamCount} đội`);
+  addLeagueTeam(l, c.body || {});
+  save();
+  return toLeague(l, true);
+});
+route('PUT', '/api/owner/leagues/:id/teams/:tid', (c) => {
+  const [l] = ownerLeague(c);
+  const t = S.leagueTeams.find((x) => x.id === Number(c.params.tid) && x.leagueId === l.id);
+  if (!t) fail(404, 'Không tìm thấy đội');
+  const b = c.body || {};
+  if (b.feePaid !== undefined) t.feePaid = !!b.feePaid;
+  if (b.name !== undefined || b.contactName !== undefined || b.contactPhone !== undefined) {
+    const nx = cleanTeam({ name: b.name ?? t.name, contactName: b.contactName ?? t.contactName, contactPhone: b.contactPhone ?? t.contactPhone });
+    if (teamsOf(l).some((x) => x.id !== t.id && x.name.toLowerCase() === nx.name.toLowerCase())) fail(409, `Đã có đội tên "${nx.name}"`);
+    Object.assign(t, nx);
+  }
+  save();
+  return toLeague(l, true);
+});
+route('DELETE', '/api/owner/leagues/:id/teams/:tid', (c) => {
+  const [l] = ownerLeague(c);
+  draftOnly(l, 'xóa đội');
+  if (lmatchesOf(l).length) fail(409, 'Đã tạo các trận, không xóa đội được. Làm lại các trận nếu cần đổi đội');
+  const t = S.leagueTeams.find((x) => x.id === Number(c.params.tid) && x.leagueId === l.id);
+  if (!t) fail(404, 'Không tìm thấy đội');
+  S.leagueTeams.splice(S.leagueTeams.indexOf(t), 1);
+  save();
+  return toLeague(l, true);
+});
+route('POST', '/api/owner/leagues/:id/fixtures', makeFixtures);
+route('PUT', '/api/owner/leagues/:id/plan', savePlan);
+route('POST', '/api/owner/leagues/:id/auto-plan', autoPlan);
+route('POST', '/api/owner/leagues/:id/publish', publishLeague);
+route('POST', '/api/owner/leagues/:id/matches/:mid/reschedule', rescheduleLeagueMatch);
+route('POST', '/api/owner/leagues/:id/matches/:mid/score', scoreLeagueMatch);
+route('POST', '/api/owner/leagues/:id/teams/:tid/withdraw', withdrawLeagueTeam);
+
+/** Giải mẫu đang đá dở ở sân của chusan1: các trận đã đá nằm ở những ngày đã qua, các trận còn lại ở ô trống gần nhất từ ngày mai, nên không đổi theo giờ mở demo. */
+function seedLeagues(st) {
+  const cfg = seeds.bookings.league;
+  if (!cfg) return;
+  const venue = venueOf(cfg.venueId);
+  const court = venue.courts.find((c) => c.fieldType === cfg.fieldType && c.isActive);
+  const owner = userOf(venue.ownerId);
+  const l = { id: nextId('league'), venueId: venue.id, ownerId: owner.id, name: cfg.name, fieldType: cfg.fieldType, teamCount: cfg.teams.length, rules: LEAGUE_RULES_DEFAULT, link: cfg.link, publishedAt: ago0(cfg.publishedDaysAgo), createdAt: ago0(cfg.publishedDaysAgo + 1) };
+  st.leagues.push(l);
+  for (const t of cfg.teams) st.leagueTeams.push({ id: nextId('leagueTeam'), leagueId: l.id, name: t.name, contactName: t.contact, contactPhone: t.phone || '', feePaid: !!t.feePaid, withdrawn: false, withdrawnAt: null });
+  const ids = teamsOf(l).map((t) => t.id);
+  const today = dateOf(now());
+  let futureDay = 1;
+  roundRobin(ids).forEach((p, i) => {
+    const m = { id: nextId('leagueMatch'), leagueId: l.id, round: p.round, homeId: p.home, awayId: p.away, courtId: court.id, date: null, start: null, blockId: null, score: null, forfeitBy: null, history: [] };
+    const res = cfg.results[i];
+    if (res) {
+      m.date = addDays(today, -res.daysAgo);
+      m.start = res.start;
+      m.score = { home: res.home, away: res.away };
+      m.history.push({ id: nextId('leagueEvent'), kind: 'score', at: `${m.date} 22:00:00`, by: owner.fullName, from: null, to: `${res.home}-${res.away}`, note: '' });
+      if (res.fix) m.history.push({ id: nextId('leagueEvent'), kind: 'score', at: `${m.date} 23:10:00`, by: owner.fullName, from: `${res.home}-${res.away}`, to: `${res.fix[0]}-${res.fix[1]}`, note: res.fix[2] });
+      if (res.fix) m.score = { home: res.fix[0], away: res.fix[1] };
+    } else {
+      // trận còn lại: ô trống gần nhất (sân đúng loại) từ ngày mai, giờ ưu tiên theo mẫu
+      const want = hmToMin(cfg.futureStart);
+      const cands = [];
+      for (let d = futureDay; d <= futureDay + 20 && !cands.length; d++) {
+        const date = addDays(today, d);
+        for (const c of venue.courts.filter((x) => x.fieldType === cfg.fieldType && x.isActive)) {
+          for (const s of slotGrid(venue)) {
+            const startAt = `${date} ${s}:00`;
+            if (teamModeAt(c, s) || st.bookings.some((x) => x.courtId === c.id && x.startAt === startAt && ['pending', 'confirmed', 'matching'].includes(x.status))) continue;
+            if (st.blocks.some((k) => k.courtId === c.id && k.date === date && k.start < slotEnd(venue, s) && k.end > s)) continue;
+            cands.push({ c, date, s, key: Math.abs(hmToMin(s) - want) * 10 + venue.courts.indexOf(c) });
+          }
+        }
+        if (cands.length) futureDay = d;
+      }
+      cands.sort((a, b) => a.key - b.key || a.s.localeCompare(b.s));
+      const pick = cands[0];
+      if (pick) { m.courtId = pick.c.id; m.date = pick.date; m.start = pick.s; }
+    }
+    if (m.date) {
+      st.blocks.push({ id: nextId('block'), courtId: m.courtId, date: m.date, start: m.start, end: slotEnd(venue, m.start), reason: `Giải: ${l.name}`, ownerId: owner.id, leagueId: l.id, leagueMatchId: m.id });
+      m.blockId = st.blocks[st.blocks.length - 1].id;
+    }
+    st.leagueMatches.push(m);
+  });
+}
+const ago0 = (days) => msToVn(Date.now() - days * 86400000);
 
 /* Admin */
 const adminAction = (fn) => (c) => {

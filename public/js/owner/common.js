@@ -479,6 +479,6 @@ export function mountViewSwitch(active) {
   el.className = 'view-switch';
   el.setAttribute('role', 'group');
   el.setAttribute('aria-label', 'Cách xem lịch sân');
-  el.innerHTML = `<a href="/owner-schedule.html${grid.size ? `?${grid}` : ''}" ${active === 'grid' ? 'aria-current="page"' : ''}>Lưới theo giờ</a><a href="/owner-bookings.html" ${active === 'list' ? 'aria-current="page"' : ''}>Danh sách</a>`;
+  el.innerHTML = `<a href="/owner-schedule.html${grid.size ? `?${grid}` : ''}" ${active === 'grid' ? 'aria-current="page"' : ''}>Lưới theo giờ</a><a href="/owner-bookings.html" ${active === 'list' ? 'aria-current="page"' : ''}>Danh sách</a><a href="/owner-leagues.html" ${active === 'leagues' ? 'aria-current="page"' : ''}>Giải đấu</a>`;
   $('#content').insertAdjacentElement('beforebegin', el);
 }

@@ -104,6 +104,8 @@ export const api = {
   /** body: { courtId, date, start } → { id, position } */
   joinWaitlist: (body) => post('/api/waitlist', body),
   myWaitlist: () => get('/api/waitlist/mine'),
+  /** Trang giải công khai (không cần đăng nhập): chỉ giải đã công bố. */
+  league: (id) => get(`/api/leagues/${id}`),
   leaveWaitlist: (id) => request('DELETE', `/api/waitlist/${id}`),
   /** Pass sân. offerTransfer: body { askPrice } (≤ giá đã trả, làm tròn 1.000đ) → Transfer. */
   offerTransfer: (bookingId, body) => post(`/api/bookings/${bookingId}/transfer`, body),
@@ -149,6 +151,21 @@ export const api = {
     addBooking: (body) => post('/api/owner/bookings', body),
     /** Sửa lịch đặt qua điện thoại: { customerName?, customerPhone?, price?, note? }. Giờ và sân không sửa được. */
     updateBooking: (id, body) => request('PUT', `/api/owner/bookings/${id}`, { body }),
+    leagues: (venueId) => get('/api/owner/leagues', { venueId }),
+    league: (id) => get(`/api/owner/leagues/${id}`),
+    createLeague: (body) => post('/api/owner/leagues', body),
+    updateLeague: (id, body) => request('PUT', `/api/owner/leagues/${id}`, { body }),
+    deleteLeague: (id) => request('DELETE', `/api/owner/leagues/${id}`),
+    addLeagueTeam: (id, body) => post(`/api/owner/leagues/${id}/teams`, body),
+    updateLeagueTeam: (id, tid, body) => request('PUT', `/api/owner/leagues/${id}/teams/${tid}`, { body }),
+    deleteLeagueTeam: (id, tid) => request('DELETE', `/api/owner/leagues/${id}/teams/${tid}`),
+    makeLeagueFixtures: (id) => post(`/api/owner/leagues/${id}/fixtures`),
+    saveLeaguePlan: (id, slots) => request('PUT', `/api/owner/leagues/${id}/plan`, { body: { slots } }),
+    autoPlanLeague: (id, body) => post(`/api/owner/leagues/${id}/auto-plan`, body),
+    publishLeague: (id) => post(`/api/owner/leagues/${id}/publish`),
+    rescheduleLeagueMatch: (id, mid, body) => post(`/api/owner/leagues/${id}/matches/${mid}/reschedule`, body),
+    scoreLeagueMatch: (id, mid, body) => post(`/api/owner/leagues/${id}/matches/${mid}/score`, body),
+    withdrawLeagueTeam: (id, tid, note) => post(`/api/owner/leagues/${id}/teams/${tid}/withdraw`, { note }),
     block: (body) => post('/api/owner/blocks', body),
     unblock: (id) => request('DELETE', `/api/owner/blocks/${id}`),
     /** params: { status, date, venueId, q } */

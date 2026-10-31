@@ -20,7 +20,7 @@ const NAV = {
   ],
   owner: [
     { href: '/owner.html', label: 'Hôm nay' },
-    { href: '/owner-schedule.html', label: 'Lịch sân', also: ['/owner-bookings.html'] },
+    { href: '/owner-schedule.html', label: 'Lịch sân', also: ['/owner-bookings.html', '/owner-leagues.html', '/owner-league.html'] },
     { href: '/owner-requests.html', label: 'Khách nhờ báo giá' },
     { href: '/owner-settings.html', label: 'Cài đặt sân' },
   ],

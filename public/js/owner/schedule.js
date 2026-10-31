@@ -30,6 +30,7 @@ function cell(court, s) {
   let line = '';
   if (s.status === 'available') line = `<span class="who">${moneyShort(s.price)}${s.discountPercent ? ` · -${s.discountPercent}%` : ''}</span>`;
   if (s.status === 'blocked') line = `<span class="why">${esc(s.block?.reason || 'Không ghi lý do')}</span>`;
+  if (s.status === 'blocked' && s.block?.leagueId) st = 'Giải';
   if (bk) {
     const bs = full?.status || bk.status;
     if (s.status === 'past') st = bs === 'confirmed' ? 'Cần ghi nhận' : STATUS_LABEL[bs] || st;
@@ -155,6 +156,17 @@ async function openBlock(court, slot) {
   await load();
 }
 
+async function openLeagueSlot(court, slot) {
+  await dialog({
+    title: 'Giờ giữ cho giải',
+    hideConfirm: true,
+    body: `<p class="dlg-ref"><b>${esc(court.name)}</b> · ${esc(dayLabel(date))} ${dm(date)} · ${slot.start}–${slot.end}</p>
+      <p>${esc(slot.block.reason)}. Giờ này khách không đặt được.</p>
+      <p class="muted">Muốn đổi giờ thì hoãn trận, muốn trả giờ thì xóa giải, đều làm ở mục Giải đấu.</p>
+      <p><a class="btn btn-primary" href="/owner-league.html?id=${slot.block.leagueId}">Mở giải</a></p>`,
+  });
+}
+
 async function openUnblock(court, slot) {
   const id = slot.block.id;
   const same = court.slots.filter((s) => s.block?.id === id);
@@ -227,6 +239,7 @@ content.addEventListener('click', (e) => {
   const { court, slot } = findSlot(Number(c.dataset.court), c.dataset.start);
   guard(c, async () => {
     if (slot.booking) return openBooking(court, slot);
+    if (slot.status === 'blocked' && slot.block?.leagueId) return openLeagueSlot(court, slot);
     if (slot.status === 'blocked' && slot.block) return openUnblock(court, slot);
     if (slot.status === 'available') return chooseAction(court, slot);
   });

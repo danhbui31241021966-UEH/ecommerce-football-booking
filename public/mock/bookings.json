@@ -61,5 +61,25 @@
   "phoneBookings": [
     { "courtId": 1, "day": 0, "start": "17:00", "name": "Anh Tùng", "phone": "0903 111 222", "paid": true, "note": "Gọi điện đặt, đá hằng tuần" },
     { "courtId": 2, "day": 0, "start": "19:00", "name": "Chị Lan (Zalo)", "phone": "0988 333 444", "paid": false, "note": "Nhắn Zalo, chuyển khoản sau" }
-  ]
+  ],
+  "league": {
+    "venueId": 1,
+    "fieldType": "5",
+    "name": "Giải phủi Thành Phát mùa thu",
+    "link": "https://zalo.me/g/thanhphat-phui",
+    "publishedDaysAgo": 9,
+    "futureStart": "19:00",
+    "teams": [
+      { "name": "Hẻm 62", "contact": "Anh Khoa", "phone": "0909 100 001", "feePaid": true },
+      { "name": "Cơm Tấm FC", "contact": "Anh Hùng", "phone": "0909 100 002", "feePaid": true },
+      { "name": "Gò Vấp United", "contact": "Anh Nam", "phone": "0909 100 003", "feePaid": false },
+      { "name": "Sao Đỏ", "contact": "Anh Bảo", "phone": "", "feePaid": true }
+    ],
+    "results": [
+      { "daysAgo": 7, "start": "19:00", "home": 2, "away": 1 },
+      { "daysAgo": 7, "start": "20:00", "home": 0, "away": 0 },
+      { "daysAgo": 3, "start": "19:00", "home": 1, "away": 2, "fix": [1, 3, "Nhập nhầm bàn thắng, đã xem lại biên bản"] },
+      { "daysAgo": 3, "start": "20:00", "home": 1, "away": 2 }
+    ]
+  }
 }

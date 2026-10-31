@@ -97,6 +97,7 @@ function renderTop() {
         ${sourceNote(venue.dataSource)}
       </div>
     </div>
+    ${(venue.leagues || []).length ? `<section class="card card-pad venue-leagues" aria-labelledby="vl-title" style="margin-bottom:var(--sp-4)"><h2 class="h3" id="vl-title">Giải đang đá ở sân này</h2><ul>${venue.leagues.map((l) => `<li><a href="/league.html?id=${l.id}">${esc(l.name)}</a> <span class="muted">· sân ${esc(l.fieldType)} người · ${l.status === 'ongoing' ? 'đang đá' : 'sắp đá'}</span></li>`).join('')}</ul></section>` : ''}
     <div class="rules-grid card card-pad" style="margin-bottom:var(--sp-8)">
       ${venue.rules ? `<div><h3>Nội quy sân</h3><p>${esc(venue.rules)}</p></div>` : ''}
       <div><h3>Chính sách hủy</h3><p>${esc(venue.cancelPolicy)}</p></div>
@@ -112,6 +113,7 @@ function renderTop() {
         <span><i class="slot slot-held"></i>Đang giữ</span>
         <span><i class="slot slot-booked"></i>Đã đặt</span>
         <span><i class="slot slot-blocked"></i>Bị chặn</span>
+        <span><i class="slot slot-league"></i>Giải</span>
         <span><i class="slot slot-offered"></i>Giữ cho người đang chờ</span>
         <span><i class="slot slot-for-you"></i>Giữ cho bạn</span>
         <span><i class="slot slot-past"></i>Đã qua</span>
@@ -142,6 +144,7 @@ function cell(court, s, layout) {
     case 'past':
       return `<div class="slot slot-past">${top('')}<span class="s">Đã qua</span></div>`;
     case 'blocked':
+      if (s.league) return `<div class="slot slot-league">${top('')}<a class="s" href="/league.html?id=${s.league.id}" title="Giải: ${esc(s.league.name)}">Giải: ${esc(s.league.name)}</a></div>`;
       return `<div class="slot slot-blocked">${top('')}<span class="s">Bị chặn</span></div>`;
     case 'booked':
     case 'held':
