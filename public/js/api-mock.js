@@ -6,7 +6,7 @@ import {
   vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs, weekdayOf,
 } from './ui/format.js';
 
-const STORE_KEY = 'sannhanh.mock.v8';
+const STORE_KEY = 'sannhanh.mock.v9';
 const STATUSES = ['pending', 'confirmed', 'rejected', 'cancelled', 'expired', 'completed', 'no_show', 'transferred', 'matching'];
 
 let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
@@ -151,6 +151,7 @@ function buildState() {
   }
   seedTransfers(st, keyToBooking, ago);
   seedMatches(st, ago);
+  seedPhoneBookings(st);
   seedRequests(st, ago);
   for (const n of seeds.bookings.notifications) {
     let bookingId = null;
@@ -357,6 +358,8 @@ const courtOf = (id) => {
   return [null, null];
 };
 const userOf = (id) => S.users.find((u) => u.id === id);
+// Lịch chủ sân thêm tay (khách gọi điện, nhắn Zalo) không có tài khoản: tên và SĐT nằm trên lịch (walkIn), userId = null.
+const customerOf = (b) => (b.walkIn ? { fullName: b.walkIn.name, phone: b.walkIn.phone || '', email: '' } : userOf(b.userId));
 
 function slotGrid(venue) {
   const out = [];
@@ -419,8 +422,8 @@ function slotInfo(court, venue, date, start, viewer, forSeed = false, detail = f
   if (detail) {
     if (teamMode) slot.teamMode = true;
     if (booking) {
-      const u = userOf(booking.userId);
-      slot.booking = { id: booking.id, code: booking.code, status: booking.status, paymentStatus: booking.paymentStatus, customerName: u.fullName, customerPhone: u.phone };
+      const u = customerOf(booking);
+      slot.booking = { id: booking.id, code: booking.code, status: booking.status, paymentStatus: booking.paymentStatus, customerName: u.fullName, customerPhone: u.phone, source: booking.walkIn ? 'phone' : 'web' };
     }
     if (block) slot.block = { id: block.id, reason: block.reason };
     const waiting = slotWaiters(court.id, date, start).length;
@@ -520,9 +523,10 @@ function toBooking(b, { admin = false } = {}) {
     transfer: transferBrief(b, admin),
     match: matchBrief(b, admin),
     fromOffer: !!b.offerId,
+    source: b.walkIn ? 'phone' : 'web',
   };
   if (admin) {
-    const u = userOf(b.userId);
+    const u = customerOf(b);
     out.customerName = u.fullName;
     out.customerPhone = u.phone;
   }
@@ -531,6 +535,7 @@ function toBooking(b, { admin = false } = {}) {
 
 function reliabilityOf(userId) {
   const m = meta();
+  if (userId == null) return { noShows: 0, lateCancels: 0, completed: 0, violations: 0, windowDays: m.reliabilityWindowDays, maxViolations: m.reliabilityMaxViolations, restricted: false };
   const from = nowMs() - m.reliabilityWindowDays * 86400000;
   const mine = S.bookings.filter((b) => b.userId === userId && vnToMs(b.startAt) >= from);
   const noShows = mine.filter((b) => b.status === 'no_show').length;
@@ -556,13 +561,14 @@ function qrBank(bank, amount, content) {
   };
 }
 function paymentQr(b, venue) {
+  if (b.walkIn) return null; // tiền của khách gọi điện nhận ngoài web
   if (b.status !== 'confirmed' || b.paymentStatus !== 'unpaid') return null; // R8
   return qrOf(venue, b.price, b.code);
 }
 
 function toBookingDetail(b, viewer) {
   const [venue] = courtOf(b.courtId);
-  const customer = userOf(b.userId);
+  const customer = customerOf(b);
   const staff = viewer.role !== 'customer';
   return {
     ...toBooking(b, { admin: staff }),
@@ -577,7 +583,7 @@ function toBookingDetail(b, viewer) {
       .sort((x, y) => x.id - y.id)
       .map((l) => ({ action: l.action, fromStatus: l.fromStatus, toStatus: l.toStatus, actorName: l.actorName, note: l.note, createdAt: l.createdAt })),
     paymentQr: paymentQr(b, venue),
-    customerReliability: staff ? reliabilityOf(b.userId) : null,
+    customerReliability: staff && !b.walkIn ? reliabilityOf(b.userId) : null,
   };
 }
 
@@ -599,6 +605,7 @@ function addLog(b, action, fromStatus, toStatus, actor, note = '', at = null) {
 }
 
 function notify(userId, message, { bookingId = null, link = '/notifications.html' } = {}) {
+  if (userId == null) return; // lịch chủ sân thêm tay: khách không có tài khoản, không có ai để báo
   S.notifications.push({ id: nextId('notification'), userId, bookingId, message, link, isRead: false, createdAt: now() });
 }
 
@@ -784,6 +791,71 @@ function insertBooking(user, venue, court, date, start, slot, extra = {}) {
   return b;
 }
 
+const PHONE_RE = /^[0-9+().\s-]{6,20}$/;
+
+/** Chủ sân thêm lịch cho khách gọi điện/nhắn Zalo: chiếm giờ như lịch đặt thật, không tài khoản, không thông báo, không tính uy tín. */
+function addPhoneBooking(ctx) {
+  const owner = need(ctx, 'owner');
+  const { courtId, date, start } = ctx.body || {};
+  const [venue, court] = courtOf(courtId);
+  if (!venue || !court) fail(404, 'Không tìm thấy sân');
+  if (venue.ownerId !== owner.id) fail(403, 'Sân này không thuộc tài khoản của bạn');
+  if (!court.isActive) fail(409, 'Sân này đang tắt, bạn bật lại ở Cài đặt sân');
+  checkDate(date);
+  req(slotGrid(venue).includes(start), 'Giờ bắt đầu không khớp lịch của sân');
+  const name = String(ctx.body?.customerName || '').trim();
+  const phone = String(ctx.body?.customerPhone || '').trim();
+  req(name.length >= 1 && name.length <= 80, 'Vui lòng nhập tên khách');
+  req(!phone || PHONE_RE.test(phone), 'Số điện thoại chưa đúng');
+  const slot = slotInfo(court, venue, date, start, null);
+  const price = ctx.body?.price == null || ctx.body.price === '' ? slot.basePrice : Number(ctx.body.price);
+  req(Number.isInteger(price) && price >= 0 && price <= 100000000, 'Giá phải là số tiền từ 0đ');
+  if (slot.status === 'past') fail(400, 'Giờ này đã qua, không thêm lịch được');
+  if (slot.status === 'blocked') fail(409, 'Giờ này đang bị chặn, bạn bỏ chặn trước nhé');
+  if (slot.status === 'booked' || slot.status === 'held') fail(409, 'Giờ này đã có lịch đặt');
+  if (slot.status === 'offered') fail(409, 'Giờ này đang giữ cho người đã đăng ký chờ, chờ họ đặt hoặc hết hạn rồi thêm lịch');
+  if (teamModeAt(court, start)) fail(409, 'Giờ này đang ở chế độ Chỉ nhận ghép kèo. Bạn tắt chế độ này ở Cài đặt sân nếu muốn nhận khách đặt riêng');
+  const paid = !!ctx.body?.paid;
+  const b = {
+    id: nextId('booking'), code: '', userId: null, walkIn: { name, phone }, venueId: venue.id, courtId: court.id,
+    startAt: `${date} ${start}:00`, endAt: `${date} ${slot.end}:00`, status: 'confirmed', expiresAt: null,
+    price, basePrice: slot.basePrice, discountPercent: 0, offerId: null, paymentStatus: paid ? 'paid' : 'unpaid',
+    refundStatus: 'none', refundPercent: 0, refundAmount: 0, cancelledBy: null, cancelReason: null, lateCancel: false,
+    customerNote: String(ctx.body?.note || '').slice(0, 300), rulesSnapshot: venue.rules, policySnapshot: venue.cancelPolicy,
+    idempotencyKey: null, createdAt: now(), cancelledAt: null,
+  };
+  b.code = bookingCode(b.id);
+  S.bookings.push(b);
+  addLog(b, 'phone_create', null, 'confirmed', owner, `Đặt qua điện thoại cho ${name}${phone ? ` (${phone})` : ''}, giá ${vnd(price)}, ${paid ? 'đã nhận tiền' : 'chưa nhận tiền'}`);
+  save();
+  return toBooking(b, { admin: true });
+}
+
+/** Sửa thông tin lịch thêm tay. Giờ và sân không sửa được: hủy rồi thêm lại để giờ cũ trống ngay và kiểm trùng lại từ đầu. */
+function updatePhoneBooking(ctx) {
+  const owner = need(ctx, 'owner');
+  const b = findBooking(ctx.params.id);
+  if (courtOf(b.courtId)[0].ownerId !== owner.id) fail(403, 'Lịch đặt này không thuộc sân của bạn');
+  if (!b.walkIn) fail(409, 'Chỉ sửa được lịch đặt qua điện thoại');
+  if (b.status !== 'confirmed') fail(409, 'Lịch đặt này không sửa được nữa');
+  const body = ctx.body || {};
+  const name = body.customerName === undefined ? b.walkIn.name : String(body.customerName).trim();
+  const phone = body.customerPhone === undefined ? b.walkIn.phone : String(body.customerPhone).trim();
+  req(name.length >= 1 && name.length <= 80, 'Vui lòng nhập tên khách');
+  req(!phone || PHONE_RE.test(phone), 'Số điện thoại chưa đúng');
+  if (body.price !== undefined && Number(body.price) !== b.price) {
+    const price = Number(body.price);
+    req(Number.isInteger(price) && price >= 0 && price <= 100000000, 'Giá phải là số tiền từ 0đ');
+    if (b.paymentStatus === 'paid') fail(409, 'Đã nhận tiền rồi nên không đổi giá nữa');
+    b.price = price;
+  }
+  b.walkIn = { name, phone };
+  if (body.note !== undefined) b.customerNote = String(body.note).slice(0, 300);
+  addLog(b, 'phone_update', null, null, owner, `Sửa thông tin lịch qua điện thoại, giá ${vnd(b.price)}`);
+  save();
+  return toBooking(b, { admin: true });
+}
+
 function findBooking(id) {
   const b = S.bookings.find((x) => x.id === Number(id));
   if (!b) fail(404, 'Không tìm thấy lịch đặt');
@@ -825,6 +897,7 @@ function doCancel(b, actor, reason, by) {
   const from = b.status;
   const paid = b.paymentStatus === 'paid';
   const r = refundFor({ startAt: b.startAt, price: b.price, paid }, now(), by);
+  if (b.walkIn) Object.assign(r, { percent: 0, amount: 0 }); // tiền cọc/thanh toán của khách gọi điện xử lý ngoài web, không ghi trả lại
   b.status = 'cancelled';
   b.cancelledBy = by;
   b.cancelReason = String(reason || '').slice(0, 300) || null;
@@ -833,7 +906,7 @@ function doCancel(b, actor, reason, by) {
   b.refundPercent = r.percent;
   b.refundAmount = r.amount;
   b.refundStatus = r.amount > 0 ? 'pending' : 'none';
-  b.lateCancel = by === 'customer' && from === 'confirmed' && r.hoursLeft < 12;
+  b.lateCancel = !b.walkIn && by === 'customer' && from === 'confirmed' && r.hoursLeft < 12;
   addLog(b, 'cancel', from, 'cancelled', actor, b.cancelReason || '');
   const [venue] = courtOf(b.courtId);
   if (by === 'customer') {
@@ -905,7 +978,7 @@ function listBookings(user, query) {
   if (query.q) {
     const q = String(query.q).toLowerCase();
     rows = rows.filter((b) => {
-      const c = userOf(b.userId);
+      const c = customerOf(b);
       const v = courtOf(b.courtId)[0];
       return `${b.code} ${c.fullName} ${c.phone} ${v.name}`.toLowerCase().includes(q);
     });
@@ -1688,6 +1761,25 @@ function ownerMatches(user) {
     .map((m) => toMatch(m, user));
 }
 
+function seedPhoneBookings(st) {
+  for (const spec of seeds.bookings.phoneBookings || []) {
+    const [venue, court] = courtOf(spec.courtId);
+    const date = addDays(dateOf(now()), spec.day);
+    const startAt = `${date} ${spec.start}:00`;
+    if (st.bookings.some((x) => x.courtId === court.id && x.startAt === startAt && ['pending', 'confirmed', 'matching'].includes(x.status))) continue;
+    const slot = slotInfo(court, venue, date, spec.start, null, true);
+    const b = {
+      id: nextId('booking'), code: '', userId: null, walkIn: { name: spec.name, phone: spec.phone || '' }, venueId: venue.id, courtId: court.id,
+      startAt, endAt: `${date} ${slot.end}:00`, status: 'confirmed', expiresAt: null, price: spec.price ?? slot.basePrice, basePrice: slot.basePrice, discountPercent: 0, offerId: null,
+      paymentStatus: spec.paid ? 'paid' : 'unpaid', refundStatus: 'none', refundPercent: 0, refundAmount: 0, cancelledBy: null, cancelReason: null, lateCancel: false,
+      customerNote: spec.note || '', rulesSnapshot: venue.rules, policySnapshot: venue.cancelPolicy, idempotencyKey: null, createdAt: msToVn(nowMs() - 3 * 3600000), cancelledAt: null,
+    };
+    b.code = bookingCode(b.id);
+    st.bookings.push(b);
+    addLog(b, 'phone_create', null, 'confirmed', userOf(venue.ownerId), `Đặt qua điện thoại cho ${spec.name}${spec.phone ? ` (${spec.phone})` : ''}, giá ${vnd(b.price)}, ${spec.paid ? 'đã nhận tiền' : 'chưa nhận tiền'}`, b.createdAt);
+  }
+}
+
 function seedMatches(st, ago) {
   for (const spec of seeds.matches.matches) {
     const [venue, court] = courtOf(spec.courtId);
@@ -2386,6 +2478,8 @@ route('DELETE', '/api/owner/blocks/:id', (c) => {
   return { ok: true };
 });
 route('GET', '/api/owner/bookings', (c) => listBookings(need(c, 'owner'), c.query));
+route('POST', '/api/owner/bookings', addPhoneBooking);
+route('PUT', '/api/owner/bookings/:id', updatePhoneBooking);
 route('GET', '/api/owner/transfers', (c) => ownerTransfers(need(c, 'owner')));
 route('GET', '/api/owner/matches', (c) => ownerMatches(need(c, 'owner')));
 route('POST', '/api/owner/matches/:id/confirm-part', doConfirmPart);

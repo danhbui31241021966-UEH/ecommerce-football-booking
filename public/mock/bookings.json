@@ -57,5 +57,9 @@
     { "userId": 2, "bookingKey": "k5", "message": "Booking của Lê Minh Khách đã qua giờ đá, hãy đánh dấu có mặt hoặc bùng sân.", "minAgo": 60, "isRead": false },
     { "userId": 3, "bookingKey": "k8", "message": "Có booking mới chờ duyệt.", "minAgo": 4, "isRead": false },
     { "userId": 3, "bookingKey": "k10", "message": "Khách hủy booking đã thanh toán, cần hoàn 100% tiền.", "minAgo": 120, "isRead": false }
+  ],
+  "phoneBookings": [
+    { "courtId": 1, "day": 0, "start": "17:00", "name": "Anh Tùng", "phone": "0903 111 222", "paid": true, "note": "Gọi điện đặt, đá hằng tuần" },
+    { "courtId": 2, "day": 0, "start": "19:00", "name": "Chị Lan (Zalo)", "phone": "0988 333 444", "paid": false, "note": "Nhắn Zalo, chuyển khoản sau" }
   ]
 }

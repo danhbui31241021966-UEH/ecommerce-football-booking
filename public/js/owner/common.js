@@ -50,6 +50,7 @@ export const STATUS_LABEL = {
   matching: 'Đang tìm đội đá cùng',
 };
 export const badge = (status, label = STATUS_LABEL[status]) => `<span class="badge badge-${status}">${esc(label)}</span>`;
+export const sourceBadge = (b) => (b.source === 'phone' ? '<span class="badge badge-phone">Đặt qua điện thoại</span>' : '');
 export const payBadge = (b) =>
   ['confirmed', 'completed', 'no_show'].includes(b.status) || b.paymentStatus === 'paid'
     ? badge(b.paymentStatus, b.paymentStatus === 'paid' ? 'Đã chuyển khoản' : 'Chưa chuyển khoản')
@@ -212,6 +213,7 @@ export function actionsFor(b) {
   }
   if (b.status === 'confirmed') {
     if (b.paymentStatus === 'unpaid') a.push({ k: 'paid', label: 'Đã nhận tiền', cls: 'btn-primary' });
+    if (b.source === 'phone') a.push({ k: 'edit', label: 'Sửa', cls: 'btn' });
     if (hasStarted(b)) {
       a.push({ k: 'completed', label: 'Đã đá', cls: 'btn' }, { k: 'no_show', label: 'Bùng sân', cls: 'btn-danger' });
     } else {
@@ -230,6 +232,121 @@ export const actionButtons = (b, size = 'btn-sm') =>
 const who = (b) => `<p class="dlg-ref"><b>${esc(b.customerName || 'Khách')}</b> · ${esc(b.courtName)} · ${hhmm(b.startAt)}–${hhmm(b.endAt)} ${dm(b.startAt)} · ${esc(b.code)}</p>`;
 const noteField = (label, ph, req = false) =>
   `<div class="field"><label for="f-note">${label}</label><textarea class="textarea" id="f-note" name="note" rows="3" placeholder="${ph}" ${req ? `required data-label="${label.toLowerCase()}"` : ''}></textarea></div>`;
+
+// Hộp thoại có form tự gửi: lỗi từ server hiện ngay trong hộp, không đóng hộp, không mất những gì đã nhập.
+function formDialog({ title, body, saveLabel, save, onOpen }) {
+  return dialog({
+    title,
+    body,
+    hideConfirm: true,
+    extraFoot: `<button class="btn btn-primary" type="button" data-save>${esc(saveLabel)}</button>`,
+    onOpen(dlg) {
+      const form = dlg.querySelector('form');
+      const btn = dlg.querySelector('[data-save]');
+      const err = dlg.querySelector('.form-error');
+      const run = async () => {
+        err.hidden = true;
+        btn.disabled = true;
+        try {
+          dlg.finish(await save(form));
+        } catch (e) {
+          err.textContent = e.message;
+          err.hidden = false;
+          btn.disabled = false;
+        }
+      };
+      btn.addEventListener('click', run);
+      form.addEventListener('submit', (e) => { e.preventDefault(); e.stopImmediatePropagation(); run(); }, true);
+      onOpen?.(dlg, form);
+    },
+  });
+}
+
+const SLOT_WHY = { booked: 'đã có lịch đặt', held: 'đang chờ chủ sân đồng ý', blocked: 'đang bị chặn', past: 'đã qua', offered: 'giữ cho người đang chờ' };
+
+// Chủ sân thêm lịch cho khách gọi điện/Zalo. Trả về lịch vừa tạo, hoặc null nếu đóng hộp.
+export async function openAddBooking({ venues, venueId, date = todayStr(), courtId = null, start = '' }) {
+  const venue = venues.find((v) => v.id === venueId);
+  const courts = venue.courts.filter((c) => c.isActive);
+  const cache = new Map();
+  const scheduleOf = async (d) => {
+    if (!cache.has(d)) cache.set(d, await api.owner.schedule(venue.id, d));
+    return cache.get(d);
+  };
+  const body = `<p class="muted">Dùng khi khách gọi điện hoặc nhắn Zalo đặt sân. Lịch này giữ giờ như lịch đặt thật nên khách đặt trên web không đặt trùng được. SânNhanh không tạo tài khoản và không nhắn tin cho khách.</p>
+    <div class="field"><label for="pb-name">Tên khách</label><input class="input" id="pb-name" name="customerName" maxlength="80" autocomplete="off" placeholder="Ví dụ: Anh Tùng"></div>
+    <div class="field"><label for="pb-phone">Số điện thoại (không bắt buộc)</label><input class="input" id="pb-phone" name="customerPhone" type="tel" inputmode="tel" autocomplete="off"></div>
+    <div class="field"><label for="pb-date">Ngày</label><input class="input" id="pb-date" name="date" type="date" min="${todayStr()}" value="${esc(date)}"></div>
+    <div class="field"><label for="pb-court">Sân</label><select class="select" id="pb-court" name="courtId">${courts.map((c) => `<option value="${c.id}" ${c.id === courtId ? 'selected' : ''}>${esc(c.name)} · sân ${esc(c.fieldType)}</option>`).join('')}</select></div>
+    <div class="field"><label for="pb-start">Giờ</label><select class="select" id="pb-start" name="start"><option value="">Đang tải giờ...</option></select><span class="hint" id="pb-slot-hint"></span></div>
+    <div class="field"><label for="pb-price">Giá</label><input class="input" id="pb-price" name="price" type="number" inputmode="numeric" min="0" step="1000"><span class="hint">Mặc định là giá thường của giờ đó, bạn sửa được.</span></div>
+    <fieldset class="field"><legend>Tiền</legend>
+      <label class="check"><input type="radio" name="paid" value="0" checked> Chưa nhận tiền</label>
+      <label class="check"><input type="radio" name="paid" value="1"> Đã nhận tiền</label></fieldset>
+    <div class="field"><label for="pb-note">Ghi chú (không bắt buộc)</label><textarea class="textarea" id="pb-note" name="note" rows="2" maxlength="300" placeholder="Ví dụ: đá hằng tuần, mang theo áo bib"></textarea></div>`;
+  return formDialog({
+    title: 'Thêm lịch đặt',
+    saveLabel: 'Thêm lịch đặt',
+    body,
+    async onOpen(dlg) {
+      const el = (id) => dlg.querySelector(id);
+      let priceTouched = false;
+      el('#pb-price').addEventListener('input', () => { priceTouched = true; });
+      const refresh = async () => {
+        const sel = el('#pb-start');
+        const keep = sel.value || start;
+        try {
+          const sc = await scheduleOf(el('#pb-date').value || todayStr());
+          const court = sc.courts.find((c) => c.id === Number(el('#pb-court').value));
+          sel.innerHTML = `<option value="">Chọn giờ</option>${court.slots
+            .map((s) => {
+              const why = s.teamMode && s.status === 'available' ? 'chỉ nhận ghép kèo' : s.status === 'available' ? '' : SLOT_WHY[s.status] || s.status;
+              return `<option value="${s.start}" data-price="${s.basePrice}" ${why ? 'disabled' : ''} ${s.start === keep && !why ? 'selected' : ''}>${s.start}–${s.end}${why ? ` · ${why}` : ` · ${money(s.basePrice)}`}</option>`;
+            })
+            .join('')}`;
+          el('#pb-slot-hint').textContent = court.slots.some((s) => s.status === 'available' && !s.teamMode) ? '' : 'Ngày này không còn giờ trống để thêm lịch.';
+        } catch (e) {
+          sel.innerHTML = '<option value="">Không tải được giờ</option>';
+          el('#pb-slot-hint').textContent = e.message;
+        }
+        const opt = sel.selectedOptions[0];
+        if (!priceTouched) el('#pb-price').value = opt?.dataset.price || '';
+      };
+      el('#pb-date').addEventListener('change', refresh);
+      el('#pb-court').addEventListener('change', refresh);
+      el('#pb-start').addEventListener('change', () => { if (!priceTouched) el('#pb-price').value = el('#pb-start').selectedOptions[0]?.dataset.price || ''; });
+      await refresh();
+    },
+    async save(form) {
+      const f = form.elements;
+      const name = f.customerName.value.trim();
+      if (!name) { f.customerName.focus(); throw new Error('Vui lòng nhập tên khách.'); }
+      if (!f.start.value) throw new Error('Vui lòng chọn giờ.');
+      return api.owner.addBooking({
+        courtId: Number(f.courtId.value), date: f.date.value, start: f.start.value, customerName: name, customerPhone: f.customerPhone.value.trim(),
+        price: f.price.value === '' ? undefined : Number(f.price.value), paid: f.paid.value === '1', note: f.note.value.trim(),
+      });
+    },
+  });
+}
+
+function editPhoneBooking(b) {
+  const paid = b.paymentStatus === 'paid';
+  return formDialog({
+    title: 'Sửa lịch đặt qua điện thoại',
+    saveLabel: 'Lưu',
+    body: `${who(b)}<p class="muted">Giờ và sân không sửa được. Cần đổi giờ thì hủy lịch này rồi thêm lịch mới.</p>
+      <div class="field"><label for="pe-name">Tên khách</label><input class="input" id="pe-name" name="customerName" maxlength="80" value="${esc(b.customerName)}"></div>
+      <div class="field"><label for="pe-phone">Số điện thoại (không bắt buộc)</label><input class="input" id="pe-phone" name="customerPhone" type="tel" inputmode="tel" value="${esc(b.customerPhone || '')}"></div>
+      <div class="field"><label for="pe-price">Giá</label><input class="input" id="pe-price" name="price" type="number" inputmode="numeric" min="0" step="1000" value="${b.price}" ${paid ? 'disabled' : ''}>${paid ? '<span class="hint">Đã nhận tiền nên không đổi giá nữa.</span>' : ''}</div>
+      <div class="field"><label for="pe-note">Ghi chú</label><textarea class="textarea" id="pe-note" name="note" rows="2" maxlength="300">${esc(b.customerNote || '')}</textarea></div>`,
+    save(form) {
+      const f = form.elements;
+      if (!f.customerName.value.trim()) throw new Error('Vui lòng nhập tên khách.');
+      return api.owner.updateBooking(b.id, { customerName: f.customerName.value.trim(), customerPhone: f.customerPhone.value.trim(), ...(paid ? {} : { price: Number(f.price.value) }), note: f.note.value.trim() });
+    },
+  }).then((r) => !!r);
+}
 
 // Chạy một thao tác; trả về true nếu đã ghi xong (trang gọi lại tải dữ liệu).
 export async function runAction(kind, b) {
@@ -257,9 +374,9 @@ export async function runAction(kind, b) {
         title: 'Hủy đặt sân',
         confirm: 'Hủy đặt sân',
         danger: true,
-        body: `${who(b)}<p>Nếu bạn hủy, khách được trả lại 100%${b.paymentStatus === 'paid' ? ` (${money(b.price)} khách đã chuyển)` : '. Khách chưa chuyển khoản nên không có tiền để trả lại'}.</p>${noteField('Lý do', 'Gửi cho khách', true)}`,
+        body: b.source === 'phone' ? `${who(b)}<p>Giờ sẽ trống lại ngay. Lịch này đặt qua điện thoại nên SânNhanh không ghi trả lại tiền${b.paymentStatus === 'paid' ? `: nếu bạn đã nhận ${money(b.price)}, bạn tự trả lại cho khách ngoài web` : ''}.</p>${noteField('Lý do (không bắt buộc)', 'Ví dụ: khách báo đổi lịch')}` : `${who(b)}<p>Nếu bạn hủy, khách được trả lại 100%${b.paymentStatus === 'paid' ? ` (${money(b.price)} khách đã chuyển)` : '. Khách chưa chuyển khoản nên không có tiền để trả lại'}.</p>${noteField('Lý do', 'Gửi cho khách', true)}`,
       });
-      return r && call(() => api.owner.cancel(b.id, r.note.trim()));
+      return r && call(() => api.owner.cancel(b.id, (r.note || '').trim()));
     }
     case 'paid': {
       const r = await dialog({
@@ -277,6 +394,8 @@ export async function runAction(kind, b) {
       });
       return r && call(() => api.owner.markRefunded(b.id, r.note.trim()));
     }
+    case 'edit':
+      return editPhoneBooking(b);
     case 'completed':
       return call(() => api.owner.attendance(b.id, 'completed'));
     case 'no_show': {
@@ -299,6 +418,7 @@ const DONE_TOAST = {
   refund: 'Đã ghi nhận trả lại tiền',
   completed: 'Đã ghi nhận: khách đã đá',
   no_show: 'Đã ghi nhận: khách bùng sân',
+  edit: 'Đã lưu thông tin lịch đặt',
 };
 
 // Gắn một lần cho vùng chứa: mọi nút [data-act] bên trong chạy thao tác rồi gọi reload().
@@ -342,10 +462,10 @@ export function bookingRow(b, { showDate = true } = {}) {
     <div class="bk-who"><b>${esc(b.customerName || 'Khách')}</b>${
       b.customerPhone ? ` <a class="phone" href="tel:${esc(b.customerPhone)}">${esc(b.customerPhone)}</a>` : ''
     }${b.customerNote ? `<p class="note">“${esc(b.customerNote)}”</p>` : ''}${
-      b.status === 'pending' || b.customerReliability ? `<p>${reliabilityHtml(b.customerReliability)}</p>` : ''
+      b.source !== 'phone' && (b.status === 'pending' || b.customerReliability) ? `<p>${reliabilityHtml(b.customerReliability)}</p>` : ''
     }</div>
     <div class="bk-court"><span>${esc(b.courtName)} · Sân ${esc(b.fieldType)}</span><span class="code">${esc(b.code)}</span></div>
-    <div class="bk-state">${badge(b.status)}${payBadge(b)}${refundBadge(b)}${b.status === 'pending' ? countdownHtml(b) : ''}</div>
+    <div class="bk-state">${badge(b.status)}${sourceBadge(b)}${payBadge(b)}${refundBadge(b)}${b.status === 'pending' ? countdownHtml(b) : ''}</div>
     <div class="bk-money"><span class="price">${money(b.price)}</span>${sale}</div>
     <div class="bk-actions">${actionButtons(b)}</div>
   </li>`;

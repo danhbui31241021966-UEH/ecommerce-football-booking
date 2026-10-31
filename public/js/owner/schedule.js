@@ -1,7 +1,7 @@
-// Màn 12 – Lịch & chặn lịch: mỗi cột một sân, vạch giờ hiện tại, bấm ô để chặn / bỏ chặn / xem booking.
+// Màn 12 – Lịch & chặn lịch: mỗi cột một sân, vạch giờ hiện tại, bấm ô trống để thêm lịch đặt (khách gọi điện/Zalo) hoặc chặn giờ, bấm ô khác để bỏ chặn / xem lịch đặt.
 import {
   $, $$, esc, money, hhmm, dm, dowOf, dayLabel, todayStr, initPage, loadVenues, venueSelect, errorBox, dialog, guard, toast,
-  api, badge, payBadge, refundBadge, reliabilityHtml, actionButtons, runAction, STATUS_LABEL, parseAt, withDetail, nowMs, syncClock,
+  api, badge, payBadge, refundBadge, sourceBadge, reliabilityHtml, actionButtons, runAction, STATUS_LABEL, parseAt, withDetail, nowMs, syncClock, openAddBooking,
 } from './common.js';
 import { vnToMs, msToVn, hmToMin, moneyShort } from '/js/ui/format.js';
 
@@ -29,6 +29,7 @@ function cell(court, s) {
   if (bk) {
     const bs = full?.status || bk.status;
     if (s.status === 'past') st = bs === 'confirmed' ? 'Cần ghi nhận' : STATUS_LABEL[bs] || st;
+    else if (bk.source === 'phone') st = 'Đặt qua điện thoại';
     const unpaid = (full?.paymentStatus || bk.paymentStatus) === 'unpaid' && ['confirmed', 'completed'].includes(bs);
     line = `<span class="who">${esc(bk.customerName || 'Khách')}${unpaid ? ' · chưa chuyển khoản' : ''}</span>`;
   }
@@ -67,7 +68,7 @@ function render() {
       <p class="sched-summary" role="status"><span><b>${count('available')}</b> trống</span><span><b>${count('booked')}</b> đã đặt</span><span><b>${count('held')}</b> chờ chủ sân đồng ý</span><span><b>${count('blocked')}</b> chặn</span><span><b>${waiting}</b> người đang chờ giờ trống</span>${need ? `<span><b>${need}</b> lịch đặt đã qua giờ đá, chưa ghi nhận đã đá hay bùng</span>` : ''}</p>
     </div>
     <div class="sc-legend" aria-label="Chú thích">
-      <span><i style="background:var(--surface)"></i>Trống – bấm để chặn</span><span><i class="sc-booked"></i>Đã đặt</span><span><i class="sc-held"></i>Chờ chủ sân đồng ý</span>
+      <span><i style="background:var(--surface)"></i>Trống – bấm để thêm lịch đặt hoặc chặn</span><span><i class="sc-booked"></i>Đã đặt</span><span><i class="sc-held"></i>Chờ chủ sân đồng ý</span>
       <span><i class="sc-blocked"></i>Đã chặn</span><span><i class="sc-offered"></i>Giữ cho người đang chờ</span><span><i class="sc-past"></i>Đã qua</span>
     </div>
     <div class="sched" tabindex="0" aria-label="Lịch ${esc(dayLabel(date))}">
@@ -100,6 +101,27 @@ const findSlot = (courtId, start) => {
   const c = sched.courts.find((x) => x.id === courtId);
   return { court: c, slot: c.slots.find((s) => s.start === start) };
 };
+
+// Ô trống: chủ sân chọn thêm lịch cho khách gọi điện/Zalo hoặc chặn giờ (sửa sân, sự kiện).
+async function chooseAction(court, slot) {
+  const teamOnly = !!slot.teamMode;
+  const r = await dialog({
+    title: `${court.name} · ${slot.start}–${slot.end}`,
+    confirm: 'Tiếp tục',
+    body: `<p class="dlg-ref"><b>${esc(court.name)}</b> · ${esc(dayLabel(date))} ${dm(date)} · ${slot.start}</p>
+      <fieldset class="field"><legend class="sr-only">Bạn muốn làm gì với giờ này?</legend><div class="choice-list">
+        <label><input type="radio" name="kind" value="booking" ${teamOnly ? 'disabled' : 'checked'}><span><b>Khách đặt (điện thoại/Zalo)</b><small>${teamOnly ? 'Giờ này đang ở chế độ Chỉ nhận ghép kèo, nên không thêm lịch đặt riêng được.' : 'Thêm lịch cho khách quen gọi điện hoặc nhắn Zalo. Giờ này sẽ không ai đặt trùng.'}</small></span></label>
+        <label><input type="radio" name="kind" value="block" ${teamOnly ? 'checked' : ''}><span><b>Chặn giờ (sửa sân, sự kiện)</b><small>Khách không đặt được giờ này. Bạn bỏ chặn lúc nào cũng được.</small></span></label>
+      </div></fieldset>`,
+  });
+  if (!r) return;
+  if (r.kind === 'block') return openBlock(court, slot);
+  const added = await openAddBooking({ venues, venueId, date, courtId: court.id, start: slot.start });
+  if (added) {
+    toast(`Đã thêm lịch đặt cho ${added.customerName}`);
+    await load();
+  }
+}
 
 async function openBlock(court, slot) {
   // Có thể chặn kéo dài qua các ô trống liền sau.
@@ -152,8 +174,8 @@ async function openBooking(court, slot) {
     body: `<div class="det">
       <p><b>${esc(b.customerName || 'Khách')}</b>${b.customerPhone ? ` · <a href="tel:${esc(b.customerPhone)}">${esc(b.customerPhone)}</a>` : ''}</p>
       ${b.customerNote ? `<p class="muted">“${esc(b.customerNote)}”</p>` : ''}
-      <p>${reliabilityHtml(b.customerReliability ?? null)}</p>
-      <div class="row-b">${badge(b.status)}${b.paymentStatus ? payBadge(b) : ''}${b.refundStatus ? refundBadge(b) : ''}<span class="muted">${esc(b.code)}${b.price ? ' · ' + money(b.price) : ''}</span></div>
+      ${b.source === 'phone' ? '' : `<p>${reliabilityHtml(b.customerReliability ?? null)}</p>`}
+      <div class="row-b">${badge(b.status)}${sourceBadge(b)}${b.paymentStatus ? payBadge(b) : ''}${b.refundStatus ? refundBadge(b) : ''}<span class="muted">${esc(b.code)}${b.price ? ' · ' + money(b.price) : ''}</span></div>
       ${waitNote}
       <div class="bk-acts" id="dlg-acts">${bookings.find((x) => x.id === id) ? actionButtons(b, '') : ''}</div>
       <a href="/owner-bookings.html?q=${encodeURIComponent(b.code)}" class="muted" style="font-size:var(--fs-sm)">Mở trong Quản lý lịch đặt</a>
@@ -189,7 +211,7 @@ content.addEventListener('click', (e) => {
   guard(c, async () => {
     if (slot.booking) return openBooking(court, slot);
     if (slot.status === 'blocked' && slot.block) return openUnblock(court, slot);
-    if (slot.status === 'available') return openBlock(court, slot);
+    if (slot.status === 'available') return chooseAction(court, slot);
   });
 });
 
@@ -211,7 +233,14 @@ if (await initPage()) {
     if (!venues.length) {
       content.innerHTML = '<div class="empty"><p>Bạn chưa có cụm sân nào.</p><a class="btn btn-primary" href="/owner-settings.html">Tạo cụm sân</a></div>';
     } else {
-      $('#tools').innerHTML = `<label class="sr-only" for="venue">Cụm sân</label><select class="select" id="venue"></select>`;
+      $('#tools').innerHTML = `<button type="button" class="btn btn-lime" id="add-booking">+ Thêm lịch đặt</button><label class="sr-only" for="venue">Cụm sân</label><select class="select" id="venue"></select>`;
+      $('#add-booking').addEventListener('click', (e) => guard(e.currentTarget, async () => {
+        const added = await openAddBooking({ venues, venueId, date });
+        if (added) {
+          toast(`Đã thêm lịch đặt cho ${added.customerName}`);
+          await load();
+        }
+      }));
       venueSelect($('#venue'), venues, venueId, (id) => {
         venueId = id;
         load();

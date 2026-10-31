@@ -2977,3 +2977,54 @@ a.slot-team {
 .bank-fields .field {
   margin-bottom: var(--sp-3);
 }
+
+/* Lịch chủ sân thêm tay (khách gọi điện, nhắn Zalo): nhãn viền nét đứt, luôn có chữ */
+.badge-phone {
+  background: transparent;
+  color: var(--text);
+  border: 1px dashed var(--text);
+}
+.check {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding-block: 4px;
+  font-weight: 500;
+}
+.check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--text);
+}
+.choice-list {
+  display: grid;
+  gap: var(--sp-2);
+}
+.choice-list label {
+  display: flex;
+  gap: var(--sp-3);
+  align-items: flex-start;
+  padding: var(--sp-3);
+  border: 1px solid var(--line);
+  border-radius: var(--r-md, 8px);
+  cursor: pointer;
+}
+.choice-list label:has(input:checked) {
+  border-color: var(--text);
+  background: var(--lime-100);
+}
+.choice-list label:has(input:disabled) {
+  cursor: not-allowed;
+  color: var(--muted);
+}
+.choice-list input {
+  margin-top: 4px;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--text);
+}
+.choice-list small {
+  display: block;
+  color: var(--muted);
+  font-weight: 400;
+}

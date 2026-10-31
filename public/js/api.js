@@ -145,6 +145,10 @@ export const api = {
     updateCourt: (id, body) => request('PUT', `/api/owner/courts/${id}`, { body }),
     schedule: (venueId, date) => get(`/api/owner/venues/${venueId}/schedule`, { date }),
     /** body: { courtId, date, start, end, reason } */
+    /** Thêm lịch cho khách gọi điện/Zalo: { courtId, date, start, customerName, customerPhone?, price?, paid?, note? } → Booking (source: 'phone'). */
+    addBooking: (body) => post('/api/owner/bookings', body),
+    /** Sửa lịch đặt qua điện thoại: { customerName?, customerPhone?, price?, note? }. Giờ và sân không sửa được. */
+    updateBooking: (id, body) => request('PUT', `/api/owner/bookings/${id}`, { body }),
     block: (body) => post('/api/owner/blocks', body),
     unblock: (id) => request('DELETE', `/api/owner/blocks/${id}`),
     /** params: { status, date, venueId, q } */

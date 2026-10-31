@@ -1,7 +1,7 @@
 // Màn 10 – Tổng quan: chờ chủ sân đồng ý (đếm ngược), lịch hôm nay, tiền chưa thu, tiền chờ trả lại.
 import {
   $, esc, money, dayLabel, todayStr, initPage, loadVenues, venueSelect, errorBox, bookingRow, withDetail,
-  tickCountdowns, wireActions, api, dm, startsAt, nowMs, syncClock,
+  tickCountdowns, wireActions, api, dm, startsAt, nowMs, syncClock, openAddBooking, guard, toast,
 } from './common.js';
 
 const content = $('#content');
@@ -35,7 +35,7 @@ function render() {
     </div>
     <div class="cols two">
       <div>${panel('Chờ chủ sân đồng ý', pending, { href: '/owner-bookings.html?status=pending', empty: 'Chưa có lịch đặt nào chờ chủ sân đồng ý.' })}</div>
-      <div>${panel(`Lịch hôm nay <span class="muted" style="font-size:var(--fs-sm);font-weight:600;text-transform:none">${dm(today)}</span>`, todayList, { href: '/owner-schedule.html', empty: 'Hôm nay chưa có booking.' })}</div>
+      <div>${panel(`Lịch hôm nay <span class="muted" style="font-size:var(--fs-sm);font-weight:600;text-transform:none">${dm(today)}</span>`, todayList, { href: '/owner-schedule.html', empty: 'Hôm nay chưa có lịch đặt.' })}</div>
     </div>
     <div class="cols two" style="margin-top:var(--sp-6)">
       <div>${panel('Có sân nhưng chưa chuyển khoản', unpaid, { href: '/owner-bookings.html?status=unpaid', empty: 'Mọi lịch đặt đã có sân đều đã chuyển khoản.' })}</div>
@@ -65,7 +65,14 @@ if (await initPage()) {
     if (!venues.length) {
       content.innerHTML = '<div class="empty"><p>Bạn chưa có cụm sân nào.</p><a class="btn btn-primary" href="/owner-settings.html">Tạo cụm sân</a></div>';
     } else {
-      $('#tools').innerHTML = `<label class="sr-only" for="venue">Cụm sân</label><select class="select" id="venue"></select>`;
+      $('#tools').innerHTML = `<button type="button" class="btn btn-lime" id="add-booking">+ Thêm lịch đặt</button><label class="sr-only" for="venue">Cụm sân</label><select class="select" id="venue"></select>`;
+      $('#add-booking').addEventListener('click', (e) => guard(e.currentTarget, async () => {
+        const added = await openAddBooking({ venues, venueId, date: todayStr() });
+        if (added) {
+          toast(`Đã thêm lịch đặt cho ${added.customerName}`);
+          await load();
+        }
+      }));
       venueSelect($('#venue'), venues, venueId, (id) => {
         venueId = id;
         load();
