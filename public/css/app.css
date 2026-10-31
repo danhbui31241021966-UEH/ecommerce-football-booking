@@ -3068,3 +3068,16 @@ a.slot-team {
 .badge-lg-finished { background: #eef0f3; color: var(--text-2); }
 .slot.slot-league .s { white-space: normal; text-overflow: clip; max-width: 100%; }
 
+/* hero slideshow: ảnh đầu là ảnh tĩnh trong HTML, ảnh sau do index-page.js thêm khi đã tải xong; chỉ mờ dần, không đổi kích thước khung */
+.hero-main.slides .hero-slide {
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+.hero-main.slides .hero-slide.is-on {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-main.slides .hero-slide {
+    transition: none;
+  }
+}

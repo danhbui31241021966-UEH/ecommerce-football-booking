@@ -42,3 +42,20 @@ Id lấy từ kết quả tìm kiếm; pexels.com chặn truy cập tự động
 
 Archivo (Omnibus-Type), SIL Open Font License 1.1, tải từ Google Fonts (https://fonts.google.com/specimen/Archivo), tự host trong `public/fonts/`.
 Bản variable hai trục (wght 100–900, wdth 62–125), ba subset: `Archivo-vietnamese.woff2` 34.364 B, `Archivo-latin-ext.woff2` 85.856 B, `Archivo-latin.woff2` 90.096 B.
+
+## Ảnh đổi ở đầu trang chủ (hero slideshow)
+
+Cùng bộ ảnh trận đá đêm của Quyn Phạm với `hero-1920.jpg`. Tải từ CDN Pexels (`auto=compress`, rộng 1600 và 800), không chỉnh sửa.
+
+| File | Rộng×cao | Dung lượng | Trang ảnh | Tác giả |
+| --- | --- | --- | --- | --- |
+| `photos/hero-13907420-1600.jpg` | 1600×1067 | 309.563 B | https://www.pexels.com/photo/13907420/ | Quyn Phạm (cùng bộ ảnh với `hero-1920.jpg`. tác giả suy ra từ bộ ảnh; chưa đối chiếu trang ảnh vì Pexels chặn truy cập tự động) |
+| `photos/hero-13907420-800.jpg` | 800×533 | 95.887 B | https://www.pexels.com/photo/13907420/ | Quyn Phạm (cùng bộ ảnh với `hero-1920.jpg`. tác giả suy ra từ bộ ảnh; chưa đối chiếu trang ảnh vì Pexels chặn truy cập tự động) |
+| `photos/hero-13907430-1600.jpg` | 1600×1067 | 248.961 B | https://www.pexels.com/photo/13907430/ | Quyn Phạm (cùng bộ ảnh với `hero-1920.jpg`. tác giả suy ra từ bộ ảnh; chưa đối chiếu trang ảnh vì Pexels chặn truy cập tự động) |
+| `photos/hero-13907430-800.jpg` | 800×533 | 78.960 B | https://www.pexels.com/photo/13907430/ | Quyn Phạm (cùng bộ ảnh với `hero-1920.jpg`. tác giả suy ra từ bộ ảnh; chưa đối chiếu trang ảnh vì Pexels chặn truy cập tự động) |
+| `photos/hero-13907438-1600.jpg` | 1600×1067 | 342.413 B | https://www.pexels.com/photo/13907438/ | Quyn Phạm (cùng bộ ảnh với `hero-1920.jpg`. tác giả suy ra từ bộ ảnh; chưa đối chiếu trang ảnh vì Pexels chặn truy cập tự động) |
+| `photos/hero-13907438-800.jpg` | 800×533 | 85.799 B | https://www.pexels.com/photo/13907438/ | Quyn Phạm (cùng bộ ảnh với `hero-1920.jpg`. tác giả suy ra từ bộ ảnh; chưa đối chiếu trang ảnh vì Pexels chặn truy cập tự động) |
+| `photos/hero-13907445-1600.jpg` | 1600×1067 | 296.944 B | https://www.pexels.com/photo/13907445/ | Quyn Phạm (cùng bộ ảnh với `hero-1920.jpg`. tác giả suy ra từ bộ ảnh; chưa đối chiếu trang ảnh vì Pexels chặn truy cập tự động) |
+| `photos/hero-13907445-800.jpg` | 800×533 | 94.540 B | https://www.pexels.com/photo/13907445/ | Quyn Phạm (cùng bộ ảnh với `hero-1920.jpg`. tác giả suy ra từ bộ ảnh; chưa đối chiếu trang ảnh vì Pexels chặn truy cập tự động) |
+| `photos/hero-13907452-1600.jpg` | 1600×1067 | 282.856 B | https://www.pexels.com/photo/13907452/ | Quyn Phạm (cùng bộ ảnh với `hero-1920.jpg`. tác giả suy ra từ bộ ảnh; chưa đối chiếu trang ảnh vì Pexels chặn truy cập tự động) |
+| `photos/hero-13907452-800.jpg` | 800×533 | 88.000 B | https://www.pexels.com/photo/13907452/ | Quyn Phạm (cùng bộ ảnh với `hero-1920.jpg`. tác giả suy ra từ bộ ảnh; chưa đối chiếu trang ảnh vì Pexels chặn truy cập tự động) |

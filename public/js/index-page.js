@@ -35,9 +35,16 @@ function defaultChoice(nowTs, window) {
   return { date: today, at: minToHm(Math.min(22 * 60, Math.ceil((min + 1) / 60) * 60)) };
 }
 
+// Câu chào theo ngày ô tìm đang chọn sẵn: từ 21:30 (hết giờ đặt thường) là "Mai", trước 15:00 là "Hôm nay", còn lại "Tối nay".
+function whenWord(choiceDate, nowTs) {
+  if (choiceDate > dateOf(nowTs)) return 'Mai';
+  return hmToMin(timeOf(nowTs)) < 15 * 60 ? 'Hôm nay' : 'Tối nay';
+}
+
 function fillSearch(meta, districts) {
   const today = dateOf(meta.now);
   const choice = settleChoice(defaultChoice(meta.now), meta.now, meta.bookingWindowDays);
+  $('hero-when').textContent = whenWord(choice.date, meta.now);
   $('f-date').innerHTML = Array.from({ length: meta.bookingWindowDays }, (_, i) => addDays(today, i))
     .map((d) => `<option value="${d}"${d === choice.date ? ' selected' : ''}>${relativeDayLabel(d, today)}</option>`)
     .join('');
@@ -137,6 +144,63 @@ function decorate() {
   });
 }
 
+// Ảnh đầu trang: ảnh trong HTML hiện ngay; các ảnh sau tải ngầm và chỉ vào vòng đổi khi đã tải xong. Máy tắt chuyển động chỉ giữ ảnh đầu.
+const HERO_SLIDES = [
+  { small: '/img/photos/hero-13907420-800.jpg', large: '/img/photos/hero-13907420-1600.jpg', alt: 'Hai cầu thủ áo xanh vàng và áo đỏ tranh bóng trên sân cỏ nhân tạo về đêm, thủ môn áo vàng đứng trước khung thành' },
+  { small: '/img/photos/hero-13907430-800.jpg', large: '/img/photos/hero-13907430-1600.jpg', alt: 'Cầu thủ áo xanh và áo đỏ đang chạy bóng trên sân cỏ nhân tạo có lưới bao và đèn pha' },
+  { small: '/img/photos/hero-13907438-800.jpg', large: '/img/photos/hero-13907438-1600.jpg', alt: 'Toàn cảnh một trận bóng đá mini trên sân cỏ nhân tạo về đêm, đèn pha sáng quanh sân' },
+  { small: '/img/photos/hero-13907445-800.jpg', large: '/img/photos/hero-13907445-1600.jpg', alt: 'Cầu thủ áo xanh vàng rê bóng qua cầu thủ áo đỏ trước khung thành trên sân cỏ nhân tạo' },
+  { small: '/img/photos/hero-13907452-800.jpg', large: '/img/photos/hero-13907452-1600.jpg', alt: 'Cầu thủ áo trắng quần cam sút bóng trên sân cỏ nhân tạo, đồng đội đứng chờ bên đường biên' },
+];
+const HERO_MS = 6500;
+
+function startHeroSlides() {
+  const hero = document.querySelector('.hero-main');
+  const first = hero?.querySelector('picture img');
+  if (!first || !HERO_SLIDES.length || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  first.classList.add('hero-slide', 'is-on');
+  const imgs = [first];
+  let at = 0;
+  let timer = 0;
+  const next = () => {
+    if (imgs.length < 2) return;
+    imgs[at].classList.remove('is-on');
+    imgs[at].setAttribute('aria-hidden', 'true');
+    at = (at + 1) % imgs.length;
+    imgs[at].classList.add('is-on');
+    imgs[at].removeAttribute('aria-hidden');
+  };
+  const add = (slide) => {
+    const probe = new Image();
+    probe.sizes = '(min-width: 960px) 67vw, 100vw';
+    probe.srcset = `${slide.small} 800w, ${slide.large} 1600w`;
+    probe.onload = () => {
+      const img = document.createElement('img');
+      img.className = 'hero-slide';
+      img.src = slide.large;
+      img.srcset = probe.srcset;
+      img.sizes = probe.sizes;
+      img.width = 1600;
+      img.height = 1067;
+      img.alt = slide.alt;
+      img.setAttribute('aria-hidden', 'true');
+      if (slide.pos) img.style.objectPosition = slide.pos;
+      first.closest('picture').after(img);
+      imgs.push(img);
+      if (imgs.length === 2) {
+        hero.classList.add('slides');
+        timer = setInterval(next, HERO_MS);
+      }
+    };
+    probe.onerror = () => {};
+  };
+  // Tải lần lượt sau khi trang đã xong việc chính, để không giành băng thông với ảnh đầu và dữ liệu.
+  const run = () => HERO_SLIDES.forEach((s, i) => setTimeout(() => add(s), i * 800));
+  if (document.readyState === 'complete') setTimeout(run, 1200);
+  else addEventListener('load', () => setTimeout(run, 1200), { once: true });
+  addEventListener('pagehide', () => clearInterval(timer));
+}
+
 async function main() {
   mountShell();
   decorate();
@@ -149,7 +213,8 @@ async function main() {
     let listDate = today;
     let listVenues = first.venues;
     let rows = todayRows;
-    if (rows.length < 6 && meta.bookingWindowDays > 1) {
+    // Từ 21:30 câu chào là "Mai", nên cột giờ trống cũng lấy ngày mai thay vì vài giờ cuối của hôm nay.
+    if ((rows.length < 6 || defaultChoice(meta.now).date > today) && meta.bookingWindowDays > 1) {
       const next = addDays(today, 1);
       const r = await api.venues({ date: next });
       listDate = next;
@@ -165,4 +230,5 @@ async function main() {
     $('tonight-meta').textContent = 'Không tải được dữ liệu';
   }
 }
+startHeroSlides();
 main();
