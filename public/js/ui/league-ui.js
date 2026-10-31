@@ -15,8 +15,9 @@ export const teamBadge = (id, name, cls = '') =>
 
 /* ---------- Tiến độ ---------- */
 export function progress(done, total, { label = 'trận đã đá' } = {}) {
-  const pct = total ? Math.round((done / total) * 100) : 0;
-  return `<div class="lg-prog"><div class="pg" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}" aria-label="${done} trên ${total} ${label}"><span style="width:${pct}%"></span></div><span class="pg-t">${done}/${total || '–'} trận</span></div>`;
+  if (!total) return '<div class="lg-prog"><div class="pg" aria-hidden="true"><span style="width:0"></span></div><span class="pg-t">Chưa xếp lịch</span></div>';
+  const pct = Math.round((done / total) * 100);
+  return `<div class="lg-prog"><div class="pg" role="progressbar" aria-valuemin="0" aria-valuemax="${total}" aria-valuenow="${done}" aria-label="${done} trên ${total} ${label}"><span style="width:${pct}%"></span></div><span class="pg-t">${done}/${total} trận</span></div>`;
 }
 
 /* ---------- Đầu trang ---------- */

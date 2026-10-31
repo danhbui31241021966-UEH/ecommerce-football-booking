@@ -255,7 +255,7 @@ Hoàn cho đội cũ dùng `POST /bookings/:bookingId/refund` có sẵn (booking
 
 ### Kiểu dữ liệu chính
 
-`League` = `{ id, venueId, venueName, venueAddress, indexable, name, fieldType, teamCount, rules, link, status (draft/published/ongoing/finished), publishedAt, teams: [{ id, name, withdrawn, contactName?, contactPhone?, feePaid? }], matches: [{ id, round, homeId, awayId, homeName, awayName, status (unscheduled/planned/scheduled/played/forfeit), courtId, courtName, date, start, end, held, score: {home, away}|null, forfeitBy, started, history?: [{ kind: score/reschedule/forfeit, at, by, from, to, note }] }], standings: [{ rank, teamId, name, withdrawn, played, won, drawn, lost, gf, ga, gd, points }], counts }`. Bản lưu: `leagues`, `leagueTeams`, `leagueMatches`; giờ giữ là `blocks` có `leagueId`, `leagueMatchId`.
+`League` = `{ id, venueId, venueName, venueAddress, indexable, name, fieldType, teamCount, rules, link, status (draft/published/ongoing/finished), publishedAt, teams: [{ id, name, withdrawn, contactName?, contactPhone?, feePaid? }], matches: [{ id, round, homeId, awayId, homeName, awayName, status (unscheduled/planned/scheduled/played/forfeit), courtId, courtName, date, start, end, held, score: {home, away}|null, forfeitBy, rescheduled (true khi trận từng bị hoãn; chỉ để hiển thị nhãn “Đã hoãn”, công khai cũng thấy), started, history?: [{ kind: score/reschedule/forfeit, at, by, from, to, note }] }], standings: [{ rank, teamId, name, withdrawn, played, won, drawn, lost, gf, ga, gd, points }], counts }`. Bản lưu: `leagues`, `leagueTeams`, `leagueMatches`; giờ giữ là `blocks` có `leagueId`, `leagueMatchId`.
 
 ```text
 Venue        { id, name, district, address, phone, imageUrl, amenities[], openTime, closeTime,

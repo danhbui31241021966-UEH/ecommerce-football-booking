@@ -28,6 +28,9 @@ function render() {
 
   const todayAll = bookings.filter((b) => b.startAt.startsWith(today) && ['confirmed', 'completed', 'no_show'].includes(b.status)).sort((a, b) => a.startAt.localeCompare(b.startAt));
   const todayList = todayAll.filter((b) => !shown.has(b.code));
+  // Sau 22:00 các lịch mẫu nằm ở ngày mai; chủ sân vẫn phải thấy chúng ngay trên màn này.
+  const tomorrow = todayStr(1);
+  const tomorrowList = bookings.filter((b) => b.startAt.startsWith(tomorrow) && ['confirmed'].includes(b.status) && !shown.has(b.code)).sort((a, b) => a.startAt.localeCompare(b.startAt));
   const unpaidToday = todayAll.filter((b) => b.paymentStatus === 'unpaid');
   const unpaidOther = bookings.filter((b) => ['confirmed', 'completed'].includes(b.status) && b.paymentStatus === 'unpaid' && !b.startAt.startsWith(today));
   const owed = unpaidToday.reduce((t, b) => t + b.price, 0);
@@ -41,6 +44,7 @@ function render() {
     <section class="panel" aria-labelledby="h-today">
       <div class="panel-head"><h2 class="h2" id="h-today">Giờ đá hôm nay</h2><span class="count">${dm(today)}</span><a href="/owner-schedule.html">Mở lịch sân</a></div>
       ${todayList.length ? `<ul class="bk-list">${todayList.map((b) => bookingRow(b, { showDate: false })).join('')}</ul>` : `<p class="panel-empty">${todayAll.length ? 'Các giờ đá hôm nay đã nằm ở phần việc cần làm.' : 'Hôm nay chưa có lịch đặt.'}</p>`}
+      ${tomorrowList.length ? `<div class="panel-head"><h3 class="h2" id="h-tomorrow">Giờ đá ngày mai</h3><span class="count">${dm(tomorrow)}</span></div><ul class="bk-list" aria-labelledby="h-tomorrow">${tomorrowList.map((b) => bookingRow(b, { showDate: false })).join('')}</ul>` : ''}
       ${unpaidOther.length ? `<p class="panel-foot"><a href="/owner-bookings.html?status=unpaid">${unpaidOther.length} lịch đặt ngày khác còn chưa nhận tiền (${money(unpaidOther.reduce((t, b) => t + b.price, 0))}). Xem danh sách</a></p>` : ''}
     </section>`;
   tickCountdowns(load);
