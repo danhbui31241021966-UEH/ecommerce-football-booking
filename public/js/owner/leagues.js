@@ -1,11 +1,11 @@
 // Giải đấu của chủ sân: danh sách giải ở sân đang chọn và hộp tạo giải mới.
 import { $, esc, initPage, loadVenues, venueSelect, errorBox, api, dialog, guard, toast, mountViewSwitch } from './common.js';
+import { STATUS_TEXT, progress } from '/js/ui/league-ui.js';
 
 const content = $('#content');
 let venues = [];
 let venueId;
 
-export const STATUS_TEXT = { draft: 'Đang soạn', published: 'Đã công bố', ongoing: 'Đang đá', finished: 'Đã kết thúc' };
 const STATUS_HINT = {
   draft: 'Chưa công bố. Xếp giờ cho đủ các trận rồi bấm công bố.',
   published: 'Đã công bố, chưa đá trận nào.',
@@ -20,12 +20,13 @@ async function load() {
     const v = venues.find((x) => x.id === venueId);
     $('#sub').textContent = `${v.name} · ${list.length} giải`;
     const cards = list.length
-      ? `<ul class="plain-list">${list
+      ? `<ul class="plain-list lg-cards">${list
           .map(
-            (l) => `<li><a class="lg-card" href="/owner-league.html?id=${l.id}" data-id="${l.id}">
-              <strong>${esc(l.name)}</strong>
-              <span class="muted">Sân ${esc(l.fieldType)} người · ${l.teams}/${l.teamCount} đội · ${l.done}/${l.matches || '–'} trận đã đá</span>
-              <span><span class="badge badge-lg-${l.status}">${STATUS_TEXT[l.status]}</span> <span class="muted">${STATUS_HINT[l.status]}</span></span></a></li>`,
+            (l) => `<li><a class="lg-card lg-listcard" href="/owner-league.html?id=${l.id}" data-id="${l.id}">
+              <span class="lc-top"><span class="lg-st lg-st-${l.status}">${STATUS_TEXT[l.status]}</span><span class="muted">Sân ${esc(l.fieldType)} người · ${l.teams}/${l.teamCount} đội</span></span>
+              <strong class="lc-name">${esc(l.name)}</strong>
+              ${progress(l.done, l.matches)}
+              <span class="muted">${STATUS_HINT[l.status]}</span></a></li>`,
           )
           .join('')}</ul>`
       : '<div class="empty"><p>Sân này chưa có giải nào. Tạo giải để các đội cùng đá vòng tròn tại sân của bạn.</p></div>';

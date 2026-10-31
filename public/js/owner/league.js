@@ -1,14 +1,12 @@
 // Quản lý một giải: đội, tạo trận, xếp giờ, công bố, nhập tỉ số, hoãn trận, đội rút, bảng xếp hạng, điều lệ.
-import { $, $$, esc, initPage, loadVenues, errorBox, api, dialog, guard, toast, mountViewSwitch, todayStr, dayLabel } from './common.js';
+import { $, $$, esc, initPage, errorBox, api, dialog, guard, toast, mountViewSwitch, todayStr } from './common.js';
+import { heroHtml, tabsHtml, wireTabs, standingsHtml, scheduleHtml, rulesHtml, teamBadge, menuHtml, menuItem, wireMenus, TAB_KEYS } from '/js/ui/league-ui.js';
 
 const content = $('#content');
 const id = Number(new URLSearchParams(location.search).get('id'));
-const STATUS_TEXT = { draft: 'Đang soạn', published: 'Đã công bố', ongoing: 'Đang đá', finished: 'Đã kết thúc' };
-const MATCH_TEXT = { unscheduled: 'Chưa có giờ', planned: 'Đã chọn giờ, chưa giữ', scheduled: 'Đã giữ giờ', played: 'Đã đá', forfeit: 'Xử thua do đội rút' };
 let L; // giải đang xem
 let venue;
 
-const when = (m) => (m.date ? `${m.start}–${m.end}, ${dayLabel(m.date)} · ${esc(m.courtName)}` : 'Chưa có giờ');
 const publicUrl = () => `${location.origin}/league.html?id=${L.id}`;
 const matchLine = (m) => `${esc(m.homeName)} – ${esc(m.awayName)}`;
 
@@ -22,102 +20,95 @@ async function load() {
   }
 }
 
-function histHtml(m) {
-  if (!m.history.length) return '';
-  return `<details class="lg-hist"><summary>Lịch sử (${m.history.length})</summary><ul>${m.history
-    .map((h) => {
-      const what = h.kind === 'reschedule' ? `Đổi giờ: ${esc(h.from)} → ${esc(h.to)}` : h.kind === 'forfeit' ? `Xử thua ${esc(h.to)}` : h.from ? `Sửa tỉ số ${esc(h.from)} → ${esc(h.to)}` : `Nhập tỉ số ${esc(h.to)}`;
-      return `<li>${esc(h.at.slice(8, 10))}/${esc(h.at.slice(5, 7))} ${esc(h.at.slice(11, 16))} · ${esc(h.by)} · ${what}${h.note ? ` · Lý do: ${esc(h.note)}` : ''}</li>`;
-    })
-    .join('')}</ul></details>`;
-}
-
-function matchHtml(m) {
+/* ---------- Phần dưới mỗi thẻ trận ---------- */
+function footOf(m) {
   const draft = L.status === 'draft';
-  const score = m.score ? `<span class="score">${m.score.home} – ${m.score.away}</span>` : '';
-  const acts = [];
-  if (draft && L.counts.matches) acts.push(`<button class="btn btn-sm" type="button" data-pick="${m.id}">${m.date ? 'Đổi giờ' : 'Chọn giờ'}</button>`);
-  if (!draft && m.status === 'scheduled') acts.push(`<button class="btn btn-sm" type="button" data-resched="${m.id}">Hoãn / đổi giờ</button>`);
-  if (!draft && m.status === 'scheduled') {
-    acts.push(m.started ? `<button class="btn btn-sm btn-primary" type="button" data-score="${m.id}">Nhập tỉ số</button>` : '<span class="muted">Đến giờ đá mới nhập tỉ số được</span>');
-  }
-  if (!draft && m.status === 'played') acts.push(`<button class="btn btn-sm" type="button" data-score="${m.id}">Sửa tỉ số</button>`);
-  return `<li class="lg-match" data-id="${m.id}"><span class="teams">${matchLine(m)} ${score}</span>
-    <span class="when">${when(m)} · ${MATCH_TEXT[m.status]}</span>
-    ${acts.length ? `<span class="row-actions">${acts.join('')}</span>` : ''}${histHtml(m)}</li>`;
+  if (draft) return { foot: L.counts.matches ? `<button class="btn btn-sm" type="button" data-pick="${m.id}">${m.date ? 'Đổi giờ' : 'Chọn giờ'}</button>` : '' };
+  const items = [];
+  if (m.status === 'scheduled') items.push(menuItem('Hoãn / đổi giờ', `data-resched="${m.id}"`));
+  if (m.status === 'played') items.push(menuItem('Sửa tỉ số', `data-score="${m.id}"`));
+  if (m.history?.length) items.push(menuItem(`Xem lịch sử (${m.history.length})`, `data-hist="${m.id}"`));
+  let foot = '';
+  if (m.status === 'scheduled') foot = m.started ? `<button class="btn btn-sm btn-primary" type="button" data-score="${m.id}">Nhập tỉ số</button>` : '<span class="mc-hint">Đến giờ đá mới nhập tỉ số được</span>';
+  return { foot, menu: menuHtml(items, `Thao tác cho trận ${m.homeName} – ${m.awayName}`) };
 }
 
-function standingsHtml() {
-  return `<div class="lg-table-wrap"><table class="lg-table"><caption class="sr-only">Bảng xếp hạng</caption>
-    <thead><tr><th scope="col">#</th><th scope="col">Đội</th><th scope="col" title="Trận">Tr</th><th scope="col" title="Thắng">T</th><th scope="col" title="Hòa">H</th><th scope="col" title="Thua">B</th><th scope="col" title="Hiệu số">HS</th><th scope="col">Đ</th></tr></thead>
-    <tbody>${L.standings
-      .map((r) => `<tr><td>${r.rank}</td><td>${esc(r.name)}${r.withdrawn ? ' <span class="lg-out">Đã rút</span>' : ''}</td><td>${r.played}</td><td>${r.won}</td><td>${r.drawn}</td><td>${r.lost}</td><td>${r.gd > 0 ? '+' : ''}${r.gd}</td><td class="pts">${r.points}</td></tr>`)
-      .join('')}</tbody></table></div>
-    <p class="muted">Tr: số trận · T: thắng · H: hòa · B: thua · HS: hiệu số · Đ: điểm. Thắng 3, hòa 1, thua 0.</p>`;
-}
-
+/* ---------- Các đội: bảng gọn, lệ phí cùng dòng, thao tác trong menu ---------- */
 function teamsHtml() {
   const draft = L.status === 'draft';
   const open = draft && !L.counts.matches;
   const rows = L.teams
-    .map(
-      (t) => `<li class="lg-team" data-tid="${t.id}"><strong>${esc(t.name)}${t.withdrawn ? ' <span class="lg-out">Đã rút</span>' : ''}</strong>
-      <span class="muted">${esc(t.contactName || 'Chưa ghi người liên hệ')}${t.contactPhone ? ` · ${esc(t.contactPhone)}` : ''}</span>
-      <span class="row-actions"><label class="check"><input type="checkbox" data-fee="${t.id}" ${t.feePaid ? 'checked' : ''}> ${t.feePaid ? 'Đã nộp lệ phí' : 'Chưa nộp lệ phí'}</label>
-        ${open ? `<button class="btn btn-sm" type="button" data-edit-team="${t.id}">Sửa</button><button class="btn btn-sm btn-ghost" type="button" data-del-team="${t.id}">Xóa đội</button>` : ''}
-        ${!draft && !t.withdrawn ? `<button class="btn btn-sm btn-ghost" type="button" data-withdraw="${t.id}">Đội rút khỏi giải</button>` : ''}</span></li>`,
-    )
+    .map((t) => {
+      const items = [];
+      if (open) items.push(menuItem('Sửa thông tin', `data-edit-team="${t.id}"`), menuItem('Xóa đội', `data-del-team="${t.id}"`, true));
+      if (!draft && !t.withdrawn) items.push(menuItem('Đội rút khỏi giải', `data-withdraw="${t.id}"`, true));
+      return `<tr class="lg-team ${t.withdrawn ? 'is-out' : ''}" data-tid="${t.id}">
+        <td class="tn"><span class="nm-in">${teamBadge(t.id, t.name)}<strong>${esc(t.name)}${t.withdrawn ? ' <span class="lg-out">Đã rút</span>' : ''}</strong></span></td>
+        <td class="tc"><span>${esc(t.contactName || 'Chưa ghi người liên hệ')}</span>${t.contactPhone ? `<span class="muted">${esc(t.contactPhone)}</span>` : ''}</td>
+        <td class="tf"><label class="check"><input type="checkbox" data-fee="${t.id}" ${t.feePaid ? 'checked' : ''}> <span>${t.feePaid ? 'Đã nộp lệ phí' : 'Chưa nộp lệ phí'}</span></label></td>
+        <td class="tm-act">${menuHtml(items, `Thao tác cho đội ${t.name}`)}</td></tr>`;
+    })
     .join('');
   const add = open && L.teams.length < L.teamCount ? `<button class="btn" type="button" id="add-team">Thêm đội (${L.teams.length}/${L.teamCount})</button>` : '';
-  const note = open && L.teams.length < L.teamCount ? '' : open ? '<p class="muted">Đủ đội rồi. Thêm hoặc xóa đội chỉ làm được trước khi tạo các trận.</p>' : '';
-  return `<ul class="plain-list">${rows}</ul>${add}${note}<p class="muted">Lệ phí thu ngoài web, ở đây chỉ ghi đội đã nộp hay chưa. Số điện thoại chỉ chủ sân thấy.</p>`;
+  const note = open && L.teams.length === L.teamCount ? '<p class="lg-legend">Đủ đội rồi. Thêm hoặc xóa đội chỉ làm được trước khi tạo các trận.</p>' : '';
+  return `<div class="lg-card lg-tblwrap"><table class="lg-tbl"><caption class="sr-only">Các đội</caption>
+    <thead><tr><th scope="col">Đội</th><th scope="col">Liên hệ</th><th scope="col">Lệ phí</th><th scope="col"><span class="sr-only">Thao tác</span></th></tr></thead><tbody>${rows}</tbody></table></div>
+    ${add}${note}<p class="lg-legend">Lệ phí thu ngoài web, ở đây chỉ ghi đội đã nộp hay chưa. Số điện thoại chỉ chủ sân thấy.</p>`;
 }
 
-function planHtml() {
+/* ---------- Bước soạn giải (chỉ khi chưa công bố) ---------- */
+function setupHtml() {
   if (L.status !== 'draft') return '';
   const full = L.teams.length === L.teamCount;
   const hasM = L.counts.matches > 0;
+  const missing = L.counts.matches - L.counts.planned;
   const courts = venue.courts.filter((c) => c.isActive && c.fieldType === L.fieldType);
-  const step1 = hasM
-    ? `<p class="muted">${L.counts.matches} trận. Làm lại các trận sẽ xóa giờ đã chọn.</p><button class="btn btn-sm btn-ghost" type="button" id="make-fixtures">Tạo lại các trận</button>`
-    : `<button class="btn btn-primary" type="button" id="make-fixtures" ${full ? '' : 'disabled'}>Tạo các trận</button>${full ? '' : `<p class="muted">Cần đủ ${L.teamCount} đội (đang có ${L.teams.length}).</p>`}`;
+  const steps = [
+    ['Đủ đội', full, `${L.teams.length}/${L.teamCount} đội`],
+    ['Tạo các trận', hasM, hasM ? `${L.counts.matches} trận` : 'Chưa tạo'],
+    ['Xếp giờ', hasM && !missing, hasM ? `${L.counts.planned}/${L.counts.matches} trận có giờ` : 'Chưa xếp'],
+    ['Công bố', false, 'Giữ giờ cả loạt'],
+  ];
+  const fix = hasM
+    ? '<button class="btn btn-sm btn-ghost" type="button" id="make-fixtures">Tạo lại các trận</button>'
+    : `<button class="btn btn-primary" type="button" id="make-fixtures" ${full ? '' : 'disabled'}>Tạo các trận</button>`;
   const auto = hasM
     ? `<form class="lg-auto" id="auto-plan" novalidate>
-        <p class="muted">Xếp nhanh các trận chưa có giờ vào ô trống kế tiếp. Sau đó bạn vẫn đổi giờ từng trận được.</p>
         <div class="field"><label for="ap-court">Sân con</label><select class="select" id="ap-court" name="courtId">${courts.map((c) => `<option value="${c.id}">${esc(c.name)}</option>`).join('')}</select></div>
         <div class="field"><label for="ap-date">Từ ngày</label><input class="input" id="ap-date" name="date" type="date" min="${todayStr(1)}" value="${todayStr(1)}"></div>
         <div class="field"><label for="ap-start">Từ giờ</label><input class="input" id="ap-start" name="start" type="time" value="19:00"></div>
-        <div class="field"><label for="ap-per">Số trận mỗi ngày</label><select class="select" id="ap-per" name="perDay">${[1, 2, 3, 4].map((n) => `<option value="${n}" ${n === 2 ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
-        <button class="btn" type="submit">Xếp tự động</button></form>`
+        <div class="field"><label for="ap-per">Trận mỗi ngày</label><select class="select" id="ap-per" name="perDay">${[1, 2, 3, 4].map((n) => `<option value="${n}" ${n === 2 ? 'selected' : ''}>${n}</option>`).join('')}</select></div>
+        <button class="btn" type="submit">Xếp tự động</button></form>
+        <p class="lg-legend">Xếp tự động điền các trận chưa có giờ vào ô trống kế tiếp. Sau đó vẫn đổi giờ từng trận được ở tab Lịch đấu.</p>`
     : '';
-  const missing = L.counts.matches - L.counts.planned;
   const pub = hasM
-    ? `<p class="${missing ? 'muted' : ''}">${missing ? `Còn ${missing} trận chưa có giờ. Phải có giờ đủ mọi trận mới công bố được.` : `Đã có giờ cho cả ${L.counts.matches} trận.`}</p>
-       <button class="btn btn-primary" type="button" id="publish" ${missing ? 'disabled' : ''}>Công bố giải và giữ giờ</button>
-       <p class="muted">Khi công bố, mọi giờ được giữ cùng lúc trên lưới sân (khách đặt thường không đặt trùng được). Có một giờ bị trùng thì không giữ giờ nào và báo bạn giờ nào trùng.</p>`
+    ? `<div class="lg-pub"><button class="btn btn-lime" type="button" id="publish" ${missing ? 'disabled' : ''}>Công bố giải và giữ giờ</button>
+        <p class="lg-legend">${missing ? `Còn ${missing} trận chưa có giờ; phải đủ giờ mọi trận mới công bố được. ` : ''}Khi công bố, mọi giờ được giữ cùng lúc trên lưới sân. Có một giờ bị trùng thì không giữ giờ nào và báo bạn giờ nào trùng.</p></div>`
     : '';
-  return `<section class="lg-sec"><h2 class="h2">Xếp lịch và công bố</h2>${step1}${auto}${pub}</section>`;
+  return `<section class="lg-card lg-setup" aria-labelledby="setup-h"><h2 class="h2" id="setup-h">Soạn giải</h2>
+    <ol class="lg-steps">${steps.map(([n, ok, t], i) => `<li class="${ok ? 'is-done' : ''}"><span class="n" aria-hidden="true">${ok ? '✓' : i + 1}</span><span><strong>${n}</strong><span class="muted">${esc(t)}</span></span></li>`).join('')}</ol>
+    <div class="lg-setup-act">${fix}</div>${auto}${pub}</section>`;
 }
 
 function render() {
-  const rounds = new Map();
-  for (const m of L.matches) (rounds.get(m.round) || rounds.set(m.round, []).get(m.round)).push(m);
-  const matches = L.matches.length
-    ? [...rounds].map(([r, ms]) => `<h3 class="lg-round">Lượt ${r}</h3><ul class="plain-list">${ms.map(matchHtml).join('')}</ul>`).join('')
-    : '<p class="muted">Chưa có trận nào. Nhập đủ đội rồi bấm "Tạo các trận".</p>';
-  const pub = L.status !== 'draft'
-    ? `<div class="lg-actions"><a class="btn btn-sm" href="/league.html?id=${L.id}" target="_blank" rel="noopener">Xem trang công khai</a><button class="btn btn-sm" type="button" id="copy-link">Sao chép link giải</button></div>`
-    : '<p class="muted">Chưa công bố nên khách chưa xem được trang giải.</p>';
-  $('#h1').textContent = L.name;
-  $('#sub').textContent = `${venue.name} · sân ${L.fieldType} người · ${L.teams.length}/${L.teamCount} đội`;
-  content.innerHTML = `
-    <div class="lg-head"><p><span class="badge badge-lg-${L.status}">${STATUS_TEXT[L.status]}</span> <span class="muted">${L.counts.done}/${L.counts.matches || '–'} trận đã có kết quả</span></p>${pub}
-      <div class="lg-actions"><a class="btn btn-sm btn-ghost" href="/owner-leagues.html">← Các giải</a><button class="btn btn-sm" type="button" id="edit-league">Sửa tên, link, điều lệ</button><button class="btn btn-sm btn-danger" type="button" id="del-league">Xóa giải</button></div></div>
-    <section class="lg-sec"><h2 class="h2">Các đội</h2>${teamsHtml()}</section>
-    ${planHtml()}
-    <section class="lg-sec"><h2 class="h2">Lịch thi đấu và kết quả</h2>${matches}</section>
-    <section class="lg-sec"><h2 class="h2">Bảng xếp hạng</h2>${standingsHtml()}</section>
-    <section class="lg-sec"><h2 class="h2">Điều lệ</h2><div class="lg-rules">${esc(L.rules)}</div>${L.link ? `<p><a href="${esc(L.link)}" target="_blank" rel="noopener">Nhóm Zalo / fanpage của giải</a></p>` : ''}</section>`;
+  const draft = L.status === 'draft';
+  $('#sub').textContent = `${venue.name} · sân ${L.fieldType} người`;
+  const menu = menuHtml([menuItem('Sửa tên, link, điều lệ', 'id="edit-league"'), menuItem('Xóa giải', 'id="del-league"', true)], 'Thao tác với giải');
+  const actions = draft
+    ? `<a class="btn btn-sm btn-onimg" href="/owner-leagues.html">← Các giải</a><span class="lg-hint">Chưa công bố nên khách chưa xem được trang giải.</span>${menu}`
+    : `<a class="btn btn-sm btn-lime" href="/league.html?id=${L.id}" target="_blank" rel="noopener">Xem trang công khai</a><button class="btn btn-sm btn-onimg" type="button" id="copy-link">Sao chép link giải</button><a class="btn btn-sm btn-onimg" href="/owner-leagues.html">← Các giải</a>${menu}`;
+  content.innerHTML = `${heroHtml(L, { actions })}${setupHtml()}
+    ${tabsHtml(
+      [
+        { key: TAB_KEYS.standings, label: 'Bảng xếp hạng', html: standingsHtml(L) },
+        { key: TAB_KEYS.schedule, label: 'Lịch đấu', html: scheduleHtml(L, { footOf, empty: 'Chưa có trận nào. Nhập đủ đội rồi bấm "Tạo các trận".' }) },
+        { key: TAB_KEYS.teams, label: 'Các đội', html: teamsHtml() },
+        { key: TAB_KEYS.rules, label: 'Điều lệ', html: rulesHtml(L) },
+      ],
+      draft ? TAB_KEYS.teams : TAB_KEYS.schedule,
+    )}`;
+  wireTabs(content);
+  wireMenus(content);
   wire();
 }
 
@@ -183,8 +174,18 @@ async function slotDialog({ title, confirm, m, note }) {
   });
 }
 
+const HIST_KIND = { reschedule: 'Đổi giờ', forfeit: 'Xử thua', score: 'Tỉ số' };
+function histDialog(m) {
+  const rows = m.history
+    .map((h) => {
+      const what = h.kind === 'reschedule' ? `Đổi giờ: ${esc(h.from)} → ${esc(h.to)}` : h.kind === 'forfeit' ? `Xử thua ${esc(h.to)}` : h.from ? `Sửa tỉ số ${esc(h.from)} → ${esc(h.to)}` : `Nhập tỉ số ${esc(h.to)}`;
+      return `<li><strong>${esc(HIST_KIND[h.kind] || '')}</strong> · ${what}<br><span class="muted">${esc(h.at.slice(8, 10))}/${esc(h.at.slice(5, 7))} ${esc(h.at.slice(11, 16))} · ${esc(h.by)}${h.note ? ` · Lý do: ${esc(h.note)}` : ''}</span></li>`;
+    })
+    .join('');
+  return dialog({ title: 'Lịch sử trận', hideConfirm: true, body: `<p><strong>${matchLine(m)}</strong></p><ul class="lg-hist">${rows}</ul>` });
+}
+
 function wire() {
-  const bt = (sel) => $(sel);
   const byAttr = (attr, fn) => $$(`[${attr}]`, content).forEach((b) => (b.onclick = () => fn(Number(b.getAttribute(attr)), b)));
   const match = (mid) => L.matches.find((m) => m.id === mid);
   const team = (tid) => L.teams.find((t) => t.id === tid);
@@ -197,7 +198,7 @@ function wire() {
       toast(publicUrl());
     }
   });
-  bt('#add-team')?.addEventListener('click', async () => {
+  $('#add-team')?.addEventListener('click', async () => {
     const d = await teamDialog();
     if (d) act(null, () => api.owner.addLeagueTeam(L.id, d), 'Đã thêm đội');
   });
@@ -224,14 +225,14 @@ function wire() {
     });
     if (d) act(null, () => api.owner.withdrawLeagueTeam(L.id, tid, d.note || ''), 'Đã cho đội rút');
   });
-  bt('#make-fixtures')?.addEventListener('click', async (e) => {
+  $('#make-fixtures')?.addEventListener('click', async (e) => {
     if (L.counts.matches) {
       const d = await dialog({ title: 'Tạo lại các trận', confirm: 'Tạo lại', danger: true, body: '<p>Các trận và giờ đã chọn sẽ bị xóa, tạo lại từ đầu.</p>' });
       if (!d) return;
     }
     act(e.currentTarget, () => api.owner.makeLeagueFixtures(L.id), 'Đã tạo các trận');
   });
-  bt('#auto-plan')?.addEventListener('submit', (e) => {
+  $('#auto-plan')?.addEventListener('submit', (e) => {
     e.preventDefault();
     const f = e.currentTarget.elements;
     act(e.submitter, () => api.owner.autoPlanLeague(L.id, { courtId: Number(f.courtId.value), date: f.date.value, start: f.start.value, perDay: Number(f.perDay.value) }), 'Đã xếp giờ');
@@ -241,11 +242,10 @@ function wire() {
     const d = await slotDialog({ title: m.date ? 'Đổi giờ trận' : 'Chọn giờ trận', confirm: 'Chọn giờ này', m });
     if (d) act(null, () => api.owner.saveLeaguePlan(L.id, [{ matchId: mid, courtId: Number(d.courtId), date: d.date, start: d.start }]), 'Đã chọn giờ');
   });
-  bt('#publish')?.addEventListener('click', async (e) => {
+  $('#publish')?.addEventListener('click', async (e) => {
     const d = await dialog({ title: 'Công bố giải', confirm: 'Công bố và giữ giờ', body: `<p>Giữ giờ cho cả ${L.counts.matches} trận trên lưới sân và mở trang giải cho mọi người xem. Sau khi công bố không thêm hoặc xóa đội được nữa; đội rút thì vẫn ghi nhận được.</p>` });
     if (!d) return;
-    const btn = e.currentTarget;
-    guard(btn, async () => {
+    guard(e.currentTarget, async () => {
       try {
         L = await api.owner.publishLeague(L.id);
         toast('Đã công bố giải, các giờ đã được giữ');
@@ -260,6 +260,7 @@ function wire() {
     const d = await slotDialog({ title: 'Hoãn / đổi giờ trận', confirm: 'Đổi giờ', m, note: true });
     if (d) act(null, () => api.owner.rescheduleLeagueMatch(L.id, mid, { courtId: Number(d.courtId), date: d.date, start: d.start, note: d.note || '' }), 'Đã đổi giờ, giờ cũ được trả lại');
   });
+  byAttr('data-hist', (mid) => histDialog(match(mid)));
   byAttr('data-score', async (mid) => {
     const m = match(mid);
     const edit = !!m.score;
@@ -274,7 +275,7 @@ function wire() {
     });
     if (d) act(null, () => api.owner.scoreLeagueMatch(L.id, mid, { home: Number(d.home), away: Number(d.away), note: d.note || '' }), 'Đã lưu tỉ số');
   });
-  bt('#edit-league')?.addEventListener('click', async () => {
+  $('#edit-league')?.addEventListener('click', async () => {
     const d = await dialog({
       title: 'Sửa giải',
       confirm: 'Lưu',
@@ -284,7 +285,7 @@ function wire() {
     });
     if (d) act(null, () => api.owner.updateLeague(L.id, { name: d.name, link: d.link || '', rules: d.rules }), 'Đã lưu');
   });
-  bt('#del-league')?.addEventListener('click', async () => {
+  $('#del-league')?.addEventListener('click', async () => {
     const held = L.counts.held;
     const d = await dialog({
       title: 'Xóa giải',

@@ -40,7 +40,7 @@ function cell(court, s) {
   }
   const wl = s.waitlistCount ? `<span class="wl">${s.waitlistCount} người chờ</span>` : '';
   const interactive = s.status !== 'offered' && !(s.status === 'past' && !bk);
-  const cls = `sc sc-${s.status}${bk && s.status === 'past' ? ' has-bk' : ''}`;
+  const cls = `sc sc-${s.status}${bk && s.status === 'past' ? ' has-bk' : ''}${s.status === 'blocked' && s.block?.leagueId ? ' sc-league' : ''}`;
   return `<button type="button" class="${cls}" ${interactive ? '' : 'disabled style="cursor:default"'} data-court="${court.id}" data-start="${s.start}"
     aria-label="${esc(`${court.name}, ${s.start}, ${st}${bk ? ', ' + (bk.customerName || '') : ''}`)}"><span class="st">${st}</span>${line}${wl}</button>`;
 }

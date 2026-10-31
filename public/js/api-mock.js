@@ -2766,6 +2766,7 @@ function toLeagueMatch(m, l, staff) {
     held: !!m.blockId,
     score: m.score ? { ...m.score } : null,
     forfeitBy: m.forfeitBy || null,
+    rescheduled: m.history.some((h) => h.kind === 'reschedule'),
     started: lmStarted(m),
     ...(staff ? { history: m.history.map((h) => ({ ...h })) } : {}),
   };

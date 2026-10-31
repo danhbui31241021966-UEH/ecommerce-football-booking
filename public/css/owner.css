@@ -275,3 +275,5 @@
 .view-switch { grid-template-columns: repeat(3, 1fr); width: min(100%, 480px); }
 .view-switch a { text-align: center; }
 .view-switch a { padding-inline: 4px; font-size: var(--fs-sm); line-height: 1.2; }
+.sc-league { background: var(--pitch-950); color: var(--on-dark); }
+.sc-league .why { color: var(--lime-400); }
