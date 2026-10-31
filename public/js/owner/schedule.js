@@ -1,4 +1,4 @@
-// Màn 12 – Lịch & chặn lịch: mỗi cột một sân con, vạch giờ hiện tại, bấm ô để chặn / bỏ chặn / xem booking.
+// Màn 12 – Lịch & chặn lịch: mỗi cột một sân, vạch giờ hiện tại, bấm ô để chặn / bỏ chặn / xem booking.
 import {
   $, $$, esc, money, hhmm, dm, dowOf, dayLabel, todayStr, initPage, loadVenues, venueSelect, errorBox, dialog, guard, toast,
   api, badge, payBadge, refundBadge, reliabilityHtml, actionButtons, runAction, STATUS_LABEL, parseAt, withDetail, nowMs, syncClock,
@@ -17,7 +17,7 @@ let nowTimer;
 
 const days = () => [-1, 0, 1, 2].map((n) => todayStr(n));
 
-const SLOT_TEXT = { available: 'Trống', booked: 'Đã đặt', held: 'Chờ duyệt', blocked: 'Đã chặn', past: 'Đã qua', offered: 'Giữ cho người chờ' };
+const SLOT_TEXT = { available: 'Trống', booked: 'Đã đặt', held: 'Chờ chủ sân đồng ý', blocked: 'Đã chặn', past: 'Đã qua', offered: 'Giữ cho người đang chờ' };
 
 function cell(court, s) {
   const bk = s.booking;
@@ -30,7 +30,7 @@ function cell(court, s) {
     const bs = full?.status || bk.status;
     if (s.status === 'past') st = bs === 'confirmed' ? 'Cần ghi nhận' : STATUS_LABEL[bs] || st;
     const unpaid = (full?.paymentStatus || bk.paymentStatus) === 'unpaid' && ['confirmed', 'completed'].includes(bs);
-    line = `<span class="who">${esc(bk.customerName || 'Khách')}${unpaid ? ' · chưa thu' : ''}</span>`;
+    line = `<span class="who">${esc(bk.customerName || 'Khách')}${unpaid ? ' · chưa chuyển khoản' : ''}</span>`;
   }
   const wl = s.waitlistCount ? `<span class="wl">${s.waitlistCount} người chờ</span>` : '';
   const interactive = s.status !== 'offered' && !(s.status === 'past' && !bk);
@@ -64,11 +64,11 @@ function render() {
       <div class="day-chips" role="group" aria-label="Chọn ngày">${days()
         .map((d) => `<button class="day-chip" type="button" data-date="${d}" aria-pressed="${d === date}"><span class="dow">${dowOf(d)}</span><span class="dnum">${d.slice(8)}</span><span class="dsub">${d === todayStr() ? 'Hôm nay' : d === todayStr(1) ? 'Mai' : d === todayStr(-1) ? 'Hôm qua' : dm(d)}</span></button>`)
         .join('')}</div>
-      <p class="sched-summary" role="status"><span><b>${count('available')}</b> trống</span><span><b>${count('booked')}</b> đã đặt</span><span><b>${count('held')}</b> chờ duyệt</span><span><b>${count('blocked')}</b> chặn</span><span><b>${waiting}</b> người đang chờ slot</span>${need ? `<span><b>${need}</b> booking đã qua giờ, chưa ghi nhận đã đá / bùng</span>` : ''}</p>
+      <p class="sched-summary" role="status"><span><b>${count('available')}</b> trống</span><span><b>${count('booked')}</b> đã đặt</span><span><b>${count('held')}</b> chờ chủ sân đồng ý</span><span><b>${count('blocked')}</b> chặn</span><span><b>${waiting}</b> người đang chờ giờ trống</span>${need ? `<span><b>${need}</b> lịch đặt đã qua giờ đá, chưa ghi nhận đã đá hay bùng</span>` : ''}</p>
     </div>
     <div class="sc-legend" aria-label="Chú thích">
-      <span><i style="background:var(--surface)"></i>Trống – bấm để chặn</span><span><i class="sc-booked"></i>Đã đặt</span><span><i class="sc-held"></i>Chờ duyệt</span>
-      <span><i class="sc-blocked"></i>Đã chặn</span><span><i class="sc-offered"></i>Giữ cho người chờ</span><span><i class="sc-past"></i>Đã qua</span>
+      <span><i style="background:var(--surface)"></i>Trống – bấm để chặn</span><span><i class="sc-booked"></i>Đã đặt</span><span><i class="sc-held"></i>Chờ chủ sân đồng ý</span>
+      <span><i class="sc-blocked"></i>Đã chặn</span><span><i class="sc-offered"></i>Giữ cho người đang chờ</span><span><i class="sc-past"></i>Đã qua</span>
     </div>
     <div class="sched" tabindex="0" aria-label="Lịch ${esc(dayLabel(date))}">
       <div class="sched-grid" style="--n:${courts.length};--row-h:${ROW_H}px">${head}${rows}<div class="now-line" hidden><span></span></div></div>
@@ -112,7 +112,7 @@ async function openBlock(court, slot) {
     body: `<p class="dlg-ref"><b>${esc(court.name)}</b> · ${esc(dayLabel(date))} ${dm(date)} · ${slot.start}</p>
       <div class="field"><label for="f-end">Chặn đến hết</label>
         <select class="select" id="f-end" name="end">${ends.map((e) => `<option value="${e}">${e}</option>`).join('')}</select>
-        <span class="hint">Khách không đặt được trong khung này. Bỏ chặn bất cứ lúc nào.</span></div>
+        <span class="hint">Khách không đặt được trong khoảng này. Bạn bỏ chặn lúc nào cũng được.</span></div>
       <div class="field"><label for="f-reason">Lý do</label>
         <textarea class="textarea" id="f-reason" name="reason" rows="2" required data-label="lý do chặn" placeholder="Ví dụ: bảo trì cỏ, giải nội bộ, khách quen đặt qua điện thoại"></textarea></div>`,
   });
@@ -144,7 +144,7 @@ async function openBooking(court, slot) {
   let b = bookings.find((x) => x.id === id) || { ...slot.booking };
   const [d] = await withDetail([b]);
   b = { ...b, ...d };
-  const waitNote = slot.waitlistCount ? `<p><b>${slot.waitlistCount} người</b> đang chờ slot này. Nếu booking bị hủy, người chờ sớm nhất được giữ quyền đặt 10 phút.</p>` : '';
+  const waitNote = slot.waitlistCount ? `<p><b>${slot.waitlistCount} người</b> đang chờ giờ này. Nếu lịch đặt bị hủy, người chờ sớm nhất được giữ quyền đặt 10 phút.</p>` : '';
   let reload = false;
   await dialog({
     title: `${court.name} · ${slot.start}–${slot.end}`,
@@ -156,7 +156,7 @@ async function openBooking(court, slot) {
       <div class="row-b">${badge(b.status)}${b.paymentStatus ? payBadge(b) : ''}${b.refundStatus ? refundBadge(b) : ''}<span class="muted">${esc(b.code)}${b.price ? ' · ' + money(b.price) : ''}</span></div>
       ${waitNote}
       <div class="bk-acts" id="dlg-acts">${bookings.find((x) => x.id === id) ? actionButtons(b, '') : ''}</div>
-      <a href="/owner-bookings.html?q=${encodeURIComponent(b.code)}" class="muted" style="font-size:var(--fs-sm)">Mở trong Quản lý booking</a>
+      <a href="/owner-bookings.html?q=${encodeURIComponent(b.code)}" class="muted" style="font-size:var(--fs-sm)">Mở trong Quản lý lịch đặt</a>
     </div>`,
     onOpen(dlg) {
       dlg.querySelector('#dlg-acts').addEventListener('click', (e) => {
@@ -165,7 +165,7 @@ async function openBooking(court, slot) {
         guard(btn, async () => {
           const done = await runAction(btn.dataset.act, b);
           if (done) {
-            toast('Đã cập nhật booking');
+            toast('Đã cập nhật lịch đặt');
             reload = true;
             dlg.close();
           }
@@ -198,7 +198,7 @@ async function load() {
     await syncClock();
     [sched, bookings] = await Promise.all([api.owner.schedule(venueId, date), api.owner.bookings({ venueId, date })]);
     const v = venues.find((x) => x.id === venueId);
-    $('#sub').textContent = `${v.name} · ${dayLabel(date)}, ${dm(date)} · slot ${sched.slotMinutes} phút`;
+    $('#sub').textContent = `${v.name} · ${dayLabel(date)}, ${dm(date)} · giờ ${sched.slotMinutes} phút`;
     render();
   } catch (err) {
     errorBox(content, err, load);

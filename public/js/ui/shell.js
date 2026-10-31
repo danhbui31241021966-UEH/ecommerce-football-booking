@@ -7,27 +7,27 @@ const NAV = {
   guest: [
     { href: '/', label: 'Trang chủ' },
     { href: '/venues.html', label: 'Tìm sân' },
-    { href: '/transfers.html', label: 'Nhượng sân' },
-    { href: '/matches.html', label: 'Ghép trận' },
+    { href: '/transfers.html', label: 'Pass sân' },
+    { href: '/matches.html', label: 'Ghép kèo' },
   ],
   customer: [
     { href: '/', label: 'Trang chủ' },
     { href: '/venues.html', label: 'Tìm sân' },
-    { href: '/transfers.html', label: 'Nhượng sân' },
-    { href: '/matches.html', label: 'Ghép trận' },
-    { href: '/requests.html', label: 'Nhu cầu' },
-    { href: '/my-bookings.html', label: 'Booking của tôi' },
+    { href: '/transfers.html', label: 'Pass sân' },
+    { href: '/matches.html', label: 'Ghép kèo' },
+    { href: '/requests.html', label: 'Nhờ báo giá' },
+    { href: '/my-bookings.html', label: 'Lịch đặt của tôi' },
   ],
   owner: [
     { href: '/owner.html', label: 'Tổng quan' },
     { href: '/owner-schedule.html', label: 'Lịch sân' },
-    { href: '/owner-bookings.html', label: 'Booking' },
-    { href: '/owner-requests.html', label: 'Nhu cầu' },
+    { href: '/owner-bookings.html', label: 'Lịch đặt' },
+    { href: '/owner-requests.html', label: 'Khách nhờ báo giá' },
     { href: '/owner-settings.html', label: 'Cài đặt sân' },
   ],
   admin: [
     { href: '/admin.html', label: 'Tài khoản' },
-    { href: '/admin-bookings.html', label: 'Booking' },
+    { href: '/admin-bookings.html', label: 'Lịch đặt' },
     { href: '/admin-logs.html', label: 'Nhật ký' },
   ],
 };
@@ -65,7 +65,7 @@ document.addEventListener('click', async (e) => {
       location.reload();
     } else if (b.dataset.proto === 'holder') {
       const r = await api.proto.holderCancels();
-      toast(r.cancelled ? `Người đang giữ slot đã hủy (${r.cancelled}). Xem thông báo của bạn.` : 'Bạn chưa xếp hàng chờ slot nào đang có người giữ.');
+      toast(r.cancelled ? `Người đang giữ giờ đã hủy (${r.cancelled}). Xem thông báo của bạn.` : 'Bạn chưa xếp hàng chờ giờ nào đang có người giữ.');
       setTimeout(() => location.reload(), 900);
     }
   } catch (err) {
@@ -94,13 +94,13 @@ export async function mountShell() {
   const proto = !!api.proto;
 
   // Công tắc vai trò chỉ để demo prototype: nút tròn ở góc (≥1280px), trong menu (<900px), trong footer (900–1279px).
-  const roleSwitch = `<div class="role-switch" role="group" aria-label="Xem với vai trò (prototype)">${Object.entries(ROLE_LABEL)
+  const roleSwitch = `<div class="role-switch" role="group" aria-label="Xem với vai trò">${Object.entries(ROLE_LABEL)
     .map(([k, v]) => `<button type="button" data-role="${k}" aria-pressed="${k === role}">${v}</button>`)
     .join('')}</div>`;
   const protoTools = `<div class="proto-tools">
       <button type="button" data-proto="reset">Đặt lại dữ liệu demo</button>
       <button type="button" data-proto="clock">Tua đồng hồ +15 phút</button>
-      <button type="button" data-proto="holder">Người giữ slot hủy (luồng chờ)</button>
+      <button type="button" data-proto="holder">Giả lập: người giữ giờ hủy</button>
     </div>`;
 
   const header = document.getElementById('app-header');
@@ -127,9 +127,9 @@ export async function mountShell() {
       </header>
       <nav class="mobile-nav" aria-label="Điều hướng (mobile)">${links}
         ${currentUser ? '<button type="button" class="mobile-logout" data-logout>Đăng xuất</button>' : '<a href="/register.html">Đăng ký</a>'}
-        ${proto ? `<div class="mobile-role"><span>Xem với vai trò (prototype)</span>${roleSwitch}${protoTools}</div>` : ''}
+        ${proto ? `<div class="mobile-role"><span>Xem với vai trò</span>${roleSwitch}${protoTools}</div>` : ''}
       </nav>
-      ${proto ? `<details class="role-dock"><summary aria-label="Công cụ demo (prototype): đang xem với vai trò ${ROLE_LABEL[role]}" title="Công cụ demo: ${ROLE_LABEL[role]}">${icon('users', 18)}</summary><div class="role-dock-panel">${roleSwitch}${protoTools}</div></details>` : ''}`;
+      ${proto ? `<details class="role-dock"><summary aria-label="Công cụ demo: đang xem với vai trò ${ROLE_LABEL[role]}" title="Công cụ demo: ${ROLE_LABEL[role]}">${icon('users', 18)}</summary><div class="role-dock-panel">${roleSwitch}${protoTools}</div></details>` : ''}`;
 
     const menuBtn = document.querySelector('.menu-btn');
     const mobileNav = document.querySelector('.mobile-nav');
@@ -147,16 +147,16 @@ export async function mountShell() {
         <div class="container">
           <div>
             <a class="brand" href="/">${brandMark}<span>Sân<b>Nhanh</b></span></a>
-            <p class="footer-note">Đặt sân bóng mini 5/7 người tại TP.HCM – không app, không gọi điện.</p>
+            <p class="footer-note">Đặt sân bóng mini 5 và 7 người ở TP.HCM, không cần gọi điện.</p>
           </div>
           <div>
-            <p>Thanh toán chuyển khoản VietQR thẳng vào tài khoản chủ sân.</p>
-            <p>SânNhanh không giữ tiền của bạn.</p>
+            <p>Bạn chuyển khoản thẳng cho chủ sân bằng mã QR.</p>
+            <p>SânNhanh không giữ tiền của bạn: tiền đi thẳng tới chủ sân.</p>
           </div>
           <div>
             <p>Đồ án môn Phát triển ứng dụng TMĐT – Nhóm 8</p>
           </div>
-          ${proto ? `<div class="footer-role"><span>Xem với vai trò (prototype)</span>${roleSwitch}${protoTools}</div>` : ''}
+          ${proto ? `<div class="footer-role"><span>Xem với vai trò</span>${roleSwitch}${protoTools}</div>` : ''}
         </div>
         <p class="footer-wordmark" aria-hidden="true">SânNhanh</p>
       </footer>`;

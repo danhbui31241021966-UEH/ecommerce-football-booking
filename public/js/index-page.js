@@ -11,11 +11,11 @@ const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&l
 const shortName = (n) => n.replace(/^Sân (bóng đá|bóng|cỏ nhân tạo|banh|mini)\s+/i, '').replace(/^Sân\s+/i, '');
 const slotLink = (venueId, date, s) => teamSlotHref(venueId, date, s) || `/venue.html?id=${venueId}&date=${date}&slot=${s.start}&court=${s.courtId}`;
 const isTeam = (s) => !!(s.match || s.teamMode);
-// Mỗi (sân, giờ) tối đa hai dòng: ô đặt thường và ô Ghép trận (ưu tiên trận đang chờ đội thứ hai hơn ô mở trận mới). Thẻ sân chỉ liệt kê ô đặt thường.
+// Mỗi (sân, giờ) tối đa hai dòng: ô đặt thường và ô Ghép kèo (ưu tiên trận đang chờ đội thứ hai hơn ô mở kèo mới). Thẻ sân chỉ liệt kê ô đặt thường.
 const rank = (s) => (s.match ? 1 : s.teamMode ? 2 : 0);
 const better = (s, cur) => !cur || rank(s) < rank(cur) || (rank(s) === rank(cur) && s.price < cur.price);
 
-/** Mỗi (sân, giờ) lấy một ô rẻ nhất trong số các sân con còn trống, sắp theo giờ rồi theo sân. */
+/** Mỗi (sân, giờ) lấy một ô rẻ nhất trong số các sân còn trống, sắp theo giờ rồi theo sân. */
 function flatten(venues) {
   const best = new Map();
   for (const v of venues) {
@@ -60,12 +60,12 @@ function fillSearch(meta, districts) {
 function renderTonight(rows, date, today, total) {
   $('tonight-meta').textContent = `${relativeDayLabel(date, today)} · ${total} giờ còn trống`;
   $('tonight-more').href = `/venues.html?date=${date}`;
-  // Giữ chỗ cho tối đa 2 dòng Ghép trận để không bị đẩy ra ngoài danh sách bởi các giờ đặt thường sớm hơn.
+  // Giữ chỗ cho tối đa 2 dòng Ghép kèo để không bị đẩy ra ngoài danh sách bởi các giờ đặt thường sớm hơn.
   const shown = [...rows.filter((s) => !isTeam(s)).slice(0, 6), ...rows.filter(isTeam).slice(0, 2)].sort((a, b) => a.start.localeCompare(b.start) || a.venue.id - b.venue.id || isTeam(a) - isTeam(b));
   $('tonight-rows').innerHTML = shown.length
     ? shown
         .map(
-          (s, i) => `<a class="tonight-row${i >= 4 ? ' extra' : ''}" href="${slotLink(s.venue.id, date, s)}"><span class="t">${s.start}</span><span class="what"><b>${esc(shortName(s.venue.name))}</b><span>${esc(s.courtName)} · Sân ${s.fieldType}</span></span><span class="cost"><span class="price">${money(s.price)}</span>${s.discountPercent ? `<span class="tag-sale">-${s.discountPercent}%</span>` : ''}${isTeam(s) ? '<span class="tag-team">Ghép trận</span>' : ''}</span></a>`,
+          (s, i) => `<a class="tonight-row${i >= 4 ? ' extra' : ''}" href="${slotLink(s.venue.id, date, s)}"><span class="t">${s.start}</span><span class="what"><b>${esc(shortName(s.venue.name))}</b><span>${esc(s.courtName)} · Sân ${s.fieldType}</span></span><span class="cost"><span class="price">${money(s.price)}</span>${s.discountPercent ? `<span class="tag-sale">-${s.discountPercent}%</span>` : ''}${isTeam(s) ? '<span class="tag-team">Ghép kèo</span>' : ''}</span></a>`,
         )
         .join('')
     : '<p class="muted" style="padding:var(--sp-4) 0">Hôm nay đã hết giờ trống.</p>';
@@ -87,7 +87,7 @@ function renderFixtures(todayRows, today) {
   $('fixtures').innerHTML = picks
     .map(
       (s) => `<a class="fixture" href="${slotLink(s.venue.id, today, s)}">
-            <div class="fixture-top"><span class="tag-sale">-${s.discountPercent}%</span><span>Sân ${s.fieldType} · ${s.venue.requiresApproval ? 'Chủ sân duyệt' : 'Tự xác nhận'}</span></div>
+            <div class="fixture-top"><span class="tag-sale">-${s.discountPercent}%</span><span>Sân ${s.fieldType} · ${s.venue.requiresApproval ? 'Chủ sân duyệt' : 'Đặt là chốt'}</span></div>
             <span class="time">${s.start}</span>
             <div><b>${esc(s.venue.name)} · ${esc(s.courtName)}</b><div class="where">${esc(s.venue.district)}</div></div>
             <div class="cost"><span class="price">${money(s.price)}</span><span class="price-old">${money(s.basePrice)}</span></div>
@@ -117,11 +117,11 @@ function renderVenues(venues, date) {
             <span class="no">0${i + 1}</span>
             <a class="photo" href="/venue.html?id=${v.id}&date=${date}" tabindex="-1" aria-hidden="true">${v.imageUrl ? `<img src="${esc(v.imageUrl)}" width="900" height="600" loading="lazy" alt="">` : '<span class="no-photo">Chưa có ảnh</span>'}</a>
             <h3><a href="/venue.html?id=${v.id}&date=${date}">${esc(v.name)}</a></h3>
-            <div class="meta"><span data-icon="pin">${esc(v.district)}</span><span>${types}</span><span data-icon="${v.requiresApproval ? 'hourglass' : 'bolt'}">${v.requiresApproval ? 'Chủ sân duyệt' : 'Tự xác nhận'}</span></div>
+            <div class="meta"><span data-icon="pin">${esc(v.district)}</span><span>${types}</span><span data-icon="${v.requiresApproval ? 'hourglass' : 'bolt'}">${v.requiresApproval ? 'Chủ sân duyệt' : 'Đặt là chốt'}</span></div>
             <p class="from"><span class="price">${money(v.minPrice)}</span> <span class="muted">– ${money(v.maxPrice)} / ${unit}</span></p>
             <p class="slot-row-label">Giờ còn trống</p>
             <div class="slot-pills">
-              ${pills.map((s) => `<a class="slot-pill${s.discountPercent ? ' sale' : ''}${isTeam(s) ? ' team' : ''}" href="${slotLink(v.id, date, s)}"><span class="t">${s.start}</span><span class="p">${isTeam(s) ? `Ghép trận · ${moneyShort(s.price)}` : `${moneyShort(s.price)}${s.discountPercent ? ` · -${s.discountPercent}%` : ''}`}</span></a>`).join('')}
+              ${pills.map((s) => `<a class="slot-pill${s.discountPercent ? ' sale' : ''}${isTeam(s) ? ' team' : ''}" href="${slotLink(v.id, date, s)}"><span class="t">${s.start}</span><span class="p">${isTeam(s) ? `Ghép kèo · ${moneyShort(s.price)}` : `${moneyShort(s.price)}${s.discountPercent ? ` · -${s.discountPercent}%` : ''}`}</span></a>`).join('')}
               ${more > 0 ? `<a class="slot-pill more" href="/venue.html?id=${v.id}&date=${date}"><span class="t">+${more}</span><span class="p">giờ khác</span></a>` : ''}
             </div>
           </article>`;

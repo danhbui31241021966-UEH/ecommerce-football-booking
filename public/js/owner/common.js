@@ -39,33 +39,33 @@ export const startsAt = (b) => parseAt(b.startAt);
 export const hasStarted = (b) => startsAt(b).getTime() <= nowMs();
 
 export const STATUS_LABEL = {
-  pending: 'Chờ duyệt',
-  confirmed: 'Đã xác nhận',
-  rejected: 'Từ chối',
+  pending: 'Chờ chủ sân đồng ý',
+  confirmed: 'Đã có sân',
+  rejected: 'Chủ sân từ chối',
   cancelled: 'Đã hủy',
-  expired: 'Hết hạn',
+  expired: 'Quá hạn',
   completed: 'Đã đá',
   no_show: 'Bùng sân',
-  transferred: 'Đã nhượng',
-  matching: 'Chờ đủ hai đội',
+  transferred: 'Đã pass',
+  matching: 'Đang tìm đội đá cùng',
 };
 export const badge = (status, label = STATUS_LABEL[status]) => `<span class="badge badge-${status}">${esc(label)}</span>`;
 export const payBadge = (b) =>
   ['confirmed', 'completed', 'no_show'].includes(b.status) || b.paymentStatus === 'paid'
-    ? badge(b.paymentStatus, b.paymentStatus === 'paid' ? 'Đã thu tiền' : 'Chưa thu tiền')
+    ? badge(b.paymentStatus, b.paymentStatus === 'paid' ? 'Đã chuyển khoản' : 'Chưa chuyển khoản')
     : '';
 export const refundBadge = (b) =>
   b.refundStatus === 'pending'
-    ? `<span class="badge badge-pending">Chờ hoàn ${money(b.refundAmount)}</span>`
+    ? `<span class="badge badge-pending">Chờ trả lại tiền ${money(b.refundAmount)}</span>`
     : b.refundStatus === 'done'
-      ? `<span class="badge badge-paid">Đã hoàn ${money(b.refundAmount)}</span>`
+      ? `<span class="badge badge-paid">Đã trả lại ${money(b.refundAmount)}</span>`
       : '';
 
 export function reliabilityHtml(r) {
   if (!r) return '<span class="rel rel-new">Khách mới, chưa có lịch sử</span>';
   const cls = r.restricted || r.violations >= r.maxViolations ? 'bad' : r.violations > 0 ? 'warn' : 'ok';
-  const head = r.restricted ? 'Buộc chờ duyệt' : r.violations > 0 ? 'Cần lưu ý' : 'Tin cậy tốt';
-  return `<span class="rel rel-${cls}"><b>${head}</b> · ${r.noShows} bùng, ${r.lateCancels} hủy muộn trong ${r.windowDays} ngày · ${r.completed} lần đã đá</span>`;
+  const head = r.restricted ? 'Buộc chờ chủ sân đồng ý' : r.violations > 0 ? 'Cần lưu ý' : 'Uy tín tốt';
+  return `<span class="rel rel-${cls}"><b>${head}</b> · ${r.noShows} bùng, ${r.lateCancels} hủy sát giờ trong ${r.windowDays} ngày · ${r.completed} lần đã đá</span>`;
 }
 
 // ---------- khung trang ----------
@@ -204,22 +204,22 @@ export async function guard(btn, fn) {
   }
 }
 
-// ---------- thao tác booking (dùng ở Tổng quan, Lịch, Quản lý booking) ----------
+// ---------- thao tác booking (dùng ở Tổng quan, Lịch, Quản lý lịch đặt) ----------
 export function actionsFor(b) {
   const a = [];
   if (b.status === 'pending') {
-    a.push({ k: 'approve', label: 'Duyệt', cls: 'btn-lime' }, { k: 'reject', label: 'Từ chối', cls: 'btn-danger' });
+    a.push({ k: 'approve', label: 'Đồng ý', cls: 'btn-lime' }, { k: 'reject', label: 'Từ chối', cls: 'btn-danger' });
   }
   if (b.status === 'confirmed') {
-    if (b.paymentStatus === 'unpaid') a.push({ k: 'paid', label: 'Đã thu tiền', cls: 'btn-primary' });
+    if (b.paymentStatus === 'unpaid') a.push({ k: 'paid', label: 'Đã nhận tiền', cls: 'btn-primary' });
     if (hasStarted(b)) {
       a.push({ k: 'completed', label: 'Đã đá', cls: 'btn' }, { k: 'no_show', label: 'Bùng sân', cls: 'btn-danger' });
     } else {
       a.push({ k: 'cancel', label: 'Hủy', cls: 'btn-danger' });
     }
   }
-  if (b.status === 'completed' && b.paymentStatus === 'unpaid') a.push({ k: 'paid', label: 'Đã thu tiền', cls: 'btn-primary' });
-  if (b.refundStatus === 'pending' && !b.match) a.push({ k: 'refund', label: `Đã hoàn ${money(b.refundAmount)}`, cls: 'btn-lime' });
+  if (b.status === 'completed' && b.paymentStatus === 'unpaid') a.push({ k: 'paid', label: 'Đã nhận tiền', cls: 'btn-primary' });
+  if (b.refundStatus === 'pending' && !b.match) a.push({ k: 'refund', label: `Đã chuyển lại ${money(b.refundAmount)}`, cls: 'btn-lime' });
   return a;
 }
 export const actionButtons = (b, size = 'btn-sm') =>
@@ -237,43 +237,43 @@ export async function runAction(kind, b) {
   switch (kind) {
     case 'approve': {
       const r = await dialog({
-        title: 'Duyệt booking?',
-        confirm: 'Duyệt',
-        body: `${who(b)}<p>Khách sẽ nhận thông báo và mã VietQR để chuyển khoản ${money(b.price)}.</p>`,
+        title: 'Đồng ý lịch đặt?',
+        confirm: 'Đồng ý',
+        body: `${who(b)}<p>Khách sẽ nhận thông báo và mã QR để chuyển khoản ${money(b.price)}.</p>`,
       });
       return r && call(() => api.owner.approve(b.id));
     }
     case 'reject': {
       const r = await dialog({
-        title: 'Từ chối booking',
+        title: 'Từ chối lịch đặt',
         confirm: 'Từ chối',
         danger: true,
-        body: `${who(b)}<p>Slot sẽ trống lại ngay. Lý do được gửi cho khách.</p>${noteField('Lý do', 'Ví dụ: sân bảo trì giờ này', true)}`,
+        body: `${who(b)}<p>Giờ sẽ trống lại ngay. Lý do được gửi cho khách.</p>${noteField('Lý do', 'Ví dụ: sân bảo trì giờ này', true)}`,
       });
       return r && call(() => api.owner.reject(b.id, r.note.trim()));
     }
     case 'cancel': {
       const r = await dialog({
-        title: 'Hủy booking',
-        confirm: 'Hủy booking',
+        title: 'Hủy đặt sân',
+        confirm: 'Hủy đặt sân',
         danger: true,
-        body: `${who(b)}<p>Chủ sân hủy thì khách được hoàn 100%${b.paymentStatus === 'paid' ? ` (${money(b.price)} đã thu)` : ', booking này chưa thu tiền nên không cần hoàn'}.</p>${noteField('Lý do', 'Gửi cho khách', true)}`,
+        body: `${who(b)}<p>Nếu bạn hủy, khách được trả lại 100%${b.paymentStatus === 'paid' ? ` (${money(b.price)} khách đã chuyển)` : '. Khách chưa chuyển khoản nên không có tiền để trả lại'}.</p>${noteField('Lý do', 'Gửi cho khách', true)}`,
       });
       return r && call(() => api.owner.cancel(b.id, r.note.trim()));
     }
     case 'paid': {
       const r = await dialog({
-        title: 'Ghi nhận đã thu tiền',
+        title: 'Ghi nhận đã nhận tiền',
         confirm: `Đã nhận ${money(b.price)}`,
-        body: `${who(b)}<p>Chỉ ghi nhận sau khi tiền đã vào tài khoản của bạn. SânNhanh không giữ tiền.</p>${noteField('Ghi chú (không bắt buộc)', 'Ví dụ: nhận lúc 18:40, nội dung ' + b.code)}`,
+        body: `${who(b)}<p>Chỉ bấm khi tiền đã vào tài khoản của bạn. SânNhanh không giữ tiền.</p>${noteField('Ghi chú (không bắt buộc)', 'Ví dụ: nhận lúc 18:40, nội dung ' + b.code)}`,
       });
       return r && call(() => api.owner.markPaid(b.id, r.note.trim()));
     }
     case 'refund': {
       const r = await dialog({
-        title: 'Ghi nhận đã hoàn tiền',
-        confirm: `Đã hoàn ${money(b.refundAmount)}`,
-        body: `${who(b)}<p>${b.status === 'transferred' ? `Booking đã nhượng cho đội khác. Hoàn <b>${money(b.refundAmount)}</b> (số tiền đội nhận đã chuyển) cho đội cũ` : `Hoàn <b>${money(b.refundAmount)}</b> (${b.refundPercent}%) cho khách`} bằng chuyển khoản, rồi ghi nhận ở đây.</p>${noteField('Ghi chú (không bắt buộc)', 'Ví dụ: mã giao dịch')}`,
+        title: 'Ghi nhận đã trả lại tiền',
+        confirm: `Đã chuyển lại ${money(b.refundAmount)}`,
+        body: `${who(b)}<p>${b.status === 'transferred' ? `Sân đã pass cho đội khác. Chuyển lại <b>${money(b.refundAmount)}</b> (số tiền đội nhận đã trả) cho đội pass` : `Chuyển lại <b>${money(b.refundAmount)}</b> (${b.refundPercent}%) cho khách`} bằng chuyển khoản, rồi bấm ghi nhận ở đây.</p>${noteField('Ghi chú (không bắt buộc)', 'Ví dụ: mã giao dịch')}`,
       });
       return r && call(() => api.owner.markRefunded(b.id, r.note.trim()));
     }
@@ -284,7 +284,7 @@ export async function runAction(kind, b) {
         title: 'Đánh dấu bùng sân?',
         confirm: 'Đánh dấu bùng',
         danger: true,
-        body: `${who(b)}<p>Khách không đến. Từ 2 lần bùng hoặc hủy muộn trong 60 ngày, mọi booking mới của khách này sẽ phải chờ bạn duyệt. Không hoàn tác được trên màn này.</p>`,
+        body: `${who(b)}<p>Khách không đến. Bùng sân hoặc hủy sát giờ 2 lần trong 60 ngày thì các lần đặt sau của khách này phải chờ bạn đồng ý. Bấm rồi không sửa lại được.</p>`,
       });
       return r && call(() => api.owner.attendance(b.id, 'no_show'));
     }
@@ -292,11 +292,11 @@ export async function runAction(kind, b) {
 }
 
 const DONE_TOAST = {
-  approve: 'Đã duyệt, khách đã được báo',
-  reject: 'Đã từ chối booking',
-  cancel: 'Đã hủy booking, chờ bạn hoàn tiền nếu đã thu',
-  paid: 'Đã ghi nhận thu tiền',
-  refund: 'Đã ghi nhận hoàn tiền',
+  approve: 'Đã đồng ý, khách đã được báo',
+  reject: 'Đã từ chối lịch đặt',
+  cancel: 'Đã hủy lịch đặt. Nếu khách đã chuyển khoản, bạn cần chuyển lại tiền',
+  paid: 'Đã ghi nhận: khách đã chuyển khoản',
+  refund: 'Đã ghi nhận trả lại tiền',
   completed: 'Đã ghi nhận: khách đã đá',
   no_show: 'Đã ghi nhận: khách bùng sân',
 };
@@ -318,7 +318,7 @@ export function wireActions(root, getBooking, reload) {
   });
 }
 
-// Danh sách chờ duyệt cần độ tin cậy: lấy chi tiết từng booking (list không có). Lỗi một dòng không làm hỏng cả danh sách.
+// Danh sách chờ chủ sân đồng ý cần uy tín: lấy chi tiết từng booking (list không có). Lỗi một dòng không làm hỏng cả danh sách.
 export async function withDetail(bookings) {
   return Promise.all(
     bookings.map(async (b) => {

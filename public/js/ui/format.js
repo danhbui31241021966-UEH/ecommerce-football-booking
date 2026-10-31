@@ -1,5 +1,5 @@
 // Hàm định dạng và luật tính thuần túy dùng chung cho mọi trang (và cho mock trong api.js).
-// Thời điểm trong contract là "YYYY-MM-DD HH:mm:ss" theo giờ Việt Nam (UTC+7), không phụ thuộc múi giờ trình duyệt.
+// Thời điểm trong contract là "YYYY-MM-DD HH:mm:ss" theo giờ Việt Nam (UTC+7), không phụ thuộc múi giờ trình đồng ý.
 
 const VN_OFFSET_MS = 7 * 3600 * 1000;
 const pad = (n) => String(n).padStart(2, '0');
@@ -66,7 +66,7 @@ export function discountedPrice(basePrice, percent) {
 }
 
 /**
- * R7: hoàn tiền khi khách tự hủy, tính trên số tiền ĐÃ thanh toán.
+ * R7: trả lại tiền khi khách tự hủy, tính trên số tiền ĐÃ chuyển khoản.
  * ≥24h → 100%, 12 – <24h → 50%, <12h → 0%. Chủ sân/admin hủy → 100%.
  * `paid` = booking.paymentStatus === 'paid'. Trả { percent, amount, hoursLeft }.
  */
@@ -75,22 +75,22 @@ export function refundFor({ startAt, price, paid }, nowTs, cancelledBy = 'custom
   const percent = cancelledBy !== 'customer' ? 100 : hoursLeft >= 24 ? 100 : hoursLeft >= 12 ? 50 : 0;
   return { percent, amount: paid ? Math.round((price * percent) / 100) : 0, hoursLeft };
 }
-/** Mốc giờ cụ thể của chính sách hủy (hoàn 100% trước `full`, 50% trước `half`). */
+/** Mốc giờ cụ thể của chính sách hủy (trả lại 100% trước `full`, 50% trước `half`). */
 export function cancelDeadlines(startAt) {
   const t = vnToMs(startAt);
   return { full: msToVn(t - 24 * 3600000), half: msToVn(t - 12 * 3600000) };
 }
 
 export const STATUS_LABEL = {
-  pending: 'Chờ duyệt',
-  confirmed: 'Đã xác nhận',
-  rejected: 'Bị từ chối',
+  pending: 'Chờ chủ sân đồng ý',
+  confirmed: 'Đã có sân',
+  rejected: 'Chủ sân từ chối',
   cancelled: 'Đã hủy',
-  expired: 'Hết hạn',
+  expired: 'Quá hạn',
   completed: 'Đã đá',
   no_show: 'Bùng sân',
-  transferred: 'Đã nhượng',
-  matching: 'Chờ đủ hai đội',
+  transferred: 'Đã pass',
+  matching: 'Đang tìm đội đá cùng',
 };
-export const PAYMENT_LABEL = { unpaid: 'Chưa thanh toán', paid: 'Đã thanh toán' };
-export const REFUND_LABEL = { none: 'Không hoàn', pending: 'Chờ hoàn tiền', done: 'Đã hoàn tiền' };
+export const PAYMENT_LABEL = { unpaid: 'Chưa chuyển khoản', paid: 'Đã chuyển khoản' };
+export const REFUND_LABEL = { none: 'Không trả lại', pending: 'Chờ trả lại tiền', done: 'Đã trả lại tiền' };

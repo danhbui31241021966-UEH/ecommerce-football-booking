@@ -58,6 +58,25 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 
 ## 5. Danh sách màn hình (24)
 
+**Tên hiển thị (đã đổi cho dễ hiểu).** Chỉ đổi chữ trên giao diện; tên endpoint, trường dữ liệu, giá trị `status` và khóa localStorage giữ nguyên (mục 7 vẫn dùng tên cũ).
+
+| Tên cũ | Tên mới | Ghi chú |
+|---|---|---|
+| Nhượng sân / đăng nhượng / giá nhượng | Pass sân / đăng pass / giá pass | |
+| Ghép trận, trận đủ hai đội, đội mở / đội vào | Ghép kèo, kèo, đội mở kèo / đội vào kèo | hạn chót → "hạn tìm đủ đội" |
+| Chế độ đủ hai đội (chủ sân) | Chỉ nhận ghép kèo | |
+| Đăng nhu cầu / Nhu cầu của tôi | Nhờ sân báo giá / Tôi đã nhờ báo giá | menu khách: "Nhờ báo giá"; menu chủ sân: "Khách nhờ báo giá" |
+| Chào giá, ngân sách, giá niêm yết | Báo giá, mức giá bạn muốn, giá thường | |
+| Booking, Booking của tôi | Lịch đặt, Lịch đặt của tôi | |
+| slot, sân con | giờ, sân | "cụm sân" giữ nguyên |
+| Tự xác nhận / Chủ sân duyệt | Đặt là chốt / Chủ sân duyệt | câu dài: "chủ sân đồng ý mới có sân" |
+| Chờ duyệt, Đã xác nhận, Từ chối, Hết hạn | Chờ chủ sân đồng ý, Đã có sân, Chủ sân từ chối, Quá hạn | "Đã có sân" luôn đi kèm nhãn "Chưa chuyển khoản / Đã chuyển khoản" |
+| Chờ đủ hai đội (matching), Đã nhượng | Đang tìm đội đá cùng, Đã pass | |
+| Hoàn tiền, Chưa hoàn / Đã hoàn | Trả lại tiền, Chưa trả lại / Đã trả lại | nút chủ sân: "Đã chuyển lại …" |
+| Thanh toán, VietQR, thu tiền | Chuyển khoản, mã QR, "Đã nhận tiền" (nút chủ sân) | |
+| Độ tin cậy, hủy muộn | Uy tín, hủy sát giờ | |
+| Danh sách chờ | Chờ giờ này (nút "Báo tôi khi trống") | |
+
 ### Khách hàng
 
 | # | Màn | Nội dung chính |
@@ -65,48 +84,48 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 | 1 | Trang chủ | Ô tìm theo giờ (ngày + giờ muốn đá + loại sân 5/7 + quận). Khối "Giảm giá giờ chót". Lối vào danh sách sân. |
 | 2 | Danh sách sân / kết quả tìm | Chip lọc (ngày, giờ, giá, 5/7, quận). Thẻ sân có **giờ trống ngay trên thẻ**, giá thấp–cao, nhãn giảm giá, nhãn "tự xác nhận / chờ duyệt". |
 | 3 | Chi tiết sân | Ảnh, địa chỉ + link Google Maps, tiện ích, nội quy, chính sách hủy. **Lưới slot**: 3 chip ngày; mobile chia Sáng/Chiều/Tối, desktop mỗi cột một sân con. Trạng thái ô: trống / đã đặt / đang giữ / bị chặn / đã qua / đang giữ cho người khác / **đang giữ cho bạn**. Ô đã có người giữ có nút "Báo tôi khi trống". Thanh dưới cùng tóm tắt lựa chọn + giá + nút Đặt. |
-| 4 | Xác nhận đặt (hộp thoại) | Sân, giờ, giá gốc/giảm/tổng, ghi chú, chính sách hủy kèm **mốc giờ cụ thể** ("hủy trước 19:00 30/10 hoàn 100%"). Báo trước nếu booking sẽ phải chờ duyệt (do sân hoặc do độ tin cậy). |
-| 5 | Chi tiết booking + thanh toán | Mã booking, trạng thái, đồng hồ đếm ngược nếu đang chờ duyệt. **VietQR** + ngân hàng, số TK, tên TK, số tiền, nội dung – mỗi dòng có nút Sao chép. Nút hủy hiện số tiền sẽ được hoàn. Lịch sử trạng thái. |
-| 6 | Booking của tôi | Tab: Sắp tới / Đã qua / Đang chờ slot (danh sách chờ, có nút rời hàng; lượt đang được giữ quyền nổi bật kèm hạn) / Nhượng sân (các lần mình đăng, kèm Chưa hoàn / Đã hoàn) / Ghép trận (các trận mình mở hoặc vào, kèm trạng thái và Chưa hoàn / Đã hoàn). Trang chi tiết booking (màn 5) có form "Nhượng lại" và nút rút đăng nhượng. |
+| 4 | Xác nhận đặt (hộp thoại) | Sân, giờ, giá gốc/giảm/tổng, ghi chú, chính sách hủy kèm **mốc giờ cụ thể** ("hủy trước 19:00 30/10 hoàn 100%"). Báo trước nếu lịch đặt sẽ phải chờ duyệt (do sân hoặc do độ tin cậy). |
+| 5 | Chi tiết lịch đặt + thanh toán | Mã lịch đặt, trạng thái, đồng hồ đếm ngược nếu đang chờ duyệt. **VietQR** + ngân hàng, số TK, tên TK, số tiền, nội dung – mỗi dòng có nút Sao chép. Nút hủy hiện số tiền sẽ được hoàn. Lịch sử trạng thái. |
+| 6 | Lịch đặt của tôi | Tab: Sắp tới / Đã qua / Đang chờ slot (danh sách chờ, có nút rời hàng; lượt đang được giữ quyền nổi bật kèm hạn) / Pass sân (các lần mình đăng, kèm Chưa hoàn / Đã hoàn) / Ghép kèo (các trận mình mở hoặc vào, kèm trạng thái và Chưa hoàn / Đã hoàn). Trang chi tiết lịch đặt (màn 5) có form "Pass lại" và nút rút đăng pass. |
 | 7 | Thông báo | Danh sách, đánh dấu đã đọc, bấm để mở trang liên quan. *(Dùng chung cho chủ sân.)* |
 | 8 | Đăng nhập | |
 | 9 | Đăng ký | Họ tên, email, số điện thoại, mật khẩu. |
-| 17 | Nhượng sân (danh sách) | Booking đang được nhượng, lọc theo ngày; giá nhượng cạnh giá gốc gạch ngang; nhãn ưu tiên người chờ. Cũng có chip "Đang nhượng · giá" ở ô đã đặt trong lưới slot (màn 3) và mục "Nhượng sân" trên thanh điều hướng. |
-| 19 | Ghép trận (danh sách) | Trận đã có phần đội mở trận và còn nhận đội thứ hai, lọc theo ngày; phần của đội vào, hạn chót. Ở màn 2 và trang chủ, giờ đủ hai đội **không bị ẩn** khỏi kết quả tìm: hiện thành ô viền nét đứt có chữ "Ghép trận" (thẻ sân: một hàng riêng "Ghép trận · chốt khi đủ hai đội"; trang chủ: dòng có nhãn Ghép trận), bấm vào dẫn tới trận đang chờ đội thứ hai (màn 21) hoặc màn mở trận (màn 20); cuối danh sách có lối "Đăng nhu cầu". Ở màn 3, ô giờ của sân bật chế độ hiện nhãn "Đủ hai đội" (viền nét đứt) dẫn tới màn 20; ô đang có trận hiện liên kết vào trận. Mục "Ghép trận" trên thanh điều hướng. |
+| 17 | Pass sân (danh sách) | Lịch đặt đang được pass, lọc theo ngày; giá pass cạnh giá gốc gạch ngang; nhãn ưu tiên người chờ. Cũng có chip "Đang pass · giá" ở ô đã đặt trong lưới slot (màn 3) và mục "Pass sân" trên thanh điều hướng. |
+| 19 | Ghép kèo (danh sách) | Trận đã có phần đội mở trận và còn nhận đội thứ hai, lọc theo ngày; phần của đội vào, hạn chót. Ở màn 2 và trang chủ, giờ đủ hai đội **không bị ẩn** khỏi kết quả tìm: hiện thành ô viền nét đứt có chữ "Ghép kèo" (thẻ sân: một hàng riêng "Ghép kèo · chốt khi đủ hai đội"; trang chủ: dòng có nhãn Ghép kèo), bấm vào dẫn tới trận đang chờ đội thứ hai (màn 21) hoặc màn mở trận (màn 20); cuối danh sách có lối "Nhờ sân báo giá". Ở màn 3, ô giờ của sân bật chế độ hiện nhãn "Đủ hai đội" (viền nét đứt) dẫn tới màn 20; ô đang có trận hiện liên kết vào trận. Mục "Ghép kèo" trên thanh điều hướng. |
 | 20 | Mở trận | Sân, giờ, giá sân; chọn phần của đội mình (chip %), hiện hai phần cộng đúng giá sân; chọn hạn chót; nói rõ giữ slot 15 phút và quy tắc hoàn. |
-| 22 | Đăng nhu cầu | Quận, loại sân, ngày, khung giờ, ngân sách, hạn nhận chào giá, ghi chú; nhắc rõ chào giá không giữ sân và giới hạn nhu cầu đang mở. Điều kiện của trang tìm sân điền sẵn vào form. |
-| 23 | Nhu cầu của tôi | Danh sách nhu cầu đã đăng: trạng thái bằng chữ (Đang chờ sân chào giá / Có chào giá, chờ bạn chọn / Đã chốt thành booking / Hết hạn / Đã hủy), số chào giá, giá rẻ nhất, hạn. Mục "Nhu cầu" trên thanh điều hướng của khách. |
-| 24 | Chi tiết nhu cầu | Tóm tắt nhu cầu + đồng hồ hạn; các chào giá xếp theo giá (sân, slot, giá chào cạnh giá niêm yết, nhãn Trong ngân sách / Vượt ngân sách, hiệu lực); nút chọn có bước xác nhận; chào giá mất slot hiện "Không chọn được" kèm lý do; hủy nhu cầu. |
+| 22 | Nhờ sân báo giá | Quận, loại sân, ngày, khung giờ, ngân sách, hạn nhận báo giá, ghi chú; nhắc rõ báo giá không giữ sân và giới hạn tin nhờ báo giá đang mở. Điều kiện của trang tìm sân điền sẵn vào form. |
+| 23 | Tôi đã nhờ báo giá | Danh sách tin nhờ báo giá đã đăng: trạng thái bằng chữ (Đang chờ sân báo giá / Có báo giá, chờ bạn chọn / Đã chốt thành lịch đặt / Hết hạn / Đã hủy), số báo giá, giá rẻ nhất, hạn. Mục "Khách nhờ báo giá" trên thanh điều hướng của khách. |
+| 24 | Chi tiết tin nhờ báo giá | Tóm tắt tin nhờ báo giá + đồng hồ hạn; các báo giá xếp theo giá (sân, slot, giá chào cạnh giá niêm yết, nhãn Trong ngân sách / Vượt ngân sách, hiệu lực); nút chọn có bước xác nhận; báo giá mất slot hiện "Không chọn được" kèm lý do; hủy tin nhờ báo giá. |
 | 21 | Chi tiết trận | Giá, hai phần, hạn chót; mỗi đội một dòng trạng thái phần tiền (chủ sân đã nhận / chưa); VietQR phần của đội đang xem; nút Vào trận; rút trận (đội mở, có cảnh báo hậu quả); khoản hoàn Chưa hoàn / Đã hoàn; 4 bước giải thích. |
-| 18 | Chi tiết nhượng | Giá gốc/giá nhượng, hạn nhận, nút Nhận; sau khi nhận hiện VietQR + đồng hồ; 4 bước giải thích đổi chủ và hoàn tiền là hai việc riêng. |
+| 18 | Chi tiết pass | Giá gốc/giá pass, hạn nhận, nút Nhận; sau khi nhận hiện VietQR + đồng hồ; 4 bước giải thích đổi chủ và hoàn tiền là hai việc riêng. |
 
 ### Chủ sân
 
 | # | Màn | Nội dung chính |
 |---|---|---|
-| 10 | Tổng quan | Booking chờ duyệt (đếm ngược 15 phút), lịch hôm nay, số chưa thanh toán. |
+| 10 | Tổng quan | Lịch đặt chờ duyệt (đếm ngược 15 phút), lịch hôm nay, số chưa thanh toán. |
 | 11 | Cài đặt sân | Thông tin sân, giờ mở/đóng, độ dài slot, khung cao điểm, tự xác nhận/chờ duyệt, nội quy, tài khoản ngân hàng (chọn ngân hàng), % giảm giờ chót. Sân con: tên, 5/7, giá thường, giá cao điểm, bật/tắt. |
-| 12 | Lịch & chặn lịch | Lịch theo ngày, mỗi cột một sân con, vạch giờ hiện tại. Bấm ô trống để chặn (lý do), bấm ô đã đặt để xem booking. Hiện số người đang chờ. |
-| 13 | Quản lý booking | Bảng lọc theo trạng thái/ngày (có "Chờ đủ hai đội"). Bảng "Trận đủ hai đội": xác nhận từng phần của hai đội, từ chối đội vào, hủy trận, ghi hoàn từng đội. Cài đặt sân (màn 11): công tắc "Chế độ đủ hai đội" + khung giờ cho từng sân con. Màn Nhu cầu của khách (mục "Nhu cầu" trên thanh điều hướng): nhu cầu phù hợp với cụm sân của mình, độ tin cậy R10 của khách, bấm "Gửi chào giá" (chọn sân con + slot trống, giá, hiệu lực, lời nhắn), các chào giá đã gửi và nút rút; nhu cầu đã kết thúc ở mục riêng. Duyệt/từ chối (thấy độ tin cậy của khách), hủy, ghi nhận đã thu tiền, ghi nhận đã hoàn, đánh dấu đã đá/bùng. |
+| 12 | Lịch & chặn lịch | Lịch theo ngày, mỗi cột một sân con, vạch giờ hiện tại. Bấm ô trống để chặn (lý do), bấm ô đã đặt để xem lịch đặt. Hiện số người đang chờ. |
+| 13 | Quản lý lịch đặt | Bảng lọc theo trạng thái/ngày (có "Chờ đủ hai đội"). Bảng "Ghép kèo": xác nhận từng phần của hai đội, từ chối đội vào, hủy trận, ghi hoàn từng đội. Cài đặt sân (màn 11): công tắc "Chế độ đủ hai đội" + khung giờ cho từng sân con. Màn Khách nhờ báo giá của khách (mục "Khách nhờ báo giá" trên thanh điều hướng): tin nhờ báo giá phù hợp với cụm sân của mình, độ tin cậy R10 của khách, bấm "Gửi báo giá" (chọn sân con + slot trống, giá, hiệu lực, lời nhắn), các báo giá đã gửi và nút rút; tin nhờ báo giá đã kết thúc ở mục riêng. Duyệt/từ chối (thấy độ tin cậy của khách), hủy, ghi nhận đã thu tiền, ghi nhận đã hoàn, đánh dấu đã đá/bùng. |
 
 ### Admin
 
 | # | Màn | Nội dung chính |
 |---|---|---|
 | 14 | Tài khoản | Danh sách người dùng, tạo tài khoản chủ sân, khóa/mở. |
-| 15 | Booking | Tra cứu mọi booking, hủy ngoại lệ, ghi nhận thanh toán/hoàn tiền, đánh dấu có mặt. |
-| 16 | Nhật ký | Lịch sử thao tác trên booking. |
+| 15 | Lịch đặt | Tra cứu mọi lịch đặt, hủy ngoại lệ, ghi nhận thanh toán/hoàn tiền, đánh dấu có mặt. |
+| 16 | Nhật ký | Lịch sử thao tác trên lịch đặt. |
 
 ## 6. Luồng chính
 
-1. **Đặt sân tự xác nhận:** Trang chủ → chọn 19:00 hôm nay → thẻ sân có giờ trống → bấm 19:00 → chi tiết sân (ô đã chọn sẵn) → Đặt → hộp xác nhận → booking `confirmed` → màn thanh toán QR → chủ sân ghi nhận `paid`.
-2. **Đặt sân chờ duyệt:** như trên nhưng booking `pending` có đếm ngược 15 phút → chủ sân duyệt (thấy độ tin cậy) → khách nhận thông báo → QR hiện.
+1. **Đặt sân tự xác nhận:** Trang chủ → chọn 19:00 hôm nay → thẻ sân có giờ trống → bấm 19:00 → chi tiết sân (ô đã chọn sẵn) → Đặt → hộp xác nhận → lịch đặt `confirmed` → màn thanh toán QR → chủ sân ghi nhận `paid`.
+2. **Đặt sân chờ duyệt:** như trên nhưng lịch đặt `pending` có đếm ngược 15 phút → chủ sân duyệt (thấy độ tin cậy) → khách nhận thông báo → QR hiện.
 3. **Danh sách chờ:** slot đã có người giữ → "Báo tôi khi trống" → người kia hủy → khách nhận thông báo "slot đang giữ cho bạn đến 19:10" → vào đặt.
 4. **Hủy và hoàn tiền:** khách hủy → web hiện % và số tiền hoàn theo R7 → chủ sân chuyển khoản lại và ghi nhận `done`.
 5. **Bùng sân:** sau giờ đá chủ sân đánh dấu `no_show` → đủ 2 lần trong 60 ngày thì lần đặt sau của khách phải chờ duyệt.
-6. **Nhượng sân:** khách A có booking đã trả tiền nhưng bận → "Nhượng lại" với giá ≤ giá gốc → người đang chờ slot được báo và ưu tiên → đội B nhận, thấy QR, chuyển khoản thẳng chủ sân → chủ sân xác nhận đã nhận tiền → booking sang B, A hiện *Chưa hoàn* → chủ sân chuyển lại tiền cho A và ghi nhận *Đã hoàn*.
-7. **Ghép trận:** sân con bật chế độ → đội A bấm ô "Đủ hai đội" → chọn phần của mình và hạn chót → slot được giữ, A chuyển phần của mình → chủ sân xác nhận phần A → trận hiện ở "Ghép trận" → đội B vào, chuyển phần của B → chủ sân xác nhận phần B → booking chốt. Đến hạn thiếu một đội thì slot nhả và tiền đã nhận ghi vào hoàn tiền (chưa hoàn → đã hoàn do chủ sân ghi nhận).
-8. **Nhu cầu và chào giá:** khách không thấy giờ hợp ý → đăng nhu cầu → chủ sân có cụm sân phù hợp được báo, chọn slot trống và gửi chào giá (không giữ slot) → khách xem các chào giá, chọn một → hệ thống kiểm lại slot và giá, tạo booking qua luồng đặt thường (tự xác nhận hoặc chờ duyệt) → khách chuyển tiền thẳng cho chủ sân bằng VietQR. Nếu slot đã bị lấy trước đó, chào giá báo không dùng được và không có booking nào được tạo.
+6. **Pass sân:** khách A có lịch đặt đã trả tiền nhưng bận → "Pass lại" với giá ≤ giá gốc → người đang chờ slot được báo và ưu tiên → đội B nhận, thấy QR, chuyển khoản thẳng chủ sân → chủ sân xác nhận đã nhận tiền → lịch đặt sang B, A hiện *Chưa hoàn* → chủ sân chuyển lại tiền cho A và ghi nhận *Đã hoàn*.
+7. **Ghép kèo:** sân con bật chế độ → đội A bấm ô "Đủ hai đội" → chọn phần của mình và hạn chót → slot được giữ, A chuyển phần của mình → chủ sân xác nhận phần A → trận hiện ở "Ghép kèo" → đội B vào, chuyển phần của B → chủ sân xác nhận phần B → lịch đặt chốt. Đến hạn thiếu một đội thì slot nhả và tiền đã nhận ghi vào hoàn tiền (chưa hoàn → đã hoàn do chủ sân ghi nhận).
+8. **Khách nhờ báo giá và báo giá:** khách không thấy giờ hợp ý → đăng tin nhờ báo giá → chủ sân có cụm sân phù hợp được báo, chọn slot trống và gửi báo giá (không giữ slot) → khách xem các báo giá, chọn một → hệ thống kiểm lại slot và giá, tạo lịch đặt qua luồng đặt thường (tự xác nhận hoặc chờ duyệt) → khách chuyển tiền thẳng cho chủ sân bằng VietQR. Nếu slot đã bị lấy trước đó, báo giá báo không dùng được và không có lịch đặt nào được tạo.
 
 ## 7. API contract
 

@@ -1,4 +1,4 @@
-// Mở trận đủ hai đội: chọn cách chia tiền và hạn chót. Giữ slot 15 phút để đội mở trận trả phần của mình.
+// Mở kèo đủ hai đội: chọn cách chia tiền và hạn chót. Giữ giờ 15 phút để đội mở kèo trả phần của mình.
 import { api } from '/js/api.js';
 import { getUser, mountShell, toast } from '/js/ui/shell.js';
 import { $, decorate, esc, redirectToLogin } from '/js/ui/page.js';
@@ -37,8 +37,8 @@ function render() {
   const opts = deadlines();
   if (!opts.some((o) => o[0] === closesAt)) closesAt = opts[0]?.[0] || '';
   $('root').innerHTML = `
-    <p class="crumb"><a href="/venue.html?id=${venueId}&date=${date}">${esc(venue.name)}</a> / Mở trận</p>
-    <div class="page-head" style="margin-top:var(--sp-3)"><h1 class="h1">Mở trận đủ hai đội</h1><p class="sub">${esc(court.name)} chỉ chốt giờ này khi có đủ hai đội. Bạn trả phần của mình trước, đội thứ hai trả phần còn lại; cả hai chuyển thẳng cho chủ sân.</p></div>
+    <p class="crumb"><a href="/venue.html?id=${venueId}&date=${date}">${esc(venue.name)}</a> / Mở kèo</p>
+    <div class="page-head" style="margin-top:var(--sp-3)"><h1 class="h1">Mở kèo, tìm đội đá cùng</h1><p class="sub">Giờ này ở ${esc(court.name)} chỉ chốt khi có đủ hai đội. Bạn chuyển khoản phần của mình trước, đội kia chuyển phần còn lại.</p></div>
     <form class="card card-pad stack" id="match-form" style="max-width:640px">
       <dl class="kv">
         <div><dt>Sân</dt><dd>${esc(venue.name)} · ${esc(court.name)} (sân ${court.fieldType})</dd></div>
@@ -47,14 +47,14 @@ function render() {
       </dl>
       <fieldset class="field"><legend>Phần của đội bạn</legend>
         <div class="chips" role="group">${PERCENTS.map((p) => `<button type="button" class="chip" data-percent="${p}" aria-pressed="${p === percent}">${p}%</button>`).join('')}</div>
-        <p class="muted" style="font-size:var(--fs-sm)">Đội bạn trả <b class="num">${money(host)}</b>, đội thứ hai trả <b class="num">${money(slot.basePrice - host)}</b>. Hai phần cộng lại đúng giá sân.</p>
+        <p class="muted" style="font-size:var(--fs-sm)">Đội bạn trả <b class="num">${money(host)}</b>, đội kia trả <b class="num">${money(slot.basePrice - host)}</b>. Cộng lại đúng giá sân.</p>
       </fieldset>
-      <div class="field"><label for="closes">Hạn chót để đủ hai đội</label>
+      <div class="field"><label for="closes">Hạn tìm đủ đội</label>
         <select class="select" id="closes">${opts.map(([v, l]) => `<option value="${v}" ${v === closesAt ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>
-        <span class="hint">Đến hạn mà thiếu một đội thì slot được nhả. Tiền đội nào đã được chủ sân xác nhận sẽ vào danh sách hoàn tiền: chưa hoàn cho đến khi chủ sân chuyển lại và ghi nhận.</span></div>
-      <div class="notice warn" role="note"><div>Slot được giữ cho bạn <b>${meta.holdMinutes} phút</b> để chuyển phần của mình. Chủ sân chưa xác nhận kịp thì slot được nhả. Sau khi chủ sân xác nhận, trận hiện cho đội khác và slot được giữ đến hạn chót.</div></div>
+        <span class="hint">Hết hạn mà chưa đủ hai đội thì sân mở lại, chủ sân sẽ trả lại tiền cho đội đã chuyển.</span></div>
+      <div class="notice warn" role="note"><div>Sân được giữ cho bạn <b>${meta.holdMinutes} phút</b> để chuyển phần của mình. Chủ sân nhận tiền xong, kèo mới hiện cho các đội khác.</div></div>
       <p class="dlg-error" id="match-error" role="alert" hidden></p>
-      <div class="row"><button type="submit" class="btn btn-lime" ${opts.length ? '' : 'disabled'}>Mở trận · trả ${money(host)}</button><a class="btn btn-ghost" href="/venue.html?id=${venueId}&date=${date}">Để sau</a></div>
+      <div class="row"><button type="submit" class="btn btn-lime" ${opts.length ? '' : 'disabled'}>Mở kèo · trả ${money(host)}</button><a class="btn btn-ghost" href="/venue.html?id=${venueId}&date=${date}">Để sau</a></div>
     </form>`;
   decorate();
 }
@@ -86,7 +86,7 @@ document.addEventListener('submit', async (e) => {
 
 await mountShell();
 if (!getUser()) redirectToLogin();
-else if (getUser().role !== 'customer') $('root').innerHTML = '<div class="card empty"><p><b style="color:var(--text)">Chỉ tài khoản khách mở được trận</b></p></div>';
+else if (getUser().role !== 'customer') $('root').innerHTML = '<div class="card empty"><p><b style="color:var(--text)">Chỉ tài khoản khách mới mở kèo được</b></p></div>';
 else {
   try {
     meta = await api.meta();
@@ -96,9 +96,9 @@ else {
     slot = c?.slots.find((s) => s.start === start);
     court = venue.courts.find((x) => x.id === courtId);
     if (!slot || !court) throw new Error('Không tìm thấy giờ này');
-    if (!slot.teamMode) throw new Error(slot.status === 'available' ? 'Giờ này không bật chế độ đủ hai đội, hãy đặt sân như bình thường.' : 'Giờ này đã có người giữ.');
+    if (!slot.teamMode) throw new Error(slot.status === 'available' ? 'Giờ này không ghép kèo, bạn đặt sân như bình thường nhé.' : 'Giờ này đã có người đặt.');
     render();
   } catch (e) {
-    $('root').innerHTML = `<div class="card empty"><p><b style="color:var(--text)">Không mở trận được</b><br>${esc(e.message)}</p><a class="btn btn-lime" href="/venue.html?id=${venueId}">Về trang sân</a></div>`;
+    $('root').innerHTML = `<div class="card empty"><p><b style="color:var(--text)">Không mở kèo được</b><br>${esc(e.message)}</p><a class="btn btn-lime" href="/venue.html?id=${venueId}">Về trang sân</a></div>`;
   }
 }

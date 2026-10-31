@@ -37,7 +37,7 @@ function nextId(kind) {
   return S.ids[kind];
 }
 
-/** Dựng dữ liệu demo tương đối theo hôm nay: luôn có "tối nay", giờ chót, booking chờ duyệt đang đếm ngược. */
+/** Dựng dữ liệu demo tương đối theo hôm nay: luôn có "tối nay", giờ chót, lịch đặt chờ chủ sân đồng ý đang đếm ngược. */
 function buildState() {
   const t = Date.now();
   const nowTs = msToVn(t);
@@ -178,8 +178,8 @@ const hash32 = (s) => {
 const rand01 = (key) => hash32(key) / 4294967296;
 
 /**
- * Booking nền cho sân thật để lịch trông có người dùng (tham số trong bookings.json → crowd).
- * Không ghi lịch sử, không sinh thông báo. Booking chờ duyệt hết hạn tự nhiên như mọi booking (còn 2–15 phút lúc dựng, so le nhau).
+ * Lịch đặt nền cho sân thật để lịch trông có người dùng (tham số trong bookings.json → crowd).
+ * Không ghi lịch sử, không sinh thông báo. Lịch đặt chờ chủ sân đồng ý hết hạn tự nhiên như mọi booking (còn 2–15 phút lúc dựng, so le nhau).
  */
 function seedCrowd(st, t, today, courts) {
   const cfg = seeds.bookings.crowd;
@@ -249,7 +249,7 @@ function seedCrowd(st, t, today, courts) {
   }
 }
 
-/** Đăng nhượng mẫu theo mẫu booking có `transfer` (askPercent, minAgo, claimedBy, claimedMinAgo, done). Thông báo tương ứng sinh kèm. */
+/** Đăng pass mẫu theo mẫu lịch đặt có `transfer` (askPercent, minAgo, claimedBy, claimedMinAgo, done). Thông báo tương ứng sinh kèm. */
 function seedTransfers(st, keyToBooking, ago) {
   for (const tpl of seeds.bookings.bookings) {
     const spec = tpl.transfer;
@@ -276,9 +276,9 @@ function seedTransfers(st, keyToBooking, ago) {
       endReason: null,
     };
     st.transfers.push(t);
-    addLog(b, 'transfer_open', null, null, userOf(b.userId), `Giá nhượng ${vnd(ask)}`, created);
+    addLog(b, 'transfer_open', null, null, userOf(b.userId), `Giá pass ${vnd(ask)}`, created);
     for (const w of waiters) {
-      st.notifications.push({ id: nextId('notification'), userId: w.userId, bookingId: null, message: `Có đội đăng nhượng slot ${slotLabel(b)} tại ${venue.name} · ${court.name}, giá ${vnd(ask)}. Bạn đang chờ slot này nên được ưu tiên nhận đến ${timeOf(t.priorityUntil)}.`, link: `/transfer.html?id=${t.id}`, isRead: false, createdAt: created });
+      st.notifications.push({ id: nextId('notification'), userId: w.userId, bookingId: null, message: `Có đội đăng pass giờ ${slotLabel(b)} tại ${venue.name} · ${court.name}, giá ${vnd(ask)}. Bạn đang chờ giờ này nên được ưu tiên nhận đến ${timeOf(t.priorityUntil)}.`, link: `/transfer.html?id=${t.id}`, isRead: false, createdAt: created });
     }
     if (spec.claimedBy) {
       t.status = 'claimed';
@@ -287,7 +287,7 @@ function seedTransfers(st, keyToBooking, ago) {
       t.claimExpiresAt = msToVn(vnToMs(t.claimedAt) + meta().holdMinutes * 60000);
       addLog(b, 'transfer_claim', null, null, null, 'Có đội nhận, chờ chủ sân xác nhận đã nhận tiền', t.claimedAt);
       if (!spec.done) {
-        st.notifications.push({ id: nextId('notification'), userId: venue.ownerId, bookingId: b.id, message: `${userOf(spec.claimedBy).fullName} nhận nhượng booking ${b.code} (${court.name} ${slotLabel(b)}), chuyển ${vnd(ask)} nội dung NH${b.code}. Đối chiếu rồi xác nhận trước ${timeOf(t.claimExpiresAt)}.`, link: '/owner-bookings.html#transfers', isRead: false, createdAt: t.claimedAt });
+        st.notifications.push({ id: nextId('notification'), userId: venue.ownerId, bookingId: b.id, message: `${userOf(spec.claimedBy).fullName} nhận pass sân ${b.code} (${court.name} ${slotLabel(b)}), chuyển ${vnd(ask)} nội dung NH${b.code}. Nhận được tiền thì bấm xác nhận trước ${timeOf(t.claimExpiresAt)}.`, link: '/owner-bookings.html#transfers', isRead: false, createdAt: t.claimedAt });
       }
     }
     if (spec.done) finishTransfer(t, userOf(venue.ownerId), '', true);
@@ -300,14 +300,14 @@ function seedHistory(b, venue, tpl) {
   const customer = S.users.find((u) => u.id === b.userId);
   const owner = S.users.find((u) => u.id === venue.ownerId);
   const at = (min) => msToVn(t + min * 60000);
-  const needsApproval = venue.requiresApproval || tpl.note === 'Chờ duyệt do độ tin cậy thấp';
+  const needsApproval = venue.requiresApproval || tpl.note === 'Chờ chủ sân đồng ý do uy tín thấp';
   const created = needsApproval ? 'pending' : 'confirmed';
   addLog(b, 'create', null, created, customer, '', b.createdAt);
   if (b.status === 'pending') return;
   if (needsApproval && !['rejected', 'expired'].includes(b.status)) addLog(b, 'approve', 'pending', 'confirmed', owner, '', at(5));
   if (b.paymentStatus === 'paid') addLog(b, 'paid', null, null, owner, 'Đã nhận chuyển khoản', at(30));
   if (b.status === 'rejected') addLog(b, 'reject', 'pending', 'rejected', owner, b.cancelReason, at(8));
-  if (b.status === 'expired') addLog(b, 'expire', 'pending', 'expired', { fullName: 'Hệ thống', role: 'system' }, 'Quá hạn chưa duyệt', at(15));
+  if (b.status === 'expired') addLog(b, 'expire', 'pending', 'expired', { fullName: 'Hệ thống', role: 'system' }, 'Quá hạn chưa đồng ý', at(15));
   if (b.status === 'cancelled') addLog(b, 'cancel', created, 'cancelled', customer, b.cancelReason || '', b.cancelledAt);
   if (b.refundStatus === 'done') addLog(b, 'refund', null, null, owner, '', b.cancelledAt);
   if (b.status === 'no_show') addLog(b, 'attendance', 'confirmed', 'no_show', owner, 'Không đến sân', b.startAt);
@@ -600,7 +600,7 @@ function notify(userId, message, { bookingId = null, link = '/notifications.html
   S.notifications.push({ id: nextId('notification'), userId, bookingId, message, link, isRead: false, createdAt: now() });
 }
 
-/** R9: slot vừa trống thì giữ quyền đặt 10 phút (không quá giờ bắt đầu) cho người chờ sớm nhất. */
+/** R9: giờ vừa trống thì giữ quyền đặt 10 phút (không quá giờ bắt đầu) cho người chờ sớm nhất. */
 function offerSlot(courtId, date, start) {
   const [venue, court] = courtOf(courtId);
   const startMs = vnToMs(`${date} ${start}`);
@@ -612,7 +612,7 @@ function offerSlot(courtId, date, start) {
   const until = Math.min(nowMs() + meta().waitlistOfferMinutes * 60000, startMs);
   next.status = 'offered';
   next.offerExpiresAt = msToVn(until);
-  notify(next.userId, `Slot ${start} ngày ${date.slice(8, 10)}/${date.slice(5, 7)} tại ${venue.name} · ${court.name} đang giữ cho bạn đến ${timeOf(next.offerExpiresAt)}.`, {
+  notify(next.userId, `Giờ ${start} ngày ${date.slice(8, 10)}/${date.slice(5, 7)} tại ${venue.name} · ${court.name} đang giữ cho bạn đến ${timeOf(next.offerExpiresAt)}.`, {
     link: `/venue.html?id=${venue.id}&date=${date}&slot=${start}&court=${court.id}`,
   });
 }
@@ -625,8 +625,8 @@ function tick() {
   for (const b of S.bookings) {
     if (b.status === 'pending' && b.expiresAt && vnToMs(b.expiresAt) <= nowMs()) {
       b.status = 'expired';
-      addLog(b, 'expire', 'pending', 'expired', null, 'Quá hạn giữ chỗ chưa được duyệt', b.expiresAt);
-      notify(b.userId, `Booking ${b.code} đã hết hạn vì chủ sân chưa duyệt kịp.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+      addLog(b, 'expire', 'pending', 'expired', null, 'Quá hạn giữ chỗ chưa được đồng ý', b.expiresAt);
+      notify(b.userId, `Lịch đặt ${b.code} đã quá hạn vì chủ sân chưa kịp đồng ý.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
       freeSlot(b);
       changed = true;
     }
@@ -641,7 +641,7 @@ function tick() {
     } else if (w.status === 'offered' && vnToMs(w.offerExpiresAt) <= nowMs()) {
       S.waitlist.splice(S.waitlist.indexOf(w), 1);
       const [venue] = courtOf(w.courtId);
-      notify(w.userId, `Lượt giữ slot ${w.start} tại ${venue.name} của bạn đã hết hạn.`);
+      notify(w.userId, `Bạn không đặt kịp giờ ${w.start} tại ${venue.name}, giờ này đã mở lại cho người khác.`);
       offerSlot(w.courtId, w.date, w.start);
       changed = true;
     }
@@ -719,22 +719,22 @@ function createBooking(ctx) {
     if (dup) return toBooking(dup);
   }
   const [venue, court] = courtOf(courtId);
-  if (!venue || !court || !court.isActive || !venue.isActive) fail(404, 'Không tìm thấy sân con');
+  if (!venue || !court || !court.isActive || !venue.isActive) fail(404, 'Không tìm thấy sân');
   checkDate(date);
   req(slotGrid(venue).includes(start), 'Giờ bắt đầu không khớp lịch của sân');
   const today = dateOf(now());
-  req(date >= today && date <= addDays(today, meta().bookingWindowDays - 1), `Chỉ đặt trước tối đa ${meta().bookingWindowDays} ngày (R1)`);
+  req(date >= today && date <= addDays(today, meta().bookingWindowDays - 1), `Chỉ đặt trước tối đa ${meta().bookingWindowDays} ngày`);
   const slot = slotInfo(court, venue, date, start, user);
-  if (slot.status === 'past') fail(400, 'Slot này đã qua giờ bắt đầu');
-  if (slot.status === 'blocked') fail(409, 'Slot đang bị chủ sân chặn');
-  if (slot.status === 'booked' || slot.status === 'held') fail(409, 'Slot vừa có người khác giữ, vui lòng chọn giờ khác'); // R4
-  if (slot.status === 'offered' && !slot.offeredToYou) fail(409, 'Slot đang được giữ cho người trong danh sách chờ');
-  if (teamModeAt(court, start)) fail(409, 'Giờ này chỉ chốt khi đủ hai đội: hãy mở trận hoặc vào một trận có sẵn');
+  if (slot.status === 'past') fail(400, 'Giờ này đã qua giờ bắt đầu');
+  if (slot.status === 'blocked') fail(409, 'Giờ này chủ sân đang chặn');
+  if (slot.status === 'booked' || slot.status === 'held') fail(409, 'Giờ này vừa có người khác đặt, bạn chọn giờ khác nhé'); // R4
+  if (slot.status === 'offered' && !slot.offeredToYou) fail(409, 'Giờ này đang giữ cho người đã đăng ký chờ');
+  if (teamModeAt(court, start)) fail(409, 'Giờ này chỉ nhận ghép kèo: hãy mở kèo hoặc vào một kèo có sẵn');
 
   return toBooking(insertBooking(user, venue, court, date, start, slot, { note, idempotencyKey }));
 }
 
-/** Tạo booking theo luồng đặt chung (R3 chế độ nhận, R6 giá chốt, R10 độ tin cậy). extra: { price, offerId, logNote } cho đặt từ chào giá (R14). */
+/** Tạo lịch đặt theo luồng đặt chung (R3 chế độ nhận, R6 giá chốt, R10 uy tín). extra: { price, offerId, logNote } cho đặt từ báo giá (R14). */
 function insertBooking(user, venue, court, date, start, slot, extra = {}) {
   const rel = reliabilityOf(user.id);
   const needsApproval = venue.requiresApproval || rel.restricted; // R3, R10
@@ -770,12 +770,12 @@ function insertBooking(user, venue, court, date, start, slot, extra = {}) {
   S.bookings.push(b);
   // Người đặt được giữ quyền thì lượt chờ coi như đã hoàn tất.
   S.waitlist = S.waitlist.filter((w) => !(w.userId === user.id && w.courtId === court.id && w.date === date && w.start === start));
-  addLog(b, 'create', null, b.status, user, extra.logNote || (rel.restricted && !venue.requiresApproval ? 'Chờ duyệt do độ tin cậy của khách' : ''));
+  addLog(b, 'create', null, b.status, user, extra.logNote || (rel.restricted && !venue.requiresApproval ? 'Chờ chủ sân đồng ý do uy tín của khách' : ''));
   if (needsApproval) {
-    notify(venue.ownerId, `Booking ${b.code} (${user.fullName}) đang chờ duyệt, còn ${meta().holdMinutes} phút.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
-    notify(user.id, `Đã gửi yêu cầu đặt ${court.name} ${shortTs(b.startAt)}, chờ chủ sân duyệt trong ${meta().holdMinutes} phút.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+    notify(venue.ownerId, `${user.fullName} vừa đặt sân (mã ${b.code}) và đang chờ bạn đồng ý, còn ${meta().holdMinutes} phút.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
+    notify(user.id, `Bạn đã đặt ${court.name} lúc ${shortTs(b.startAt)}. Chủ sân có ${meta().holdMinutes} phút để đồng ý.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   } else {
-    notify(user.id, `Booking ${b.code} đã được xác nhận. Vui lòng thanh toán bằng VietQR.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+    notify(user.id, `Bạn đã có sân (mã ${b.code}). Hãy chuyển khoản bằng mã QR.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }
   save();
   return b;
@@ -783,7 +783,7 @@ function insertBooking(user, venue, court, date, start, slot, extra = {}) {
 
 function findBooking(id) {
   const b = S.bookings.find((x) => x.id === Number(id));
-  if (!b) fail(404, 'Không tìm thấy booking');
+  if (!b) fail(404, 'Không tìm thấy lịch đặt');
   return b;
 }
 function canSee(user, b) {
@@ -794,20 +794,20 @@ function canSee(user, b) {
 function ownBooking(ctx, id) {
   const user = need(ctx, 'owner');
   const b = findBooking(id);
-  if (!canSee(user, b)) fail(403, 'Booking này không thuộc sân của bạn');
+  if (!canSee(user, b)) fail(403, 'Lịch đặt này không thuộc sân của bạn');
   return b;
 }
 
-/** Hủy booking: dùng chung cho khách, chủ sân và admin. R7 hoàn tiền, R10 hủy muộn. */
+/** Hủy đặt sân: dùng chung cho khách, chủ sân và admin. trả lại tiền, R10 hủy sát giờ. */
 function doCancel(b, actor, reason, by) {
   const mt = matchOfBooking(b);
   if (mt) {
-    if (by === 'customer') fail(409, b.status === 'matching' ? 'Booking đang giữ chỗ cho trận đủ hai đội: rút trận ở trang trận' : 'Trận đủ hai đội đã chốt: liên hệ chủ sân nếu cần hủy');
-    if (!ACTIVE_MATCH.includes(mt.status) && mt.status !== 'confirmed') fail(409, 'Booking không còn ở trạng thái có thể hủy');
+    if (by === 'customer') fail(409, b.status === 'matching' ? 'Lịch đặt này đang chờ ghép kèo: hãy rút khỏi kèo ở trang kèo' : 'Kèo đã chốt: nếu cần hủy, hãy liên hệ chủ sân');
+    if (!ACTIVE_MATCH.includes(mt.status) && mt.status !== 'confirmed') fail(409, 'Lịch đặt này không hủy được nữa');
     if (mt.status === 'confirmed') {
       const why = String(reason || '').trim().slice(0, 200) || 'Chủ sân hủy';
       mt.refunds = [];
-      mt.status = 'open'; // để endMatch ghi khoản hoàn đủ cho cả hai đội đã trả
+      mt.status = 'open'; // để endMatch ghi tiền trả lại đủ cho cả hai đội đã trả
       endMatch(mt, 'cancelled', `${why}.`, { actor, by, refundPercent: { host: 100, guest: 100 } });
     } else {
       endMatch(mt, 'cancelled', `${String(reason || '').trim().slice(0, 200) || 'Chủ sân hủy'}.`, { actor, by });
@@ -815,10 +815,10 @@ function doCancel(b, actor, reason, by) {
     save();
     return;
   }
-  if (!['pending', 'confirmed'].includes(b.status)) fail(409, 'Booking không còn ở trạng thái có thể hủy');
+  if (!['pending', 'confirmed'].includes(b.status)) fail(409, 'Lịch đặt này không hủy được nữa');
   const tr = activeTransfer(b);
-  if (tr?.status === 'claimed' && by === 'customer') fail(409, 'Booking đang có đội nhận nhượng, chờ chủ sân xác nhận hoặc từ chối rồi hãy hủy');
-  if (tr) closeTransfer(tr, 'cancelled', by === 'customer' ? actor : null, 'Booking bị hủy nên đóng đăng nhượng');
+  if (tr?.status === 'claimed' && by === 'customer') fail(409, 'Đang có đội nhận pass, hãy chờ chủ sân xác nhận hoặc từ chối rồi hủy');
+  if (tr) closeTransfer(tr, 'cancelled', by === 'customer' ? actor : null, 'Lịch đặt bị hủy nên đóng đăng pass');
   const from = b.status;
   const paid = b.paymentStatus === 'paid';
   const r = refundFor({ startAt: b.startAt, price: b.price, paid }, now(), by);
@@ -834,60 +834,60 @@ function doCancel(b, actor, reason, by) {
   addLog(b, 'cancel', from, 'cancelled', actor, b.cancelReason || '');
   const [venue] = courtOf(b.courtId);
   if (by === 'customer') {
-    notify(venue.ownerId, `Khách ${userOf(b.userId).fullName} đã hủy booking ${b.code}.${r.amount ? ` Cần hoàn ${r.amount.toLocaleString('vi-VN')}đ.` : ''}`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
+    notify(venue.ownerId, `Khách ${userOf(b.userId).fullName} đã hủy lịch đặt ${b.code}.${r.amount ? ` Bạn cần chuyển lại ${r.amount.toLocaleString('vi-VN')}đ cho khách.` : ''}`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
   } else {
-    notify(b.userId, `Booking ${b.code} đã bị hủy bởi ${by === 'owner' ? 'chủ sân' : 'quản trị viên'}${b.cancelReason ? `: ${b.cancelReason}` : '.'}${r.amount ? ` Bạn được hoàn ${r.amount.toLocaleString('vi-VN')}đ.` : ''}`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+    notify(b.userId, `Lịch đặt ${b.code} đã bị ${by === 'owner' ? 'chủ sân' : 'quản trị viên'} hủy${b.cancelReason ? `: ${b.cancelReason}` : '.'}${r.amount ? ` Bạn sẽ được trả lại ${r.amount.toLocaleString('vi-VN')}đ.` : ''}`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }
   freeSlot(b);
   save();
 }
 
 function doApprove(b, actor) {
-  if (b.status !== 'pending') fail(409, 'Chỉ duyệt được booking đang chờ duyệt');
-  if (b.expiresAt && vnToMs(b.expiresAt) <= nowMs()) fail(409, 'Booking đã hết hạn giữ chỗ');
+  if (b.status !== 'pending') fail(409, 'Chỉ đồng ý được lịch đặt đang chờ chủ sân đồng ý');
+  if (b.expiresAt && vnToMs(b.expiresAt) <= nowMs()) fail(409, 'Lịch đặt đã quá hạn giữ chỗ');
   b.status = 'confirmed';
   b.expiresAt = null;
   addLog(b, 'approve', 'pending', 'confirmed', actor);
-  notify(b.userId, `Booking ${b.code} đã được duyệt. Vui lòng thanh toán bằng VietQR.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  notify(b.userId, `Chủ sân đã đồng ý lịch đặt ${b.code}. Hãy chuyển khoản bằng mã QR.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   save();
 }
 function doReject(b, actor, reason) {
-  if (b.status !== 'pending') fail(409, 'Chỉ từ chối được booking đang chờ duyệt');
+  if (b.status !== 'pending') fail(409, 'Chỉ từ chối được lịch đặt đang chờ chủ sân đồng ý');
   req(String(reason || '').trim(), 'Vui lòng nhập lý do từ chối');
   b.status = 'rejected';
   b.expiresAt = null;
   b.cancelReason = String(reason).slice(0, 300);
   addLog(b, 'reject', 'pending', 'rejected', actor, b.cancelReason);
-  notify(b.userId, `Booking ${b.code} bị từ chối: ${b.cancelReason}`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  notify(b.userId, `Chủ sân từ chối lịch đặt ${b.code}: ${b.cancelReason}`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   freeSlot(b);
   save();
 }
 function doPaid(b, actor, note) {
-  if (b.status !== 'confirmed' && b.status !== 'completed') fail(409, 'Chỉ ghi nhận thanh toán cho booking đã xác nhận');
-  if (b.paymentStatus === 'paid') fail(409, 'Booking đã được ghi nhận thanh toán');
+  if (b.status !== 'confirmed' && b.status !== 'completed') fail(409, 'Chỉ ghi nhận được cho lịch đặt đã có sân');
+  if (b.paymentStatus === 'paid') fail(409, 'Lịch đặt đã được ghi nhận chuyển khoản');
   b.paymentStatus = 'paid';
   addLog(b, 'paid', null, null, actor, note || '');
-  notify(b.userId, `Đã ghi nhận thanh toán cho booking ${b.code}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  notify(b.userId, `Chủ sân đã nhận tiền của lịch đặt ${b.code}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   save();
 }
 function doRefunded(b, actor, note, part) {
   const mt = matchOfBooking(b);
   if (mt) return refundMatchPart(mt, actor, part, note);
-  if (b.refundStatus !== 'pending') fail(409, 'Booking không có khoản hoàn đang chờ');
+  if (b.refundStatus !== 'pending') fail(409, 'Lịch đặt này không có khoản cần chuyển lại');
   b.refundStatus = 'done';
   addLog(b, 'refund', null, null, actor, note || '');
-  notify(b.userId, `Chủ sân đã hoàn ${b.refundAmount.toLocaleString('vi-VN')}đ cho booking ${b.code}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  notify(b.userId, `Chủ sân đã chuyển lại ${b.refundAmount.toLocaleString('vi-VN')}đ cho lịch đặt ${b.code}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   save();
 }
 function doAttendance(b, actor, result) {
   req(['completed', 'no_show'].includes(result), 'Kết quả phải là completed hoặc no_show');
-  if (b.status !== 'confirmed') fail(409, 'Chỉ đánh dấu cho booking đã xác nhận');
+  if (b.status !== 'confirmed') fail(409, 'Chỉ ghi nhận được cho lịch đặt đã có sân');
   if (vnToMs(b.startAt) > nowMs()) fail(400, 'Chưa tới giờ đá nên chưa đánh dấu được');
   b.status = result;
   addLog(b, 'attendance', 'confirmed', result, actor, result === 'no_show' ? 'Không đến sân' : '');
   if (result === 'no_show') {
     const r = reliabilityOf(b.userId);
-    notify(b.userId, `Bạn bị ghi nhận vắng mặt ở booking ${b.code}. ${r.restricted ? 'Các booking mới của bạn sẽ cần chủ sân duyệt.' : `Đã có ${r.violations}/${r.maxViolations} lần vi phạm trong ${r.windowDays} ngày.`}`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+    notify(b.userId, `Bạn bị ghi nhận bùng sân ở lịch đặt ${b.code}. ${r.restricted ? 'Các lần đặt sau của bạn sẽ phải chờ chủ sân đồng ý.' : `Bạn đã vi phạm ${r.violations}/${r.maxViolations} lần trong ${r.windowDays} ngày.`}`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }
   save();
 }
@@ -911,10 +911,10 @@ function listBookings(user, query) {
 }
 
 
-/* ---------- Nhượng booking ---------- */
-// Booking đã xác nhận và đã thanh toán của đội A được đăng nhượng; đội B nhận và chuyển tiền thẳng chủ sân;
-// chủ sân xác nhận đã nhận tiền thì booking chuyển sang B trong một bước (slot không bao giờ trống).
-// Khoản hoàn cho A theo dõi riêng trên booking cũ (refundStatus pending → done), tách khỏi việc đổi chủ.
+/* ---------- Pass sân ---------- */
+// Lịch đặt đã xác nhận và đã chuyển khoản của đội A được đăng pass; đội B nhận và chuyển tiền thẳng chủ sân;
+// chủ sân xác nhận đã nhận tiền thì lịch đặt chuyển sang B trong một bước (slot không bao giờ trống).
+// Tiền trả lại cho A theo dõi riêng trên lịch đặt cũ (refundStatus pending → done), tách khỏi việc đổi chủ.
 
 const ACTIVE_TRANSFER = ['open', 'claimed'];
 const activeTransfer = (b) => S.transfers.find((t) => t.bookingId === b.id && ACTIVE_TRANSFER.includes(t.status));
@@ -982,7 +982,7 @@ function toTransfer(t, viewer) {
   return out;
 }
 
-/** Đóng một đăng nhượng chưa xong (rút, hết hạn, booking bị hủy). Báo cho đội đang nhận nếu có. */
+/** Đóng một đăng pass chưa xong (rút, hết hạn, lịch đặt bị hủy). Báo cho đội đang nhận nếu có. */
 function closeTransfer(t, status, actor, reason) {
   const b = S.bookings.find((x) => x.id === t.bookingId);
   const wasClaimed = t.status === 'claimed';
@@ -993,10 +993,10 @@ function closeTransfer(t, status, actor, reason) {
   t.claimExpiresAt = null;
   const action = { cancelled: 'transfer_withdraw', expired: 'transfer_expire' }[status] || 'transfer_withdraw';
   addLog(b, action, null, null, actor, reason || '');
-  if (wasClaimed && claimer) notify(claimer, `Đăng nhượng ${slotLabel(b)} tại ${courtOf(b.courtId)[0].name} đã đóng${reason ? `: ${reason}` : ''}. Bạn chưa mất khoản tiền nào qua SânNhanh; nếu đã chuyển khoản thì liên hệ chủ sân.`, { link: `/transfer.html?id=${t.id}` });
+  if (wasClaimed && claimer) notify(claimer, `Đăng pass ${slotLabel(b)} tại ${courtOf(b.courtId)[0].name} đã đóng${reason ? `: ${reason}` : ''}. Nếu bạn đã chuyển khoản, hãy liên hệ chủ sân để lấy lại tiền.`, { link: `/transfer.html?id=${t.id}` });
 }
 
-/** Xử lý theo thời gian cho nhượng booking. Trả true nếu có thay đổi. */
+/** Xử lý theo thời gian cho pass sân. Trả true nếu có thay đổi. */
 function tickTransfers() {
   let changed = false;
   for (const t of S.transfers) {
@@ -1007,14 +1007,14 @@ function tickTransfers() {
       t.claimedAt = null;
       t.claimExpiresAt = null;
       t.status = 'open';
-      addLog(b, 'transfer_release', null, null, null, 'Hết hạn chờ chủ sân xác nhận tiền, mở lại cho đội khác');
-      if (claimer) notify(claimer, `Lượt nhận nhượng ${slotLabel(b)} đã hết hạn vì chủ sân chưa xác nhận đã nhận tiền. Nếu bạn đã chuyển khoản, liên hệ chủ sân.`, { link: `/transfer.html?id=${t.id}` });
-      notify(b.userId, `Đội nhận booking ${b.code} chưa hoàn tất nên đăng nhượng được mở lại.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+      addLog(b, 'transfer_release', null, null, null, 'Quá hạn chờ chủ sân nhận tiền, mở pass lại cho đội khác');
+      if (claimer) notify(claimer, `Lượt nhận pass ${slotLabel(b)} đã quá hạn vì chủ sân chưa xác nhận đã nhận tiền. Nếu bạn đã chuyển khoản, hãy liên hệ chủ sân.`, { link: `/transfer.html?id=${t.id}` });
+      notify(b.userId, `Đội nhận sân ${b.code} chưa chuyển khoản kịp nên sân của bạn được mở pass lại.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
       changed = true;
     }
     if (t.status === 'open' && vnToMs(t.closesAt) <= nowMs()) {
-      closeTransfer(t, 'expired', null, 'Không có đội nào nhận trước hạn nhượng');
-      notify(b.userId, `Không có đội nào nhận booking ${b.code} trước hạn nhượng. Booking vẫn của bạn; nếu muốn hủy thì hoàn tiền theo mức R7 hiện tại.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+      closeTransfer(t, 'expired', null, 'Không có đội nào nhận trước hạn pass');
+      notify(b.userId, `Không có đội nào nhận sân ${b.code} kịp giờ. Sân vẫn là của bạn; nếu không đá được, bạn có thể hủy đặt sân.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
       changed = true;
     }
   }
@@ -1024,16 +1024,16 @@ function tickTransfers() {
 function offerTransfer(ctx) {
   const user = need(ctx, 'customer');
   const b = findBooking(ctx.params.id);
-  if (b.userId !== user.id) fail(404, 'Không tìm thấy booking');
-  if (b.matchId) fail(409, 'Booking của trận đủ hai đội không nhượng được');
-  if (b.status !== 'confirmed') fail(409, 'Chỉ nhượng được booking đã xác nhận');
-  if (b.paymentStatus !== 'paid') fail(409, 'Chỉ nhượng được booking đã thanh toán (khoản hoàn cho bạn lấy từ tiền đội nhận trả)');
-  if (activeTransfer(b)) fail(409, 'Booking này đang được đăng nhượng');
+  if (b.userId !== user.id) fail(404, 'Không tìm thấy lịch đặt');
+  if (b.matchId) fail(409, 'Sân ghép kèo không pass được');
+  if (b.status !== 'confirmed') fail(409, 'Chỉ pass được sân đã đặt xong');
+  if (b.paymentStatus !== 'paid') fail(409, 'Chỉ pass được sân đã chuyển khoản (tiền bạn được nhận lại lấy từ tiền đội nhận trả)');
+  if (activeTransfer(b)) fail(409, 'Lịch đặt này đang được đăng pass');
   const closesMs = vnToMs(b.startAt) - meta().transferCloseMinutes * 60000;
-  req(closesMs > nowMs(), `Đã quá hạn nhượng: phải đăng trước giờ đá ${meta().transferCloseMinutes} phút`);
+  req(closesMs > nowMs(), `Đã hết thời gian pass: phải đăng trước giờ đá ${meta().transferCloseMinutes} phút`);
   const ask = Number(ctx.body?.askPrice);
-  req(Number.isInteger(ask) && ask > 0 && ask % 1000 === 0, 'Giá nhượng phải là số tiền nguyên, làm tròn 1.000đ');
-  req(ask <= b.price, `Giá nhượng không được vượt giá bạn đã trả (${vnd(b.price)})`);
+  req(Number.isInteger(ask) && ask > 0 && ask % 1000 === 0, 'Giá pass phải là số tròn nghìn đồng');
+  req(ask <= b.price, `Giá pass không được cao hơn số tiền bạn đã trả (${vnd(b.price)})`);
   const [venue, court] = courtOf(b.courtId);
   const waiters = waitersOfBooking(b);
   const t = {
@@ -1052,11 +1052,11 @@ function offerTransfer(ctx) {
     endReason: null,
   };
   S.transfers.push(t);
-  addLog(b, 'transfer_open', null, null, user, `Giá nhượng ${vnd(ask)}`);
+  addLog(b, 'transfer_open', null, null, user, `Giá pass ${vnd(ask)}`);
   for (const w of waiters) {
-    notify(w.userId, `Có đội đăng nhượng slot ${slotLabel(b)} tại ${venue.name} · ${court.name}, giá ${vnd(ask)}. Bạn đang chờ slot này nên được ưu tiên nhận đến ${timeOf(t.priorityUntil)}.`, { link: `/transfer.html?id=${t.id}` });
+    notify(w.userId, `Có đội đăng pass giờ ${slotLabel(b)} tại ${venue.name} · ${court.name}, giá ${vnd(ask)}. Bạn đang chờ giờ này nên được ưu tiên nhận đến ${timeOf(t.priorityUntil)}.`, { link: `/transfer.html?id=${t.id}` });
   }
-  notify(venue.ownerId, `Đội đặt booking ${b.code} đăng nhượng slot ${slotLabel(b)}, giá ${vnd(ask)} (giá gốc ${vnd(b.price)}). Có đội nhận bạn sẽ được báo để xác nhận tiền.`, { bookingId: b.id, link: '/owner-bookings.html#transfers' });
+  notify(venue.ownerId, `Đội đặt ${b.code} đăng pass giờ ${slotLabel(b)}, giá ${vnd(ask)} (họ đã trả ${vnd(b.price)}). Có đội nhận, bạn sẽ được báo để xác nhận đã nhận tiền.`, { bookingId: b.id, link: '/owner-bookings.html#transfers' });
   save();
   return toTransfer(t, user);
 }
@@ -1065,12 +1065,12 @@ function claimTransfer(ctx) {
   const user = need(ctx, 'customer');
   const t = findTransfer(ctx.params.id);
   const b = S.bookings.find((x) => x.id === t.bookingId);
-  if (t.fromUserId === user.id) fail(400, 'Bạn không thể nhận booking do chính mình đăng nhượng');
-  if (t.status === 'claimed') fail(409, 'Đã có đội khác nhận booking này');
-  if (t.status !== 'open') fail(409, 'Đăng nhượng này không còn mở');
-  if (vnToMs(t.closesAt) <= nowMs()) fail(409, 'Đã quá hạn nhận nhượng');
+  if (t.fromUserId === user.id) fail(400, 'Bạn không thể nhận sân do chính mình đăng pass');
+  if (t.status === 'claimed') fail(409, 'Đã có đội khác nhận sân này');
+  if (t.status !== 'open') fail(409, 'Sân pass này không còn mở');
+  if (vnToMs(t.closesAt) <= nowMs()) fail(409, 'Đã hết thời gian nhận pass');
   if (priorityActive(t) && !waitersOfBooking(b).some((w) => w.userId === user.id)) {
-    fail(409, `Đang ưu tiên cho người trong danh sách chờ slot này đến ${timeOf(t.priorityUntil)}`);
+    fail(409, `Đang ưu tiên cho người đã đăng ký chờ giờ này đến ${timeOf(t.priorityUntil)}`);
   }
   const [venue, court] = courtOf(b.courtId);
   t.status = 'claimed';
@@ -1079,26 +1079,26 @@ function claimTransfer(ctx) {
   t.claimExpiresAt = msToVn(nowMs() + meta().holdMinutes * 60000);
   S.waitlist = S.waitlist.filter((w) => !(w.userId === user.id && w.courtId === b.courtId && w.date === dateOf(b.startAt) && w.start === timeOf(b.startAt)));
   addLog(b, 'transfer_claim', null, null, null, 'Có đội nhận, chờ chủ sân xác nhận đã nhận tiền');
-  notify(b.userId, `Đã có đội nhận booking ${b.code} giá ${vnd(t.askPrice)}. Chờ chủ sân xác nhận đã nhận tiền; trước khi đó booking vẫn của bạn và chưa có khoản hoàn nào.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
-  notify(venue.ownerId, `${user.fullName} nhận nhượng booking ${b.code} (${court.name} ${slotLabel(b)}), chuyển ${vnd(t.askPrice)} nội dung NH${b.code}. Đối chiếu rồi xác nhận trước ${timeOf(t.claimExpiresAt)}.`, { bookingId: b.id, link: '/owner-bookings.html#transfers' });
+  notify(b.userId, `Đã có đội nhận sân ${b.code} với giá ${vnd(t.askPrice)}. Đang chờ chủ sân xác nhận đã nhận tiền, lúc này sân vẫn là của bạn.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  notify(venue.ownerId, `${user.fullName} nhận pass sân ${b.code} (${court.name} ${slotLabel(b)}), chuyển ${vnd(t.askPrice)} nội dung NH${b.code}. Nhận được tiền thì bấm xác nhận trước ${timeOf(t.claimExpiresAt)}.`, { bookingId: b.id, link: '/owner-bookings.html#transfers' });
   save();
   return toTransfer(t, user);
 }
 
 function findTransfer(id) {
   const t = S.transfers.find((x) => x.id === Number(id));
-  if (!t) fail(404, 'Không tìm thấy đăng nhượng');
+  if (!t) fail(404, 'Không tìm thấy sân pass này');
   return t;
 }
 function ownerTransfer(ctx) {
   const user = need(ctx, 'owner');
   const t = findTransfer(ctx.params.id);
   const b = S.bookings.find((x) => x.id === t.bookingId);
-  if (courtOf(b.courtId)[0].ownerId !== user.id) fail(403, 'Đăng nhượng này không thuộc sân của bạn');
+  if (courtOf(b.courtId)[0].ownerId !== user.id) fail(403, 'Sân pass này không thuộc sân của bạn');
   return [t, b, user];
 }
 
-/** Chủ sân xác nhận đã nhận tiền của đội nhận: đổi chủ booking và mở khoản hoàn cho đội cũ trong một bước. */
+/** Chủ sân xác nhận đã nhận tiền của đội nhận: đổi chủ lịch đặt và mở tiền trả lại cho đội cũ trong một bước. */
 function finishTransfer(t, owner, note, silent = false) {
   const a = S.bookings.find((x) => x.id === t.bookingId);
   const [venue] = courtOf(a.courtId);
@@ -1129,7 +1129,7 @@ function finishTransfer(t, owner, note, silent = false) {
   a.status = 'transferred';
   a.expiresAt = null;
   a.cancelledBy = 'transfer';
-  a.cancelReason = 'Đã nhượng cho đội khác';
+  a.cancelReason = 'Đã pass cho đội khác';
   a.cancelledAt = now();
   a.lateCancel = false;
   a.refundAmount = t.askPrice;
@@ -1140,18 +1140,18 @@ function finishTransfer(t, owner, note, silent = false) {
   t.completedAt = now();
   t.claimExpiresAt = null;
   addLog(a, 'transfer_done', 'confirmed', 'transferred', owner, note || `Chủ sân xác nhận đã nhận ${vnd(t.askPrice)} của đội nhận`);
-  addLog(nb, 'create', null, 'confirmed', userOf(nb.userId), 'Nhận nhượng từ booking cũ, chủ sân đã xác nhận nhận tiền');
+  addLog(nb, 'create', null, 'confirmed', userOf(nb.userId), 'Nhận pass từ lịch đặt cũ, chủ sân đã xác nhận nhận tiền');
   if (!silent) {
-    notify(a.userId, `Booking ${a.code} đã chuyển sang đội khác. Khoản hoàn ${vnd(a.refundAmount)}: chưa hoàn, chủ sân sẽ chuyển khoản lại cho bạn và ghi nhận khi xong.`, { bookingId: a.id, link: `/booking.html?id=${a.id}` });
-    notify(nb.userId, `Booking ${nb.code} đã được xác nhận cho bạn: ${courtOf(nb.courtId)[1].name} ${slotLabel(nb)} tại ${venue.name}, chủ sân đã nhận ${vnd(t.askPrice)}.`, { bookingId: nb.id, link: `/booking.html?id=${nb.id}` });
+    notify(a.userId, `Sân ${a.code} đã sang đội khác. Chủ sân sẽ chuyển lại ${vnd(a.refundAmount)} cho bạn và ghi nhận khi xong.`, { bookingId: a.id, link: `/booking.html?id=${a.id}` });
+    notify(nb.userId, `Bạn đã nhận pass thành công (mã ${nb.code}): ${courtOf(nb.courtId)[1].name} ${slotLabel(nb)} tại ${venue.name}. Chủ sân đã nhận ${vnd(t.askPrice)}.`, { bookingId: nb.id, link: `/booking.html?id=${nb.id}` });
   }
   return nb;
 }
 
 function doConfirmTransfer(ctx) {
   const [t, , owner] = ownerTransfer(ctx);
-  if (t.status !== 'claimed') fail(409, 'Chưa có đội nhận hoặc đăng nhượng đã xử lý xong');
-  if (vnToMs(t.claimExpiresAt) <= nowMs()) fail(409, 'Lượt nhận đã hết hạn, đăng nhượng được mở lại cho đội khác');
+  if (t.status !== 'claimed') fail(409, 'Chưa có đội nhận hoặc sân pass đã xử lý xong');
+  if (vnToMs(t.claimExpiresAt) <= nowMs()) fail(409, 'Lượt nhận đã quá hạn, sân được mở pass lại cho đội khác');
   finishTransfer(t, owner, String(ctx.body?.note || '').slice(0, 300));
   save();
   return toTransfer(t, owner);
@@ -1167,13 +1167,13 @@ function doRejectTransfer(ctx) {
   t.claimExpiresAt = null;
   t.status = vnToMs(t.closesAt) > nowMs() ? 'open' : 'expired';
   addLog(b, 'transfer_reject', null, null, owner, reason.slice(0, 300));
-  notify(claimer, `Chủ sân không xác nhận lượt nhận nhượng ${slotLabel(b)}: ${reason.slice(0, 200)}. Nếu bạn đã chuyển khoản, liên hệ chủ sân để lấy lại tiền.`, { link: `/transfer.html?id=${t.id}` });
-  notify(b.userId, `Chủ sân không xác nhận đội nhận booking ${b.code}${t.status === 'open' ? '; đăng nhượng được mở lại' : ''}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  notify(claimer, `Chủ sân từ chối lượt nhận pass ${slotLabel(b)}: ${reason.slice(0, 200)}. Nếu bạn đã chuyển khoản, hãy liên hệ chủ sân để lấy lại tiền.`, { link: `/transfer.html?id=${t.id}` });
+  notify(b.userId, `Chủ sân từ chối đội nhận sân ${b.code}${t.status === 'open' ? '; sân của bạn được mở pass lại' : ''}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   save();
   return toTransfer(t, owner);
 }
 
-/** Danh sách cho chủ sân: đang đăng, chờ xác nhận tiền, đã đổi chủ mà chưa hoàn cho đội cũ. */
+/** Danh sách cho chủ sân: đang đăng, chờ xác nhận tiền, đã đổi chủ mà chưa trả lại cho đội cũ. */
 function ownerTransfers(user) {
   const rank = { claimed: 0, completed: 1, open: 2 };
   return S.transfers
@@ -1188,7 +1188,7 @@ function ownerTransfers(user) {
 
 /* ---------- Trận đủ hai đội (R13) ---------- */
 
-// Sân con bật chế độ này (toàn bộ ngày, hoặc trong khung from–to) thì giờ đó chỉ chốt khi đủ hai đội cùng trả phần của mình.
+// Sân bật chế độ này (toàn bộ ngày, hoặc trong khung from–to) thì giờ đó chỉ chốt khi đủ hai đội cùng trả phần của mình.
 const teamModeAt = (court, start) => {
   const m = court.teamMode;
   return !!m?.enabled && (!m.from || start >= m.from) && (!m.to || start < m.to);
@@ -1197,7 +1197,7 @@ const matchOfBooking = (b) => (b.matchId ? S.matches.find((m) => m.id === b.matc
 const ACTIVE_MATCH = ['open', 'joined'];
 const partUser = (m, part) => (part === 'host' ? m.hostId : m.guestId);
 const partAmount = (m, part) => (part === 'host' ? m.hostAmount : m.guestAmount);
-const partName = (part) => (part === 'host' ? 'đội mở trận' : 'đội vào trận');
+const partName = (part) => (part === 'host' ? 'đội mở kèo' : 'đội vào kèo');
 const matchContent = (b, part) => `TD${b.code}${part === 'host' ? 'A' : 'B'}`;
 const matchBooking = (m) => S.bookings.find((x) => x.id === m.bookingId);
 const hostPending = (m) => m.status === 'open' && !m.hostPaidAt && vnToMs(m.hostPayBy) > nowMs();
@@ -1212,7 +1212,7 @@ function matchBrief(b, staff = false) {
   return out;
 }
 
-/** Cộng các khoản hoàn của trận vào booking để các danh sách chung vẫn hiện "chờ hoàn / đã hoàn". Khoản hoàn từng đội nằm ở m.refunds. */
+/** Cộng các tiền trả lại của trận vào lịch đặt để các danh sách chung vẫn hiện "chờ trả lại / đã trả lại". Tiền trả lại từng đội nằm ở m.refunds. */
 function syncMatchRefund(m) {
   const b = matchBooking(m);
   b.refundAmount = m.refunds.reduce((s, r) => s + r.amount, 0);
@@ -1279,7 +1279,7 @@ function toMatch(m, viewer) {
   return out;
 }
 
-/** Trận kết thúc không đủ hai đội: nhả slot, ghi khoản hoàn cho từng đội đã được chủ sân xác nhận nhận tiền. */
+/** Trận kết thúc không đủ hai đội: nhả giờ, ghi tiền trả lại cho từng đội đã được chủ sân xác nhận nhận tiền. */
 function endMatch(m, status, reason, { actor = null, by = null, refundPercent = { host: 100, guest: 100 } } = {}) {
   const b = matchBooking(m);
   const from = b.status;
@@ -1301,12 +1301,12 @@ function endMatch(m, status, reason, { actor = null, by = null, refundPercent = 
   syncMatchRefund(m);
   addLog(b, by ? 'match_cancel' : 'match_expire', from, b.status, actor, reason);
   for (const r of m.refunds) {
-    notify(r.userId, `Trận ${slotLabel(b)} tại ${venue.name} không thành: ${reason} Khoản hoàn ${vnd(r.amount)}: chưa hoàn, chủ sân sẽ chuyển khoản lại cho bạn và ghi nhận khi xong.`, { link: `/match.html?id=${m.id}` });
+    notify(r.userId, `Kèo ${slotLabel(b)} tại ${venue.name} không thành: ${reason} Chủ sân sẽ chuyển lại ${vnd(r.amount)} cho bạn và ghi nhận khi xong.`, { link: `/match.html?id=${m.id}` });
   }
   for (const uid of [m.hostId, m.guestId]) {
-    if (uid && !m.refunds.some((r) => r.userId === uid)) notify(uid, `Trận ${slotLabel(b)} tại ${venue.name} không thành: ${reason} Bạn chưa có khoản nào được ghi nhận nên không có khoản hoàn.`, { link: `/match.html?id=${m.id}` });
+    if (uid && !m.refunds.some((r) => r.userId === uid)) notify(uid, `Kèo ${slotLabel(b)} tại ${venue.name} không thành: ${reason} Chủ sân chưa nhận tiền của bạn nên không có tiền để trả lại.`, { link: `/match.html?id=${m.id}` });
   }
-  if (m.refunds.length) notify(venue.ownerId, `Trận ${b.code} (${slotLabel(b)}) không thành, cần hoàn ${m.refunds.map((r) => vnd(r.amount)).join(' và ')} cho các đội đã trả.`, { link: '/owner-bookings.html#matches' });
+  if (m.refunds.length) notify(venue.ownerId, `Kèo ${b.code} (${slotLabel(b)}) không thành. Bạn cần chuyển lại ${m.refunds.map((r) => vnd(r.amount)).join(' và ')} cho các đội đã trả.`, { link: '/owner-bookings.html#matches' });
   freeSlot(b);
 }
 
@@ -1315,13 +1315,13 @@ function tickMatches() {
   for (const m of S.matches) {
     if (!ACTIVE_MATCH.includes(m.status)) continue;
     if (m.status === 'open' && !m.hostPaidAt && vnToMs(m.hostPayBy) <= nowMs()) {
-      endMatch(m, 'cancelled', 'Đội mở trận chưa trả phần của mình trong thời gian giữ chỗ.');
+      endMatch(m, 'cancelled', 'Đội mở kèo chưa trả phần của mình trong thời gian giữ chỗ.');
       changed = true;
     } else if (vnToMs(m.closesAt) <= nowMs()) {
-      endMatch(m, 'expired', 'Đến hạn mà chưa đủ hai đội trả tiền.');
+      endMatch(m, 'expired', 'Hết hạn mà chưa đủ tiền của hai đội.');
       changed = true;
     } else if (m.status === 'joined' && vnToMs(m.guestHoldUntil) <= nowMs()) {
-      releaseGuest(m, 'Chủ sân chưa xác nhận đã nhận phần của bạn trong thời gian giữ chỗ. Nếu bạn đã chuyển khoản, liên hệ chủ sân.');
+      releaseGuest(m, 'Chủ sân chưa nhận được tiền của bạn trong thời gian giữ chỗ. Nếu bạn đã chuyển khoản, hãy liên hệ chủ sân.');
       changed = true;
     }
   }
@@ -1335,20 +1335,20 @@ function releaseGuest(m, reasonForGuest) {
   m.guestHoldUntil = null;
   m.joinedAt = null;
   m.status = 'open';
-  addLog(b, 'match_release', null, null, null, 'Đội vào trận rời trận, trận mở lại cho đội khác');
-  notify(guest, `Bạn không còn trong trận ${slotLabel(b)}. ${reasonForGuest}`, { link: `/match.html?id=${m.id}` });
-  notify(m.hostId, `Đội vào trận không còn trong trận ${slotLabel(b)}; trận mở lại cho đội khác đến ${timeOf(m.closesAt)}.`, { link: `/match.html?id=${m.id}` });
+  addLog(b, 'match_release', null, null, null, 'Đội vào kèo đã rút, kèo mở lại cho đội khác');
+  notify(guest, `Bạn không còn trong kèo ${slotLabel(b)}. ${reasonForGuest}`, { link: `/match.html?id=${m.id}` });
+  notify(m.hostId, `Đội vào kèo đã rút khỏi kèo ${slotLabel(b)}; kèo mở lại cho đội khác đến ${timeOf(m.closesAt)}.`, { link: `/match.html?id=${m.id}` });
 }
 
 function findMatch(id) {
   const m = S.matches.find((x) => x.id === Number(id));
-  if (!m) fail(404, 'Không tìm thấy trận');
+  if (!m) fail(404, 'Không tìm thấy kèo');
   return m;
 }
 function ownerMatch(ctx) {
   const user = need(ctx, 'owner');
   const m = findMatch(ctx.params.id);
-  if (courtOf(matchBooking(m).courtId)[0].ownerId !== user.id) fail(403, 'Trận này không thuộc sân của bạn');
+  if (courtOf(matchBooking(m).courtId)[0].ownerId !== user.id) fail(403, 'Kèo này không thuộc sân của bạn');
   return [m, matchBooking(m), user];
 }
 
@@ -1356,24 +1356,24 @@ function openMatch(ctx) {
   const user = need(ctx, 'customer');
   const { courtId, date, start } = ctx.body || {};
   const [venue, court] = courtOf(courtId);
-  if (!venue || !court || !court.isActive || !venue.isActive) fail(404, 'Không tìm thấy sân con');
+  if (!venue || !court || !court.isActive || !venue.isActive) fail(404, 'Không tìm thấy sân');
   checkDate(date);
   req(slotGrid(venue).includes(start), 'Giờ bắt đầu không khớp lịch của sân');
   const today = dateOf(now());
-  req(date >= today && date <= addDays(today, meta().bookingWindowDays - 1), `Chỉ đặt trước tối đa ${meta().bookingWindowDays} ngày (R1)`);
-  if (!teamModeAt(court, start)) fail(409, 'Giờ này không bật chế độ đủ hai đội; hãy đặt sân như bình thường');
+  req(date >= today && date <= addDays(today, meta().bookingWindowDays - 1), `Chỉ đặt trước tối đa ${meta().bookingWindowDays} ngày`);
+  if (!teamModeAt(court, start)) fail(409, 'Giờ này không ghép kèo, bạn đặt sân như bình thường nhé');
   const slot = slotInfo(court, venue, date, start, user);
-  if (slot.status === 'past') fail(400, 'Slot này đã qua giờ bắt đầu');
-  if (slot.status === 'blocked') fail(409, 'Slot đang bị chủ sân chặn');
-  if (slot.status === 'booked' || slot.status === 'held') fail(409, 'Slot vừa có người khác giữ, vui lòng chọn giờ khác');
-  if (slot.status === 'offered' && !slot.offeredToYou) fail(409, 'Slot đang được giữ cho người trong danh sách chờ');
+  if (slot.status === 'past') fail(400, 'Giờ này đã qua giờ bắt đầu');
+  if (slot.status === 'blocked') fail(409, 'Giờ này chủ sân đang chặn');
+  if (slot.status === 'booked' || slot.status === 'held') fail(409, 'Giờ này vừa có người khác đặt, bạn chọn giờ khác nhé');
+  if (slot.status === 'offered' && !slot.offeredToYou) fail(409, 'Giờ này đang giữ cho người đã đăng ký chờ');
   const startMs = vnToMs(`${date} ${start}`);
   const latest = startMs - meta().matchCloseMinutes * 60000;
   const earliest = nowMs() + meta().matchMinOpenMinutes * 60000;
-  if (latest < earliest) fail(400, 'Còn quá ít thời gian để ghép đủ hai đội cho giờ này');
+  if (latest < earliest) fail(400, 'Còn quá ít thời gian để tìm đủ hai đội cho giờ này');
   const closesMs = vnToMs(String(ctx.body?.closesAt || '').padEnd(19, ':00').slice(0, 19));
-  req(Number.isFinite(closesMs), 'Vui lòng chọn hạn chót');
-  req(closesMs >= earliest && closesMs <= latest, `Hạn chót phải từ ${meta().matchMinOpenMinutes} phút sau bây giờ đến ${meta().matchCloseMinutes} phút trước giờ đá`);
+  req(Number.isFinite(closesMs), 'Vui lòng chọn hạn tìm đội');
+  req(closesMs >= earliest && closesMs <= latest, `Hạn tìm đội phải từ ${meta().matchMinOpenMinutes} phút sau bây giờ đến ${meta().matchCloseMinutes} phút trước giờ đá`);
   const percent = Number(ctx.body?.hostPercent);
   req(Number.isInteger(percent) && percent >= 10 && percent <= 90 && percent % 10 === 0, 'Tỉ lệ phần của bạn là 10% đến 90%, theo bước 10%');
   const price = slot.basePrice;
@@ -1393,9 +1393,9 @@ function openMatch(ctx) {
   S.bookings.push(b);
   S.matches.push(m);
   S.waitlist = S.waitlist.filter((w) => !(w.userId === user.id && w.courtId === court.id && w.date === date && w.start === start));
-  addLog(b, 'create', null, 'matching', user, `Mở trận đủ hai đội, phần của đội mở ${vnd(hostAmount)}, hạn chót ${shortTs(m.closesAt)}`);
-  notify(venue.ownerId, `${user.fullName} mở trận đủ hai đội ${court.name} ${slotLabel(b)}, sẽ chuyển ${vnd(hostAmount)} nội dung ${matchContent(b, 'host')}. Đối chiếu rồi xác nhận trước ${timeOf(m.hostPayBy)}.`, { bookingId: b.id, link: '/owner-bookings.html#matches' });
-  notify(user.id, `Đã giữ ${court.name} ${slotLabel(b)} cho trận của bạn. Chuyển ${vnd(hostAmount)} cho chủ sân trước ${timeOf(m.hostPayBy)} để trận được mở cho đội khác.`, { link: `/match.html?id=${m.id}` });
+  addLog(b, 'create', null, 'matching', user, `Mở kèo, phần của đội mở kèo ${vnd(hostAmount)}, hạn tìm đội ${shortTs(m.closesAt)}`);
+  notify(venue.ownerId, `${user.fullName} mở kèo ${court.name} ${slotLabel(b)} và sẽ chuyển ${vnd(hostAmount)}, nội dung ${matchContent(b, 'host')}. Nhận được tiền thì bấm xác nhận trước ${timeOf(m.hostPayBy)}.`, { bookingId: b.id, link: '/owner-bookings.html#matches' });
+  notify(user.id, `Đã giữ ${court.name} ${slotLabel(b)} cho kèo của bạn. Hãy chuyển ${vnd(hostAmount)} cho chủ sân trước ${timeOf(m.hostPayBy)} để kèo hiện cho đội khác.`, { link: `/match.html?id=${m.id}` });
   save();
   return toMatch(m, user);
 }
@@ -1403,11 +1403,11 @@ function openMatch(ctx) {
 function joinMatch(ctx) {
   const user = need(ctx, 'customer');
   const m = findMatch(ctx.params.id);
-  if (m.hostId === user.id) fail(400, 'Bạn là đội mở trận này');
-  if (m.guestId) fail(409, 'Đã có đội khác vào trận này');
-  if (m.status !== 'open') fail(409, 'Trận này không còn mở');
-  if (!m.hostPaidAt) fail(409, 'Chủ sân chưa xác nhận phần của đội mở trận nên chưa vào được');
-  if (vnToMs(m.closesAt) <= nowMs()) fail(409, 'Trận đã quá hạn chót');
+  if (m.hostId === user.id) fail(400, 'Bạn là đội mở kèo này');
+  if (m.guestId) fail(409, 'Đã có đội khác vào kèo này');
+  if (m.status !== 'open') fail(409, 'Kèo này không còn mở');
+  if (!m.hostPaidAt) fail(409, 'Chủ sân chưa nhận tiền của đội mở kèo nên bạn chưa vào được');
+  if (vnToMs(m.closesAt) <= nowMs()) fail(409, 'Kèo đã quá hạn tìm đội');
   const b = matchBooking(m);
   const [venue, court] = courtOf(b.courtId);
   m.guestId = user.id;
@@ -1415,19 +1415,19 @@ function joinMatch(ctx) {
   m.joinedAt = now();
   m.guestHoldUntil = msToVn(Math.min(nowMs() + meta().holdMinutes * 60000, vnToMs(m.closesAt)));
   S.waitlist = S.waitlist.filter((w) => !(w.userId === user.id && w.courtId === b.courtId && w.date === dateOf(b.startAt) && w.start === timeOf(b.startAt)));
-  addLog(b, 'match_join', null, null, user, `Đội vào trận, phần ${vnd(m.guestAmount)}`);
-  notify(m.hostId, `Đã có đội vào trận ${slotLabel(b)}. Trận chốt khi đội đó trả ${vnd(m.guestAmount)} và chủ sân xác nhận.`, { link: `/match.html?id=${m.id}` });
-  notify(venue.ownerId, `${user.fullName} vào trận ${court.name} ${slotLabel(b)}, chuyển ${vnd(m.guestAmount)} nội dung ${matchContent(b, 'guest')}. Đối chiếu rồi xác nhận trước ${timeOf(m.guestHoldUntil)}.`, { bookingId: b.id, link: '/owner-bookings.html#matches' });
+  addLog(b, 'match_join', null, null, user, `Đội vào kèo, phần ${vnd(m.guestAmount)}`);
+  notify(m.hostId, `Đã có đội vào kèo ${slotLabel(b)}. Kèo chốt khi đội đó chuyển ${vnd(m.guestAmount)} và chủ sân nhận được.`, { link: `/match.html?id=${m.id}` });
+  notify(venue.ownerId, `${user.fullName} vào kèo ${court.name} ${slotLabel(b)} và sẽ chuyển ${vnd(m.guestAmount)}, nội dung ${matchContent(b, 'guest')}. Nhận được tiền thì bấm xác nhận trước ${timeOf(m.guestHoldUntil)}.`, { bookingId: b.id, link: '/owner-bookings.html#matches' });
   save();
   return toMatch(m, user);
 }
 
-/** Đội mở trận rút. Chưa có đội vào: miễn phí, hoàn đủ phần đã trả. Đã có đội vào: hoàn phần đã trả theo R7 và tính hủy muộn như R10. */
+/** Đội mở kèo rút. Chưa có đội vào: miễn phí, trả lại đủ phần đã trả. Đã có đội vào: trả lại phần đã trả và tính hủy sát giờ như R10. */
 function withdrawMatch(ctx) {
   const user = need(ctx, 'customer');
   const m = findMatch(ctx.params.id);
-  if (m.hostId !== user.id) fail(404, 'Không tìm thấy trận');
-  if (!ACTIVE_MATCH.includes(m.status)) fail(409, 'Trận này đã kết thúc');
+  if (m.hostId !== user.id) fail(404, 'Không tìm thấy kèo');
+  if (!ACTIVE_MATCH.includes(m.status)) fail(409, 'Kèo này đã kết thúc');
   const b = matchBooking(m);
   const withGuest = m.status === 'joined';
   let percent = 100;
@@ -1436,7 +1436,7 @@ function withdrawMatch(ctx) {
     percent = r.percent;
     b.lateCancel = r.hoursLeft < 12;
   }
-  endMatch(m, 'cancelled', withGuest ? 'Đội mở trận đã rút sau khi có đội vào.' : 'Đội mở trận đã rút trước khi có đội vào.', { actor: user, by: 'customer', refundPercent: { host: percent, guest: 100 } });
+  endMatch(m, 'cancelled', withGuest ? 'Đội mở kèo đã rút sau khi có đội vào.' : 'Đội mở kèo đã rút trước khi có đội vào.', { actor: user, by: 'customer', refundPercent: { host: percent, guest: 100 } });
   save();
   return { ok: true };
 }
@@ -1447,19 +1447,19 @@ function doConfirmPart(ctx) {
   req(['host', 'guest'].includes(part), 'part phải là host hoặc guest');
   const note = String(ctx.body?.note || '').slice(0, 300);
   if (part === 'host') {
-    if (m.hostPaidAt) fail(409, 'Đã xác nhận phần của đội mở trận');
-    if (!hostPending(m)) fail(409, 'Thời gian giữ chỗ của đội mở trận đã hết hoặc trận đã kết thúc');
+    if (m.hostPaidAt) fail(409, 'Đã nhận tiền của đội mở kèo');
+    if (!hostPending(m)) fail(409, 'Đội mở kèo đã hết thời gian giữ chỗ hoặc kèo đã kết thúc');
     m.hostPaidAt = now();
-    addLog(b, 'match_part_paid', null, null, owner, `Đã nhận phần đội mở trận ${vnd(m.hostAmount)}${note ? `. ${note}` : ''}`);
-    notify(m.hostId, `Chủ sân đã nhận ${vnd(m.hostAmount)} của bạn. Trận ${slotLabel(b)} đang chờ đội thứ hai đến ${shortTs(m.closesAt)}; slot vẫn được giữ cho bạn.`, { link: `/match.html?id=${m.id}` });
+    addLog(b, 'match_part_paid', null, null, owner, `Đã nhận phần đội mở kèo ${vnd(m.hostAmount)}${note ? `. ${note}` : ''}`);
+    notify(m.hostId, `Chủ sân đã nhận ${vnd(m.hostAmount)} của bạn. Kèo ${slotLabel(b)} đang tìm đội đá cùng đến ${shortTs(m.closesAt)}; sân vẫn được giữ cho bạn.`, { link: `/match.html?id=${m.id}` });
     for (const w of waitersOfBooking(b)) {
-      notify(w.userId, `Có trận ${slotLabel(b)} tại ${courtOf(b.courtId)[0].name} đang tìm đội thứ hai, phần ${vnd(m.guestAmount)}. Bạn đang chờ slot này nên có thể vào trận.`, { link: `/match.html?id=${m.id}` });
+      notify(w.userId, `Có kèo ${slotLabel(b)} tại ${courtOf(b.courtId)[0].name} đang tìm đội đá cùng, phần ${vnd(m.guestAmount)}. Bạn đang chờ giờ này nên có thể vào kèo.`, { link: `/match.html?id=${m.id}` });
     }
   } else {
-    if (m.guestPaidAt) fail(409, 'Đã xác nhận phần của đội vào trận');
-    if (!guestPending(m)) fail(409, 'Chưa có đội vào trận, hoặc thời gian giữ chỗ của đội đó đã hết');
+    if (m.guestPaidAt) fail(409, 'Đã nhận tiền của đội vào kèo');
+    if (!guestPending(m)) fail(409, 'Chưa có đội vào kèo, hoặc đội đó đã hết thời gian giữ chỗ');
     m.guestPaidAt = now();
-    addLog(b, 'match_part_paid', null, null, owner, `Đã nhận phần đội vào trận ${vnd(m.guestAmount)}${note ? `. ${note}` : ''}`);
+    addLog(b, 'match_part_paid', null, null, owner, `Đã nhận phần đội vào kèo ${vnd(m.guestAmount)}${note ? `. ${note}` : ''}`);
   }
   if (m.hostPaidAt && m.guestPaidAt) {
     m.status = 'confirmed';
@@ -1469,40 +1469,40 @@ function doConfirmPart(ctx) {
     b.paymentStatus = 'paid';
     addLog(b, 'match_confirm', from, 'confirmed', owner, 'Đủ hai phần tiền, chốt sân');
     const [venue, court] = courtOf(b.courtId);
-    for (const uid of [m.hostId, m.guestId]) notify(uid, `Trận ${court.name} ${slotLabel(b)} tại ${venue.name} đã chốt: chủ sân nhận đủ hai phần.`, { link: `/match.html?id=${m.id}` });
+    for (const uid of [m.hostId, m.guestId]) notify(uid, `Kèo ${court.name} ${slotLabel(b)} tại ${venue.name} đã chốt: chủ sân nhận đủ tiền của hai đội.`, { link: `/match.html?id=${m.id}` });
   }
   save();
   return toMatch(m, owner);
 }
 function doRejectGuest(ctx) {
   const [m, , owner] = ownerMatch(ctx);
-  if (m.status !== 'joined') fail(409, 'Chưa có đội vào trận để từ chối');
+  if (m.status !== 'joined') fail(409, 'Chưa có đội vào kèo để từ chối');
   const reason = String(ctx.body?.reason || '').trim();
-  req(reason, 'Vui lòng nhập lý do từ chối đội vào trận');
-  releaseGuest(m, `Chủ sân không xác nhận: ${reason.slice(0, 200)}. Nếu bạn đã chuyển khoản, liên hệ chủ sân để lấy lại tiền.`);
+  req(reason, 'Vui lòng nhập lý do từ chối đội vào kèo');
+  releaseGuest(m, `Chủ sân từ chối: ${reason.slice(0, 200)}. Nếu bạn đã chuyển khoản, hãy liên hệ chủ sân để lấy lại tiền.`);
   save();
   return toMatch(m, owner);
 }
 function doOwnerCancelMatch(ctx) {
   const [m, , owner] = ownerMatch(ctx);
-  if (!ACTIVE_MATCH.includes(m.status)) fail(409, 'Trận này đã kết thúc');
+  if (!ACTIVE_MATCH.includes(m.status)) fail(409, 'Kèo này đã kết thúc');
   const reason = String(ctx.body?.reason || '').trim();
-  req(reason, 'Vui lòng nhập lý do hủy trận');
-  endMatch(m, 'cancelled', `Chủ sân hủy trận: ${reason.slice(0, 200)}.`, { actor: owner, by: 'owner' });
+  req(reason, 'Vui lòng nhập lý do hủy kèo');
+  endMatch(m, 'cancelled', `Chủ sân hủy kèo: ${reason.slice(0, 200)}.`, { actor: owner, by: 'owner' });
   save();
   return toMatch(m, owner);
 }
-/** Ghi nhận chủ sân đã hoàn tiền cho một đội của trận. Không chọn part thì chỉ hợp lệ khi đúng một khoản đang chờ. */
+/** Ghi nhận chủ sân đã trả lại tiền cho một đội của trận. Không chọn part thì chỉ hợp lệ khi đúng một khoản đang chờ. */
 function refundMatchPart(m, actor, part, note) {
   const pending = m.refunds.filter((r) => r.status === 'pending');
   const r = part ? pending.find((x) => x.part === part) : pending.length === 1 ? pending[0] : null;
-  if (!r) fail(pending.length > 1 && !part ? 400 : 409, pending.length > 1 && !part ? 'Trận có hai khoản hoàn, chọn đội cần ghi nhận' : 'Không có khoản hoàn đang chờ');
+  if (!r) fail(pending.length > 1 && !part ? 400 : 409, pending.length > 1 && !part ? 'Kèo này có hai khoản cần chuyển lại, hãy chọn đội cần ghi nhận' : 'Không có khoản nào cần chuyển lại');
   r.status = 'done';
   r.doneAt = now();
   const b = matchBooking(m);
   syncMatchRefund(m);
-  addLog(b, 'refund', null, null, actor, `Đã hoàn ${vnd(r.amount)} cho ${partName(r.part)}${note ? `. ${note}` : ''}`);
-  notify(r.userId, `Chủ sân đã hoàn ${vnd(r.amount)} cho trận ${slotLabel(b)}.`, { link: `/match.html?id=${m.id}` });
+  addLog(b, 'refund', null, null, actor, `Đã trả lại ${vnd(r.amount)} cho ${partName(r.part)}${note ? `. ${note}` : ''}`);
+  notify(r.userId, `Chủ sân đã chuyển lại ${vnd(r.amount)} cho kèo ${slotLabel(b)}.`, { link: `/match.html?id=${m.id}` });
   save();
 }
 
@@ -1536,15 +1536,15 @@ function seedMatches(st, ago) {
     b.matchId = m.id;
     st.bookings.push(b);
     st.matches.push(m);
-    addLog(b, 'create', null, 'matching', userOf(spec.hostId), `Mở trận đủ hai đội, phần của đội mở ${vnd(hostAmount)}`, created);
-    if (m.hostPaidAt) addLog(b, 'match_part_paid', null, null, userOf(venue.ownerId), `Đã nhận phần đội mở trận ${vnd(hostAmount)}`, m.hostPaidAt);
+    addLog(b, 'create', null, 'matching', userOf(spec.hostId), `Mở kèo, phần của đội mở kèo ${vnd(hostAmount)}`, created);
+    if (m.hostPaidAt) addLog(b, 'match_part_paid', null, null, userOf(venue.ownerId), `Đã nhận phần đội mở kèo ${vnd(hostAmount)}`, m.hostPaidAt);
     if (spec.state === 'joined' || spec.state === 'confirmed') {
       m.guestId = spec.guestId;
       m.status = 'joined';
       m.joinedAt = ago(spec.joinedMinAgo ?? 2);
       m.guestHoldUntil = msToVn(vnToMs(m.joinedAt) + meta().holdMinutes * 60000);
-      addLog(b, 'match_join', null, null, userOf(spec.guestId), `Đội vào trận, phần ${vnd(m.guestAmount)}`, m.joinedAt);
-      st.notifications.push({ id: nextId('notification'), userId: venue.ownerId, bookingId: b.id, message: `${userOf(spec.guestId).fullName} vào trận ${court.name} ${slotLabel(b)}, chuyển ${vnd(m.guestAmount)} nội dung ${matchContent(b, 'guest')}. Đối chiếu rồi xác nhận trước ${timeOf(m.guestHoldUntil)}.`, link: '/owner-bookings.html#matches', isRead: false, createdAt: m.joinedAt });
+      addLog(b, 'match_join', null, null, userOf(spec.guestId), `Đội vào kèo, phần ${vnd(m.guestAmount)}`, m.joinedAt);
+      st.notifications.push({ id: nextId('notification'), userId: venue.ownerId, bookingId: b.id, message: `${userOf(spec.guestId).fullName} vào kèo ${court.name} ${slotLabel(b)}, chuyển ${vnd(m.guestAmount)} nội dung ${matchContent(b, 'guest')}. Nhận được tiền thì bấm xác nhận trước ${timeOf(m.guestHoldUntil)}.`, link: '/owner-bookings.html#matches', isRead: false, createdAt: m.joinedAt });
     }
     if (spec.state === 'confirmed') {
       m.guestPaidAt = ago(1);
@@ -1552,16 +1552,16 @@ function seedMatches(st, ago) {
       m.guestHoldUntil = null;
       b.status = 'confirmed';
       b.paymentStatus = 'paid';
-      addLog(b, 'match_part_paid', null, null, userOf(venue.ownerId), `Đã nhận phần đội vào trận ${vnd(m.guestAmount)}`, m.guestPaidAt);
+      addLog(b, 'match_part_paid', null, null, userOf(venue.ownerId), `Đã nhận phần đội vào kèo ${vnd(m.guestAmount)}`, m.guestPaidAt);
       addLog(b, 'match_confirm', 'matching', 'confirmed', userOf(venue.ownerId), 'Đủ hai phần tiền, chốt sân', m.guestPaidAt);
     }
     if (spec.state === 'open') {
-      st.notifications.push({ id: nextId('notification'), userId: venue.ownerId, bookingId: b.id, message: `Trận ${court.name} ${slotLabel(b)} đang chờ đội thứ hai.`, link: '/owner-bookings.html#matches', isRead: true, createdAt: m.hostPaidAt || created });
+      st.notifications.push({ id: nextId('notification'), userId: venue.ownerId, bookingId: b.id, message: `Kèo ${court.name} ${slotLabel(b)} đang tìm đội đá cùng.`, link: '/owner-bookings.html#matches', isRead: true, createdAt: m.hostPaidAt || created });
     }
   }
 }
 
-/* ---------- Nhu cầu và chào giá (R14) ---------- */
+/* ---------- Tin nhờ báo giá và báo giá (R14) ---------- */
 
 const ACTIVE_OFFER = ['open'];
 const requestOf = (id) => S.requests.find((r) => r.id === Number(id));
@@ -1571,24 +1571,24 @@ const offerStart = (o) => timeOf(o.startAt);
 const reqLabel = (r) => `${r.district}, ${dayLabelVn(r.date)} ${r.from}–${r.to}, sân ${r.fieldType}`;
 const dayLabelVn = (d) => `${d.slice(8, 10)}/${d.slice(5, 7)}`;
 
-/** Các slot của sân con còn nằm trọn trong khung giờ của nhu cầu (dữ liệu, không đọc chữ). */
+/** Các giờ của sân còn nằm trọn trong khung giờ của tin nhờ báo giá (dữ liệu, không đọc chữ). */
 const slotsInWindow = (venue, r) => slotGrid(venue).filter((s) => s >= r.from && slotEnd(venue, s) <= r.to);
 
-/** Sân "phù hợp" với nhu cầu: cùng quận, có sân con đang mở đúng loại, có giờ trọn trong khung. Ngân sách chỉ để hiển thị. */
+/** Sân "phù hợp" với tin nhờ báo giá: cùng quận, có sân đang mở đúng loại, có giờ trọn trong khung. Mức giá bạn muốn chỉ để hiển thị. */
 const venueFits = (venue, r) =>
   venue.isActive && venue.district === r.district && venue.courts.some((c) => c.isActive && c.fieldType === r.fieldType) && slotsInWindow(venue, r).length > 0;
 
-/** Lý do chào giá không dùng được ngay lúc này (null = dùng được). Không giữ slot: chỉ đọc trạng thái hiện tại. */
+/** Lý do báo giá không dùng được ngay lúc này (null = dùng được). Không giữ giờ: chỉ đọc trạng thái hiện tại. */
 function offerBlock(o, viewer) {
   const [venue, court] = courtOf(o.courtId);
-  if (!venue || !court || !venue.isActive || !court.isActive) return 'Sân con không còn nhận đặt';
+  if (!venue || !court || !venue.isActive || !court.isActive) return 'Sân không còn nhận đặt';
   const slot = slotInfo(court, venue, offerDate(o), offerStart(o), viewer);
   if (slot.status === 'past') return 'Đã quá giờ bắt đầu';
   if (slot.status === 'blocked') return 'Chủ sân đã chặn giờ này';
-  if (slot.status === 'booked' || slot.status === 'held') return 'Slot đã có người khác đặt';
-  if (slot.status === 'offered' && !slot.offeredToYou) return 'Slot đang giữ cho người trong danh sách chờ';
-  if (teamModeAt(court, offerStart(o))) return 'Giờ này chỉ chốt khi đủ hai đội';
-  if (slot.basePrice < o.price) return 'Giá niêm yết của sân đã đổi, thấp hơn giá chào';
+  if (slot.status === 'booked' || slot.status === 'held') return 'Giờ này đã có người khác đặt';
+  if (slot.status === 'offered' && !slot.offeredToYou) return 'Giờ này đang giữ cho người đã đăng ký chờ';
+  if (teamModeAt(court, offerStart(o))) return 'Giờ này chỉ nhận ghép kèo';
+  if (slot.basePrice < o.price) return 'Giá thường của sân đã đổi, thấp hơn giá chào';
   return null;
 }
 
@@ -1653,7 +1653,7 @@ function toRequest(r, viewer) {
   return out;
 }
 
-/** Slot chủ sân có thể chào: trọn trong khung giờ, còn trống, không thuộc chế độ đủ hai đội. */
+/** Giờ chủ sân có thể chào: trọn trong khung giờ, còn trống, không thuộc chế độ đủ hai đội. */
 function requestOptions(r, venues) {
   const out = [];
   for (const v of venues) {
@@ -1675,16 +1675,16 @@ function endOffer(o, status, reason) {
   o.endReason = reason;
 }
 
-/** Đóng một nhu cầu chưa chốt: mọi chào giá đang mở đóng theo. */
+/** Đóng một tin nhờ báo giá chưa chốt: mọi báo giá đang mở đóng theo. */
 function closeRequest(r, status, reason, { notifyOwners = true, notifyCustomer = false } = {}) {
   const open = S.offers.filter((o) => o.requestId === r.id && o.status === 'open');
   r.status = status;
   r.endReason = reason;
   for (const o of open) {
-    endOffer(o, status === 'cancelled' ? 'void' : 'expired', status === 'cancelled' ? 'Đội đã hủy nhu cầu' : 'Nhu cầu hết hạn nhận chào giá');
-    if (notifyOwners) notify(courtOf(o.courtId)[0].ownerId, `Nhu cầu ${reqLabel(r)} ${status === 'cancelled' ? 'đã được đội hủy' : 'đã hết hạn'}, chào giá ${o.price.toLocaleString('vi-VN')}đ của bạn đóng theo.`, { link: '/owner-requests.html' });
+    endOffer(o, status === 'cancelled' ? 'void' : 'expired', status === 'cancelled' ? 'Khách đã hủy tin nhờ báo giá' : 'Tin nhờ báo giá đã quá hạn nhận báo giá');
+    if (notifyOwners) notify(courtOf(o.courtId)[0].ownerId, `Tin nhờ báo giá ${reqLabel(r)} ${status === 'cancelled' ? 'đã được khách hủy' : 'đã quá hạn'}, báo giá ${o.price.toLocaleString('vi-VN')}đ của bạn cũng đóng.`, { link: '/owner-requests.html' });
   }
-  if (notifyCustomer) notify(r.userId, `Nhu cầu ${reqLabel(r)} đã hết hạn nhận chào giá${open.length ? `, ${open.length} chào giá chưa được chọn` : ''}.`, { link: `/request.html?id=${r.id}` });
+  if (notifyCustomer) notify(r.userId, `Tin nhờ báo giá ${reqLabel(r)} đã quá hạn nhận báo giá${open.length ? `, bạn chưa chọn ${open.length} báo giá` : ''}.`, { link: `/request.html?id=${r.id}` });
 }
 
 function tickRequests() {
@@ -1692,13 +1692,13 @@ function tickRequests() {
   for (const r of S.requests) {
     if (r.status !== 'open') continue;
     if (vnToMs(r.closesAt) <= nowMs()) {
-      closeRequest(r, 'expired', 'Hết hạn nhận chào giá', { notifyCustomer: true });
+      closeRequest(r, 'expired', 'Quá hạn nhận báo giá', { notifyCustomer: true });
       changed = true;
       continue;
     }
     for (const o of S.offers) {
       if (o.requestId === r.id && o.status === 'open' && vnToMs(o.validUntil) <= nowMs()) {
-        endOffer(o, 'expired', 'Hết hạn hiệu lực của chào giá');
+        endOffer(o, 'expired', 'Giá báo đã quá hạn hiệu lực');
         changed = true;
       }
     }
@@ -1714,25 +1714,25 @@ function openRequest(ctx) {
   req(['5', '7'].includes(String(fieldType)), 'Loại sân là 5 hoặc 7');
   checkDate(date);
   const today = dateOf(now());
-  req(date >= today && date <= addDays(today, m.bookingWindowDays - 1), `Chỉ đăng nhu cầu trong ${m.bookingWindowDays} ngày tới (R1)`);
+  req(date >= today && date <= addDays(today, m.bookingWindowDays - 1), `Chỉ nhờ sân báo giá trong ${m.bookingWindowDays} ngày tới`);
   req(/^\d{2}:\d{2}$/.test(from || '') && /^\d{2}:\d{2}$/.test(to || ''), 'Khung giờ không hợp lệ');
   req(hmToMin(to) - hmToMin(from) >= 60, 'Khung giờ cần dài ít nhất 60 phút');
   const bud = num(budget);
-  req(Number.isInteger(bud) && bud >= 1000 && bud <= 5000000 && bud % 1000 === 0, 'Ngân sách là số nguyên, bội số 1.000đ, tối đa 5.000.000đ');
+  req(Number.isInteger(bud) && bud >= 1000 && bud <= 5000000 && bud % 1000 === 0, 'Mức giá bạn muốn phải là số tròn nghìn đồng, tối đa 5.000.000đ');
   const startMs = vnToMs(`${date} ${from}`);
   const latest = startMs - m.requestCloseMinutes * 60000;
   const earliest = nowMs() + m.requestMinOpenMinutes * 60000;
-  req(latest >= earliest, 'Còn quá ít thời gian: cần ít nhất 90 phút từ bây giờ đến giờ bắt đầu để sân kịp chào giá');
+  req(latest >= earliest, 'Còn quá ít thời gian: cần ít nhất 90 phút từ bây giờ đến giờ bắt đầu để sân kịp báo giá');
   const closeMs = vnToMs(closesAt || '');
-  req(Number.isFinite(closeMs) && closeMs >= earliest && closeMs <= latest, `Hạn nhận chào giá cần từ ${m.requestMinOpenMinutes} phút sau bây giờ đến ${m.requestCloseMinutes} phút trước giờ bắt đầu khung giờ`);
+  req(Number.isFinite(closeMs) && closeMs >= earliest && closeMs <= latest, `Hạn nhận báo giá cần từ ${m.requestMinOpenMinutes} phút sau bây giờ đến ${m.requestCloseMinutes} phút trước giờ bắt đầu`);
   if (S.requests.filter((r) => r.userId === user.id && r.status === 'open').length >= m.requestMaxOpen) {
-    fail(409, `Bạn đang có ${m.requestMaxOpen} nhu cầu chờ chào giá. Hãy chọn hoặc hủy bớt rồi đăng tiếp`);
+    fail(409, `Bạn đang có ${m.requestMaxOpen} tin nhờ báo giá chưa xong. Hãy chọn hoặc hủy bớt rồi nhờ tiếp`);
   }
   const r = { id: nextId('request'), userId: user.id, district, date, from, to, fieldType: String(fieldType), budget: bud, note: String(note).slice(0, 300), status: 'open', closesAt, createdAt: now(), chosenOfferId: null, bookingId: null, endReason: null };
-  req(S.venues.some((v) => venueFits(v, r)), 'Chưa có sân nào ở quận này có sân con loại này và giờ mở cửa phù hợp khung giờ bạn chọn');
+  req(S.venues.some((v) => venueFits(v, r)), 'Chưa có sân nào ở quận này có sân loại này và giờ mở cửa phù hợp khung giờ bạn chọn');
   S.requests.push(r);
   const owners = new Set(S.venues.filter((v) => venueFits(v, r)).map((v) => v.ownerId));
-  for (const id of owners) notify(id, `Nhu cầu mới: ${reqLabel(r)}, ngân sách ${bud.toLocaleString('vi-VN')}đ. Gửi chào giá trước ${timeOf(r.closesAt)}.`, { link: '/owner-requests.html' });
+  for (const id of owners) notify(id, `Có khách nhờ báo giá: ${reqLabel(r)}, khách muốn ${bud.toLocaleString('vi-VN')}đ/giờ. Gửi báo giá trước ${timeOf(r.closesAt)}.`, { link: '/owner-requests.html' });
   save();
   return toRequest(r, user);
 }
@@ -1740,15 +1740,15 @@ function openRequest(ctx) {
 function ownRequest(ctx) {
   const user = need(ctx, 'customer');
   const r = requestOf(ctx.params.id);
-  if (!r || r.userId !== user.id) fail(404, 'Không tìm thấy nhu cầu');
+  if (!r || r.userId !== user.id) fail(404, 'Không tìm thấy tin này');
   return r;
 }
 
 function cancelRequest(ctx) {
   const r = ownRequest(ctx);
-  if (r.status === 'chosen') fail(409, 'Nhu cầu đã chốt thành booking, hãy hủy booking nếu cần');
-  if (r.status !== 'open') fail(409, 'Nhu cầu này đã kết thúc');
-  closeRequest(r, 'cancelled', 'Đội đã hủy nhu cầu');
+  if (r.status === 'chosen') fail(409, 'Tin này đã được chọn và đặt sân, hãy hủy lịch đặt nếu cần');
+  if (r.status !== 'open') fail(409, 'Tin này đã kết thúc');
+  closeRequest(r, 'cancelled', 'Khách đã hủy tin nhờ báo giá');
   save();
   return toRequest(r, ctx.user);
 }
@@ -1758,34 +1758,34 @@ function acceptOffer(ctx) {
   const r = ownRequest(ctx);
   const offerId = Number(ctx.body?.offerId);
   const o = offerOf(offerId);
-  if (!o || o.requestId !== r.id) fail(404, 'Không tìm thấy chào giá');
+  if (!o || o.requestId !== r.id) fail(404, 'Không tìm thấy báo giá');
   if (r.status === 'chosen' && r.chosenOfferId === o.id) return toBooking(S.bookings.find((b) => b.id === r.bookingId)); // bấm lặp
-  if (r.status !== 'open') fail(409, 'Nhu cầu này đã kết thúc');
-  if (o.status !== 'open') fail(409, 'Chào giá này không còn hiệu lực');
+  if (r.status !== 'open') fail(409, 'Tin này đã kết thúc');
+  if (o.status !== 'open') fail(409, 'Báo giá này không còn hiệu lực');
   if (vnToMs(o.validUntil) <= nowMs()) {
-    endOffer(o, 'expired', 'Hết hạn hiệu lực của chào giá');
+    endOffer(o, 'expired', 'Giá báo đã quá hạn hiệu lực');
     save();
-    fail(409, 'Chào giá này đã hết hạn');
+    fail(409, 'Báo giá này đã quá hạn');
   }
-  // Kiểm lại slot và giá ngay lúc chọn: chào giá không giữ slot nên người khác có thể đã đặt trước.
+  // Kiểm lại giờ và giá ngay lúc chọn: báo giá không giữ giờ nên người khác có thể đã đặt trước.
   const block = offerBlock(o, user);
   if (block) {
     endOffer(o, 'void', block);
     save();
-    fail(409, `Chào giá này không còn dùng được: ${block.charAt(0).toLowerCase()}${block.slice(1)}`);
+    fail(409, `Báo giá này không còn dùng được: ${block.charAt(0).toLowerCase()}${block.slice(1)}`);
   }
   const [venue, court] = courtOf(o.courtId);
   const slot = slotInfo(court, venue, offerDate(o), offerStart(o), user);
   const b = insertBooking(user, venue, court, offerDate(o), offerStart(o), slot, { price: o.price, offerId: o.id });
-  addLog(b, 'offer_accept', null, b.status, user, `Chào giá #${o.id} của sân: ${o.price.toLocaleString('vi-VN')}đ (niêm yết ${slot.basePrice.toLocaleString('vi-VN')}đ)`);
+  addLog(b, 'offer_accept', null, b.status, user, `Báo giá #${o.id} của sân: ${o.price.toLocaleString('vi-VN')}đ (giá thường ${slot.basePrice.toLocaleString('vi-VN')}đ)`);
   r.status = 'chosen';
   r.chosenOfferId = o.id;
   r.bookingId = b.id;
   o.status = 'chosen';
-  notify(venue.ownerId, `${user.fullName} đã chọn chào giá ${o.price.toLocaleString('vi-VN')}đ của bạn: ${court.name} ${shortTs(b.startAt)} (booking ${b.code}).`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
+  notify(venue.ownerId, `${user.fullName} đã chọn báo giá ${o.price.toLocaleString('vi-VN')}đ của bạn: ${court.name} ${shortTs(b.startAt)} (mã ${b.code}).`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
   for (const other of S.offers.filter((x) => x.requestId === r.id && x.status === 'open')) {
-    endOffer(other, 'lost', 'Đội đã chọn chào giá khác');
-    notify(courtOf(other.courtId)[0].ownerId, `Nhu cầu ${reqLabel(r)} đã chốt ở sân khác, chào giá ${other.price.toLocaleString('vi-VN')}đ của bạn đóng.`, { link: '/owner-requests.html' });
+    endOffer(other, 'lost', 'Đội đã chọn báo giá khác');
+    notify(courtOf(other.courtId)[0].ownerId, `Khách đã chọn sân khác cho tin nhờ báo giá ${reqLabel(r)}, báo giá ${other.price.toLocaleString('vi-VN')}đ của bạn đã đóng.`, { link: '/owner-requests.html' });
   }
   save();
   return toBooking(b);
@@ -1802,28 +1802,28 @@ function ownerRequests(user) {
 function sendOffer(ctx) {
   const user = need(ctx, 'owner');
   const r = requestOf(ctx.params.id);
-  if (!r) fail(404, 'Không tìm thấy nhu cầu');
+  if (!r) fail(404, 'Không tìm thấy tin này');
   const { courtId, start, price, validUntil, note = '' } = ctx.body || {};
   const [venue, court] = courtOf(courtId);
-  if (!venue || !court) fail(404, 'Không tìm thấy sân con');
+  if (!venue || !court) fail(404, 'Không tìm thấy sân');
   if (venue.ownerId !== user.id) fail(403, 'Sân này không thuộc tài khoản của bạn');
-  if (!venueFits(venue, r) || court.fieldType !== r.fieldType || !court.isActive) fail(403, 'Nhu cầu này không phù hợp với sân của bạn');
-  if (r.status !== 'open') fail(409, 'Nhu cầu này đã kết thúc');
+  if (!venueFits(venue, r) || court.fieldType !== r.fieldType || !court.isActive) fail(403, 'Tin này không phù hợp với sân của bạn');
+  if (r.status !== 'open') fail(409, 'Tin này đã kết thúc');
   req(slotsInWindow(venue, r).includes(start), 'Giờ chào phải nằm trọn trong khung giờ khách chọn');
   const slot = slotInfo(court, venue, r.date, start, null);
-  if (teamModeAt(court, start)) fail(409, 'Giờ này chỉ chốt khi đủ hai đội, không chào giá riêng được');
-  if (slot.status !== 'available') fail(409, 'Slot này không còn trống');
+  if (teamModeAt(court, start)) fail(409, 'Giờ này chỉ nhận ghép kèo, không báo giá riêng được');
+  if (slot.status !== 'available') fail(409, 'Giờ này không còn trống');
   const p = num(price);
-  req(Number.isInteger(p) && p >= 1000 && p % 1000 === 0, 'Giá chào là số nguyên, bội số 1.000đ');
-  req(p <= slot.basePrice, `Giá chào không vượt giá niêm yết của slot (${slot.basePrice.toLocaleString('vi-VN')}đ)`);
+  req(Number.isInteger(p) && p >= 1000 && p % 1000 === 0, 'Giá báo là số tròn nghìn đồng');
+  req(p <= slot.basePrice, `Giá báo không được cao hơn giá thường của giờ (${slot.basePrice.toLocaleString('vi-VN')}đ)`);
   const until = vnToMs(validUntil || '');
-  req(Number.isFinite(until) && until >= nowMs() + meta().offerMinMinutes * 60000 && until <= vnToMs(r.closesAt), `Hiệu lực chào giá từ ${meta().offerMinMinutes} phút sau bây giờ đến hết hạn nhận chào giá của nhu cầu (${timeOf(r.closesAt)})`);
+  req(Number.isFinite(until) && until >= nowMs() + meta().offerMinMinutes * 60000 && until <= vnToMs(r.closesAt), `Hiệu lực báo giá từ ${meta().offerMinMinutes} phút sau bây giờ đến hết hạn nhận báo giá (${timeOf(r.closesAt)})`);
   const open = S.offers.filter((o) => o.requestId === r.id && o.status === 'open');
-  if (open.some((o) => courtOf(o.courtId)[0].id === venue.id)) fail(409, 'Sân của bạn đã có chào giá đang mở cho nhu cầu này. Hãy rút chào giá cũ rồi chào lại');
-  if (open.length >= meta().requestMaxOffers) fail(409, `Nhu cầu đã đủ ${meta().requestMaxOffers} chào giá đang mở`);
+  if (open.some((o) => courtOf(o.courtId)[0].id === venue.id)) fail(409, 'Sân của bạn đã có báo giá đang mở cho tin nhờ báo giá này. Hãy rút báo giá cũ rồi báo lại');
+  if (open.length >= meta().requestMaxOffers) fail(409, `Tin này đã đủ ${meta().requestMaxOffers} báo giá`);
   const o = { id: nextId('offer'), requestId: r.id, courtId: court.id, startAt: `${r.date} ${start}:00`, endAt: `${r.date} ${slot.end}:00`, price: p, listedPrice: slot.basePrice, validUntil, note: String(note).slice(0, 200), status: 'open', endReason: null, createdAt: now() };
   S.offers.push(o);
-  notify(r.userId, `${venue.name} chào giá ${p.toLocaleString('vi-VN')}đ cho ${court.name} ${start}–${slot.end}${p > r.budget ? ' (vượt ngân sách)' : ''}. Xem và chọn trước ${timeOf(validUntil)}.`, { link: `/request.html?id=${r.id}` });
+  notify(r.userId, `${venue.name} báo giá ${p.toLocaleString('vi-VN')}đ cho ${court.name} ${start}–${slot.end}${p > r.budget ? ' (cao hơn mức bạn muốn)' : ''}. Xem và chọn trước ${timeOf(validUntil)}.`, { link: `/request.html?id=${r.id}` });
   save();
   return toOffer(o, user, r);
 }
@@ -1831,18 +1831,18 @@ function sendOffer(ctx) {
 function withdrawOffer(ctx) {
   const user = need(ctx, 'owner');
   const o = offerOf(ctx.params.id);
-  if (!o) fail(404, 'Không tìm thấy chào giá');
+  if (!o) fail(404, 'Không tìm thấy báo giá');
   const [venue, court] = courtOf(o.courtId);
-  if (venue.ownerId !== user.id) fail(403, 'Chào giá này không thuộc sân của bạn');
-  if (o.status !== 'open') fail(409, 'Chào giá này đã kết thúc');
-  endOffer(o, 'withdrawn', 'Sân đã rút chào giá');
+  if (venue.ownerId !== user.id) fail(403, 'Báo giá này không thuộc sân của bạn');
+  if (o.status !== 'open') fail(409, 'Báo giá này đã kết thúc');
+  endOffer(o, 'withdrawn', 'Sân đã rút báo giá');
   const r = requestOf(o.requestId);
-  notify(r.userId, `${venue.name} đã rút chào giá ${court.name} ${shortTs(o.startAt)}.`, { link: `/request.html?id=${r.id}` });
+  notify(r.userId, `${venue.name} đã rút báo giá ${court.name} ${shortTs(o.startAt)}.`, { link: `/request.html?id=${r.id}` });
   save();
   return toOffer(o, user, r);
 }
 
-/** Dữ liệu demo: nhu cầu mở, nhu cầu có chào giá, nhu cầu đã chốt thành booking (chọn slot trống thật lúc dựng). */
+/** Dữ liệu demo: tin nhờ báo giá mở, tin nhờ báo giá có báo giá, tin nhờ báo giá đã chốt thành booking (chọn giờ trống thật lúc dựng). */
 function seedRequests(st, ago) {
   const today = dateOf(now());
   const taken = (courtId, startAt) => st.bookings.some((b) => b.courtId === courtId && b.startAt === startAt && ['pending', 'confirmed', 'matching'].includes(b.status));
@@ -1855,7 +1855,7 @@ function seedRequests(st, ago) {
     st.requests.push(r);
     const fitters = st.venues.filter((v) => venueFits(v, r));
     for (const id of new Set(fitters.map((v) => v.ownerId))) {
-      st.notifications.push({ id: nextId('notification'), userId: id, bookingId: null, message: `Nhu cầu mới: ${reqLabel(r)}, ngân sách ${spec.budget.toLocaleString('vi-VN')}đ.`, link: '/owner-requests.html', isRead: !!spec.offers?.length, createdAt: created });
+      st.notifications.push({ id: nextId('notification'), userId: id, bookingId: null, message: `Tin nhờ báo giá mới: ${reqLabel(r)}, mức giá bạn muốn ${spec.budget.toLocaleString('vi-VN')}đ.`, link: '/owner-requests.html', isRead: !!spec.offers?.length, createdAt: created });
     }
     for (const of of spec.offers || []) {
       const venue = st.venues.find((v) => v.id === of.venueId);
@@ -1871,7 +1871,7 @@ function seedRequests(st, ago) {
       const listed = isPeak(venue, picked.s) ? picked.c.peakPrice : picked.c.price;
       const o = { id: nextId('offer'), requestId: r.id, courtId: picked.c.id, startAt: picked.startAt, endAt: `${date} ${picked.e}:00`, price: Math.min(of.price, listed), listedPrice: listed, validUntil: r.closesAt, note: of.note || '', status: 'open', endReason: null, createdAt: ago(of.minAgo) };
       st.offers.push(o);
-      st.notifications.push({ id: nextId('notification'), userId: spec.userId, bookingId: null, message: `${venue.name} chào giá ${o.price.toLocaleString('vi-VN')}đ cho ${picked.c.name} ${picked.s}–${picked.e}.`, link: `/request.html?id=${r.id}`, isRead: spec.state === 'chosen', createdAt: o.createdAt });
+      st.notifications.push({ id: nextId('notification'), userId: spec.userId, bookingId: null, message: `${venue.name} báo giá ${o.price.toLocaleString('vi-VN')}đ cho ${picked.c.name} ${picked.s}–${picked.e}.`, link: `/request.html?id=${r.id}`, isRead: spec.state === 'chosen', createdAt: o.createdAt });
       if (spec.state === 'chosen' && of.chosen) {
         const b = { id: nextId('booking'), code: '', userId: spec.userId, venueId: venue.id, courtId: picked.c.id, startAt: o.startAt, endAt: o.endAt, status: venue.requiresApproval ? 'pending' : 'confirmed', expiresAt: venue.requiresApproval ? msToVn(Date.now() + meta().holdMinutes * 60000) : null, price: o.price, basePrice: listed, discountPercent: 0, offerId: o.id, paymentStatus: 'unpaid', refundStatus: 'none', refundPercent: 0, refundAmount: 0, cancelledBy: null, cancelReason: null, lateCancel: false, customerNote: '', rulesSnapshot: venue.rules, policySnapshot: venue.cancelPolicy, idempotencyKey: null, createdAt: ago(spec.minAgo - 20), cancelledAt: null };
         b.code = bookingCode(b.id);
@@ -1881,10 +1881,10 @@ function seedRequests(st, ago) {
         r.chosenOfferId = o.id;
         r.bookingId = b.id;
         addLog(b, 'create', null, b.status, userOf(spec.userId), '', b.createdAt);
-        addLog(b, 'offer_accept', null, b.status, userOf(spec.userId), `Chào giá #${o.id} của sân: ${o.price.toLocaleString('vi-VN')}đ (niêm yết ${listed.toLocaleString('vi-VN')}đ)`, b.createdAt);
+        addLog(b, 'offer_accept', null, b.status, userOf(spec.userId), `Báo giá #${o.id} của sân: ${o.price.toLocaleString('vi-VN')}đ (giá thường ${listed.toLocaleString('vi-VN')}đ)`, b.createdAt);
       }
     }
-    if (r.status === 'chosen') for (const o of st.offers.filter((x) => x.requestId === r.id && x.status === 'open')) endOffer(o, 'lost', 'Đội đã chọn chào giá khác');
+    if (r.status === 'chosen') for (const o of st.offers.filter((x) => x.requestId === r.id && x.status === 'open')) endOffer(o, 'lost', 'Đội đã chọn báo giá khác');
   }
 }
 
@@ -2009,10 +2009,10 @@ route('POST', '/api/transfers/:id/claim', claimTransfer);
 route('DELETE', '/api/transfers/:id', (c) => {
   const u = need(c, 'customer');
   const t = findTransfer(c.params.id);
-  if (t.fromUserId !== u.id) fail(404, 'Không tìm thấy đăng nhượng');
-  if (t.status === 'claimed') fail(409, 'Đã có đội nhận, chờ chủ sân xác nhận hoặc từ chối');
-  if (t.status !== 'open') fail(409, 'Đăng nhượng này không còn mở');
-  closeTransfer(t, 'cancelled', u, 'Bạn rút đăng nhượng');
+  if (t.fromUserId !== u.id) fail(404, 'Không tìm thấy sân pass này');
+  if (t.status === 'claimed') fail(409, 'Đã có đội nhận, đang chờ chủ sân xác nhận hoặc từ chối');
+  if (t.status !== 'open') fail(409, 'Sân pass này không còn mở');
+  closeTransfer(t, 'cancelled', u, 'Bạn rút đăng pass');
   save();
   return { ok: true };
 });
@@ -2020,13 +2020,13 @@ route('GET', '/api/bookings/reliability', (c) => reliabilityOf(need(c, 'customer
 route('GET', '/api/bookings/:id', (c) => {
   const u = need(c);
   const b = findBooking(c.params.id);
-  if (!canSee(u, b)) fail(u.role === 'customer' ? 404 : 403, u.role === 'customer' ? 'Không tìm thấy booking' : 'Booking này không thuộc quyền xem của bạn');
+  if (!canSee(u, b)) fail(u.role === 'customer' ? 404 : 403, u.role === 'customer' ? 'Không tìm thấy lịch đặt' : 'Lịch đặt này không thuộc quyền xem của bạn');
   return toBookingDetail(b, u);
 });
 route('POST', '/api/bookings/:id/cancel', (c) => {
   const u = need(c, 'customer');
   const b = findBooking(c.params.id);
-  if (b.userId !== u.id) fail(404, 'Không tìm thấy booking');
+  if (b.userId !== u.id) fail(404, 'Không tìm thấy lịch đặt');
   doCancel(b, u, c.body?.reason, 'customer');
   return toBookingDetail(b, u);
 });
@@ -2035,12 +2035,12 @@ route('POST', '/api/waitlist', (c) => {
   const u = need(c, 'customer');
   const { courtId, date, start } = c.body || {};
   const [venue, court] = courtOf(courtId);
-  if (!venue) fail(404, 'Không tìm thấy sân con');
+  if (!venue) fail(404, 'Không tìm thấy sân');
   checkDate(date);
   const slot = slotInfo(court, venue, date, start, u);
-  if (!['booked', 'held', 'offered'].includes(slot.status)) fail(400, slot.status === 'available' ? 'Slot đang trống, hãy đặt luôn' : 'Chỉ đăng ký chờ được slot đang có người giữ'); // R9
-  if (slot.mine) fail(409, 'Bạn đang giữ slot này');
-  if (slotWaiters(court.id, date, start).some((w) => w.userId === u.id)) fail(409, 'Bạn đã trong hàng chờ của slot này');
+  if (!['booked', 'held', 'offered'].includes(slot.status)) fail(400, slot.status === 'available' ? 'Giờ này đang trống, bạn đặt luôn nhé' : 'Chỉ đăng ký chờ được giờ đang có người đặt'); // R9
+  if (slot.mine) fail(409, 'Bạn đang giữ giờ này');
+  if (slotWaiters(court.id, date, start).some((w) => w.userId === u.id)) fail(409, 'Bạn đã trong hàng chờ của giờ này');
   const w = { id: nextId('waitlist'), userId: u.id, courtId: court.id, date, start, status: 'waiting', offerExpiresAt: null, createdAt: now() };
   S.waitlist.push(w);
   save();
@@ -2115,7 +2115,7 @@ function applyVenue(v, b) {
   }
   req(v.name && String(v.name).trim(), 'Vui lòng nhập tên sân');
   req(hmToMin(v.openTime) < hmToMin(v.closeTime), 'Giờ mở phải trước giờ đóng');
-  req(v.slotMinutes >= 30 && v.slotMinutes <= 180, 'Độ dài slot từ 30 đến 180 phút');
+  req(v.slotMinutes >= 30 && v.slotMinutes <= 180, 'Mỗi lượt đá phải dài từ 30 đến 180 phút');
 }
 function applyCourt(c, b) {
   if (b.name !== undefined) c.name = String(b.name).trim();
@@ -2129,12 +2129,12 @@ function applyCourt(c, b) {
     else {
       const from = t.from || null;
       const to = t.to || null;
-      req((!from || /^\d{2}:\d{2}$/.test(from)) && (!to || /^\d{2}:\d{2}$/.test(to)), 'Khung giờ đủ hai đội không hợp lệ');
-      req(!from || !to || from < to, 'Giờ bắt đầu khung đủ hai đội phải trước giờ kết thúc');
+      req((!from || /^\d{2}:\d{2}$/.test(from)) && (!to || /^\d{2}:\d{2}$/.test(to)), 'Khung giờ ghép kèo không hợp lệ');
+      req(!from || !to || from < to, 'Giờ bắt đầu khung ghép kèo phải trước giờ kết thúc');
       c.teamMode = { enabled: true, from, to };
     }
   }
-  req(c.name, 'Vui lòng nhập tên sân con');
+  req(c.name, 'Vui lòng nhập tên sân');
   req(['5', '7'].includes(c.fieldType), 'Loại sân là 5 hoặc 7 người');
   req(c.price > 0 && c.peakPrice > 0, 'Giá phải lớn hơn 0');
 }
@@ -2142,7 +2142,7 @@ function applyCourt(c, b) {
 route('GET', '/api/owner/venues', (c) => S.venues.filter((v) => v.ownerId === need(c, 'owner').id).map((v) => toVenueDetail(v, true)));
 route('POST', '/api/owner/venues', (c) => {
   const u = need(c, 'owner');
-  const v = { id: nextId('venue'), ownerId: u.id, name: '', district: '', address: '', phone: '', imageUrl: null, amenities: [], openTime: '06:00', closeTime: '22:00', slotMinutes: 60, requiresApproval: false, lastMinutePercent: 0, peakStart: null, peakEnd: null, isActive: true, description: '', rules: '', cancelPolicy: 'Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.', mapsUrl: '', bank: { bin: '', account: '', accountName: '' }, courts: [] };
+  const v = { id: nextId('venue'), ownerId: u.id, name: '', district: '', address: '', phone: '', imageUrl: null, amenities: [], openTime: '06:00', closeTime: '22:00', slotMinutes: 60, requiresApproval: false, lastMinutePercent: 0, peakStart: null, peakEnd: null, isActive: true, description: '', rules: '', cancelPolicy: 'Hủy trước 24 giờ trả lại 100%, từ 12 đến dưới 24 giờ trả lại 50%, dưới 12 giờ không trả lại.', mapsUrl: '', bank: { bin: '', account: '', accountName: '' }, courts: [] };
   applyVenue(v, c.body || {});
   S.venues.push(v);
   save();
@@ -2164,7 +2164,7 @@ route('POST', '/api/owner/venues/:id/courts', (c) => {
 });
 route('PUT', '/api/owner/courts/:id', (c) => {
   const [v, k] = courtOf(c.params.id);
-  if (!k) fail(404, 'Không tìm thấy sân con');
+  if (!k) fail(404, 'Không tìm thấy sân');
   myVenue(c, v.id);
   applyCourt(k, c.body || {});
   save();
@@ -2175,12 +2175,12 @@ route('POST', '/api/owner/blocks', (c) => {
   const u = need(c, 'owner');
   const { courtId, date, start, end, reason = '' } = c.body || {};
   const [venue, court] = courtOf(courtId);
-  if (!court) fail(404, 'Không tìm thấy sân con');
+  if (!court) fail(404, 'Không tìm thấy sân');
   myVenue(c, venue.id);
   checkDate(date);
   req(/^\d{2}:\d{2}$/.test(start || '') && /^\d{2}:\d{2}$/.test(end || '') && start < end, 'Khoảng giờ chặn không hợp lệ');
   const clash = S.bookings.find((b) => b.courtId === court.id && ['pending', 'confirmed', 'matching'].includes(b.status) && dateOf(b.startAt) === date && timeOf(b.startAt) < end && timeOf(b.endAt) > start);
-  if (clash) fail(409, `Khoảng giờ này đã có booking ${clash.code}`);
+  if (clash) fail(409, `Khoảng giờ này đã có lịch đặt ${clash.code}`);
   const k = { id: nextId('block'), courtId: court.id, date, start, end, reason: String(reason).slice(0, 200), ownerId: u.id };
   S.blocks.push(k);
   save();
@@ -2312,7 +2312,7 @@ export const proto = {
     save();
     return { now: now() };
   },
-  /** Luồng 3: người đang giữ các slot mà người dùng hiện tại xếp hàng chờ hủy booking của họ. */
+  /** Luồng 3: người đang giữ các giờ mà người dùng hiện tại xếp hàng chờ hủy lịch đặt của họ. */
   async holderCancels() {
     await ready();
     const u = sessionUser();

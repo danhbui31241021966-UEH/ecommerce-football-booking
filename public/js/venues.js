@@ -45,11 +45,11 @@ function paintFilters(districts) {
 }
 
 const slotLink = (venueId, s) => teamSlotHref(venueId, state.date, s) || `/venue.html?id=${venueId}&date=${state.date}&slot=${s.start}&court=${s.courtId}`;
-// Mỗi giờ có tối đa hai ô: ô đặt thường và ô Ghép trận (ưu tiên trận đang chờ đội thứ hai hơn ô mở trận mới).
+// Mỗi giờ có tối đa hai ô: ô đặt thường và ô Ghép kèo (ưu tiên trận đang chờ đội thứ hai hơn ô mở kèo mới).
 const rank = (s) => (s.match ? 1 : s.teamMode ? 2 : 0);
 const kind = (s) => (s.match || s.teamMode ? 1 : 0);
 
-/** Mỗi giờ bắt đầu giữ một ô (rẻ nhất) trong các sân con còn trống. */
+/** Mỗi giờ bắt đầu giữ một ô (rẻ nhất) trong các sân còn trống. */
 function pillsOf(v) {
   let slots = v.availableSlots;
   if (state.at) {
@@ -66,7 +66,7 @@ function pillsOf(v) {
   return [...byStart.values()].sort((a, b) => a.start.localeCompare(b.start) || kind(a) - kind(b));
 }
 
-const pillHtml = (v, s) => `<a class="slot-pill${s.discountPercent ? ' sale' : ''}${s.match || s.teamMode ? ' team' : ''}" href="${slotLink(v.id, s)}" aria-label="${s.start}, ${money(s.price)}${s.discountPercent ? `, giảm ${s.discountPercent}%` : ''}${s.match || s.teamMode ? `, ${teamSlotLabel(s)}, chốt khi đủ hai đội` : ''}"><span class="t">${s.start}</span><span class="p">${s.match || s.teamMode ? `Ghép trận · ${moneyShort(s.price)}` : `${moneyShort(s.price)}${s.discountPercent ? ` · -${s.discountPercent}%` : ''}`}</span></a>`;
+const pillHtml = (v, s) => `<a class="slot-pill${s.discountPercent ? ' sale' : ''}${s.match || s.teamMode ? ' team' : ''}" href="${slotLink(v.id, s)}" aria-label="${s.start}, ${money(s.price)}${s.discountPercent ? `, giảm ${s.discountPercent}%` : ''}${s.match || s.teamMode ? `, ${teamSlotLabel(s)}, chốt khi đủ hai đội` : ''}"><span class="t">${s.start}</span><span class="p">${s.match || s.teamMode ? `Ghép kèo · ${moneyShort(s.price)}` : `${moneyShort(s.price)}${s.discountPercent ? ` · -${s.discountPercent}%` : ''}`}</span></a>`;
 
 function card(v, i, allPills) {
   const team = allPills.filter((s) => kind(s));
@@ -94,7 +94,7 @@ function card(v, i, allPills) {
       }
       ${
         team.length
-          ? `<p class="slot-row-label">Ghép trận · chốt khi đủ hai đội</p><div class="slot-pills">${team.slice(0, 6).map((s) => pillHtml(v, s)).join('')}${team.length > 6 ? `<a class="slot-pill more" href="${detail}"><span class="t">+${team.length - 6}</span><span class="p">giờ khác</span></a>` : ''}</div>`
+          ? `<p class="slot-row-label">Ghép kèo · chốt khi đủ hai đội</p><div class="slot-pills">${team.slice(0, 6).map((s) => pillHtml(v, s)).join('')}${team.length > 6 ? `<a class="slot-pill more" href="${detail}"><span class="t">+${team.length - 6}</span><span class="p">giờ khác</span></a>` : ''}</div>`
           : ''
       }
     </div>
@@ -115,7 +115,7 @@ async function load() {
       : `Không sân nào còn giờ trống · ${relativeDayLabel(state.date, today)}${state.at ? ` · quanh ${state.at}` : ''}`;
     $('results').innerHTML = [...withSlots, ...without].map((x, i) => card(x.v, i, x.pills)).join('');
     $('empty').hidden = withSlots.length > 0 || rows.length > 0;
-    $('req-cta').innerHTML = `<div class="card card-pad req-cta"><div><b>Chưa thấy giờ hợp ý?</b><br><span class="muted">Đăng nhu cầu (quận, giờ, ngân sách), các sân phù hợp sẽ gửi chào giá để bạn chọn.</span></div><a class="btn btn-lime" href="/request-new.html?${new URLSearchParams({ date: state.date, ...(state.district && { district: state.district }), ...(state.fieldType && { fieldType: state.fieldType }), ...(state.at && { from: state.at }) })}">Đăng nhu cầu</a></div>`;
+    $('req-cta').innerHTML = `<div class="card card-pad req-cta"><div><b>Chưa thấy giờ hợp ý?</b><br><span class="muted">Nhờ sân báo giá (quận, giờ, mức giá bạn muốn), các sân phù hợp sẽ gửi báo giá để bạn chọn.</span></div><a class="btn btn-lime" href="/request-new.html?${new URLSearchParams({ date: state.date, ...(state.district && { district: state.district }), ...(state.fieldType && { fieldType: state.fieldType }), ...(state.at && { from: state.at }) })}">Nhờ sân báo giá</a></div>`;
     $('empty-why').textContent = 'Thử đổi ngày, bỏ bớt bộ lọc hoặc chọn giờ khác.';
     decorate();
   } catch (e) {

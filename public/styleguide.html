@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
   <title>Bộ giao diện – SânNhanh</title>
   <link rel="icon" href="/img/favicon.svg">
   <link rel="stylesheet" href="/css/app.css">
@@ -96,7 +97,7 @@
             <button class="btn btn-dark">Xem lịch</button>
             <button class="btn">Bỏ qua</button>
             <button class="btn btn-ghost">Hủy</button>
-            <button class="btn btn-danger">Hủy booking</button>
+            <button class="btn btn-danger">Hủy đặt sân</button>
           </div>
           <div class="row">
             <button class="btn btn-primary btn-sm">Nhỏ</button>
@@ -137,7 +138,7 @@
       <div class="card card-pad stack">
         <div class="row">
           <span class="badge badge-pending">Chờ xác nhận</span>
-          <span class="badge badge-confirmed">Đã xác nhận</span>
+          <span class="badge badge-confirmed">Đã có sân</span>
           <span class="badge badge-rejected">Bị từ chối</span>
           <span class="badge badge-cancelled">Đã hủy</span>
           <span class="badge badge-expired">Hết hạn</span>
@@ -145,14 +146,14 @@
           <span class="badge badge-no_show">Bùng sân</span>
         </div>
         <div class="row">
-          <span class="badge badge-unpaid">Chưa thanh toán</span>
-          <span class="badge badge-paid">Đã thanh toán</span>
+          <span class="badge badge-unpaid">Chưa chuyển khoản</span>
+          <span class="badge badge-paid">Đã chuyển khoản</span>
           <span class="badge badge-offered">Đang giữ cho bạn</span>
           <span class="tag-sale">-20%</span>
           <span class="tag-peak" data-icon="flame">Giờ cao điểm</span>
           <span class="tag-mode" data-icon="bolt">Tự xác nhận</span>
           <span class="tag-mode approval" data-icon="hourglass">Chủ sân duyệt</span>
-          <span class="countdown">Còn 12:48 để chủ sân duyệt</span>
+          <span class="countdown">Chủ sân còn 12:48 để đồng ý</span>
         </div>
       </div>
     </div>
@@ -222,7 +223,7 @@
         <span><i class="slot slot-held"></i>Đang giữ</span>
         <span><i class="slot slot-booked"></i>Đã đặt</span>
         <span><i class="slot slot-blocked"></i>Bị chặn</span>
-        <span><i class="slot slot-offered"></i>Giữ cho người chờ</span>
+        <span><i class="slot slot-offered"></i>Giữ cho người đang chờ</span>
         <span><i class="slot slot-for-you"></i>Giữ cho bạn</span>
         <span><i class="slot slot-past"></i>Đã qua</span>
       </div>
@@ -283,11 +284,11 @@
   <!-- DIALOG, QR -->
   <section class="sg-section">
     <div class="container">
-      <h2 class="h1">Xác nhận đặt &amp; thanh toán</h2>
+      <h2 class="h1">Xác nhận đặt sân</h2>
       <p class="lead">Chính sách hủy ghi bằng mốc giờ cụ thể. QR chuyển khoản thẳng vào tài khoản chủ sân, có nút sao chép từng dòng.</p>
       <div class="sg-grid cols-2" style="align-items:start">
         <div class="card card-pad stack">
-          <div class="row"><span class="h2">Booking #SN-24817</span><span class="badge badge-confirmed">Đã xác nhận</span></div>
+          <div class="row"><span class="h2">Lịch đặt #SN-24817</span><span class="badge badge-confirmed">Đã có sân</span></div>
           <dl class="kv">
             <div><dt>Sân</dt><dd>Thành Phát · Sân 1 (sân 5)</dd></div>
             <div><dt>Thời gian</dt><dd class="num">19:00–20:00, Thứ 5 29/10</dd></div>
@@ -299,12 +300,12 @@
             <div class="step"><b>50%</b><span>nếu hủy trước <b>07:00 Thứ 5, 29/10</b></span></div>
             <div class="step"><b>0%</b><span>nếu hủy sau đó</span></div>
           </div>
-          <div class="row"><button class="btn btn-primary" id="open-dialog">Mở hộp xác nhận</button><button class="btn btn-danger">Hủy booking</button></div>
+          <div class="row"><button class="btn btn-primary" id="open-dialog">Mở hộp xác nhận</button><button class="btn btn-danger">Hủy đặt sân</button></div>
         </div>
 
         <div class="qr-card">
-          <div class="row"><span class="h3">Chuyển khoản để giữ sân</span><span class="spacer"></span><span class="badge badge-pending">Chưa thanh toán</span></div>
-          <img class="qr" alt="Mã VietQR chuyển khoản 450.000đ"
+          <div class="row"><span class="h3">Chuyển khoản để giữ sân</span><span class="spacer"></span><span class="badge badge-pending">Chưa chuyển khoản</span></div>
+          <img class="qr" alt="Mã QR chuyển khoản 450.000đ"
             src="https://img.vietqr.io/image/970436-0123456789-compact2.svg?amount=450000&addInfo=SN24817&accountName=NGUYEN%20VAN%20A">
           <p class="amount num">450.000đ</p>
           <div class="copy-row"><div><div class="k">Ngân hàng</div><div class="v">Vietcombank</div></div></div>
@@ -329,28 +330,28 @@
             <div class="field"><label for="f2">Ngân hàng</label><select id="f2" class="select"><option>Vietcombank</option><option>MB Bank</option></select></div>
             <div class="field error"><label for="f3">Số tài khoản</label><input id="f3" class="input" value="01234"><span class="hint">Số tài khoản phải có 6–19 chữ số.</span></div>
           </div>
-          <div class="field"><label for="f4">Giảm giá giờ chót</label><input id="f4" class="input" value="20"><span class="hint">% giảm cho slot còn trống trong 3 giờ tới. 0 = tắt.</span></div>
-          <div class="notice warn" >Khách này có 2 lần bùng sân / hủy muộn trong 60 ngày – booking cần bạn duyệt.</div>
+          <div class="field"><label for="f4">Giảm giá giờ chót</label><input id="f4" class="input" value="20"><span class="hint">% giảm cho giờ còn trống trong 3 giờ tới. 0 = tắt.</span></div>
+          <div class="notice warn" >Khách này có 2 lần bùng sân hoặc hủy sát giờ trong 60 ngày – lịch đặt này cần bạn đồng ý.</div>
         </div>
         <div class="stack">
           <div class="tabs" role="tablist">
             <button role="tab" aria-selected="true">Sắp tới<span class="count">2</span></button>
             <button role="tab" aria-selected="false">Đã qua</button>
-            <button role="tab" aria-selected="false">Đang chờ slot<span class="count">1</span></button>
+            <button role="tab" aria-selected="false">Đang chờ giờ<span class="count">1</span></button>
           </div>
           <div class="table-wrap">
             <table class="table">
               <thead><tr><th>Mã</th><th>Giờ</th><th>Khách</th><th>Trạng thái</th><th></th></tr></thead>
               <tbody>
-                <tr><td class="num"><b>SN-24817</b></td><td class="num">19:00 29/10</td><td>Minh Trí</td><td><span class="badge badge-pending">Chờ duyệt</span></td><td><button class="btn btn-primary btn-sm">Duyệt</button></td></tr>
-                <tr><td class="num"><b>SN-24790</b></td><td class="num">18:00 29/10</td><td>Quốc Huy</td><td><span class="badge badge-confirmed">Đã xác nhận</span></td><td><button class="btn btn-sm">Đã thu tiền</button></td></tr>
+                <tr><td class="num"><b>SN-24817</b></td><td class="num">19:00 29/10</td><td>Minh Trí</td><td><span class="badge badge-pending">Chờ chủ sân đồng ý</span></td><td><button class="btn btn-primary btn-sm">Duyệt</button></td></tr>
+                <tr><td class="num"><b>SN-24790</b></td><td class="num">18:00 29/10</td><td>Quốc Huy</td><td><span class="badge badge-confirmed">Đã có sân</span></td><td><button class="btn btn-sm">Đã thu tiền</button></td></tr>
                 <tr><td class="num"><b>SN-24702</b></td><td class="num">20:00 28/10</td><td>Gia Bảo</td><td><span class="badge badge-no_show">Bùng sân</span></td><td></td></tr>
               </tbody>
             </table>
           </div>
           <div class="card empty">
             <div class="art" data-icon="calendar"></div>
-            <p><b style="color:var(--text)">Chưa có booking nào</b><br>Tìm một sân trống tối nay và đặt thử nhé.</p>
+            <p><b style="color:var(--text)">Chưa có lịch đặt nào</b><br>Tìm một sân trống tối nay và đặt thử nhé.</p>
             <a class="btn btn-lime" href="#">Tìm sân</a>
           </div>
         </div>
@@ -380,7 +381,7 @@
         <div id="dlg-sale-row"><dt>Giảm giờ chót</dt><dd class="num" style="color:var(--sale-text)">-60.000đ</dd></div>
         <div class="total"><dt>Tổng</dt><dd class="num" id="dlg-total">240.000đ</dd></div>
       </dl>
-      <div class="notice">Sân này tự xác nhận – bạn nhận mã QR thanh toán ngay sau khi đặt.</div>
+      <div class="notice">Sân này đặt là chốt: bạn nhận mã QR để chuyển khoản ngay sau khi đặt.</div>
       <div class="field"><label for="note">Ghi chú cho chủ sân</label><textarea id="note" class="textarea" placeholder="VD: cần thêm bóng, áo bib"></textarea></div>
     </div>
     <div class="modal-foot"><button class="btn btn-ghost" data-close>Để sau</button><button class="btn btn-lime" id="do-book">Đặt sân · 240.000đ</button></div>

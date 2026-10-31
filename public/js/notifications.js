@@ -20,7 +20,7 @@ function render() {
               <span class="msg">${n.isRead ? '' : '<span class="tag-unread">Mới · </span>'}${esc(n.message)}</span><time>${shortTs(n.createdAt)}</time></a></li>`,
             )
             .join('')}</ul>`
-        : '<div class="card empty"><div class="art" data-icon="bell"></div><p><b style="color:var(--text)">Chưa có thông báo</b><br>Khi booking đổi trạng thái hoặc có slot trống, bạn sẽ thấy ở đây.</p></div>'
+        : '<div class="card empty"><div class="art" data-icon="bell"></div><p><b style="color:var(--text)">Chưa có thông báo</b><br>Khi lịch đặt đổi trạng thái hoặc có giờ trống, bạn sẽ thấy ở đây.</p></div>'
     }`;
   decorate();
 }

@@ -26,7 +26,7 @@ export const paymentBadge = (p) => `<span class="badge badge-${p}">${PAYMENT_LAB
 export const modeTag = (requiresApproval) =>
   requiresApproval
     ? '<span class="tag-mode approval" data-icon="hourglass">Chủ sân duyệt</span>'
-    : '<span class="tag-mode" data-icon="bolt">Tự xác nhận</span>';
+    : '<span class="tag-mode" data-icon="bolt">Đặt là chốt</span>';
 
 /** Đếm ngược: gọi mỗi giây, hết giờ thì gọi onEnd một lần. Trả hàm dừng. */
 export function countdown(el, seconds, text, onEnd) {
@@ -46,7 +46,7 @@ export function countdown(el, seconds, text, onEnd) {
   return () => clearInterval(timer);
 }
 
-/** Chính sách hủy theo mốc giờ còn hiệu lực tại nowTs; mốc đã qua không hiện, thay bằng dòng "hiện tại hoàn bao nhiêu". */
+/** Chính sách hủy theo mốc giờ còn hiệu lực tại nowTs; mốc đã qua không hiện, thay bằng dòng "hiện tại trả lại bao nhiêu". */
 export function policyStepsHtml(startAt, nowTs) {
   const d = cancelDeadlines(startAt);
   const at = (ts) => `${ts.slice(11, 16)} ${dayLabel(ts.slice(0, 10))}`;
@@ -55,16 +55,16 @@ export function policyStepsHtml(startAt, nowTs) {
   const steps = [];
   if (vnToMs(d.full) > now) steps.push(`<div class="step"><b>100%</b><span>nếu hủy trước <b>${at(d.full)}</b></span></div>`);
   if (vnToMs(d.half) > now) steps.push(`<div class="step"><b>50%</b><span>nếu hủy trước <b>${at(d.half)}</b>${vnToMs(d.full) <= now ? ' (mốc 100% đã qua)' : ''}</span></div>`);
-  steps.push(`<div class="step"><b>0%</b><span>${vnToMs(d.half) > now ? 'nếu hủy sau đó' : 'mốc hoàn 100% và 50% đều đã qua, hủy bây giờ không được hoàn'} (tính vào độ tin cậy của bạn)</span></div>`);
-  return `<p class="muted" style="font-size:var(--fs-sm);margin-bottom:8px">Nếu hủy ngay bây giờ: hoàn <b>${percent}%</b>.</p>${steps.join('')}`;
+  steps.push(`<div class="step"><b>0%</b><span>${vnToMs(d.half) > now ? 'nếu hủy sau đó' : 'mốc trả lại 100% và 50% đều đã qua, hủy bây giờ không được trả lại'} (tính vào uy tín của bạn)</span></div>`);
+  return `<p class="muted" style="font-size:var(--fs-sm);margin-bottom:8px">Nếu hủy ngay bây giờ: trả lại <b>${percent}%</b>.</p>${steps.join('')}`;
 }
 
-/** Khung VietQR dùng ở chi tiết booking và chi tiết nhượng: tiền vào thẳng tài khoản chủ sân. */
+/** Khung mã QR dùng ở chi tiết lịch đặt và chi tiết pass: tiền vào thẳng tài khoản chủ sân. */
 export function qrHtml(q, title = 'Chuyển khoản để giữ sân') {
   const row = (k, v, copy) => `<div class="copy-row"><div><div class="k">${k}</div><div class="v">${esc(v)}</div></div>${copy ? `<button type="button" data-copy="${esc(copy)}" aria-label="Sao chép ${k.toLowerCase()}">Sao chép</button>` : ''}</div>`;
   return `<aside class="qr-card" aria-labelledby="qr-title">
     <div class="row"><span class="h3" id="qr-title">${esc(title)}</span></div>
-    <img class="qr" alt="Mã VietQR chuyển khoản ${money(q.amount)}, nội dung ${esc(q.content)}" src="${esc(q.url)}" width="260" height="260">
+    <img class="qr" alt="Mã mã QR chuyển khoản ${money(q.amount)}, nội dung ${esc(q.content)}" src="${esc(q.url)}" width="260" height="260">
     <p class="amount num">${money(q.amount)}</p>
     ${row('Ngân hàng', q.bankName)}
     ${row('Số tài khoản', q.account, q.account)}

@@ -1,4 +1,4 @@
-// Màn 11 – Cài đặt sân: thông tin, giờ, cao điểm, chế độ duyệt, giảm giờ chót, ngân hàng, sân con.
+// Màn 11 – Cài đặt sân: thông tin, giờ, cao điểm, chế độ đồng ý, giảm giờ chót, ngân hàng, sân.
 import { $, $$, esc, initPage, loadVenues, venueSelect, rememberVenue, errorBox, dialog, guard, toast, api } from './common.js';
 import { hmToMin } from '/js/ui/format.js';
 
@@ -17,19 +17,19 @@ const field = (label, input, { id, hint = '', full = false } = {}) =>
 
 function courtRow(c) {
   return `<form class="court ${c.isActive ? '' : 'off'}" data-court="${c.id}" novalidate>
-    ${field('Tên sân con', `<input class="input" id="cn-${c.id}" name="name" value="${esc(c.name)}" required>`, { id: `cn-${c.id}` }).replace('class="field', 'class="field c-name')}
+    ${field('Tên sân', `<input class="input" id="cn-${c.id}" name="name" value="${esc(c.name)}" required>`, { id: `cn-${c.id}` }).replace('class="field', 'class="field c-name')}
     ${field('Loại sân', `<select class="select" id="ct-${c.id}" name="fieldType">${opts([['5', 'Sân 5'], ['7', 'Sân 7']], c.fieldType)}</select>`, { id: `ct-${c.id}` })}
     ${field('Giá thường (đ/giờ)', `<input class="input" id="cp-${c.id}" name="price" type="number" inputmode="numeric" min="0" step="1000" value="${c.price}">`, { id: `cp-${c.id}` })}
     ${field('Giá cao điểm (đ/giờ)', `<input class="input" id="cpp-${c.id}" name="peakPrice" type="number" inputmode="numeric" min="0" step="1000" value="${c.peakPrice}">`, { id: `cpp-${c.id}` })}
     <div class="c-team">
-      <label class="switch"><input type="checkbox" name="teamMode" ${c.teamMode ? 'checked' : ''}><span class="track"></span><span class="sw-text">Chế độ đủ hai đội</span></label>
-      <label class="c-time">Từ <input class="input" type="time" name="teamFrom" value="${esc(c.teamMode?.from || '')}" aria-label="Chế độ đủ hai đội từ giờ"></label>
-      <label class="c-time">đến <input class="input" type="time" name="teamTo" value="${esc(c.teamMode?.to || '')}" aria-label="Chế độ đủ hai đội đến giờ"></label>
-      <span class="hint">Giờ trong khung này chỉ chốt khi đủ hai đội cùng trả phần của mình. Để trống khung giờ = cả ngày. Giờ ngoài khung đặt như bình thường.</span>
+      <label class="switch"><input type="checkbox" name="teamMode" ${c.teamMode ? 'checked' : ''}><span class="track"></span><span class="sw-text">Chỉ nhận ghép kèo</span></label>
+      <label class="c-time">Từ <input class="input" type="time" name="teamFrom" value="${esc(c.teamMode?.from || '')}" aria-label="Chỉ nhận ghép kèo từ giờ"></label>
+      <label class="c-time">đến <input class="input" type="time" name="teamTo" value="${esc(c.teamMode?.to || '')}" aria-label="Chỉ nhận ghép kèo đến giờ"></label>
+      <span class="hint">Trong khung giờ này, sân chỉ nhận khi có đủ hai đội, mỗi đội chuyển khoản một phần. Để trống là áp dụng cả ngày. Ngoài khung giờ, khách đặt như bình thường.</span>
     </div>
     <div class="c-foot">
       <label class="switch"><input type="checkbox" name="isActive" ${c.isActive ? 'checked' : ''}><span class="track"></span><span class="sw-text">${c.isActive ? 'Đang mở đặt' : 'Tạm tắt'}</span></label>
-      <button class="btn btn-sm btn-primary" type="submit">Lưu sân con</button>
+      <button class="btn btn-sm btn-primary" type="submit">Lưu sân</button>
     </div>
   </form>`;
 }
@@ -53,44 +53,44 @@ function render() {
         <section class="panel"><div class="panel-head"><h2 class="h2">Giờ hoạt động và giá cao điểm</h2></div><div class="pbody"><div class="fgrid">
           ${field('Giờ mở cửa', `<select class="select" id="openTime" name="openTime">${hourOpts(v.openTime, 0)}</select>`, { id: 'openTime' })}
           ${field('Giờ đóng cửa', `<select class="select" id="closeTime" name="closeTime">${hourOpts(v.closeTime, 1)}</select>`, { id: 'closeTime' })}
-          ${field('Độ dài mỗi slot', `<select class="select" id="slotMinutes" name="slotMinutes">${opts([[60, '60 phút'], [90, '90 phút'], [120, '120 phút']], v.slotMinutes)}</select>`, { id: 'slotMinutes', full: true, hint: 'Mỗi booking là một sân con × một slot. Đổi độ dài không ảnh hưởng booking đã có.' })}
+          ${field('Mỗi lượt đá dài', `<select class="select" id="slotMinutes" name="slotMinutes">${opts([[60, '60 phút'], [90, '90 phút'], [120, '120 phút']], v.slotMinutes)}</select>`, { id: 'slotMinutes', full: true, hint: 'Mỗi lượt đặt là một sân trong một lượt đá. Đổi độ dài không ảnh hưởng lịch đặt đã có.' })}
           ${field('Cao điểm từ', `<select class="select" id="peakStart" name="peakStart">${hourOpts(v.peakStart, 0)}</select>`, { id: 'peakStart' })}
-          ${field('Cao điểm đến', `<select class="select" id="peakEnd" name="peakEnd">${hourOpts(v.peakEnd, 1)}</select>`, { id: 'peakEnd', hint: 'Slot trong khung này tính giá cao điểm của từng sân con.' })}
+          ${field('Cao điểm đến', `<select class="select" id="peakEnd" name="peakEnd">${hourOpts(v.peakEnd, 1)}</select>`, { id: 'peakEnd', hint: 'Giờ trong khung này tính giá cao điểm.' })}
         </div></div></section>
 
-        <section class="panel"><div class="panel-head"><h2 class="h2">Cách nhận booking</h2></div><div class="pbody">
+        <section class="panel"><div class="panel-head"><h2 class="h2">Cách nhận đặt sân</h2></div><div class="pbody">
           <fieldset class="mode-pick" style="border:0;padding:0;margin:0"><legend class="sr-only">Chế độ xác nhận</legend>
-            <label><input type="radio" name="requiresApproval" value="0" ${v.requiresApproval ? '' : 'checked'}><b>Tự xác nhận</b><span>Khách đặt là có sân ngay. Khách có từ ${meta.reliabilityMaxViolations} lần bùng hoặc hủy muộn trong ${meta.reliabilityWindowDays} ngày vẫn phải chờ bạn duyệt.</span></label>
-            <label><input type="radio" name="requiresApproval" value="1" ${v.requiresApproval ? 'checked' : ''}><b>Chờ chủ sân duyệt</b><span>Slot được giữ ${meta.holdMinutes} phút; quá hạn chưa duyệt thì tự hết hạn và slot trống lại.</span></label>
+            <label><input type="radio" name="requiresApproval" value="0" ${v.requiresApproval ? '' : 'checked'}><b>Đặt là chốt</b><span>Khách đặt là có sân ngay. Khách đã bùng hoặc hủy sát giờ ${meta.reliabilityMaxViolations} lần trong ${meta.reliabilityWindowDays} ngày thì vẫn phải chờ bạn đồng ý.</span></label>
+            <label><input type="radio" name="requiresApproval" value="1" ${v.requiresApproval ? 'checked' : ''}><b>Chủ sân duyệt</b><span>Khách đặt xong, bạn có ${meta.holdMinutes} phút để đồng ý. Quá hạn thì giờ tự mở lại cho người khác.</span></label>
           </fieldset>
-          ${field(`Giảm giá giờ chót (slot bắt đầu trong ${meta.lastMinuteHours} giờ tới)`, `<div class="input-suffix"><input class="input" id="lastMinutePercent" name="lastMinutePercent" type="number" inputmode="numeric" min="0" max="90" value="${v.lastMinutePercent}"><span>%</span></div>`, { id: 'lastMinutePercent', hint: '0 là tắt. Giá sau giảm làm tròn 1.000đ và chốt tại lúc khách đặt.' })}
+          ${field(`Giảm giá giờ chót (giờ sắp đá trong ${meta.lastMinuteHours} giờ tới)`, `<div class="input-suffix"><input class="input" id="lastMinutePercent" name="lastMinutePercent" type="number" inputmode="numeric" min="0" max="90" value="${v.lastMinutePercent}"><span>%</span></div>`, { id: 'lastMinutePercent', hint: 'Nhập 0 nếu không giảm. Giá giảm được làm tròn nghìn và giữ nguyên lúc khách đặt.' })}
         </div></section>
       </div>
 
       <section class="panel"><div class="panel-head"><h2 class="h2">Nội quy và chính sách hủy</h2></div><div class="pbody">
-        ${field('Nội quy sân', `<textarea class="textarea" id="rules" name="rules" rows="4">${esc(v.rules || '')}</textarea>`, { id: 'rules', hint: 'Khách thấy khi đặt; booking lưu lại bản nội quy lúc đặt.' })}
-        <div class="readonly-box"><b>Chính sách hủy (cố định theo hệ thống)</b><br>${esc(v.cancelPolicy || 'Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.')}</div>
+        ${field('Nội quy sân', `<textarea class="textarea" id="rules" name="rules" rows="4">${esc(v.rules || '')}</textarea>`, { id: 'rules', hint: 'Khách thấy nội quy này khi đặt sân.' })}
+        <div class="readonly-box"><b>Chính sách hủy (cố định theo hệ thống)</b><br>${esc(v.cancelPolicy || 'Hủy trước 24 giờ trả lại 100%, từ 12 đến dưới 24 giờ trả lại 50%, dưới 12 giờ không trả lại.')}</div>
       </div></section>
 
-      <section class="panel"><div class="panel-head"><h2 class="h2">Tài khoản nhận tiền (VietQR)</h2></div><div class="pbody"><div class="fgrid">
+      <section class="panel"><div class="panel-head"><h2 class="h2">Tài khoản nhận tiền (mã QR)</h2></div><div class="pbody"><div class="fgrid">
         ${field('Ngân hàng', `<select class="select" id="bankBin" name="bankBin"><option value="">Chọn ngân hàng</option>${opts(meta.banks.map((b) => [b.bin, b.name]), bank.bin)}</select>`, { id: 'bankBin', full: true })}
         ${field('Số tài khoản', `<input class="input" id="bankAccount" name="bankAccount" inputmode="numeric" autocomplete="off" value="${esc(bank.account || '')}">`, { id: 'bankAccount' })}
         ${field('Tên chủ tài khoản', `<input class="input" id="bankAccountName" name="bankAccountName" autocomplete="off" value="${esc(bank.accountName || '')}">`, { id: 'bankAccountName' })}
-        <p class="hint full" style="font-size:var(--fs-xs);color:var(--muted)">Khách chuyển thẳng vào tài khoản này; SânNhanh không giữ tiền. Mã QR chỉ hiện khi booking đã xác nhận và chưa thu tiền.</p>
+        <p class="hint full" style="font-size:var(--fs-xs);color:var(--muted)">Khách chuyển khoản thẳng vào tài khoản này, SânNhanh không giữ tiền. Khách chỉ thấy mã QR khi đã có sân mà chưa chuyển khoản.</p>
       </div></div></section>
     </div>
     <div class="save-bar" id="save-bar"><span class="state" role="status">Chưa có thay đổi</span><button class="btn btn-primary" type="submit">Lưu thông tin sân</button></div>
   </form>
 
   <section class="panel" style="margin-top:var(--sp-6)">
-    <div class="panel-head"><h2 class="h2">Sân con</h2><span class="count">${v.courts.length}</span></div>
-    <div class="courts">${v.courts.map(courtRow).join('') || '<p class="panel-empty">Chưa có sân con nào.</p>'}</div>
+    <div class="panel-head"><h2 class="h2">Sân</h2><span class="count">${v.courts.length}</span></div>
+    <div class="courts">${v.courts.map(courtRow).join('') || '<p class="panel-empty">Chưa có sân nào.</p>'}</div>
     <form class="court" id="new-court" novalidate style="background:var(--surface-2)">
-      ${field('Thêm sân con', `<input class="input" id="nc-name" name="name" placeholder="Ví dụ: Sân 4" required>`, { id: 'nc-name' }).replace('class="field', 'class="field c-name')}
+      ${field('Thêm sân', `<input class="input" id="nc-name" name="name" placeholder="Ví dụ: Sân 4" required>`, { id: 'nc-name' }).replace('class="field', 'class="field c-name')}
       ${field('Loại sân', `<select class="select" id="nc-type" name="fieldType">${opts([['5', 'Sân 5'], ['7', 'Sân 7']], '5')}</select>`, { id: 'nc-type' })}
       ${field('Giá thường (đ/giờ)', `<input class="input" id="nc-price" name="price" type="number" inputmode="numeric" min="0" step="1000" value="300000">`, { id: 'nc-price' })}
       ${field('Giá cao điểm (đ/giờ)', `<input class="input" id="nc-peak" name="peakPrice" type="number" inputmode="numeric" min="0" step="1000" value="450000">`, { id: 'nc-peak' })}
-      <div class="c-foot"><button class="btn btn-sm btn-lime" type="submit">Thêm sân con</button></div>
+      <div class="c-foot"><button class="btn btn-sm btn-lime" type="submit">Thêm sân</button></div>
     </form>
   </section>`;
   setDirty(false);
@@ -142,10 +142,10 @@ function validateVenue(f) {
 }
 
 function validateCourt(f) {
-  let ok = setErr(f.elements.name, f.elements.name.value.trim() ? '' : 'Nhập tên sân con');
+  let ok = setErr(f.elements.name, f.elements.name.value.trim() ? '' : 'Nhập tên sân');
   ok = setErr(f.elements.price, isMoney(f.elements.price.value) ? '' : 'Nhập giá hợp lệ') && ok;
   const peakOk = isMoney(f.elements.peakPrice.value) && Number(f.elements.peakPrice.value) >= Number(f.elements.price.value);
-  ok = setErr(f.elements.peakPrice, peakOk ? '' : 'Giá cao điểm phải từ giá thường trở lên') && ok;
+  ok = setErr(f.elements.peakPrice, peakOk ? '' : 'Giá cao điểm phải bằng hoặc cao hơn giá thường') && ok;
   return ok;
 }
 
@@ -205,7 +205,7 @@ content.addEventListener('submit', (e) => {
     if (!validateCourt(f)) return;
     guard(btn, async () => {
       await api.owner.addCourt(venueId, { name: f.elements.name.value.trim(), fieldType: f.elements.fieldType.value, price: Number(f.elements.price.value), peakPrice: Number(f.elements.peakPrice.value) });
-      toast('Đã thêm sân con');
+      toast('Đã thêm sân');
       await reload();
     });
   } else if (f.dataset.court) {

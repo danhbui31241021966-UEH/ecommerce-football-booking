@@ -1,4 +1,4 @@
-// Màn 13 – Quản lý booking: lọc theo trạng thái / ngày / từ khóa, duyệt, thu tiền, hoàn tiền, đã đá / bùng.
+// Màn 13 – Quản lý lịch đặt: lọc theo trạng thái / ngày / từ khóa, đồng ý, thu tiền, trả lại tiền, đã đá / bùng.
 import {
   $, $$, esc, dayLabel, todayStr, initPage, loadVenues, venueSelect, errorBox, bookingRow, withDetail,
   tickCountdowns, wireActions, api, dm, syncClock, dialog, guard, toast, money, reliabilityHtml, hhmm as hm,
@@ -15,15 +15,15 @@ const state = { status: q.get('status') || 'all', date: q.get('date') || '', tex
 
 const CHIPS = [
   ['all', 'Tất cả', () => true],
-  ['pending', 'Chờ duyệt', (b) => b.status === 'pending'],
-  ['confirmed', 'Đã xác nhận', (b) => b.status === 'confirmed'],
-  ['unpaid', 'Chưa thu tiền', (b) => ['confirmed', 'completed'].includes(b.status) && b.paymentStatus === 'unpaid'],
-  ['refund', 'Chờ hoàn tiền', (b) => b.refundStatus === 'pending'],
+  ['pending', 'Chờ chủ sân đồng ý', (b) => b.status === 'pending'],
+  ['confirmed', 'Đã có sân', (b) => b.status === 'confirmed'],
+  ['unpaid', 'Chưa chuyển khoản', (b) => ['confirmed', 'completed'].includes(b.status) && b.paymentStatus === 'unpaid'],
+  ['refund', 'Chờ trả lại tiền', (b) => b.refundStatus === 'pending'],
   ['completed', 'Đã đá', (b) => b.status === 'completed'],
   ['no_show', 'Bùng sân', (b) => b.status === 'no_show'],
-  ['matching', 'Chờ đủ hai đội', (b) => b.status === 'matching'],
-  ['transferred', 'Đã nhượng', (b) => b.status === 'transferred'],
-  ['closed', 'Đã hủy / từ chối / hết hạn', (b) => ['cancelled', 'rejected', 'expired'].includes(b.status)],
+  ['matching', 'Đang tìm đội đá cùng', (b) => b.status === 'matching'],
+  ['transferred', 'Đã pass', (b) => b.status === 'transferred'],
+  ['closed', 'Đã hủy / bị từ chối / quá hạn', (b) => ['cancelled', 'rejected', 'expired'].includes(b.status)],
 ];
 
 const norm = (s) => String(s ?? '').toLowerCase();
@@ -42,36 +42,36 @@ function syncUrl() {
   history.replaceState(null, '', p.size ? `?${p}` : location.pathname);
 }
 
-const TR_NOTE = { open: 'Đang đăng nhượng, chưa có đội nhận', claimed: 'Đội nhận đang chuyển tiền cho bạn', completed: 'Đã đổi chủ, chờ bạn hoàn tiền cho đội cũ' };
+const TR_NOTE = { open: 'Đang pass, chưa có đội nhận', claimed: 'Đội nhận đang chuyển khoản cho bạn', completed: 'Sân đã sang đội nhận, bạn cần chuyển lại tiền cho đội pass' };
 
 function transferRow(t) {
   const claimed = t.status === 'claimed';
   return `<li class="tr-row" data-transfer="${t.id}">
     <div><b>${hm(t.startAt)}–${hm(t.endAt)} · ${esc(dayLabel(t.startAt.slice(0, 10)))}</b> · ${esc(t.courtName)} · <span class="code">${esc(t.bookingCode)}</span></div>
-    <div class="muted">Đội đăng: ${esc(t.giverName)} · giá nhượng <b class="num">${money(t.askPrice)}</b>${t.askPrice < t.originalPrice ? ` (giá gốc ${money(t.originalPrice)})` : ''}</div>
+    <div class="muted">Đội pass: ${esc(t.giverName)} · giá pass <b class="num">${money(t.askPrice)}</b>${t.askPrice < t.originalPrice ? ` (đội pass đã trả ${money(t.originalPrice)})` : ''}</div>
     ${t.claimerName ? `<div>Đội nhận: <b>${esc(t.claimerName)}</b> <a class="phone" href="tel:${esc(t.claimerPhone)}">${esc(t.claimerPhone)}</a> ${reliabilityHtml(t.claimerReliability)}</div>` : ''}
     <div class="tr-state"><span class="badge badge-${claimed ? 'pending' : t.status === 'completed' ? 'confirmed' : 'transferred'}">${esc(TR_NOTE[t.status])}</span>${claimed ? `<span class="countdown-sm" data-expires="${esc(t.claimExpiresAt)}">Còn --:--</span>` : ''}</div>
-    ${claimed ? `<p class="muted">Chỉ xác nhận sau khi tiền đã vào tài khoản của bạn. Nội dung chuyển khoản: <b>${esc(t.paymentContent)}</b>. Xác nhận xong, booking chuyển sang đội nhận ngay; đội cũ chưa được hoàn cho đến khi bạn ghi nhận hoàn tiền.</p>
+    ${claimed ? `<p class="muted">Chỉ bấm khi tiền đã vào tài khoản của bạn. Nội dung chuyển khoản: <b>${esc(t.paymentContent)}</b>. Bấm xong, sân sang đội nhận ngay; bạn cần chuyển lại tiền cho đội pass.</p>
     <div class="row-actions"><button class="btn btn-lime btn-sm" type="button" data-tr-confirm="${t.id}">Đã nhận ${money(t.askPrice)}</button><button class="btn btn-danger btn-sm" type="button" data-tr-reject="${t.id}">Từ chối đội nhận</button></div>` : ''}
-    ${t.status === 'completed' ? `<div class="row-actions"><button class="btn btn-lime btn-sm" type="button" data-act="refund" data-id="${t.bookingId}">Đã hoàn ${money(t.refund?.amount ?? t.askPrice)} cho đội cũ</button></div>` : ''}
+    ${t.status === 'completed' ? `<div class="row-actions"><button class="btn btn-lime btn-sm" type="button" data-act="refund" data-id="${t.bookingId}">Đã chuyển lại ${money(t.refund?.amount ?? t.askPrice)} cho đội pass</button></div>` : ''}
   </li>`;
 }
 
-const MT_NOTE = { open: 'Chờ đội thứ hai', joined: 'Đội vào trận đang chuyển tiền', expired: 'Hết hạn, trận không thành', cancelled: 'Đã hủy', confirmed: 'Đã chốt' };
+const MT_NOTE = { open: 'Cần thêm một đội', joined: 'Đội vào kèo đang chuyển khoản', expired: 'Quá hạn, kèo không thành', cancelled: 'Đã hủy', confirmed: 'Đã chốt sân' };
 
 function matchRow(m) {
   const hostBtn = m.status === 'open' && !m.hostPaid && m.hostPayBy
-    ? `<button class="btn btn-lime btn-sm" type="button" data-mt-confirm="${m.id}" data-part="host">Đã nhận ${money(m.hostAmount)} từ đội mở</button>` : '';
+    ? `<button class="btn btn-lime btn-sm" type="button" data-mt-confirm="${m.id}" data-part="host">Đã nhận ${money(m.hostAmount)} từ đội mở kèo</button>` : '';
   const guestBtn = m.status === 'joined'
-    ? `<button class="btn btn-lime btn-sm" type="button" data-mt-confirm="${m.id}" data-part="guest">Đã nhận ${money(m.guestAmount)} từ đội vào</button><button class="btn btn-danger btn-sm" type="button" data-mt-reject="${m.id}">Từ chối đội vào</button>` : '';
-  const cancelBtn = ['open', 'joined'].includes(m.status) ? `<button class="btn btn-sm" type="button" data-mt-cancel="${m.id}">Hủy trận</button>` : '';
-  const refunds = (m.refunds || []).map((r) => `<div class="mt-refund"><span>Hoàn cho ${r.part === 'host' ? 'đội mở' : 'đội vào'} (${esc(r.name)}): <b class="num">${money(r.amount)}</b> · <b>${r.status === 'done' ? 'Đã hoàn' : 'Chưa hoàn'}</b></span>${r.status === 'pending' ? `<button class="btn btn-lime btn-sm" type="button" data-mt-refund="${m.id}" data-part="${r.part}">Đã hoàn ${money(r.amount)}</button>` : ''}</div>`).join('');
+    ? `<button class="btn btn-lime btn-sm" type="button" data-mt-confirm="${m.id}" data-part="guest">Đã nhận ${money(m.guestAmount)} từ đội vào kèo</button><button class="btn btn-danger btn-sm" type="button" data-mt-reject="${m.id}">Từ chối đội vào kèo</button>` : '';
+  const cancelBtn = ['open', 'joined'].includes(m.status) ? `<button class="btn btn-sm" type="button" data-mt-cancel="${m.id}">Hủy kèo</button>` : '';
+  const refunds = (m.refunds || []).map((r) => `<div class="mt-refund"><span>Chuyển lại cho ${r.part === 'host' ? 'đội mở kèo' : 'đội vào kèo'} (${esc(r.name)}): <b class="num">${money(r.amount)}</b> · <b>${r.status === 'done' ? 'Đã chuyển lại' : 'Chưa chuyển lại'}</b></span>${r.status === 'pending' ? `<button class="btn btn-lime btn-sm" type="button" data-mt-refund="${m.id}" data-part="${r.part}">Đã chuyển lại ${money(r.amount)}</button>` : ''}</div>`).join('');
   return `<li class="tr-row" data-match="${m.id}">
     <div><b>${hm(m.startAt)}–${hm(m.endAt)} · ${esc(dayLabel(m.startAt.slice(0, 10)))}</b> · ${esc(m.courtName)} · <span class="code">${esc(m.bookingCode)}</span> · giá sân <b class="num">${money(m.price)}</b></div>
-    <div>Đội mở: <b>${esc(m.hostName)}</b> <a class="phone" href="tel:${esc(m.hostPhone)}">${esc(m.hostPhone)}</a> ${reliabilityHtml(m.hostReliability)} · phần <b class="num">${money(m.hostAmount)}</b> · ${m.hostPaid ? '<b>đã nhận</b>' : `chưa nhận, nội dung <b>${esc(m.hostContent)}</b>`}</div>
-    ${m.guestName ? `<div>Đội vào: <b>${esc(m.guestName)}</b> <a class="phone" href="tel:${esc(m.guestPhone)}">${esc(m.guestPhone)}</a> ${reliabilityHtml(m.guestReliability)} · phần <b class="num">${money(m.guestAmount)}</b> · ${m.guestPaid ? '<b>đã nhận</b>' : `chưa nhận, nội dung <b>${esc(m.guestContent)}</b>`}</div>` : `<div class="muted">Chưa có đội vào · phần <span class="num">${money(m.guestAmount)}</span></div>`}
-    <div class="tr-state"><span class="badge badge-${m.status === 'joined' ? 'pending' : m.status === 'open' ? 'matching' : 'expired'}">${esc(MT_NOTE[m.status])}</span><span class="muted">Hạn chót ${hm(m.closesAt)} ${dm(m.closesAt)}</span>${m.status === 'joined' ? `<span class="countdown-sm" data-expires="${esc(m.guestHoldUntil)}">Còn --:--</span>` : ''}${m.status === 'open' && !m.hostPaid && m.hostPayBy ? `<span class="countdown-sm" data-expires="${esc(m.hostPayBy)}">Còn --:--</span>` : ''}</div>
-    <p class="muted">Xác nhận từng phần riêng, chỉ sau khi tiền đã vào tài khoản của bạn. Đủ hai phần thì sân chốt. Đến hạn mà thiếu một đội thì slot nhả và tiền đã nhận ghi vào hoàn tiền: chưa hoàn cho đến khi bạn ghi nhận.</p>
+    <div>Đội mở kèo: <b>${esc(m.hostName)}</b> <a class="phone" href="tel:${esc(m.hostPhone)}">${esc(m.hostPhone)}</a> ${reliabilityHtml(m.hostReliability)} · phần <b class="num">${money(m.hostAmount)}</b> · ${m.hostPaid ? '<b>đã nhận</b>' : `chưa nhận, nội dung <b>${esc(m.hostContent)}</b>`}</div>
+    ${m.guestName ? `<div>Đội vào kèo: <b>${esc(m.guestName)}</b> <a class="phone" href="tel:${esc(m.guestPhone)}">${esc(m.guestPhone)}</a> ${reliabilityHtml(m.guestReliability)} · phần <b class="num">${money(m.guestAmount)}</b> · ${m.guestPaid ? '<b>đã nhận</b>' : `chưa nhận, nội dung <b>${esc(m.guestContent)}</b>`}</div>` : `<div class="muted">Chưa có đội vào kèo · phần <span class="num">${money(m.guestAmount)}</span></div>`}
+    <div class="tr-state"><span class="badge badge-${m.status === 'joined' ? 'pending' : m.status === 'open' ? 'matching' : 'expired'}">${esc(MT_NOTE[m.status])}</span><span class="muted">Hạn tìm đội ${hm(m.closesAt)} ${dm(m.closesAt)}</span>${m.status === 'joined' ? `<span class="countdown-sm" data-expires="${esc(m.guestHoldUntil)}">Còn --:--</span>` : ''}${m.status === 'open' && !m.hostPaid && m.hostPayBy ? `<span class="countdown-sm" data-expires="${esc(m.hostPayBy)}">Còn --:--</span>` : ''}</div>
+    <p class="muted">Bấm “Đã nhận” cho từng đội, chỉ sau khi tiền đã vào tài khoản của bạn. Đủ tiền hai đội thì sân được chốt. Hết hạn mà thiếu đội thì sân mở lại và bạn chuyển lại tiền cho đội đã trả.</p>
     <div class="row-actions">${hostBtn}${guestBtn}${cancelBtn}</div>
     ${refunds}
   </li>`;
@@ -104,13 +104,13 @@ function render() {
         <input class="input grow" type="search" id="text" placeholder="Tìm mã, tên, SĐT" value="${esc(state.text)}">
       </div>
     </div>
-    ${transfers.length ? `<div class="panel tr-panel"><h2 class="h3">Nhượng sân (${transfers.length})</h2><ul class="tr-list">${transfers.map(transferRow).join('')}</ul></div>` : ''}
-    ${matches.length ? `<div class="panel tr-panel" id="matches"><h2 class="h3">Trận đủ hai đội (${matches.length})</h2><ul class="tr-list">${matches.map(matchRow).join('')}</ul></div>` : ''}
-    ${state.id ? `<p class="notice" style="margin-bottom:var(--sp-3)">Đang xem một booking theo liên kết. <button class="btn btn-sm" type="button" data-clear-id>Xem tất cả booking</button></p>` : ''}
-    <p class="result-note" role="status">${rows.length} booking${state.date ? ` ngày ${dm(state.date)}` : ''} · ${esc(pick[1].toLowerCase())}</p>
+    ${transfers.length ? `<div class="panel tr-panel"><h2 class="h3">Pass sân (${transfers.length})</h2><ul class="tr-list">${transfers.map(transferRow).join('')}</ul></div>` : ''}
+    ${matches.length ? `<div class="panel tr-panel" id="matches"><h2 class="h3">Ghép kèo (${matches.length})</h2><ul class="tr-list">${matches.map(matchRow).join('')}</ul></div>` : ''}
+    ${state.id ? `<p class="notice" style="margin-bottom:var(--sp-3)">Đang xem một lịch đặt theo liên kết. <button class="btn btn-sm" type="button" data-clear-id>Xem tất cả lịch đặt</button></p>` : ''}
+    <p class="result-note" role="status">${rows.length} lịch đặt${state.date ? ` ngày ${dm(state.date)}` : ''} · ${esc(pick[1].toLowerCase())}</p>
     <div class="panel bk-table">
       <div class="bk-head" aria-hidden="true"><span>Giờ đá</span><span>Khách</span><span>Sân</span><span>Trạng thái</span><span>Tiền</span><span></span></div>
-      ${rows.length ? `<ul class="bk-list">${rows.map((b) => bookingRow(b)).join('')}</ul>` : '<p class="panel-empty">Không có booking nào khớp bộ lọc.</p>'}
+      ${rows.length ? `<ul class="bk-list">${rows.map((b) => bookingRow(b)).join('')}</ul>` : '<p class="panel-empty">Không có lịch đặt nào khớp bộ lọc.</p>'}
     </div>`;
   tickCountdowns(load);
 }
@@ -129,25 +129,25 @@ content.addEventListener('click', (e) => {
       if (mc || mf) {
         const part = mb.dataset.part;
         const amount = mf ? m.refunds.find((r) => r.part === part).amount : part === 'host' ? m.hostAmount : m.guestAmount;
-        const who = part === 'host' ? 'đội mở trận' : 'đội vào trận';
+        const who = part === 'host' ? 'đội mở kèo' : 'đội vào kèo';
         const r = await dialog(mf
-          ? { title: 'Ghi nhận đã hoàn tiền', confirm: `Đã hoàn ${money(amount)}`, body: `${ref}<p>Hoàn <b>${money(amount)}</b> cho ${who} bằng chuyển khoản, rồi ghi nhận ở đây.</p>` }
-          : { title: `Xác nhận đã nhận phần của ${who}?`, confirm: `Đã nhận ${money(amount)}`, body: `${ref}<p>Chỉ xác nhận sau khi ${money(amount)} đã vào tài khoản của bạn. Đây chỉ là phần của ${who}; sân chốt khi cả hai phần đã được xác nhận.</p>` });
+          ? { title: 'Ghi nhận đã trả lại tiền', confirm: `Đã chuyển lại ${money(amount)}`, body: `${ref}<p>Chuyển lại <b>${money(amount)}</b> cho ${who} bằng chuyển khoản, rồi bấm ghi nhận ở đây.</p>` }
+          : { title: `Đã nhận tiền của ${who}?`, confirm: `Đã nhận ${money(amount)}`, body: `${ref}<p>Chỉ bấm khi ${money(amount)} đã vào tài khoản của bạn. Đây mới là phần của ${who}; sân chốt khi bạn nhận đủ tiền của cả hai đội.</p>` });
         if (!r) return;
         if (mf) await api.owner.refundMatch(m.id, part, '');
         else await api.owner.confirmMatchPart(m.id, part, '');
-        toast(mf ? 'Đã ghi nhận hoàn tiền' : 'Đã ghi nhận phần tiền');
+        toast(mf ? 'Đã ghi nhận chuyển lại tiền' : 'Đã ghi nhận đã nhận tiền');
       } else {
         const r = await dialog({
-          title: mr ? 'Từ chối đội vào trận' : 'Hủy trận',
-          confirm: mr ? 'Từ chối' : 'Hủy trận',
+          title: mr ? 'Từ chối đội vào kèo' : 'Hủy kèo',
+          confirm: mr ? 'Từ chối' : 'Hủy kèo',
           danger: true,
-          body: `${ref}<p>${mr ? 'Trận mở lại cho đội khác. Lý do được gửi cho đội vào trận.' : 'Slot được nhả. Tiền các đội đã trả ghi vào hoàn tiền: chưa hoàn cho đến khi bạn chuyển lại và ghi nhận.'}</p>${reasonField}`,
+          body: `${ref}<p>${mr ? 'Kèo mở lại cho đội khác. Lý do được gửi cho đội vào kèo.' : 'Giờ mở lại cho khách khác. Bạn cần chuyển lại tiền cho các đội đã trả.'}</p>${reasonField}`,
         });
         if (!r) return;
         if (mr) await api.owner.rejectMatchGuest(m.id, r.note.trim());
         else await api.owner.cancelMatch(m.id, r.note.trim());
-        toast(mr ? 'Đã từ chối đội vào trận' : 'Đã hủy trận');
+        toast(mr ? 'Đã từ chối đội vào kèo' : 'Đã hủy kèo');
       }
       await load();
     });
@@ -161,19 +161,19 @@ content.addEventListener('click', (e) => {
       const who = `<p class="dlg-ref"><b>${esc(t.claimerName)}</b> nhận ${esc(t.courtName)} · ${hm(t.startAt)}–${hm(t.endAt)} · ${esc(t.bookingCode)}</p>`;
       if (ok) {
         const r = await dialog({
-          title: 'Xác nhận đã nhận tiền?',
+          title: 'Đã nhận tiền?',
           confirm: `Đã nhận ${money(t.askPrice)}`,
-          body: `${who}<p>Chỉ xác nhận sau khi ${money(t.askPrice)} đã vào tài khoản của bạn. Booking sẽ chuyển sang đội nhận ngay. Đây chưa phải hoàn tiền: đội cũ vẫn ở trạng thái chưa hoàn cho đến khi bạn ghi nhận hoàn.</p>`,
+          body: `${who}<p>Chỉ bấm khi ${money(t.askPrice)} đã vào tài khoản của bạn. Sân sẽ sang đội nhận ngay. Bạn vẫn cần chuyển lại tiền cho đội pass.</p>`,
         });
         if (!r) return;
         await api.owner.confirmTransfer(t.id, '');
-        toast('Đã đổi chủ booking. Đội cũ đang chờ hoàn tiền.');
+        toast('Sân đã sang đội nhận. Bạn cần chuyển lại tiền cho đội pass.');
       } else {
         const r = await dialog({
           title: 'Từ chối đội nhận',
           confirm: 'Từ chối',
           danger: true,
-          body: `${who}<p>Đăng nhượng được mở lại cho đội khác nếu còn hạn. Lý do được gửi cho đội nhận.</p><div class="field"><label for="f-note">Lý do</label><textarea class="textarea" id="f-note" name="note" rows="3" required data-label="lý do"></textarea></div>`,
+          body: `${who}<p>Đăng pass được mở lại cho đội khác nếu còn hạn. Lý do được gửi cho đội nhận.</p><div class="field"><label for="f-note">Lý do</label><textarea class="textarea" id="f-note" name="note" rows="3" required data-label="lý do"></textarea></div>`,
         });
         if (!r) return;
         await api.owner.rejectTransfer(t.id, r.note.trim());
@@ -222,7 +222,7 @@ async function load() {
     const byId = new Map(detailed.map((b) => [b.id, b]));
     all = list.map((b) => byId.get(b.id) || b);
     const v = venues.find((x) => x.id === venueId);
-    $('#sub').textContent = `${v.name} · ${all.length} booking`;
+    $('#sub').textContent = `${v.name} · ${all.length} lịch đặt`;
     render();
   } catch (err) {
     errorBox(content, err, load);

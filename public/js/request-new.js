@@ -1,4 +1,4 @@
-// Đăng nhu cầu: quận, ngày, khung giờ, loại sân, ngân sách. Sân phù hợp thấy nhu cầu và gửi chào giá; chào giá chưa giữ sân.
+// Nhờ sân báo giá: quận, ngày, khung giờ, loại sân, mức giá bạn muốn. Sân phù hợp thấy tin nhờ báo giá và gửi báo giá; báo giá chưa giữ sân.
 import { api } from '/js/api.js';
 import { getUser, mountShell, toast } from '/js/ui/shell.js';
 import { $, decorate, esc, redirectToLogin } from '/js/ui/page.js';
@@ -46,8 +46,8 @@ function render() {
   if (!days.includes(st.date)) st.date = days[days.length > 1 ? 1 : 0];
   if (!st.budget) st.budget = st.fieldType === '7' ? '600000' : '300000';
   $('root').innerHTML = `
-    <p class="crumb"><a href="/requests.html">Nhu cầu của tôi</a> / Đăng nhu cầu</p>
-    <div class="page-head" style="margin-top:var(--sp-3)"><h1 class="h1">Đăng nhu cầu</h1><p class="sub">Chưa thấy giờ hợp ý? Cho biết bạn cần gì, các sân phù hợp sẽ gửi chào giá. Bạn xem, chọn một chào giá rồi đặt sân như bình thường; tiền chuyển thẳng cho chủ sân.</p></div>
+    <p class="crumb"><a href="/requests.html">Tôi đã nhờ báo giá</a> / Nhờ sân báo giá</p>
+    <div class="page-head" style="margin-top:var(--sp-3)"><h1 class="h1">Nhờ sân báo giá</h1><p class="sub">Chưa thấy giờ hợp ý? Cho biết quận, giờ và giá bạn muốn. Các sân sẽ báo giá, bạn chọn giá ưng ý rồi đặt sân.</p></div>
     <form class="card card-pad stack" id="req-form" style="max-width:640px" novalidate>
       <div class="field"><label for="district">Quận</label>
         <select class="select" id="district" required><option value="">Chọn quận</option>${districts.map((d) => `<option ${d === st.district ? 'selected' : ''}>${esc(d)}</option>`).join('')}</select></div>
@@ -59,16 +59,16 @@ function render() {
         <div class="field grow"><label for="from">Từ giờ</label><select class="select" id="from">${HOURS.slice(0, -1).map((h) => `<option ${h === st.from ? 'selected' : ''}>${h}</option>`).join('')}</select></div>
         <div class="field grow"><label for="to">Đến giờ</label><select class="select" id="to"></select></div>
       </div>
-      <div class="field"><label for="budget">Ngân sách cho một slot (đ)</label>
+      <div class="field"><label for="budget">Mức giá bạn muốn cho một giờ (đ)</label>
         <input class="input" id="budget" type="number" inputmode="numeric" min="1000" max="5000000" step="1000" value="${esc(st.budget)}">
-        <span class="hint">Sân chào giá vẫn có thể cao hơn ngân sách; khi đó bạn thấy nhãn “Vượt ngân sách” và tự quyết.</span></div>
-      <div class="field"><label for="closes">Nhận chào giá đến</label><select class="select" id="closes"></select>
-        <span class="hint">Hết hạn mà bạn chưa chọn thì nhu cầu đóng và các chào giá hết hiệu lực. Sân cần thời gian chào giá nên hạn tối đa là ${meta.requestCloseMinutes} phút trước giờ bắt đầu khung giờ.</span>
-        <p class="dlg-error" id="too-late" hidden>Còn quá ít thời gian trước khung giờ này. Chọn khung giờ muộn hơn hoặc ngày khác.</p></div>
+        <span class="hint">Sân có thể báo cao hơn mức này. Khi đó bạn sẽ thấy nhãn “Cao hơn mức bạn muốn” và tự quyết.</span></div>
+      <div class="field"><label for="closes">Nhận báo giá đến</label><select class="select" id="closes"></select>
+        <span class="hint">Hết hạn mà bạn chưa chọn thì tin này đóng lại. Để sân kịp báo giá, hạn nhận tối đa là ${meta.requestCloseMinutes} phút trước giờ bắt đầu.</span>
+        <p class="dlg-error" id="too-late" hidden>Còn quá ít thời gian trước giờ này. Hãy chọn giờ muộn hơn hoặc ngày khác.</p></div>
       <div class="field"><label for="note">Ghi chú (không bắt buộc)</label><textarea class="textarea" id="note" rows="2" maxlength="300" placeholder="Ví dụ: đá giao hữu 14 người, cần chỗ để xe">${esc(st.note)}</textarea></div>
-      <div class="notice" role="note"><div><b>Chào giá không giữ sân.</b> Chỉ khi bạn bấm chọn, hệ thống mới kiểm lại slot còn trống rồi đặt sân. Nếu người khác đặt trước thì chào giá đó không dùng được. Bạn đăng tối đa ${meta.requestMaxOpen} nhu cầu cùng lúc.</div></div>
+      <div class="notice" role="note"><div><b>Báo giá chưa giữ sân.</b> Chỉ khi bạn bấm chọn, sân mới được đặt cho bạn. Nếu có người đặt trước, báo giá đó không còn dùng được. Bạn nhờ được tối đa ${meta.requestMaxOpen} tin cùng lúc.</div></div>
       <p class="dlg-error" id="req-error" role="alert" hidden></p>
-      <div class="row"><button type="submit" class="btn btn-lime" id="submit">Đăng nhu cầu</button><a class="btn btn-ghost" href="/requests.html">Để sau</a></div>
+      <div class="row"><button type="submit" class="btn btn-lime" id="submit">Nhờ sân báo giá</button><a class="btn btn-ghost" href="/requests.html">Để sau</a></div>
     </form>`;
   paintTo();
   paintDeadlines();
@@ -125,7 +125,7 @@ document.addEventListener('submit', async (e) => {
 
 await mountShell();
 if (!getUser()) redirectToLogin();
-else if (getUser().role !== 'customer') $('root').innerHTML = '<div class="card empty"><p><b style="color:var(--text)">Chỉ tài khoản khách đăng được nhu cầu</b></p></div>';
+else if (getUser().role !== 'customer') $('root').innerHTML = '<div class="card empty"><p><b style="color:var(--text)">Chỉ tài khoản khách mới nhờ sân báo giá được</b></p></div>';
 else {
   try {
     [meta, districts] = await Promise.all([api.meta(), api.districts()]);

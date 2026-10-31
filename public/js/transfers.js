@@ -1,4 +1,4 @@
-// Nhượng sân: danh sách booking đang được nhượng lại. Giá nhượng không vượt giá gốc; tiền vẫn chuyển thẳng chủ sân.
+// Pass sân: danh sách lịch đặt đang được pass lại. Giá pass không vượt giá gốc; tiền vẫn chuyển thẳng chủ sân.
 import { api } from '/js/api.js';
 import { getUser, mountShell } from '/js/ui/shell.js';
 import { $, decorate, esc } from '/js/ui/page.js';
@@ -13,10 +13,10 @@ function card(t) {
   return `<article class="card booking-item transfer-item">
     <div class="top"><div><div class="when">${timeOf(t.startAt)}–${timeOf(t.endAt)} · ${dayLabel(dateOf(t.startAt))}</div>
       <div class="where">${esc(t.venueName)} · ${esc(t.courtName)} (sân ${t.fieldType})</div></div>
-      <div class="badges"><span class="badge badge-transferred">Đang nhượng</span>${t.priorityLocked ? `<span class="badge badge-pending">Ưu tiên người chờ đến ${timeOf(t.priorityUntil)}</span>` : ''}</div></div>
-    <p class="transfer-price"><b class="num">${money(t.askPrice)}</b>${t.askPrice < t.originalPrice ? ` <s class="price-old num">${money(t.originalPrice)}</s> <span class="tag-sale">-${t.discountPercent}%</span>` : ' <span class="muted">giá gốc</span>'}</p>
-    <p class="muted" style="font-size:var(--fs-sm)">Nhận trước ${timeOf(t.closesAt)}${mine ? ' · đây là booking của bạn' : ''}</p>
-    <div class="actions"><a class="btn btn-sm${t.priorityLocked || mine ? '' : ' btn-lime'}" href="/transfer.html?id=${t.id}">${mine ? 'Xem đăng nhượng' : 'Xem và nhận'}</a></div>
+      <div class="badges"><span class="badge badge-transferred">Đang pass</span>${t.priorityLocked ? `<span class="badge badge-pending">Ưu tiên người đang chờ đến ${timeOf(t.priorityUntil)}</span>` : ''}</div></div>
+    <p class="transfer-price"><b class="num">${money(t.askPrice)}</b>${t.askPrice < t.originalPrice ? ` <s class="price-old num">${money(t.originalPrice)}</s> <span class="tag-sale">-${t.discountPercent}%</span>` : ' <span class="muted">giá thường</span>'}</p>
+    <p class="muted" style="font-size:var(--fs-sm)">Nhận sân trước ${timeOf(t.closesAt)}${mine ? ' · đây là sân của bạn' : ''}</p>
+    <div class="actions"><a class="btn btn-sm${t.priorityLocked || mine ? '' : ' btn-lime'}" href="/transfer.html?id=${t.id}">${mine ? 'Xem đăng pass' : 'Xem và nhận'}</a></div>
   </article>`;
 }
 
@@ -25,14 +25,14 @@ function render() {
   const chips = [['', 'Tất cả'], [today, 'Hôm nay'], [addDays(today, 1), 'Mai'], [addDays(today, 2), dayLabel(addDays(today, 2))]];
   const rows = list.filter((t) => !date || dateOf(t.startAt) === date);
   $('root').innerHTML = `
-    <div class="page-head"><h1 class="h1">Nhượng sân</h1><p class="sub">Đội đã đặt và trả tiền nhưng bận sẽ nhượng lại giờ đá. Giá nhượng không cao hơn giá gốc, tiền vẫn chuyển thẳng cho chủ sân.</p></div>
+    <div class="page-head"><h1 class="h1">Pass sân</h1><p class="sub">Đội đã đặt sân mà bận không đá được sẽ pass lại cho đội khác. Bạn nhận sân thì chuyển khoản cho chủ sân qua mã QR.</p></div>
     <div class="chips" role="group" aria-label="Lọc theo ngày">${chips.map(([d, label]) => `<button type="button" class="chip" data-date="${d}" aria-pressed="${date === d}">${esc(label)}</button>`).join('')}</div>
     <div class="booking-list" style="margin-top:var(--sp-4)">${
       rows.length
         ? rows.map(card).join('')
-        : '<div class="card empty"><div class="art" data-icon="calendar"></div><p><b style="color:var(--text)">Chưa có booking nào đang nhượng</b><br>Khi một đội đăng nhượng, giờ đá sẽ hiện ở đây. Bạn cũng sẽ được báo nếu đang chờ slot đó.</p><a class="btn btn-lime" href="/venues.html">Tìm sân trống</a></div>'
+        : '<div class="card empty"><div class="art" data-icon="calendar"></div><p><b style="color:var(--text)">Chưa có sân nào đang pass</b><br>Khi có đội pass sân, giờ đá sẽ hiện ở đây. Nếu bạn đang chờ giờ đó, bạn sẽ được báo.</p><a class="btn btn-lime" href="/venues.html">Tìm sân trống</a></div>'
     }</div>
-    ${getUser()?.role === 'customer' ? '<p style="margin-top:var(--sp-5)"><a href="/my-bookings.html?tab=transfers">Xem các lần nhượng của tôi</a></p>' : ''}`;
+    ${getUser()?.role === 'customer' ? '<p style="margin-top:var(--sp-5)"><a href="/my-bookings.html?tab=transfers">Xem các lần pass của tôi</a></p>' : ''}`;
   decorate();
 }
 

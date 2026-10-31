@@ -105,7 +105,7 @@ export const api = {
   joinWaitlist: (body) => post('/api/waitlist', body),
   myWaitlist: () => get('/api/waitlist/mine'),
   leaveWaitlist: (id) => request('DELETE', `/api/waitlist/${id}`),
-  /** Nhượng booking. offerTransfer: body { askPrice } (≤ giá đã trả, làm tròn 1.000đ) → Transfer. */
+  /** Pass sân. offerTransfer: body { askPrice } (≤ giá đã trả, làm tròn 1.000đ) → Transfer. */
   offerTransfer: (bookingId, body) => post(`/api/bookings/${bookingId}/transfer`, body),
   /** params: { venueId, date, district } → [Transfer] đang mở nhận. */
   transfers: (params) => get('/api/transfers', params),
@@ -115,13 +115,13 @@ export const api = {
   withdrawTransfer: (id) => request('DELETE', `/api/transfers/${id}`),
   /** Trận đủ hai đội. openMatch: { courtId, date, start, hostPercent, closesAt } → Match. */
   openMatch: (body) => post('/api/matches', body),
-  /** params: { venueId, date, district } → [Match] đã có phần đội mở trận và còn nhận đội thứ hai. */
+  /** params: { venueId, date, district } → [Match] đã có phần đội mở kèo và còn nhận đội thứ hai. */
   matches: (params) => get('/api/matches', params),
   myMatches: () => get('/api/matches/mine'),
   match: (id) => get(`/api/matches/${id}`),
   joinMatch: (id) => post(`/api/matches/${id}/join`),
   withdrawMatch: (id) => request('DELETE', `/api/matches/${id}`),
-  /** Nhu cầu: openRequest { district, date, from, to, fieldType, budget, closesAt, note } → Request. acceptOffer(requestId, offerId) → Booking (qua luồng đặt thường). */
+  /** Tin nhờ báo giá: openRequest { district, date, from, to, fieldType, budget, closesAt, note } → Request. acceptOffer(requestId, offerId) → Booking (qua luồng đặt thường). */
   openRequest: (body) => post('/api/requests', body),
   myRequests: () => get('/api/requests/mine'),
   request: (id) => get(`/api/requests/${id}`),
@@ -146,17 +146,17 @@ export const api = {
     approve: (id) => post(`/api/owner/bookings/${id}/approve`),
     reject: (id, reason) => post(`/api/owner/bookings/${id}/reject`, { reason }),
     cancel: (id, reason) => post(`/api/owner/bookings/${id}/cancel`, { reason }),
-    /** Nhượng booking: danh sách cần xử lý, xác nhận đã nhận tiền của đội nhận, từ chối đội nhận. Hoàn cho đội cũ dùng markRefunded(bookingId). */
+    /** Pass sân: danh sách cần xử lý, xác nhận đã nhận tiền của đội nhận, từ chối đội nhận. Trả lại cho đội cũ dùng markRefunded(bookingId). */
     transfers: () => get('/api/owner/transfers'),
     confirmTransfer: (id, note) => post(`/api/owner/transfers/${id}/confirm`, { note }),
     rejectTransfer: (id, reason) => post(`/api/owner/transfers/${id}/reject`, { reason }),
-    /** Trận đủ hai đội: danh sách cần xử lý; confirmMatchPart(id, 'host'|'guest', note); hoàn từng đội: refundMatch(id, part, note). */
+    /** Trận đủ hai đội: danh sách cần xử lý; confirmMatchPart(id, 'host'|'guest', note); trả lại từng đội: refundMatch(id, part, note). */
     matches: () => get('/api/owner/matches'),
     confirmMatchPart: (id, part, note) => post(`/api/owner/matches/${id}/confirm-part`, { part, note }),
     rejectMatchGuest: (id, reason) => post(`/api/owner/matches/${id}/reject-guest`, { reason }),
     cancelMatch: (id, reason) => post(`/api/owner/matches/${id}/cancel`, { reason }),
     refundMatch: (id, part, note) => post(`/api/owner/matches/${id}/refund`, { part, note }),
-    /** Nhu cầu của khách ở khu vực sân mình: requests() → [Request kèm options]; sendOffer(requestId, { courtId, start, price, validUntil, note }); withdrawOffer(offerId). */
+    /** Tin nhờ báo giá của khách ở khu vực sân mình: requests() → [Request kèm options]; sendOffer(requestId, { courtId, start, price, validUntil, note }); withdrawOffer(offerId). */
     requests: () => get('/api/owner/requests'),
     sendOffer: (requestId, body) => post(`/api/owner/requests/${requestId}/offers`, body),
     withdrawOffer: (id) => request('DELETE', `/api/owner/offers/${id}`),

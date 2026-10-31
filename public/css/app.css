@@ -1844,10 +1844,9 @@ body:has(.booking-bar) .toast-stack {
   margin: var(--sp-8) 0 var(--sp-5); /* dấu của Ố dòng đầu nhô lên trên eyebrow */
 }
 .hero-main .lead {
-  display: none;
   max-width: 36ch;
-  margin-bottom: var(--sp-6);
-  font-size: var(--fs-lg);
+  margin-bottom: var(--sp-5);
+  font-size: var(--fs-md);
 }
 .tonight {
   padding: var(--sp-5) var(--sp-4) var(--sp-4);
@@ -2922,4 +2921,50 @@ a.slot-team {
 }
 .offer-item.off {
   opacity: 0.8;
+}
+
+/* ---------- Trang chủ: ba cách khác để có sân ---------- */
+.home-tools {
+  padding: var(--sp-8) 0;
+  border-bottom: 1px solid var(--line);
+}
+.home-tools .h2 {
+  margin: 0 0 var(--sp-5);
+}
+.tool-list {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border-top: 1px solid var(--text);
+}
+.tool-list a {
+  display: grid;
+  gap: var(--sp-1);
+  padding: var(--sp-4) 0;
+  border-bottom: 1px solid var(--line);
+  text-decoration: none;
+}
+.tool-list b {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+}
+.tool-list span {
+  color: var(--text-2);
+}
+.tool-list i {
+  font-style: normal;
+  font-weight: 600;
+  text-decoration: underline;
+}
+@media (min-width: 900px) {
+  .tool-list {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--sp-6);
+  }
+  .tool-list a {
+    align-content: start;
+    border-bottom: 0;
+  }
 }
