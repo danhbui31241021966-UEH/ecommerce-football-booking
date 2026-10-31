@@ -1,13 +1,85 @@
 {
-  "_doc": "Chế độ đủ hai đội: sân con nào bật (khung giờ from–to) và các trận mẫu. state: open = A đã trả, chờ đội B; joined = B đã vào, chưa trả đủ; confirmed = đủ hai phần, đã chốt. hostId/guestId là user id khách nền.",
+  "_doc": "Chế độ ghép kèo: sân con nào bật (khung giờ from–to) và các kèo mẫu. state: open = đội mở kèo đã trả, chờ đội thứ hai; joined = đội thứ hai đã vào, chưa trả đủ; confirmed = đủ hai phần, đã chốt. loserPercent = phần tiền sân đội thua chịu (50 hòa vốn, 60, 70, 100 thua bao sân). played = đã đá xong (day âm): không có winner thì chờ hai đội báo kết quả, có winner thì đã chốt kết quả và đội thua chưa trả phần chênh. hostId/guestId là user id khách nền.",
   "courtModes": [
-    { "courtId": 6, "from": "18:00", "to": "22:00" },
-    { "courtId": 7, "from": "18:00", "to": "22:00" }
+    {
+      "courtId": 6,
+      "from": "18:00",
+      "to": "22:00"
+    },
+    {
+      "courtId": 7,
+      "from": "18:00",
+      "to": "22:00"
+    }
   ],
   "matches": [
-    { "courtId": 6, "day": 1, "start": "19:00", "hostId": 12, "hostPercent": 50, "state": "open", "minAgo": 25 },
-    { "courtId": 6, "day": 1, "start": "20:00", "hostId": 13, "hostPercent": 60, "state": "joined", "guestId": 14, "joinedMinAgo": 2, "minAgo": 40 },
-    { "courtId": 7, "day": 1, "start": "19:00", "hostId": 15, "hostPercent": 50, "state": "confirmed", "guestId": 16, "minAgo": 200 },
-    { "courtId": 7, "day": 2, "start": "20:00", "hostId": 17, "hostPercent": 40, "state": "open", "minAgo": 10 }
+    {
+      "courtId": 6,
+      "day": 1,
+      "start": "19:00",
+      "hostId": 12,
+      "state": "open",
+      "minAgo": 25,
+      "loserPercent": 50
+    },
+    {
+      "courtId": 6,
+      "day": 1,
+      "start": "20:00",
+      "hostId": 13,
+      "state": "joined",
+      "guestId": 14,
+      "joinedMinAgo": 2,
+      "minAgo": 40,
+      "loserPercent": 60
+    },
+    {
+      "courtId": 7,
+      "day": 1,
+      "start": "19:00",
+      "hostId": 15,
+      "state": "confirmed",
+      "guestId": 16,
+      "minAgo": 200,
+      "loserPercent": 50
+    },
+    {
+      "courtId": 7,
+      "day": 2,
+      "start": "20:00",
+      "hostId": 17,
+      "state": "open",
+      "minAgo": 10,
+      "loserPercent": 70
+    },
+    {
+      "courtId": 6,
+      "day": -1,
+      "start": "19:00",
+      "hostId": 11,
+      "loserPercent": 70,
+      "state": "confirmed",
+      "guestId": 18,
+      "minAgo": 2400,
+      "played": true,
+      "hostReport": "host"
+    },
+    {
+      "courtId": 7,
+      "day": -1,
+      "start": "20:00",
+      "hostId": 17,
+      "loserPercent": 60,
+      "state": "confirmed",
+      "guestId": 14,
+      "minAgo": 2600,
+      "played": true,
+      "winner": "guest",
+      "winnerBank": {
+        "bin": "970436",
+        "account": "0071001234567",
+        "accountName": "NGO TUAN KIET"
+      }
+    }
   ]
 }

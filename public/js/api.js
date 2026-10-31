@@ -113,7 +113,7 @@ export const api = {
   transfer: (id) => get(`/api/transfers/${id}`),
   claimTransfer: (id) => post(`/api/transfers/${id}/claim`),
   withdrawTransfer: (id) => request('DELETE', `/api/transfers/${id}`),
-  /** Trận đủ hai đội. openMatch: { courtId, date, start, hostPercent, closesAt } → Match. */
+  /** Ghép kèo. openMatch: { courtId, date, start, loserPercent (50|60|70|100), closesAt } → Match. */
   openMatch: (body) => post('/api/matches', body),
   /** params: { venueId, date, district } → [Match] đã có phần đội mở kèo và còn nhận đội thứ hai. */
   matches: (params) => get('/api/matches', params),
@@ -121,6 +121,12 @@ export const api = {
   match: (id) => get(`/api/matches/${id}`),
   joinMatch: (id) => post(`/api/matches/${id}/join`),
   withdrawMatch: (id) => request('DELETE', `/api/matches/${id}`),
+  /** Đội trưởng báo kết quả sau giờ đá: winner = 'host' | 'guest' | 'draw'; bank (tùy chọn) = { bin, account, accountName } tài khoản nhận phần chênh. */
+  reportMatchResult: (id, winner, bank) => post(`/api/matches/${id}/result`, { winner, bank }),
+  /** Lưu tài khoản ngân hàng của đội mình trong kèo (chỉ hai đội trong kèo xem được). */
+  setMatchBank: (id, bank) => request('PUT', `/api/matches/${id}/bank`, { body: bank }),
+  /** Đội thắng bấm đã nhận phần chênh. */
+  matchTopUpReceived: (id) => post(`/api/matches/${id}/topup-received`),
   /** Tin nhờ báo giá: openRequest { district, date, from, to, fieldType, budget, closesAt, note } → Request. acceptOffer(requestId, offerId) → Booking (qua luồng đặt thường). */
   openRequest: (body) => post('/api/requests', body),
   myRequests: () => get('/api/requests/mine'),
@@ -154,6 +160,8 @@ export const api = {
     matches: () => get('/api/owner/matches'),
     confirmMatchPart: (id, part, note) => post(`/api/owner/matches/${id}/confirm-part`, { part, note }),
     rejectMatchGuest: (id, reason) => post(`/api/owner/matches/${id}/reject-guest`, { reason }),
+    /** Chủ sân chốt kết quả khi hai đội báo lệch hoặc quá hạn: winner = 'host' | 'guest' | 'draw'. */
+    settleMatchResult: (id, winner) => post(`/api/owner/matches/${id}/result`, { winner }),
     cancelMatch: (id, reason) => post(`/api/owner/matches/${id}/cancel`, { reason }),
     refundMatch: (id, part, note) => post(`/api/owner/matches/${id}/refund`, { part, note }),
     /** Tin nhờ báo giá của khách ở khu vực sân mình: requests() → [Request kèm options]; sendOffer(requestId, { courtId, start, price, validUntil, note }); withdrawOffer(offerId). */

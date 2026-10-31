@@ -60,17 +60,17 @@ export function policyStepsHtml(startAt, nowTs) {
 }
 
 /** Khung mã QR dùng ở chi tiết lịch đặt và chi tiết pass: tiền vào thẳng tài khoản chủ sân. */
-export function qrHtml(q, title = 'Chuyển khoản để giữ sân') {
+export function qrHtml(q, title = 'Chuyển khoản để giữ sân', note = 'Tiền vào thẳng tài khoản chủ sân. Chủ sân xác nhận đã nhận tiền trên SânNhanh, SânNhanh không giữ tiền của bạn.') {
   const row = (k, v, copy) => `<div class="copy-row"><div><div class="k">${k}</div><div class="v">${esc(v)}</div></div>${copy ? `<button type="button" data-copy="${esc(copy)}" aria-label="Sao chép ${k.toLowerCase()}">Sao chép</button>` : ''}</div>`;
   return `<aside class="qr-card" aria-labelledby="qr-title">
     <div class="row"><span class="h3" id="qr-title">${esc(title)}</span></div>
-    <img class="qr" alt="Mã mã QR chuyển khoản ${money(q.amount)}, nội dung ${esc(q.content)}" src="${esc(q.url)}" width="260" height="260">
+    <img class="qr" alt="Mã QR chuyển khoản ${money(q.amount)}, nội dung ${esc(q.content)}" src="${esc(q.url)}" width="260" height="260">
     <p class="amount num">${money(q.amount)}</p>
     ${row('Ngân hàng', q.bankName)}
     ${row('Số tài khoản', q.account, q.account)}
     ${row('Chủ tài khoản', q.accountName)}
     ${row('Số tiền', String(q.amount), String(q.amount))}
     ${row('Nội dung', q.content, q.content)}
-    <p style="font-size:12px;color:var(--on-dark-muted)">Tiền vào thẳng tài khoản chủ sân. Chủ sân xác nhận đã nhận tiền trên SânNhanh, SânNhanh không giữ tiền của bạn.</p>
+    <p style="font-size:12px;color:var(--on-dark-muted)">${esc(note)}</p>
   </aside>`;
 }

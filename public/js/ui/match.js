@@ -2,7 +2,18 @@
 import { money } from './format.js';
 
 /** [chữ hiển thị, lớp badge]. Trạng thái luôn có chữ, không chỉ màu. */
+export const STAKES = [[50, '5-5', 'Hòa vốn'], [60, '6-4', 'Thua chịu 60%'], [70, '7-3', 'Thua chịu 70%'], [100, 'Thua bao sân', 'Thua trả cả sân']];
+export const stakeText = (p) => (p >= 100 ? 'thua bao sân' : `${p / 10}-${10 - p / 10}`);
+export const winnerWord = (m, w) => (w === 'draw' ? 'Hòa' : w === m.role ? 'Đội bạn thắng' : m.role === 'host' || m.role === 'guest' ? 'Đội kia thắng' : w === 'host' ? 'Đội mở kèo thắng' : 'Đội vào kèo thắng');
+
 export function matchLabel(m) {
+  const r = m.result;
+  if (m.status === 'confirmed' && r) {
+    if (r.status === 'awaiting') return ['Đá xong, chờ báo kết quả', 'pending'];
+    if (r.status === 'needs_owner') return ['Chờ chủ sân chốt kết quả', 'pending'];
+    if (r.topUp?.status === 'unpaid') return ['Đội thua chưa trả thêm', 'pending'];
+    return [r.winner === 'draw' ? 'Hòa, xong kèo' : 'Xong kèo', 'confirmed'];
+  }
   if (m.status === 'open') return m.hostPaid ? ['Cần thêm một đội', 'matching'] : ['Chờ chủ sân nhận tiền đội mở kèo', 'pending'];
   if (m.status === 'joined') return ['Chờ đội vào kèo chuyển khoản', 'pending'];
   if (m.status === 'confirmed') return ['Đã chốt', 'confirmed'];

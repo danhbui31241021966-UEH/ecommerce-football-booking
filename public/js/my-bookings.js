@@ -2,7 +2,7 @@
 import { api } from '/js/api.js';
 import { getUser, mountShell, toast } from '/js/ui/shell.js';
 import { $, countdown, decorate, esc, paymentBadge, redirectToLogin, statusBadge } from '/js/ui/page.js';
-import { matchLabel, refundText } from '/js/ui/match.js';
+import { matchLabel, refundText, stakeText } from '/js/ui/match.js';
 import { dayLabel, mmss, money, secondsLeft, timeOf, vnToMs } from '/js/ui/format.js';
 
 const TABS = [['upcoming', 'Sắp tới'], ['past', 'Đã qua'], ['waiting', 'Đang chờ giờ'], ['transfers', 'Pass sân'], ['matches', 'Ghép kèo']];
@@ -48,7 +48,7 @@ function matchCard(m) {
   const rf = m.yourPart?.refund ? `<p><b>Trả lại tiền cho đội bạn:</b> ${refundText(m.yourPart.refund)}<span class="muted"> · chưa trả lại nghĩa là chủ sân chưa chuyển lại</span></p>` : '';
   return `<article class="card booking-item">
     <div class="top"><div><div class="when">${timeOf(m.startAt)}–${timeOf(m.endAt)} · ${dayLabel(m.startAt.slice(0, 10))}</div>
-      <div class="where">${esc(m.venueName)} · ${esc(m.courtName)} (sân ${m.fieldType}) · phần của bạn <b class="num">${money(m.yourPart?.amount ?? 0)}</b> · ${m.role === 'host' ? 'đội mở kèo' : 'đội vào kèo'}</div></div>
+      <div class="where">${esc(m.venueName)} · ${esc(m.courtName)} (sân ${m.fieldType}) · kèo ${stakeText(m.loserPercent)} · trả trước <b class="num">${money(m.yourPart?.amount ?? 0)}</b> · ${m.role === 'host' ? 'đội mở kèo' : 'đội vào kèo'}</div></div>
       <div class="badges"><span class="badge badge-${cls}">${label}</span></div></div>
     ${rf}
     <div class="actions"><a class="btn btn-sm" href="/match.html?id=${m.id}">Xem kèo</a></div>

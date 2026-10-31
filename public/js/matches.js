@@ -3,6 +3,7 @@ import { api } from '/js/api.js';
 import { getUser, mountShell } from '/js/ui/shell.js';
 import { $, decorate, esc } from '/js/ui/page.js';
 import { addDays, dateOf, dayLabel, money, timeOf } from '/js/ui/format.js';
+import { stakeText } from '/js/ui/match.js';
 
 let meta;
 let list = [];
@@ -13,7 +14,8 @@ function card(m) {
     <div class="top"><div><div class="when">${timeOf(m.startAt)}–${timeOf(m.endAt)} · ${dayLabel(dateOf(m.startAt))}</div>
       <div class="where">${esc(m.venueName)} · ${esc(m.courtName)} (sân ${m.fieldType})</div></div>
       <div class="badges"><span class="badge badge-matching">Cần thêm một đội</span></div></div>
-    <p class="transfer-price"><b class="num">${money(m.guestAmount)}</b> <span class="muted">phần của đội vào kèo · cả sân ${money(m.price)}</span></p>
+    <p class="transfer-price"><b>Kèo ${stakeText(m.loserPercent)}</b> <span class="muted">· cả sân ${money(m.price)}</span></p>
+    <p class="muted" style="font-size:var(--fs-sm)">Vào kèo trả trước <b class="num">${money(m.guestAmount)}</b>${m.loserPercent > 50 ? `. Thua thì chịu ${money(m.loserAmount)}, thắng chịu ${money(m.winnerAmount)}` : ', hòa vốn'}.</p>
     <p class="muted" style="font-size:var(--fs-sm)">Vào kèo trước ${timeOf(m.closesAt)}. Đội mở kèo đã chuyển khoản ${money(m.hostAmount)}.</p>
     <div class="actions"><a class="btn btn-sm btn-lime" href="/match.html?id=${m.id}">Xem và vào kèo</a></div>
   </article>`;
@@ -24,7 +26,7 @@ function render() {
   const chips = [['', 'Tất cả'], [today, 'Hôm nay'], [addDays(today, 1), 'Mai'], [addDays(today, 2), dayLabel(addDays(today, 2))]];
   const rows = list.filter((m) => !date || dateOf(m.startAt) === date);
   $('root').innerHTML = `
-    <div class="page-head"><h1 class="h1">Ghép kèo</h1><p class="sub">Tìm đội đá cùng và chia đôi tiền sân. Chọn một kèo bên dưới để vào, hoặc tự mở kèo mới ở sân có nhãn “Ghép kèo”.</p></div>
+    <div class="page-head"><h1 class="h1">Ghép kèo</h1><p class="sub">Tìm đội đá cùng, kèo tiền sân 5-5, 6-4, 7-3 hoặc thua bao sân. Chọn một kèo bên dưới để vào, hoặc tự mở kèo mới ở sân có nhãn “Ghép kèo”.</p></div>
     <div class="chips" role="group" aria-label="Lọc theo ngày">${chips.map(([d, label]) => `<button type="button" class="chip" data-date="${d}" aria-pressed="${date === d}">${esc(label)}</button>`).join('')}</div>
     <div class="booking-list" style="margin-top:var(--sp-4)">${
       rows.length

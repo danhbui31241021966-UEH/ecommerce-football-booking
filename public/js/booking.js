@@ -13,7 +13,7 @@ let match = null;
 const ACTION = {
   create: 'Khách đặt sân', approve: 'Chủ sân đồng ý', reject: 'Chủ sân từ chối', cancel: 'Hủy đặt sân', expire: 'Quá hạn, chủ sân chưa trả lời',
   paid: 'Ghi nhận đã chuyển khoản', refund: 'Ghi nhận đã trả lại tiền', attendance: 'Ghi nhận đã đá hoặc bùng',
-  match_part_paid: 'Chủ sân nhận tiền của một đội', match_join: 'Có đội vào kèo', match_release: 'Đội vào kèo đã rút', match_confirm: 'Đủ hai đội, chốt sân', match_expire: 'Quá hạn, kèo không đủ đội', match_cancel: 'Hủy kèo', offer_accept: 'Đặt theo báo giá của sân',
+  match_part_paid: 'Chủ sân nhận tiền của một đội', match_join: 'Có đội vào kèo', match_release: 'Đội vào kèo đã rút', match_confirm: 'Đủ hai đội, chốt sân', match_expire: 'Quá hạn, kèo không đủ đội', match_cancel: 'Hủy kèo', match_report: 'Đội báo kết quả', match_result: 'Chốt kết quả kèo', match_result_dispute: 'Cần chủ sân chốt kết quả', match_topup: 'Đội thắng đã nhận phần chênh', offer_accept: 'Đặt theo báo giá của sân',
   transfer_open: 'Đăng pass sân', transfer_withdraw: 'Rút đăng pass', transfer_claim: 'Có đội nhận pass', transfer_release: 'Mở lại đăng pass',
   transfer_reject: 'Chủ sân từ chối đội nhận', transfer_expire: 'Quá hạn pass', transfer_done: 'Đã pass cho đội khác',
 };

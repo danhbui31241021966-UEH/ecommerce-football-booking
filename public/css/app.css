@@ -2968,3 +2968,12 @@ a.slot-team {
     border-bottom: 0;
   }
 }
+
+/* Nhóm lựa chọn ngắn (kèo tiền sân, kết quả): xuống dòng thay vì cuộn ngang, để thấy hết mọi lựa chọn */
+.chips.wrap {
+  flex-wrap: wrap;
+  overflow-x: visible;
+}
+.bank-fields .field {
+  margin-bottom: var(--sp-3);
+}

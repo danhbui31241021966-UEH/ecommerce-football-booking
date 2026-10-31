@@ -59,20 +59,32 @@ function transferRow(t) {
 
 const MT_NOTE = { open: 'Cần thêm một đội', joined: 'Đội vào kèo đang chuyển khoản', expired: 'Quá hạn, kèo không thành', cancelled: 'Đã hủy', confirmed: 'Đã chốt sân' };
 
+const winnerOf = (m, w) => (w === 'host' ? `đội mở kèo (${m.hostName}) thắng` : w === 'guest' ? `đội vào kèo (${m.guestName}) thắng` : w === 'draw' ? 'hòa' : 'chưa báo');
+const stakeWord = (p) => (p >= 100 ? 'thua bao sân' : `${p / 10}-${10 - p / 10}`);
+
+function resultRow(m) {
+  const r = m.result;
+  if (!r) return '';
+  if (r.status === 'settled') return `<div>Kết quả: <b>${esc(winnerOf(m, r.winner))}</b>${r.settledBy === 'owner' ? ' · bạn đã chốt' : ' · hai đội khớp nhau'}${r.topUp ? ` · đội thua trả thêm <b class="num">${money(r.topUp.amount)}</b> cho đội thắng: <b>${r.topUp.status === 'received' ? 'Đã nhận' : 'Chưa trả'}</b>` : ''}</div>`;
+  return `<div>Kết quả ${stakeWord(m.loserPercent)}: đội mở kèo báo <b>${esc(winnerOf(m, r.hostReport))}</b>; đội vào kèo báo <b>${esc(winnerOf(m, r.guestReport))}</b>. ${r.status === 'needs_owner' ? 'Hai đội chưa khớp nhau hoặc quá hạn, bạn chốt kết quả.' : `Chờ hai đội báo trước ${hm(r.reportBy)} ${dm(r.reportBy)}.`}</div>`;
+}
+
 function matchRow(m) {
   const hostBtn = m.status === 'open' && !m.hostPaid && m.hostPayBy
     ? `<button class="btn btn-lime btn-sm" type="button" data-mt-confirm="${m.id}" data-part="host">Đã nhận ${money(m.hostAmount)} từ đội mở kèo</button>` : '';
   const guestBtn = m.status === 'joined'
     ? `<button class="btn btn-lime btn-sm" type="button" data-mt-confirm="${m.id}" data-part="guest">Đã nhận ${money(m.guestAmount)} từ đội vào kèo</button><button class="btn btn-danger btn-sm" type="button" data-mt-reject="${m.id}">Từ chối đội vào kèo</button>` : '';
+  const settleBtn = m.result?.status === 'needs_owner' ? `<button class="btn btn-lime btn-sm" type="button" data-mt-settle="${m.id}">Chốt kết quả</button>` : '';
   const cancelBtn = ['open', 'joined'].includes(m.status) ? `<button class="btn btn-sm" type="button" data-mt-cancel="${m.id}">Hủy kèo</button>` : '';
   const refunds = (m.refunds || []).map((r) => `<div class="mt-refund"><span>Chuyển lại cho ${r.part === 'host' ? 'đội mở kèo' : 'đội vào kèo'} (${esc(r.name)}): <b class="num">${money(r.amount)}</b> · <b>${r.status === 'done' ? 'Đã chuyển lại' : 'Chưa chuyển lại'}</b></span>${r.status === 'pending' ? `<button class="btn btn-lime btn-sm" type="button" data-mt-refund="${m.id}" data-part="${r.part}">Đã chuyển lại ${money(r.amount)}</button>` : ''}</div>`).join('');
   return `<li class="tr-row" data-match="${m.id}">
-    <div><b>${hm(m.startAt)}–${hm(m.endAt)} · ${esc(dayLabel(m.startAt.slice(0, 10)))}</b> · ${esc(m.courtName)} · <span class="code">${esc(m.bookingCode)}</span> · giá sân <b class="num">${money(m.price)}</b></div>
+    <div><b>${hm(m.startAt)}–${hm(m.endAt)} · ${esc(dayLabel(m.startAt.slice(0, 10)))}</b> · ${esc(m.courtName)} · <span class="code">${esc(m.bookingCode)}</span> · giá sân <b class="num">${money(m.price)}</b> · kèo <b>${stakeWord(m.loserPercent)}</b></div>
     <div>Đội mở kèo: <b>${esc(m.hostName)}</b> <a class="phone" href="tel:${esc(m.hostPhone)}">${esc(m.hostPhone)}</a> ${reliabilityHtml(m.hostReliability)} · phần <b class="num">${money(m.hostAmount)}</b> · ${m.hostPaid ? '<b>đã nhận</b>' : `chưa nhận, nội dung <b>${esc(m.hostContent)}</b>`}</div>
     ${m.guestName ? `<div>Đội vào kèo: <b>${esc(m.guestName)}</b> <a class="phone" href="tel:${esc(m.guestPhone)}">${esc(m.guestPhone)}</a> ${reliabilityHtml(m.guestReliability)} · phần <b class="num">${money(m.guestAmount)}</b> · ${m.guestPaid ? '<b>đã nhận</b>' : `chưa nhận, nội dung <b>${esc(m.guestContent)}</b>`}</div>` : `<div class="muted">Chưa có đội vào kèo · phần <span class="num">${money(m.guestAmount)}</span></div>`}
     <div class="tr-state"><span class="badge badge-${m.status === 'joined' ? 'pending' : m.status === 'open' ? 'matching' : 'expired'}">${esc(MT_NOTE[m.status])}</span><span class="muted">Hạn tìm đội ${hm(m.closesAt)} ${dm(m.closesAt)}</span>${m.status === 'joined' ? `<span class="countdown-sm" data-expires="${esc(m.guestHoldUntil)}">Còn --:--</span>` : ''}${m.status === 'open' && !m.hostPaid && m.hostPayBy ? `<span class="countdown-sm" data-expires="${esc(m.hostPayBy)}">Còn --:--</span>` : ''}</div>
+    ${resultRow(m)}
     <p class="muted">Bấm “Đã nhận” cho từng đội, chỉ sau khi tiền đã vào tài khoản của bạn. Đủ tiền hai đội thì sân được chốt. Hết hạn mà thiếu đội thì sân mở lại và bạn chuyển lại tiền cho đội đã trả.</p>
-    <div class="row-actions">${hostBtn}${guestBtn}${cancelBtn}</div>
+    <div class="row-actions">${hostBtn}${guestBtn}${settleBtn}${cancelBtn}</div>
     ${refunds}
   </li>`;
 }
@@ -120,13 +132,29 @@ content.addEventListener('click', (e) => {
   const mr = e.target.closest('[data-mt-reject]');
   const mx = e.target.closest('[data-mt-cancel]');
   const mf = e.target.closest('[data-mt-refund]');
-  const mb = mc || mr || mx || mf;
+  const ms = e.target.closest('[data-mt-settle]');
+  const mb = mc || mr || mx || mf || ms;
   if (mb) {
-    const m = matches.find((x) => x.id === Number(mb.dataset.mtConfirm || mb.dataset.mtReject || mb.dataset.mtCancel || mb.dataset.mtRefund));
+    const m = matches.find((x) => x.id === Number(mb.dataset.mtConfirm || mb.dataset.mtReject || mb.dataset.mtCancel || mb.dataset.mtRefund || mb.dataset.mtSettle));
     guard(mb, async () => {
       const ref = `<p class="dlg-ref"><b>${esc(m.courtName)}</b> · ${hm(m.startAt)}–${hm(m.endAt)} ${dm(m.startAt)} · ${esc(m.bookingCode)}</p>`;
       const reasonField = '<div class="field"><label for="f-note">Lý do</label><textarea class="textarea" id="f-note" name="note" rows="3" required data-label="lý do"></textarea></div>';
-      if (mc || mf) {
+      if (ms) {
+        const r = await dialog({
+          title: 'Chốt kết quả kèo',
+          confirm: 'Chốt kết quả',
+          body: `${ref}<p>Đội mở kèo báo: <b>${esc(winnerOf(m, m.result.hostReport))}</b>. Đội vào kèo báo: <b>${esc(winnerOf(m, m.result.guestReport))}</b>.</p>
+            <fieldset class="field"><legend>Kết quả bạn chốt</legend>
+              <label><input type="radio" name="winner" value="host" required data-label="kết quả"> Đội mở kèo thắng</label>
+              <label><input type="radio" name="winner" value="guest"> Đội vào kèo thắng</label>
+              <label><input type="radio" name="winner" value="draw"> Hòa, không ai trả thêm</label></fieldset>
+            <p class="muted">Đội thua sẽ chuyển phần chênh thẳng cho đội thắng. SânNhanh không giữ tiền.</p>`,
+        });
+        if (!r) return;
+        if (!r.winner) throw new Error('Chọn kết quả');
+        await api.owner.settleMatchResult(m.id, r.winner);
+        toast('Đã chốt kết quả');
+      } else if (mc || mf) {
         const part = mb.dataset.part;
         const amount = mf ? m.refunds.find((r) => r.part === part).amount : part === 'host' ? m.hostAmount : m.guestAmount;
         const who = part === 'host' ? 'đội mở kèo' : 'đội vào kèo';
