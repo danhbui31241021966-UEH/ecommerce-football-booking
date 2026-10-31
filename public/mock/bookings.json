@@ -25,7 +25,7 @@
     { "key": "k6", "userId": 5, "courtId": 1, "day": 1, "start": "20:00", "status": "confirmed", "paid": true, "createdMinAgo": 500 },
     { "key": "k7", "userId": 5, "courtId": 3, "day": 1, "start": "20:00", "status": "confirmed", "paid": true, "createdMinAgo": 600, "transfer": { "askPercent": 80, "minAgo": 3 } },
     { "key": "k8", "userId": 6, "courtId": 5, "day": 1, "start": "19:00", "status": "pending", "expiresInMin": 11, "createdMinAgo": 4 },
-    { "key": "k9", "userId": 6, "courtId": 2, "day": 1, "start": "21:00", "status": "pending", "expiresInMin": 12, "createdMinAgo": 3, "note": "Chờ duyệt do độ tin cậy thấp" },
+    { "key": "k9", "userId": 6, "courtId": 2, "day": 1, "start": "21:00", "status": "pending", "expiresInMin": 12, "createdMinAgo": 3, "note": "Đá giao hữu với đội bạn, khoảng 12 người" },
     { "key": "k10", "userId": 5, "courtId": 2, "day": 2, "start": "19:00", "status": "cancelled", "paid": true, "cancelledBy": "customer", "refundPercent": 100, "refundStatus": "pending", "cancelReason": "Trùng lịch giải", "createdMinAgo": 2000, "cancelledMinAgo": 120 },
     { "key": "k11", "userId": 4, "courtId": 4, "day": 1, "start": "21:00", "status": "rejected", "cancelReason": "Sân bảo trì khung giờ này", "createdMinAgo": 900 },
     { "key": "k12", "userId": 6, "courtId": 7, "day": 1, "start": "18:00", "status": "expired", "createdMinAgo": 700 },
@@ -53,7 +53,7 @@
     { "userId": 4, "bookingKey": "k2", "message": "Đã gửi yêu cầu đặt sân, chờ chủ sân duyệt trong 15 phút.", "minAgo": 6, "isRead": false },
     { "userId": 4, "bookingKey": null, "slot": "w4", "message": "Slot 20:00 ngày mai tại Sân cỏ nhân tạo Hoàng Gia đang giữ cho bạn.", "minAgo": 2, "isRead": false },
     { "userId": 4, "bookingKey": "k11", "message": "Booking bị từ chối: Sân bảo trì khung giờ này.", "minAgo": 800, "isRead": true },
-    { "userId": 2, "bookingKey": "k9", "message": "Có booking mới chờ duyệt (khách có độ tin cậy thấp).", "minAgo": 3, "isRead": false },
+    { "userId": 2, "bookingKey": "k9", "message": "Có lịch đặt mới chờ bạn đồng ý. Khách này từng bùng sân nên cần bạn đồng ý trước.", "minAgo": 3, "isRead": false },
     { "userId": 2, "bookingKey": "k5", "message": "Booking của Lê Minh Khách đã qua giờ đá, hãy đánh dấu có mặt hoặc bùng sân.", "minAgo": 60, "isRead": false },
     { "userId": 3, "bookingKey": "k8", "message": "Có booking mới chờ duyệt.", "minAgo": 4, "isRead": false },
     { "userId": 3, "bookingKey": "k10", "message": "Khách hủy booking đã thanh toán, cần hoàn 100% tiền.", "minAgo": 120, "isRead": false }

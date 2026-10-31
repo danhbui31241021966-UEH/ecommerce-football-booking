@@ -19,9 +19,8 @@ const NAV = {
     { href: '/my-bookings.html', label: 'Lịch đặt của tôi' },
   ],
   owner: [
-    { href: '/owner.html', label: 'Tổng quan' },
-    { href: '/owner-schedule.html', label: 'Lịch sân' },
-    { href: '/owner-bookings.html', label: 'Lịch đặt' },
+    { href: '/owner.html', label: 'Hôm nay' },
+    { href: '/owner-schedule.html', label: 'Lịch sân', also: ['/owner-bookings.html'] },
     { href: '/owner-requests.html', label: 'Khách nhờ báo giá' },
     { href: '/owner-settings.html', label: 'Cài đặt sân' },
   ],
@@ -39,9 +38,9 @@ let currentUser = null;
 export const getUser = () => currentUser;
 export const getRole = () => currentUser?.role || 'guest';
 
-function isCurrent(href) {
+function isCurrent(href, also = []) {
   const path = location.pathname === '/index.html' ? '/' : location.pathname.replace(/\.html$/, '');
-  return path === href.replace(/\.html$/, '');
+  return [href, ...also].some((h) => path === h.replace(/\.html$/, ''));
 }
 
 const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
@@ -81,7 +80,7 @@ export async function mountShell() {
   }
   const role = getRole();
   const links = NAV[role]
-    .map((l) => `<a href="${l.href}" ${isCurrent(l.href) ? 'aria-current="page"' : ''}>${l.label}</a>`)
+    .map((l) => `<a href="${l.href}" ${isCurrent(l.href, l.also) ? 'aria-current="page"' : ''}>${l.label}</a>`)
     .join('');
   let unread = 0;
   if (currentUser) {
@@ -127,9 +126,9 @@ export async function mountShell() {
       </header>
       <nav class="mobile-nav" aria-label="Điều hướng (mobile)">${links}
         ${currentUser ? '<button type="button" class="mobile-logout" data-logout>Đăng xuất</button>' : '<a href="/register.html">Đăng ký</a>'}
-        ${proto ? `<div class="mobile-role"><span>Xem với vai trò</span>${roleSwitch}${protoTools}</div>` : ''}
+        ${proto ? (role === 'owner' ? `<details class="mobile-role demo-group"><summary>Demo (chỉ dùng khi thuyết trình)</summary><span>Xem với vai trò</span>${roleSwitch}${protoTools}</details>` : `<div class="mobile-role"><span>Xem với vai trò</span>${roleSwitch}${protoTools}</div>`) : ''}
       </nav>
-      ${proto ? `<details class="role-dock"><summary aria-label="Công cụ demo: đang xem với vai trò ${ROLE_LABEL[role]}" title="Công cụ demo: ${ROLE_LABEL[role]}">${icon('users', 18)}</summary><div class="role-dock-panel">${roleSwitch}${protoTools}</div></details>` : ''}`;
+      ${proto ? `<details class="role-dock"><summary aria-label="Công cụ demo: đang xem với vai trò ${ROLE_LABEL[role]}" title="Công cụ demo: ${ROLE_LABEL[role]}">${icon('users', 18)}${role === 'owner' ? '<span class="dock-label">Demo</span>' : ''}</summary><div class="role-dock-panel">${roleSwitch}${protoTools}</div></details>` : ''}`;
 
     const menuBtn = document.querySelector('.menu-btn');
     const mobileNav = document.querySelector('.mobile-nav');

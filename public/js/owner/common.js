@@ -53,7 +53,7 @@ export const badge = (status, label = STATUS_LABEL[status]) => `<span class="bad
 export const sourceBadge = (b) => (b.source === 'phone' ? '<span class="badge badge-phone">Đặt qua điện thoại</span>' : '');
 export const payBadge = (b) =>
   ['confirmed', 'completed', 'no_show'].includes(b.status) || b.paymentStatus === 'paid'
-    ? badge(b.paymentStatus, b.paymentStatus === 'paid' ? 'Đã chuyển khoản' : 'Chưa chuyển khoản')
+    ? badge(b.paymentStatus, b.paymentStatus === 'paid' ? 'Đã nhận tiền' : 'Chưa nhận tiền')
     : '';
 export const refundBadge = (b) =>
   b.refundStatus === 'pending'
@@ -65,7 +65,7 @@ export const refundBadge = (b) =>
 export function reliabilityHtml(r) {
   if (!r) return '<span class="rel rel-new">Khách mới, chưa có lịch sử</span>';
   const cls = r.restricted || r.violations >= r.maxViolations ? 'bad' : r.violations > 0 ? 'warn' : 'ok';
-  const head = r.restricted ? 'Buộc chờ chủ sân đồng ý' : r.violations > 0 ? 'Cần lưu ý' : 'Uy tín tốt';
+  const head = r.restricted ? 'Cần bạn đồng ý trước' : r.violations > 0 ? 'Cần lưu ý' : 'Uy tín tốt';
   return `<span class="rel rel-${cls}"><b>${head}</b> · ${r.noShows} bùng, ${r.lateCancels} hủy sát giờ trong ${r.windowDays} ngày · ${r.completed} lần đã đá</span>`;
 }
 
@@ -277,7 +277,7 @@ export async function openAddBooking({ venues, venueId, date = todayStr(), court
     <div class="field"><label for="pb-name">Tên khách</label><input class="input" id="pb-name" name="customerName" maxlength="80" autocomplete="off" placeholder="Ví dụ: Anh Tùng"></div>
     <div class="field"><label for="pb-phone">Số điện thoại (không bắt buộc)</label><input class="input" id="pb-phone" name="customerPhone" type="tel" inputmode="tel" autocomplete="off"></div>
     <div class="field"><label for="pb-date">Ngày</label><input class="input" id="pb-date" name="date" type="date" min="${todayStr()}" value="${esc(date)}"></div>
-    <div class="field"><label for="pb-court">Sân</label><select class="select" id="pb-court" name="courtId">${courts.map((c) => `<option value="${c.id}" ${c.id === courtId ? 'selected' : ''}>${esc(c.name)} · sân ${esc(c.fieldType)}</option>`).join('')}</select></div>
+    <div class="field"><label for="pb-court">Sân</label><select class="select" id="pb-court" name="courtId">${courts.map((c) => `<option value="${c.id}" ${c.id === courtId ? 'selected' : ''}>${esc(c.name)} · sân ${esc(c.fieldType)} người</option>`).join('')}</select></div>
     <div class="field"><label for="pb-start">Giờ</label><select class="select" id="pb-start" name="start"><option value="">Đang tải giờ...</option></select><span class="hint" id="pb-slot-hint"></span></div>
     <div class="field"><label for="pb-price">Giá</label><input class="input" id="pb-price" name="price" type="number" inputmode="numeric" min="0" step="1000"><span class="hint">Mặc định là giá thường của giờ đó, bạn sửa được.</span></div>
     <fieldset class="field"><legend>Tiền</legend>
@@ -356,7 +356,7 @@ export async function runAction(kind, b) {
       const r = await dialog({
         title: 'Đồng ý lịch đặt?',
         confirm: 'Đồng ý',
-        body: `${who(b)}<p>Khách sẽ nhận thông báo và mã QR để chuyển khoản ${money(b.price)}.</p>`,
+        body: `${who(b)}<p>Khách sẽ nhận thông báo và mã QR để chuyển ${money(b.price)} cho bạn.</p>`,
       });
       return r && call(() => api.owner.approve(b.id));
     }
@@ -374,7 +374,7 @@ export async function runAction(kind, b) {
         title: 'Hủy đặt sân',
         confirm: 'Hủy đặt sân',
         danger: true,
-        body: b.source === 'phone' ? `${who(b)}<p>Giờ sẽ trống lại ngay. Lịch này đặt qua điện thoại nên SânNhanh không ghi trả lại tiền${b.paymentStatus === 'paid' ? `: nếu bạn đã nhận ${money(b.price)}, bạn tự trả lại cho khách ngoài web` : ''}.</p>${noteField('Lý do (không bắt buộc)', 'Ví dụ: khách báo đổi lịch')}` : `${who(b)}<p>Nếu bạn hủy, khách được trả lại 100%${b.paymentStatus === 'paid' ? ` (${money(b.price)} khách đã chuyển)` : '. Khách chưa chuyển khoản nên không có tiền để trả lại'}.</p>${noteField('Lý do', 'Gửi cho khách', true)}`,
+        body: b.source === 'phone' ? `${who(b)}<p>Giờ sẽ trống lại ngay. Lịch này đặt qua điện thoại nên SânNhanh không ghi trả lại tiền${b.paymentStatus === 'paid' ? `: nếu bạn đã nhận ${money(b.price)}, bạn tự trả lại cho khách ngoài web` : ''}.</p>${noteField('Lý do (không bắt buộc)', 'Ví dụ: khách báo đổi lịch')}` : `${who(b)}<p>Nếu bạn hủy, khách được trả lại 100%${b.paymentStatus === 'paid' ? ` (${money(b.price)} bạn đã nhận)` : '. Bạn chưa nhận tiền nên không có tiền để trả lại'}.</p>${noteField('Lý do', 'Gửi cho khách', true)}`,
       });
       return r && call(() => api.owner.cancel(b.id, (r.note || '').trim()));
     }
@@ -414,7 +414,7 @@ const DONE_TOAST = {
   approve: 'Đã đồng ý, khách đã được báo',
   reject: 'Đã từ chối lịch đặt',
   cancel: 'Đã hủy lịch đặt. Nếu khách đã chuyển khoản, bạn cần chuyển lại tiền',
-  paid: 'Đã ghi nhận: khách đã chuyển khoản',
+  paid: 'Đã ghi nhận: đã nhận tiền',
   refund: 'Đã ghi nhận trả lại tiền',
   completed: 'Đã ghi nhận: khách đã đá',
   no_show: 'Đã ghi nhận: khách bùng sân',
@@ -464,9 +464,21 @@ export function bookingRow(b, { showDate = true } = {}) {
     }${b.customerNote ? `<p class="note">“${esc(b.customerNote)}”</p>` : ''}${
       b.source !== 'phone' && (b.status === 'pending' || b.customerReliability) ? `<p>${reliabilityHtml(b.customerReliability)}</p>` : ''
     }</div>
-    <div class="bk-court"><span>${esc(b.courtName)} · Sân ${esc(b.fieldType)}</span><span class="code">${esc(b.code)}</span></div>
+    <div class="bk-court"><span>${esc(b.courtName)} · sân ${esc(b.fieldType)} người</span><span class="code">${esc(b.code)}</span></div>
     <div class="bk-state">${badge(b.status)}${sourceBadge(b)}${payBadge(b)}${refundBadge(b)}${b.status === 'pending' ? countdownHtml(b) : ''}</div>
     <div class="bk-money"><span class="price">${money(b.price)}</span>${sale}</div>
     <div class="bk-actions">${actionButtons(b)}</div>
   </li>`;
+}
+
+// Chuyển giữa hai cách xem của "Lịch sân": lưới theo giờ và danh sách. Hai trang cùng một mục menu.
+export function mountViewSwitch(active) {
+  const keep = new URLSearchParams(location.search);
+  const grid = new URLSearchParams(); if (keep.get('date')) grid.set('date', keep.get('date'));
+  const el = document.createElement('div');
+  el.className = 'view-switch';
+  el.setAttribute('role', 'group');
+  el.setAttribute('aria-label', 'Cách xem lịch sân');
+  el.innerHTML = `<a href="/owner-schedule.html${grid.size ? `?${grid}` : ''}" ${active === 'grid' ? 'aria-current="page"' : ''}>Lưới theo giờ</a><a href="/owner-bookings.html" ${active === 'list' ? 'aria-current="page"' : ''}>Danh sách</a>`;
+  $('#content').insertAdjacentElement('beforebegin', el);
 }

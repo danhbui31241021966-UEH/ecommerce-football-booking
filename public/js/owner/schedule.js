@@ -1,7 +1,7 @@
 // Màn 12 – Lịch & chặn lịch: mỗi cột một sân, vạch giờ hiện tại, bấm ô trống để thêm lịch đặt (khách gọi điện/Zalo) hoặc chặn giờ, bấm ô khác để bỏ chặn / xem lịch đặt.
 import {
   $, $$, esc, money, hhmm, dm, dowOf, dayLabel, todayStr, initPage, loadVenues, venueSelect, errorBox, dialog, guard, toast,
-  api, badge, payBadge, refundBadge, sourceBadge, reliabilityHtml, actionButtons, runAction, STATUS_LABEL, parseAt, withDetail, nowMs, syncClock, openAddBooking,
+  api, badge, payBadge, refundBadge, sourceBadge, reliabilityHtml, actionButtons, runAction, STATUS_LABEL, parseAt, withDetail, nowMs, syncClock, openAddBooking, mountViewSwitch,
 } from './common.js';
 import { vnToMs, msToVn, hmToMin, moneyShort } from '/js/ui/format.js';
 
@@ -10,10 +10,14 @@ const HEAD_H = 52;
 const content = $('#content');
 let venues = [];
 let venueId;
-let date = new URLSearchParams(location.search).get('date') || todayStr();
+// Ngày mặc định lấy sau khi đồng bộ đồng hồ (initPage), để tua đồng hồ demo vẫn mở đúng hôm nay.
+let date = new URLSearchParams(location.search).get('date');
 let sched;
 let bookings = [];
 let nowTimer;
+let courtTab = null;
+// Điện thoại: mỗi lần xem một sân (tab), không cắt lưới. Màn rộng: các sân cạnh nhau.
+const narrowMq = window.matchMedia('(max-width: 700px)');
 
 const days = () => [-1, 0, 1, 2].map((n) => todayStr(n));
 
@@ -31,7 +35,7 @@ function cell(court, s) {
     if (s.status === 'past') st = bs === 'confirmed' ? 'Cần ghi nhận' : STATUS_LABEL[bs] || st;
     else if (bk.source === 'phone') st = 'Đặt qua điện thoại';
     const unpaid = (full?.paymentStatus || bk.paymentStatus) === 'unpaid' && ['confirmed', 'completed'].includes(bs);
-    line = `<span class="who">${esc(bk.customerName || 'Khách')}${unpaid ? ' · chưa chuyển khoản' : ''}</span>`;
+    line = `<span class="who">${esc(bk.customerName || 'Khách')}${unpaid ? ' · chưa nhận tiền' : ''}</span>`;
   }
   const wl = s.waitlistCount ? `<span class="wl">${s.waitlistCount} người chờ</span>` : '';
   const interactive = s.status !== 'offered' && !(s.status === 'past' && !bk);
@@ -41,13 +45,16 @@ function cell(court, s) {
 }
 
 function render() {
-  const courts = sched.courts;
+  const allCourts = sched.courts;
+  if (!allCourts.some((c) => c.id === courtTab)) courtTab = allCourts[0]?.id;
+  const narrow = narrowMq.matches && allCourts.length > 1;
+  const courts = narrow ? allCourts.filter((c) => c.id === courtTab) : allCourts;
   const starts = [...new Set(courts.flatMap((c) => c.slots.map((s) => s.start)))].sort();
-  const count = (k) => courts.reduce((t, c) => t + c.slots.filter((s) => s.status === k).length, 0);
-  const waiting = courts.reduce((t, c) => t + c.slots.reduce((u, s) => u + (s.waitlistCount || 0), 0), 0);
+  const count = (k) => allCourts.reduce((t, c) => t + c.slots.filter((s) => s.status === k).length, 0);
+  const waiting = allCourts.reduce((t, c) => t + c.slots.reduce((u, s) => u + (s.waitlistCount || 0), 0), 0);
   const need = bookings.filter((b) => b.startAt.startsWith(date) && b.status === 'confirmed' && parseAt(b.startAt).getTime() <= nowMs()).length;
 
-  const head = `<div class="sg-h sg-corner"></div>${courts.map((c) => `<div class="sg-h"><b>${esc(c.name)}</b><small>Sân ${esc(c.fieldType)}</small></div>`).join('')}`;
+  const head = `<div class="sg-h sg-corner"></div>${courts.map((c) => `<div class="sg-h"><b>${esc(c.name)}</b><small>sân ${esc(c.fieldType)} người</small></div>`).join('')}`;
   const rows = starts
     .map(
       (t) =>
@@ -67,6 +74,7 @@ function render() {
         .join('')}</div>
       <p class="sched-summary" role="status"><span><b>${count('available')}</b> trống</span><span><b>${count('booked')}</b> đã đặt</span><span><b>${count('held')}</b> chờ chủ sân đồng ý</span><span><b>${count('blocked')}</b> chặn</span><span><b>${waiting}</b> người đang chờ giờ trống</span>${need ? `<span><b>${need}</b> lịch đặt đã qua giờ đá, chưa ghi nhận đã đá hay bùng</span>` : ''}</p>
     </div>
+    ${narrow ? `<div class="court-tabs chips wrap" role="group" aria-label="Chọn sân">${allCourts.map((c) => `<button type="button" class="chip" data-court-tab="${c.id}" aria-pressed="${c.id === courtTab}">${esc(c.name)}</button>`).join('')}</div>` : ''}
     <div class="sc-legend" aria-label="Chú thích">
       <span><i style="background:var(--surface)"></i>Trống – bấm để thêm lịch đặt hoặc chặn</span><span><i class="sc-booked"></i>Đã đặt</span><span><i class="sc-held"></i>Chờ chủ sân đồng ý</span>
       <span><i class="sc-blocked"></i>Đã chặn</span><span><i class="sc-offered"></i>Giữ cho người đang chờ</span><span><i class="sc-past"></i>Đã qua</span>
@@ -107,12 +115,15 @@ async function chooseAction(court, slot) {
   const teamOnly = !!slot.teamMode;
   const r = await dialog({
     title: `${court.name} · ${slot.start}–${slot.end}`,
-    confirm: 'Tiếp tục',
+    hideConfirm: true,
     body: `<p class="dlg-ref"><b>${esc(court.name)}</b> · ${esc(dayLabel(date))} ${dm(date)} · ${slot.start}</p>
-      <fieldset class="field"><legend class="sr-only">Bạn muốn làm gì với giờ này?</legend><div class="choice-list">
-        <label><input type="radio" name="kind" value="booking" ${teamOnly ? 'disabled' : 'checked'}><span><b>Khách đặt (điện thoại/Zalo)</b><small>${teamOnly ? 'Giờ này đang ở chế độ Chỉ nhận ghép kèo, nên không thêm lịch đặt riêng được.' : 'Thêm lịch cho khách quen gọi điện hoặc nhắn Zalo. Giờ này sẽ không ai đặt trùng.'}</small></span></label>
-        <label><input type="radio" name="kind" value="block" ${teamOnly ? 'checked' : ''}><span><b>Chặn giờ (sửa sân, sự kiện)</b><small>Khách không đặt được giờ này. Bạn bỏ chặn lúc nào cũng được.</small></span></label>
-      </div></fieldset>`,
+      <div class="choice-btns">
+        <button type="button" class="choice-btn primary" data-kind="booking" ${teamOnly ? 'disabled' : 'autofocus'}><b>Khách đặt (điện thoại/Zalo)</b><small>${teamOnly ? 'Giờ này đang ở chế độ Chỉ nhận ghép kèo, nên không thêm lịch đặt riêng được.' : 'Thêm lịch cho khách quen gọi điện hoặc nhắn Zalo. Giờ này sẽ không ai đặt trùng.'}</small></button>
+        <button type="button" class="choice-btn" data-kind="block"><b>Chặn giờ (sửa sân, sự kiện)</b><small>Khách không đặt được giờ này. Bạn bỏ chặn lúc nào cũng được.</small></button>
+      </div>`,
+    onOpen(dlg) {
+      dlg.querySelectorAll('[data-kind]').forEach((btn) => btn.addEventListener('click', () => dlg.finish({ kind: btn.dataset.kind })));
+    },
   });
   if (!r) return;
   if (r.kind === 'block') return openBlock(court, slot);
@@ -136,7 +147,7 @@ async function openBlock(court, slot) {
         <select class="select" id="f-end" name="end">${ends.map((e) => `<option value="${e}">${e}</option>`).join('')}</select>
         <span class="hint">Khách không đặt được trong khoảng này. Bạn bỏ chặn lúc nào cũng được.</span></div>
       <div class="field"><label for="f-reason">Lý do</label>
-        <textarea class="textarea" id="f-reason" name="reason" rows="2" required data-label="lý do chặn" placeholder="Ví dụ: bảo trì cỏ, giải nội bộ, khách quen đặt qua điện thoại"></textarea></div>`,
+        <textarea class="textarea" id="f-reason" name="reason" rows="2" required data-label="lý do chặn" placeholder="Ví dụ: bảo trì cỏ, giải nội bộ"></textarea></div>`,
   });
   if (!r) return;
   await api.owner.block({ courtId: court.id, date, start: slot.start, end: r.end, reason: r.reason.trim() });
@@ -178,7 +189,7 @@ async function openBooking(court, slot) {
       <div class="row-b">${badge(b.status)}${sourceBadge(b)}${b.paymentStatus ? payBadge(b) : ''}${b.refundStatus ? refundBadge(b) : ''}<span class="muted">${esc(b.code)}${b.price ? ' · ' + money(b.price) : ''}</span></div>
       ${waitNote}
       <div class="bk-acts" id="dlg-acts">${bookings.find((x) => x.id === id) ? actionButtons(b, '') : ''}</div>
-      <a href="/owner-bookings.html?q=${encodeURIComponent(b.code)}" class="muted" style="font-size:var(--fs-sm)">Mở trong Quản lý lịch đặt</a>
+      <a href="/owner-bookings.html?q=${encodeURIComponent(b.code)}" class="muted" style="font-size:var(--fs-sm)">Mở trong danh sách lịch đặt</a>
     </div>`,
     onOpen(dlg) {
       dlg.querySelector('#dlg-acts').addEventListener('click', (e) => {
@@ -198,7 +209,13 @@ async function openBooking(court, slot) {
   if (reload) await load();
 }
 
+narrowMq.addEventListener('change', () => { if (sched) render(); });
 content.addEventListener('click', (e) => {
+  const tab = e.target.closest('[data-court-tab]');
+  if (tab) {
+    courtTab = Number(tab.dataset.courtTab);
+    return void render();
+  }
   const chip = e.target.closest('.day-chip');
   if (chip) {
     date = chip.dataset.date;
@@ -229,11 +246,13 @@ async function load() {
 
 if (await initPage()) {
   try {
+    date ||= todayStr();
     ({ venues, id: venueId } = await loadVenues());
     if (!venues.length) {
-      content.innerHTML = '<div class="empty"><p>Bạn chưa có cụm sân nào.</p><a class="btn btn-primary" href="/owner-settings.html">Tạo cụm sân</a></div>';
+      content.innerHTML = '<div class="empty"><p>Bạn chưa có sân nào.</p><a class="btn btn-primary" href="/owner-settings.html">Thêm sân</a></div>';
     } else {
-      $('#tools').innerHTML = `<button type="button" class="btn btn-lime" id="add-booking">+ Thêm lịch đặt</button><label class="sr-only" for="venue">Cụm sân</label><select class="select" id="venue"></select>`;
+      mountViewSwitch('grid');
+      $('#tools').innerHTML = `<button type="button" class="btn btn-lime" id="add-booking">+ Thêm lịch đặt</button><label class="sr-only" for="venue">Sân của bạn</label><select class="select" id="venue"></select>`;
       $('#add-booking').addEventListener('click', (e) => guard(e.currentTarget, async () => {
         const added = await openAddBooking({ venues, venueId, date });
         if (added) {
