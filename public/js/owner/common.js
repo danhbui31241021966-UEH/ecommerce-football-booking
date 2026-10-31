@@ -53,7 +53,7 @@ export const badge = (status, label = STATUS_LABEL[status]) => `<span class="bad
 export const sourceBadge = (b) => (b.source === 'phone' ? '<span class="badge badge-phone">Đặt qua điện thoại</span>' : '');
 export const payBadge = (b) =>
   ['confirmed', 'completed', 'no_show'].includes(b.status) || b.paymentStatus === 'paid'
-    ? badge(b.paymentStatus, b.paymentStatus === 'paid' ? 'Đã nhận tiền' : 'Chưa nhận tiền')
+    ? badge(b.paymentStatus, b.paymentStatus === 'paid' ? 'Đã nhận tiền' : 'Chưa nhận tiền') + (b.paidVia === 'bank' ? '<span class="badge badge-phone">Ngân hàng báo (mô phỏng)</span>' : '')
     : '';
 export const refundBadge = (b) =>
   b.refundStatus === 'pending'

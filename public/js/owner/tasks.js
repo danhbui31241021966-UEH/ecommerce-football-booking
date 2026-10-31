@@ -16,6 +16,17 @@ export function transferRow(t) {
   </li>`;
 }
 
+// Khoản tiền ngân hàng báo về mà hệ thống không tự khớp được (thiếu/thừa tiền, sai mã, đơn chưa duyệt…): chủ sân xem rồi tự xử lý.
+export function bankRow(e) {
+  return `<li class="tr-row" data-bank="${e.id}">
+    <div><b>Ngân hàng báo có <span class="num">${money(e.amount)}</span></b> · nội dung <b>${esc(e.content)}</b>${e.bookingCode ? ` · đơn <span class="code">${esc(e.bookingCode)}</span>${e.expected ? ` cần <span class="num">${money(e.expected)}</span>` : ''}` : ''}</div>
+    <div class="tr-state"><span class="badge badge-pending">Chưa tự ghi nhận: ${esc(e.reasonText)}</span><span class="muted">${esc(e.receivedAt.slice(11, 16))} ${dm(e.receivedAt)} · mã giao dịch ${esc(e.txId)} (mô phỏng)</span></div>
+    <p class="muted">Kiểm lại với khách rồi bấm “Đã xử lý”.</p>
+    <div class="row-actions"><button class="btn btn-lime btn-sm" type="button" data-bank-resolve="${e.id}">Đã xử lý</button></div>
+  </li>`;
+}
+export const bankNeedsAction = (e) => e.status === 'unmatched';
+
 const MT_NOTE = { open: 'Cần thêm một đội', joined: 'Đội vào kèo đang chuyển khoản', expired: 'Quá hạn, kèo không thành', cancelled: 'Đã hủy', confirmed: 'Đã chốt sân' };
 
 const winnerOf = (m, w) => (w === 'host' ? `đội mở kèo (${m.hostName}) thắng` : w === 'guest' ? `đội vào kèo (${m.guestName}) thắng` : w === 'draw' ? 'hòa' : 'chưa báo');
@@ -56,6 +67,15 @@ export const matchNeedsAction = (m) =>
 // Gắn một lần cho vùng chứa. getMatches()/getTransfers() trả danh sách hiện tại; reload() tải lại sau khi ghi.
 export function wireTasks(root, getMatches, getTransfers, reload) {
   root.addEventListener('click', (e) => {
+  const br = e.target.closest('[data-bank-resolve]');
+  if (br) {
+    guard(br, async () => {
+      await api.owner.resolveBankEvent(Number(br.dataset.bankResolve), '');
+      toast('Đã ghi nhận đã xử lý khoản tiền');
+      await reload();
+    });
+    return;
+  }
   const mc = e.target.closest('[data-mt-confirm]');
   const mr = e.target.closest('[data-mt-reject]');
   const mx = e.target.closest('[data-mt-cancel]');

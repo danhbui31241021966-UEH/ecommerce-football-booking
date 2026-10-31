@@ -1,6 +1,7 @@
 // Tiện ích chung cho các trang khách: thoát HTML, gắn icon, bắt buộc đăng nhập, nhãn trạng thái.
 import { icon } from '/js/ui/icons.js';
 import { getUser } from '/js/ui/shell.js';
+import { api } from '/js/api.js';
 import { cancelDeadlines, dayLabel, money, PAYMENT_LABEL, refundFor, STATUS_LABEL, vnToMs } from '/js/ui/format.js';
 
 export const $ = (id) => document.getElementById(id);
@@ -59,8 +60,38 @@ export function policyStepsHtml(startAt, nowTs) {
   return `<p class="muted" style="font-size:var(--fs-sm);margin-bottom:8px">Nếu hủy ngay bây giờ: trả lại <b>${percent}%</b>.</p>${steps.join('')}`;
 }
 
+// Chỉ có ở prototype: thay cho việc chuyển tiền thật. Bản thật không có khối này, ngân hàng (SePay) báo về server.
+function simulateHtml(q) {
+  const d = `data-sim-content="${esc(q.content)}" data-sim-amount="${q.amount}" data-sim-account="${esc(q.account)}"`;
+  return `<div class="sim-box" data-sim>
+    <button type="button" class="btn btn-sm" data-sim-go="ok" ${d}>Tôi đã chuyển khoản (mô phỏng)</button>
+    <details><summary>Thử chuyển sai</summary><div class="sim-wrong">
+      <button type="button" class="btn btn-sm" data-sim-go="short" ${d}>Chuyển thiếu 10.000đ</button>
+      <button type="button" class="btn btn-sm" data-sim-go="over" ${d}>Chuyển thừa 10.000đ</button>
+      <button type="button" class="btn btn-sm" data-sim-go="nocode" ${d}>Ghi sai nội dung</button>
+    </div></details>
+    <p class="sim-note" role="status" data-sim-note>Đây là chế độ mô phỏng: vài giây sau, "ngân hàng" sẽ báo đã nhận tiền như SePay sẽ làm ở bản thật.</p>
+  </div>`;
+}
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-sim-go]');
+  if (!btn) return;
+  const kind = btn.dataset.simGo;
+  const amount = Number(btn.dataset.simAmount) + (kind === 'short' ? -10000 : kind === 'over' ? 10000 : 0);
+  const content = kind === 'nocode' ? 'chuyen tien san' : btn.dataset.simContent;
+  const note = btn.closest('[data-sim]').querySelector('[data-sim-note]');
+  btn.closest('[data-sim]').querySelectorAll('button').forEach((x) => { x.disabled = true; });
+  try {
+    const r = await api.proto.simulateTransfer({ content, amount, account: btn.dataset.simAccount });
+    note.textContent = `Đang chờ ngân hàng báo có tiền (mô phỏng), khoảng ${Math.round(r.delayMs / 1000)} giây…`;
+    setTimeout(() => location.reload(), r.delayMs + 400);
+  } catch (err) {
+    note.textContent = err.message;
+  }
+});
+
 /** Khung mã QR dùng ở chi tiết lịch đặt và chi tiết pass: tiền vào thẳng tài khoản chủ sân. */
-export function qrHtml(q, title = 'Chuyển khoản để giữ sân', note = 'Tiền vào thẳng tài khoản chủ sân. Chủ sân xác nhận đã nhận tiền trên SânNhanh, SânNhanh không giữ tiền của bạn.') {
+export function qrHtml(q, title = 'Chuyển khoản để giữ sân', note = 'Tiền vào thẳng tài khoản chủ sân. Ngân hàng báo đã nhận thì đơn tự chuyển sang "Đã nhận tiền" (nếu chưa tự được, chủ sân xác nhận tay). SânNhanh không giữ tiền của bạn.', { simulate = true } = {}) {
   const row = (k, v, copy) => `<div class="copy-row"><div><div class="k">${k}</div><div class="v">${esc(v)}</div></div>${copy ? `<button type="button" data-copy="${esc(copy)}" aria-label="Sao chép ${k.toLowerCase()}">Sao chép</button>` : ''}</div>`;
   return `<aside class="qr-card" aria-labelledby="qr-title">
     <div class="row"><span class="h3" id="qr-title">${esc(title)}</span></div>
@@ -72,5 +103,6 @@ export function qrHtml(q, title = 'Chuyển khoản để giữ sân', note = 'T
     ${row('Số tiền', String(q.amount), String(q.amount))}
     ${row('Nội dung', q.content, q.content)}
     <p style="font-size:12px;color:var(--on-dark-muted)">${esc(note)}</p>
+    ${simulate && api.proto ? simulateHtml(q) : ''}
   </aside>`;
 }

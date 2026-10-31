@@ -146,7 +146,7 @@ function render() {
         ${partsHtml(m)}
         ${action()}
       </div></div>
-      ${qr ? (m.paymentQr ? qrHtml(qr, `Chuyển phần của đội bạn · ${money(qr.amount)}`) : qrHtml(qr, `Trả thêm cho đội thắng · ${money(qr.amount)}`, 'Tiền chuyển thẳng cho đội thắng. SânNhanh không giữ tiền, chỉ ghi lại Chưa trả hoặc Đã nhận.')) : ''}
+      ${qr ? (m.paymentQr ? qrHtml(qr, `Chuyển phần của đội bạn · ${money(qr.amount)}`) : qrHtml(qr, `Trả thêm cho đội thắng · ${money(qr.amount)}`, 'Tiền chuyển thẳng cho đội thắng. SânNhanh không giữ tiền, chỉ ghi lại Chưa trả hoặc Đã nhận.', { simulate: false })) : ''}
       <div class="stack area-rest"><div class="card card-pad"><h2 class="h3" style="margin-bottom:var(--sp-2)">Ghép kèo hoạt động thế nào</h2>${steps()}</div></div>
     </div>`;
   document.title = `Kèo ${timeOf(m.startAt)} – SânNhanh`;

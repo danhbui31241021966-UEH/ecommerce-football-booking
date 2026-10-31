@@ -3,7 +3,7 @@ import {
   $, money, dayLabel, todayStr, initPage, loadVenues, venueSelect, errorBox, bookingRow, withDetail,
   tickCountdowns, wireActions, api, dm, syncClock, openAddBooking, guard, toast,
 } from './common.js';
-import { transferRow, matchRow, transferNeedsAction, matchNeedsAction, wireTasks } from './tasks.js';
+import { transferRow, matchRow, bankRow, bankNeedsAction, transferNeedsAction, matchNeedsAction, wireTasks } from './tasks.js';
 
 const content = $('#content');
 let venues = [];
@@ -11,6 +11,7 @@ let venueId;
 let bookings = [];
 let transfers = [];
 let matches = [];
+let bankEvents = [];
 
 function render() {
   const today = todayStr();
@@ -22,7 +23,8 @@ function render() {
   pending.forEach((b) => shown.add(b.code));
   const refund = bookings.filter((b) => b.refundStatus === 'pending' && !b.match && !shown.has(b.code));
   refund.forEach((b) => shown.add(b.code));
-  const taskCount = pending.length + tr.length + mt.length + refund.length;
+  const bk = bankEvents.filter(bankNeedsAction);
+  const taskCount = bk.length + pending.length + tr.length + mt.length + refund.length;
 
   const todayAll = bookings.filter((b) => b.startAt.startsWith(today) && ['confirmed', 'completed', 'no_show'].includes(b.status)).sort((a, b) => a.startAt.localeCompare(b.startAt));
   const todayList = todayAll.filter((b) => !shown.has(b.code));
@@ -34,7 +36,7 @@ function render() {
     <p class="today-line" role="status">${taskCount ? `<b>${taskCount}</b> việc cần làm` : 'Không có việc cần làm'} · <b>${todayAll.length}</b> giờ đá hôm nay${unpaidToday.length ? ` · <b>${unpaidToday.length}</b> chưa nhận tiền (${money(owed)})` : ''}</p>
     <section class="panel" aria-labelledby="h-tasks">
       <div class="panel-head"><h2 class="h2" id="h-tasks">Việc cần làm ngay</h2><span class="count">${taskCount}</span></div>
-      ${taskCount ? `<ul class="bk-list">${pending.map((b) => bookingRow(b, { showDate: true })).join('')}${tr.map(transferRow).join('')}${mt.map(matchRow).join('')}${refund.map((b) => bookingRow(b, { showDate: true })).join('')}</ul>` : '<p class="panel-empty">Không có đơn nào chờ bạn đồng ý, không có khoản nào cần nhận hay trả lại.</p>'}
+      ${taskCount ? `${bk.length ? '<p class="panel-note">Khoản “Ngân hàng báo có” bên dưới chưa tự khớp đơn nên chưa được đánh dấu “Đã nhận tiền”. Nhận đủ thì bấm “Đã nhận tiền” ở đơn; thừa hoặc thiếu thì chuyển lại hoặc nhờ khách bù. Xong bấm “Đã xử lý”.</p>' : ''}<ul class="bk-list">${bk.map(bankRow).join('')}${pending.map((b) => bookingRow(b, { showDate: true })).join('')}${tr.map(transferRow).join('')}${mt.map(matchRow).join('')}${refund.map((b) => bookingRow(b, { showDate: true })).join('')}</ul>` : '<p class="panel-empty">Không có đơn nào chờ bạn đồng ý, không có khoản nào cần nhận hay trả lại.</p>'}
     </section>
     <section class="panel" aria-labelledby="h-today">
       <div class="panel-head"><h2 class="h2" id="h-today">Giờ đá hôm nay</h2><span class="count">${dm(today)}</span><a href="/owner-schedule.html">Mở lịch sân</a></div>
@@ -47,7 +49,8 @@ function render() {
 async function load() {
   try {
     await syncClock();
-    const [list, trs, mts] = await Promise.all([api.owner.bookings({ venueId }), api.owner.transfers(), api.owner.matches()]);
+    const [list, trs, mts, bks] = await Promise.all([api.owner.bookings({ venueId }), api.owner.transfers(), api.owner.matches(), api.owner.bankEvents()]);
+    bankEvents = bks.filter((e) => e.venueId === venueId);
     transfers = trs.filter((t) => t.venueId === venueId);
     matches = mts.filter((m) => m.venueId === venueId);
     const pend = await withDetail(list.filter((b) => b.status === 'pending'));

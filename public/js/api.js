@@ -157,6 +157,8 @@ export const api = {
     reject: (id, reason) => post(`/api/owner/bookings/${id}/reject`, { reason }),
     cancel: (id, reason) => post(`/api/owner/bookings/${id}/cancel`, { reason }),
     /** Pass sân: danh sách cần xử lý, xác nhận đã nhận tiền của đội nhận, từ chối đội nhận. Trả lại cho đội cũ dùng markRefunded(bookingId). */
+    bankEvents: () => get('/api/owner/bank-events'),
+    resolveBankEvent: (id, note) => post(`/api/owner/bank-events/${id}/resolve`, { note }),
     transfers: () => get('/api/owner/transfers'),
     confirmTransfer: (id, note) => post(`/api/owner/transfers/${id}/confirm`, { note }),
     rejectTransfer: (id, reason) => post(`/api/owner/transfers/${id}/reject`, { reason }),
@@ -204,6 +206,9 @@ export const api = {
           },
           advanceClock: async (minutes) => (await loadMock()).proto.advanceClock(minutes),
           holderCancels: async () => (await loadMock()).proto.holderCancels(),
+          simulateTransfer: async (d) => (await loadMock()).proto.simulateTransfer(d),
+          bankReport: async (d) => (await loadMock()).proto.bankReport(d),
+          flushBank: async () => (await loadMock()).proto.flushBank(),
           state: async () => (await loadMock()).proto.state(),
         }
       : null,

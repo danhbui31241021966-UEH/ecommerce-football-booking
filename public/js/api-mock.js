@@ -6,7 +6,7 @@ import {
   vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs, weekdayOf,
 } from './ui/format.js';
 
-const STORE_KEY = 'sannhanh.mock.v9';
+const STORE_KEY = 'sannhanh.mock.v10';
 const STATUSES = ['pending', 'confirmed', 'rejected', 'cancelled', 'expired', 'completed', 'no_show', 'transferred', 'matching'];
 
 let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
@@ -65,6 +65,8 @@ function buildState() {
     offers: [],
     notifications: [],
     logs: [],
+    bankEvents: [], // mọi khoản "ngân hàng báo có tiền" đã nhận (khớp, lệch, trùng), như webhook SePay
+    bankQueue: [], // khoản khách bấm "giả lập chuyển khoản", chờ vài giây rồi mới báo về
   };
   S = st;
   for (const u of st.users) delete u.createdDaysAgo;
@@ -524,6 +526,7 @@ function toBooking(b, { admin = false } = {}) {
     match: matchBrief(b, admin),
     fromOffer: !!b.offerId,
     source: b.walkIn ? 'phone' : 'web',
+    paidVia: b.paymentStatus === 'paid' ? b.paidVia || null : null,
   };
   if (admin) {
     const u = customerOf(b);
@@ -640,6 +643,7 @@ function tick() {
       changed = true;
     }
   }
+  if (tickBank()) changed = true;
   if (tickTransfers()) changed = true;
   if (tickMatches()) changed = true;
   if (tickMatchResults()) changed = true;
@@ -938,12 +942,13 @@ function doReject(b, actor, reason) {
   freeSlot(b);
   save();
 }
-function doPaid(b, actor, note) {
+function doPaid(b, actor, note, via = 'owner') {
   if (b.status !== 'confirmed' && b.status !== 'completed') fail(409, 'Chỉ ghi nhận được cho lịch đặt đã có sân');
   if (b.paymentStatus === 'paid') fail(409, 'Lịch đặt đã được ghi nhận chuyển khoản');
   b.paymentStatus = 'paid';
-  addLog(b, 'paid', null, null, actor, note || '');
-  notify(b.userId, `Chủ sân đã nhận tiền của lịch đặt ${b.code}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  b.paidVia = via;
+  addLog(b, via === 'bank' ? 'bank_paid' : 'paid', null, null, actor, note || '');
+  notify(b.userId, via === 'bank' ? `Ngân hàng báo đã nhận tiền của lịch đặt ${b.code} (mô phỏng). Đơn của bạn đã ghi nhận chuyển khoản.` : `Chủ sân đã nhận tiền của lịch đặt ${b.code}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   save();
 }
 function doRefunded(b, actor, note, part) {
@@ -1188,6 +1193,7 @@ function finishTransfer(t, owner, note, silent = false) {
     basePrice: t.askPrice,
     discountPercent: 0,
     paymentStatus: 'paid',
+    paidVia: owner?.role === 'bank' ? 'bank' : 'owner',
     refundStatus: 'none',
     refundPercent: 0,
     refundAmount: 0,
@@ -1216,10 +1222,10 @@ function finishTransfer(t, owner, note, silent = false) {
   t.completedAt = now();
   t.claimExpiresAt = null;
   addLog(a, 'transfer_done', 'confirmed', 'transferred', owner, note || `Chủ sân xác nhận đã nhận ${vnd(t.askPrice)} của đội nhận`);
-  addLog(nb, 'create', null, 'confirmed', userOf(nb.userId), 'Nhận pass từ lịch đặt cũ, chủ sân đã xác nhận nhận tiền');
+  addLog(nb, 'create', null, 'confirmed', userOf(nb.userId), owner?.role === 'bank' ? 'Nhận pass từ lịch đặt cũ, ngân hàng báo đã nhận tiền' : 'Nhận pass từ lịch đặt cũ, chủ sân đã xác nhận nhận tiền');
   if (!silent) {
     notify(a.userId, `Sân ${a.code} đã sang đội khác. Chủ sân sẽ chuyển lại ${vnd(a.refundAmount)} cho bạn và ghi nhận khi xong.`, { bookingId: a.id, link: `/booking.html?id=${a.id}` });
-    notify(nb.userId, `Bạn đã nhận pass thành công (mã ${nb.code}): ${courtOf(nb.courtId)[1].name} ${slotLabel(nb)} tại ${venue.name}. Chủ sân đã nhận ${vnd(t.askPrice)}.`, { bookingId: nb.id, link: `/booking.html?id=${nb.id}` });
+    notify(nb.userId, `Bạn đã nhận pass thành công (mã ${nb.code}): ${courtOf(nb.courtId)[1].name} ${slotLabel(nb)} tại ${venue.name}. ${nb.paidVia === 'bank' ? `Ngân hàng báo đã nhận ${vnd(t.askPrice)} (mô phỏng)` : `Chủ sân đã nhận ${vnd(t.askPrice)}`}.`, { bookingId: nb.id, link: `/booking.html?id=${nb.id}` });
   }
   return nb;
 }
@@ -1693,13 +1699,17 @@ function doConfirmPart(ctx) {
   const [m, b, owner] = ownerMatch(ctx);
   const part = ctx.body?.part;
   req(['host', 'guest'].includes(part), 'part phải là host hoặc guest');
-  const note = String(ctx.body?.note || '').slice(0, 300);
+  confirmPart(m, b, owner, part, String(ctx.body?.note || '').slice(0, 300));
+  return toMatch(m, owner);
+}
+// Ghi nhận đã nhận phần tiền của một đội: chủ sân bấm tay hoặc ngân hàng báo về (actor = hệ thống).
+function confirmPart(m, b, owner, part, note) {
   if (part === 'host') {
     if (m.hostPaidAt) fail(409, 'Đã nhận tiền của đội mở kèo');
     if (!hostPending(m)) fail(409, 'Đội mở kèo đã hết thời gian giữ chỗ hoặc kèo đã kết thúc');
     m.hostPaidAt = now();
     addLog(b, 'match_part_paid', null, null, owner, `Đã nhận phần đội mở kèo ${vnd(m.hostAmount)}${note ? `. ${note}` : ''}`);
-    notify(m.hostId, `Chủ sân đã nhận ${vnd(m.hostAmount)} của bạn. Kèo ${slotLabel(b)} đang tìm đội đá cùng đến ${shortTs(m.closesAt)}; sân vẫn được giữ cho bạn.`, { link: `/match.html?id=${m.id}` });
+    notify(m.hostId, `${owner?.role === 'bank' ? 'Ngân hàng báo đã nhận' : 'Chủ sân đã nhận'} ${vnd(m.hostAmount)} của bạn. Kèo ${slotLabel(b)} đang tìm đội đá cùng đến ${shortTs(m.closesAt)}; sân vẫn được giữ cho bạn.`, { link: `/match.html?id=${m.id}` });
     for (const w of waitersOfBooking(b)) {
       notify(w.userId, `Có kèo ${slotLabel(b)} tại ${courtOf(b.courtId)[0].name} đang tìm đội đá cùng, phần ${vnd(m.guestAmount)}. Bạn đang chờ giờ này nên có thể vào kèo.`, { link: `/match.html?id=${m.id}` });
     }
@@ -1715,13 +1725,156 @@ function doConfirmPart(ctx) {
     const from = b.status;
     b.status = 'confirmed';
     b.paymentStatus = 'paid';
+    b.paidVia = owner?.role === 'bank' ? 'bank' : 'owner';
     addLog(b, 'match_confirm', from, 'confirmed', owner, 'Đủ hai phần tiền, chốt sân');
     const [venue, court] = courtOf(b.courtId);
-    for (const uid of [m.hostId, m.guestId]) notify(uid, `Kèo ${court.name} ${slotLabel(b)} tại ${venue.name} đã chốt: chủ sân nhận đủ tiền của hai đội.`, { link: `/match.html?id=${m.id}` });
+    for (const uid of [m.hostId, m.guestId]) notify(uid, `Kèo ${court.name} ${slotLabel(b)} tại ${venue.name} đã chốt: ${owner?.role === 'bank' ? 'ngân hàng báo đã nhận đủ tiền của hai đội (mô phỏng)' : 'chủ sân nhận đủ tiền của hai đội'}.`, { link: `/match.html?id=${m.id}` });
   }
   save();
-  return toMatch(m, owner);
 }
+/* ---------- Ngân hàng báo có tiền (mô phỏng SePay) ----------
+ * Bản thật: khách chuyển thẳng vào tài khoản chủ sân, SePay gọi webhook về server, server khớp mã đơn + số tiền rồi tự ghi nhận.
+ * Bản này chỉ giả lập: một hàm duy nhất `bankReport` nhận dữ liệu giống webhook; cả đồng hồ chờ, nút của khách và nút Demo đều gọi nó,
+ * nên luật khớp mã / số tiền chỉ nằm ở đây. Code chỉ đọc mã đơn có cấu trúc và so số tiền, không hiểu ý lời nhắn. */
+const BANK_ACTOR = { fullName: 'Ngân hàng báo (mô phỏng)', role: 'bank' };
+const BANK_DELAY_MS = 4000; // thời gian thật (không tính đồng hồ tua) từ lúc khách bấm giả lập đến lúc "ngân hàng báo"
+const BANK_CODE_RE = /(?<![A-Z0-9])(TD|NH)?(SN\d{5})([AB])?(?![A-Z0-9])/i;
+const BANK_REASONS = {
+  no_code: 'Nội dung chuyển khoản không có mã đơn hợp lệ',
+  unknown_order: 'Không có đơn nào mang mã này ở sân của bạn',
+  not_approved: 'Đơn chưa được chủ sân đồng ý nên chưa nhận tiền tự động',
+  not_payable: 'Đơn không còn chờ tiền (đã trả, đã hủy hoặc hết hạn)',
+  wrong_account: 'Tiền vào tài khoản của sân khác, nội dung lại mang mã đơn của sân này',
+  no_account: 'Báo cáo của ngân hàng không có số tài khoản nhận',
+  short: 'Số tiền ít hơn số cần chuyển',
+  over: 'Số tiền nhiều hơn số cần chuyển',
+};
+
+function parseBankCode(content) {
+  const m = BANK_CODE_RE.exec(String(content || ''));
+  if (!m) return null;
+  const prefix = (m[1] || '').toUpperCase();
+  const code = m[2].toUpperCase();
+  const part = (m[3] || '').toUpperCase();
+  if (prefix === 'TD' && part) return { kind: 'match', code, part: part === 'A' ? 'host' : 'guest' };
+  if (prefix === 'NH' && !part) return { kind: 'transfer', code };
+  if (!prefix && !part) return { kind: 'booking', code };
+  return null;
+}
+
+/** Đơn/khoản đang chờ tiền ứng với mã, hoặc lý do không khớp. */
+function bankTarget(p) {
+  const b = S.bookings.find((x) => x.code === p.code);
+  if (!b) return { reason: 'unknown_order' };
+  if (p.kind === 'booking') {
+    if (b.walkIn) return { b, reason: 'not_payable' };
+    if (b.status === 'pending') return { b, reason: 'not_approved' };
+    if (b.status !== 'confirmed' || b.paymentStatus !== 'unpaid') return { b, reason: 'not_payable' };
+    return { b, due: b.price, apply: (note) => doPaid(b, BANK_ACTOR, note, 'bank') };
+  }
+  if (p.kind === 'transfer') {
+    const t = S.transfers.find((x) => x.bookingId === b.id && x.status === 'claimed' && vnToMs(x.claimExpiresAt) > nowMs());
+    if (!t) return { b, reason: 'not_payable' };
+    return { b, due: t.askPrice, apply: (note) => { finishTransfer(t, BANK_ACTOR, note); } };
+  }
+  const m = matchOfBooking(b);
+  const due = m && (p.part === 'host' ? hostPending(m) : guestPending(m));
+  if (!due) return { b, reason: 'not_payable' };
+  return { b, due: partAmount(m, p.part), apply: (note) => confirmPart(m, b, BANK_ACTOR, p.part, note) };
+}
+
+/** Dữ liệu giống webhook: { txId, content, amount, account }. Cùng txId gọi lại thì không ghi thêm gì. */
+function bankReport(d) {
+  const txId = String(d.txId || '').trim();
+  req(txId, 'Thiếu mã giao dịch');
+  const old = S.bankEvents.find((e) => e.txId === txId);
+  if (old) return { ...old, duplicate: true };
+  const amount = Math.round(Number(d.amount));
+  req(amount > 0, 'Số tiền không hợp lệ');
+  const content = String(d.content || '').slice(0, 200);
+  const parsed = parseBankCode(content);
+  const account = String(d.account || '').trim();
+  const target = parsed ? bankTarget(parsed) : { reason: 'no_code' };
+  // Mỗi báo cáo gắn với một tài khoản nhận: tìm sân theo tài khoản trước, đơn chỉ được tự nhận khi thuộc đúng tài khoản đó.
+  const accountVenue = account ? S.venues.find((v) => v.bank?.account === account) || null : null;
+  const orderVenue = target.b ? courtOf(target.b.courtId)[0] : null;
+  if (target.b && !target.reason) {
+    if (!account) target.reason = 'no_account';
+    else if (orderVenue.bank?.account !== account) target.reason = 'wrong_account';
+  }
+  const venue = (target.reason === 'wrong_account' ? accountVenue : accountVenue || orderVenue) || orderVenue;
+  const ev = {
+    id: nextId('bankEvent'),
+    txId,
+    content,
+    amount,
+    account: account || null,
+    venueId: venue?.id ?? null,
+    ownerId: venue?.ownerId ?? null,
+    bookingId: target.b?.id ?? null,
+    bookingCode: target.b?.code ?? parsed?.code ?? null,
+    expected: target.due ?? null,
+    status: 'matched',
+    reason: null,
+    handledBy: null,
+    handledAt: null,
+    receivedAt: now(),
+  };
+  let reason = target.reason || null;
+  if (!reason && amount !== target.due) reason = amount < target.due ? 'short' : 'over';
+  S.bankEvents.push(ev);
+  if (!reason) {
+    target.apply(`Ngân hàng báo đã nhận ${vnd(amount)}, nội dung "${content}", mã giao dịch ${txId} (mô phỏng SePay)`);
+    if (ev.ownerId != null) notify(ev.ownerId, `Ngân hàng báo đã nhận ${vnd(amount)} cho đơn ${ev.bookingCode}. Hệ thống đã tự ghi nhận "Đã nhận tiền" (mô phỏng).`, { bookingId: ev.bookingId, link: '/owner-bookings.html' });
+  } else {
+    ev.status = 'unmatched';
+    ev.reason = reason;
+    const b = target.b;
+    if (b) addLog(b, 'bank_unmatched', null, null, BANK_ACTOR, `Ngân hàng báo ${vnd(amount)}, nội dung "${content}" nhưng chưa tự ghi nhận: ${BANK_REASONS[reason]}${target.due ? ` (cần ${vnd(target.due)})` : ''} (mô phỏng SePay)`);
+    if (ev.ownerId != null) notify(ev.ownerId, `Ngân hàng báo ${vnd(amount)}, nội dung "${content}" nhưng chưa tự ghi nhận được: ${BANK_REASONS[reason].toLowerCase()}. Cần bạn xem và xử lý.`, { bookingId: b?.id ?? null, link: '/owner.html' });
+    if (b?.userId != null && ['short', 'over'].includes(reason)) notify(b.userId, `Ngân hàng báo đã nhận ${vnd(amount)} cho ${b.code}, chưa khớp số cần chuyển (${vnd(target.due)}). Chủ sân sẽ xem và liên hệ bạn.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  }
+  save();
+  return { ...ev, duplicate: false };
+}
+
+/** Chạy các khoản giả lập đã đến hạn (hoặc tất cả khi force). */
+function tickBank(force = false) {
+  let changed = false;
+  const due = S.bankQueue.filter((q) => force || q.dueAtReal <= Date.now());
+  for (const q of due) {
+    S.bankQueue.splice(S.bankQueue.indexOf(q), 1);
+    try {
+      bankReport(q);
+    } catch {
+      /* khoản hỏng thì bỏ */
+    }
+    changed = true;
+  }
+  return changed;
+}
+
+function ownerBankEvents(user) {
+  return S.bankEvents
+    .filter((e) => e.ownerId === user.id)
+    .sort((a, b) => b.receivedAt.localeCompare(a.receivedAt) || b.id - a.id)
+    .map((e) => ({ ...e, reasonText: e.reason ? BANK_REASONS[e.reason] : null }));
+}
+function resolveBankEvent(ctx) {
+  const user = need(ctx, 'owner');
+  const e = S.bankEvents.find((x) => x.id === Number(ctx.params.id));
+  if (!e || e.ownerId !== user.id) fail(404, 'Không tìm thấy khoản tiền này');
+  if (e.status !== 'unmatched') fail(409, 'Khoản tiền này không cần xử lý');
+  e.status = 'resolved';
+  e.handledBy = user.fullName;
+  e.handledAt = now();
+  const note = String(ctx.body?.note || '').slice(0, 300);
+  const b = e.bookingId ? S.bookings.find((x) => x.id === e.bookingId) : null;
+  if (b) addLog(b, 'bank_resolved', null, null, user, `Đã xử lý khoản ${vnd(e.amount)} ngân hàng báo (${BANK_REASONS[e.reason].toLowerCase()})${note ? `. ${note}` : ''}`);
+  save();
+  return { ...e, reasonText: BANK_REASONS[e.reason] };
+}
+
 function doRejectGuest(ctx) {
   const [m, , owner] = ownerMatch(ctx);
   if (m.status !== 'joined') fail(409, 'Chưa có đội vào kèo để từ chối');
@@ -1761,12 +1914,40 @@ function ownerMatches(user) {
     .map((m) => toMatch(m, user));
 }
 
+/**
+ * Lịch điện thoại mẫu luôn có mặt, giờ nào mở demo cũng vậy. Giờ ghi trong mẫu là giờ ưu tiên; nếu ô đó đã qua, đang có lịch/chặn hoặc là giờ chỉ ghép kèo
+ * thì lấy ô trống chưa bắt đầu gần giờ ưu tiên nhất (cùng cụm sân, trong ngày của mẫu); hết ô thì sang ngày kế tiếp. Chọn theo dữ liệu đã dựng nên kết quả tất định.
+ */
+function freePhoneSlot(st, spec) {
+  const [venue] = courtOf(spec.courtId);
+  const free = (court, date, start) => {
+    const startAt = `${date} ${start}:00`;
+    return vnToMs(startAt) > nowMs()
+      && !teamModeAt(court, start)
+      && !st.bookings.some((x) => x.courtId === court.id && x.startAt === startAt && ['pending', 'confirmed', 'matching'].includes(x.status))
+      && !st.blocks.some((k) => k.courtId === court.id && k.date === date && k.start < slotEnd(venue, start) && k.end > start);
+  };
+  const grid = slotGrid(venue);
+  const want = hmToMin(spec.start);
+  const courts = [venue.courts.find((c) => c.id === spec.courtId), ...venue.courts.filter((c) => c.id !== spec.courtId)].filter((c) => c?.isActive);
+  for (let d = spec.day; d <= spec.day + 1; d++) {
+    const date = addDays(dateOf(now()), d);
+    const cands = [];
+    for (const [ci, court] of courts.entries()) for (const start of grid) if (free(court, date, start)) cands.push({ court, date, start, key: [Math.abs(hmToMin(start) - want), ci, start] });
+    cands.sort((x, y) => x.key[0] - y.key[0] || x.key[1] - y.key[1] || x.key[2].localeCompare(y.key[2]));
+    if (cands.length) return cands[0];
+  }
+  return null;
+}
+
 function seedPhoneBookings(st) {
-  for (const spec of seeds.bookings.phoneBookings || []) {
-    const [venue, court] = courtOf(spec.courtId);
-    const date = addDays(dateOf(now()), spec.day);
-    const startAt = `${date} ${spec.start}:00`;
-    if (st.bookings.some((x) => x.courtId === court.id && x.startAt === startAt && ['pending', 'confirmed', 'matching'].includes(x.status))) continue;
+  for (const base of seeds.bookings.phoneBookings || []) {
+    const [venue] = courtOf(base.courtId);
+    const pick = freePhoneSlot(st, base);
+    if (!pick) continue;
+    const { court, date } = pick;
+    const startAt = `${date} ${pick.start}:00`;
+    const spec = { ...base, start: pick.start };
     const slot = slotInfo(court, venue, date, spec.start, null, true);
     const b = {
       id: nextId('booking'), code: '', userId: null, walkIn: { name: spec.name, phone: spec.phone || '' }, venueId: venue.id, courtId: court.id,
@@ -2480,6 +2661,8 @@ route('DELETE', '/api/owner/blocks/:id', (c) => {
 route('GET', '/api/owner/bookings', (c) => listBookings(need(c, 'owner'), c.query));
 route('POST', '/api/owner/bookings', addPhoneBooking);
 route('PUT', '/api/owner/bookings/:id', updatePhoneBooking);
+route('GET', '/api/owner/bank-events', (c) => ownerBankEvents(need(c, 'owner')));
+route('POST', '/api/owner/bank-events/:id/resolve', resolveBankEvent);
 route('GET', '/api/owner/transfers', (c) => ownerTransfers(need(c, 'owner')));
 route('GET', '/api/owner/matches', (c) => ownerMatches(need(c, 'owner')));
 route('POST', '/api/owner/matches/:id/confirm-part', doConfirmPart);
@@ -2610,6 +2793,30 @@ export const proto = {
       }
     }
     return { cancelled: n };
+  },
+  /** Khách bấm "giả lập chuyển khoản": vài giây sau ngân hàng mới báo về (mô phỏng SePay). Tiền đúng nội dung/số tiền của mã QR, trừ khi chọn lệch. */
+  async simulateTransfer({ content, amount, account, immediate = false }) {
+    await ready();
+    const tx = `MOCK${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`.toUpperCase();
+    const q = { txId: tx, content, amount, account, dueAtReal: Date.now() + BANK_DELAY_MS };
+    S.bankQueue.push(q);
+    save();
+    if (immediate) tickBank(true);
+    else setTimeout(() => { if (S.bankQueue.includes(q)) { tickBank(); save(); } }, BANK_DELAY_MS + 50);
+    return { txId: tx, delayMs: immediate ? 0 : BANK_DELAY_MS };
+  },
+  /** Gọi thẳng "ngân hàng báo có tiền" với dữ liệu giống webhook (dùng cho Demo và kiểm thử). */
+  async bankReport(d) {
+    await ready();
+    return bankReport(d);
+  },
+  /** Ngân hàng báo ngay mọi khoản đang chờ. */
+  async flushBank() {
+    await ready();
+    const n = S.bankQueue.length;
+    tickBank(true);
+    save();
+    return { reported: n };
   },
   async state() {
     await ready();

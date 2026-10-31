@@ -62,6 +62,10 @@ document.addEventListener('click', async (e) => {
     } else if (b.dataset.proto === 'clock') {
       await api.proto.advanceClock(15);
       location.reload();
+    } else if (b.dataset.proto === 'bank') {
+      const r = await api.proto.flushBank();
+      toast(r.reported ? `Ngân hàng báo ${r.reported} khoản tiền đang chờ (mô phỏng).` : 'Chưa có khoản chuyển khoản nào đang chờ. Bấm "Giả lập chuyển khoản" ở mã QR của một đơn trước.');
+      setTimeout(() => location.reload(), 900);
     } else if (b.dataset.proto === 'holder') {
       const r = await api.proto.holderCancels();
       toast(r.cancelled ? `Người đang giữ giờ đã hủy (${r.cancelled}). Xem thông báo của bạn.` : 'Bạn chưa xếp hàng chờ giờ nào đang có người giữ.');
@@ -100,6 +104,7 @@ export async function mountShell() {
       <button type="button" data-proto="reset">Đặt lại dữ liệu demo</button>
       <button type="button" data-proto="clock">Tua đồng hồ +15 phút</button>
       <button type="button" data-proto="holder">Giả lập: người giữ giờ hủy</button>
+      <button type="button" data-proto="bank">Giả lập: ngân hàng báo có tiền ngay</button>
     </div>`;
 
   const header = document.getElementById('app-header');
