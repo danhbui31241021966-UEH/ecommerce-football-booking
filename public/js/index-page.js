@@ -4,6 +4,7 @@ import { mountShell, toast } from '/js/ui/shell.js';
 import { icon } from '/js/ui/icons.js';
 import { teamSlotHref } from '/js/ui/match.js';
 import { hoursFor, nearestHour, settleChoice } from '/js/ui/hours.js';
+import { leagueCard } from '/js/ui/league-ui.js';
 import { addDays, dateOf, hmToMin, minToHm, money, moneyShort, relativeDayLabel, timeOf } from '/js/ui/format.js';
 
 const $ = (id) => document.getElementById(id);
@@ -230,5 +231,16 @@ async function main() {
     $('tonight-meta').textContent = 'Không tải được dữ liệu';
   }
 }
+// Dải giải đấu nằm sau phần chính và tự ẩn nếu không có giải (hoặc tải lỗi): không chen vào việc đặt sân.
+async function homeLeagues() {
+  try {
+    const list = (await api.leagues()).filter((l) => l.status !== 'finished').slice(0, 3);
+    if (!list.length) return;
+    $('hl-list').innerHTML = list.map(leagueCard).join('');
+    $('home-leagues').hidden = false;
+  } catch {
+    /* dải này chỉ là lối vào phụ */
+  }
+}
 startHeroSlides();
-main();
+main().then(homeLeagues);

@@ -6,7 +6,7 @@ import {
   vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs, weekdayOf,
 } from './ui/format.js';
 
-const STORE_KEY = 'sannhanh.mock.v11';
+const STORE_KEY = 'sannhanh.mock.v12';
 const STATUSES = ['pending', 'confirmed', 'rejected', 'cancelled', 'expired', 'completed', 'no_show', 'transferred', 'matching'];
 
 let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
@@ -2780,6 +2780,8 @@ function toLeague(l, staff = false) {
     venueId: venue.id,
     venueName: venue.name,
     venueAddress: venue.address,
+    venueDistrict: venue.district,
+    venuePhone: venue.phone || '',
     indexable: !!venue.dataSource,
     name: l.name,
     fieldType: l.fieldType,
@@ -3108,6 +3110,21 @@ const venueLeagues = (venueId) =>
     .filter((l) => l.venueId === venueId && l.publishedAt && leagueStatus(l) !== 'finished')
     .map((l) => ({ id: l.id, name: l.name, fieldType: l.fieldType, status: leagueStatus(l) }));
 
+/** Danh sách giải đã công bố (không cần đăng nhập): đang đá, rồi sắp đá, đã xong để cuối. Giải nháp không bao giờ có mặt. */
+const LEAGUE_ORDER = { ongoing: 0, published: 1, finished: 2 };
+function publicLeagues(c) {
+  const district = String(c.query.district || '');
+  return S.leagues
+    .filter((l) => l.publishedAt && (!district || venueOf(l.venueId).district === district))
+    .map((l) => {
+      const o = toLeague(l, false);
+      const lead = o.standings[0]?.played > 0 ? o.standings[0] : null;
+      const next = o.matches.filter((m) => !m.score && m.date).map((m) => `${m.date} ${m.start}`).sort()[0] || null;
+      return { id: o.id, name: o.name, venueId: o.venueId, venueName: o.venueName, venueDistrict: o.venueDistrict, venuePhone: o.venuePhone, indexable: o.indexable, fieldType: o.fieldType, link: o.link, status: o.status, teamCount: o.teams.length, matches: o.counts.matches, done: o.counts.done, nextAt: next, leader: lead ? { teamId: lead.teamId, name: lead.name, points: lead.points, played: lead.played } : null, publishedAt: o.publishedAt };
+    })
+    .sort((a, b) => LEAGUE_ORDER[a.status] - LEAGUE_ORDER[b.status] || (a.status === 'finished' ? 0 : (a.nextAt || '9').localeCompare(b.nextAt || '9')) || b.publishedAt.localeCompare(a.publishedAt) || b.id - a.id);
+}
+route('GET', '/api/leagues', publicLeagues);
 route('GET', '/api/leagues/:id', (c) => toLeague(publicLeague(c.params.id), false));
 route('GET', '/api/owner/leagues', (c) => ownerLeagues(c));
 route('POST', '/api/owner/leagues', createLeague);
@@ -3163,8 +3180,9 @@ route('POST', '/api/owner/leagues/:id/teams/:tid/withdraw', withdrawLeagueTeam);
 
 /** Giải mẫu đang đá dở ở sân của chusan1: các trận đã đá nằm ở những ngày đã qua, các trận còn lại ở ô trống gần nhất từ ngày mai, nên không đổi theo giờ mở demo. */
 function seedLeagues(st) {
-  const cfg = seeds.bookings.league;
-  if (!cfg) return;
+  for (const cfg of [seeds.bookings.league, ...(seeds.bookings.moreLeagues || [])]) if (cfg) seedOneLeague(st, cfg);
+}
+function seedOneLeague(st, cfg) {
   const venue = venueOf(cfg.venueId);
   const court = venue.courts.find((c) => c.fieldType === cfg.fieldType && c.isActive);
   const owner = userOf(venue.ownerId);

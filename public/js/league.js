@@ -2,7 +2,7 @@
 import { api } from '/js/api.js';
 import { mountShell, toast } from '/js/ui/shell.js';
 import { $ } from '/js/ui/page.js';
-import { esc, heroHtml, tabsHtml, wireTabs, standingsHtml, scheduleHtml, rulesHtml, teamBadge, TAB_KEYS } from '/js/ui/league-ui.js';
+import { esc, heroHtml, tabsHtml, wireTabs, standingsHtml, scheduleHtml, rulesHtml, teamBadge, TAB_KEYS, PUBLIC_STATUS_TEXT, contactLink, REGISTER_NOTE } from '/js/ui/league-ui.js';
 
 const SITE = 'https://sannhanh.pages.dev';
 const root = $('league-root');
@@ -33,11 +33,12 @@ const teamsHtml = () =>
     .join('')}</ul>`;
 
 function render() {
-  const actions = `<button class="btn btn-sm btn-lime" type="button" id="copy-link">Sao chép link giải</button>
-    ${L.link ? `<a class="btn btn-sm btn-onimg" href="${esc(L.link)}" target="_blank" rel="noopener">Nhóm Zalo / fanpage</a>` : ''}
+  const actions = `${contactLink(L, { cls: 'btn btn-sm btn-lime' })}
+    <button class="btn btn-sm btn-onimg" type="button" id="copy-link">Sao chép link giải</button>
     <a class="btn btn-sm btn-onimg" href="/venue.html?id=${L.venueId}">Xem giờ trống của sân</a>`;
   const sub = `Đá tại <a href="/venue.html?id=${L.venueId}">${esc(L.venueName)}</a>${L.venueAddress ? ` · ${esc(L.venueAddress)}` : ''}`;
-  root.innerHTML = `${heroHtml(L, { sub, actions })}
+  root.innerHTML = `${heroHtml(L, { sub, actions, statusText: PUBLIC_STATUS_TEXT })}
+    <p class="lg-regnote">${REGISTER_NOTE}</p>
     ${tabsHtml(
       [
         { key: TAB_KEYS.standings, label: 'Bảng xếp hạng', html: standingsHtml(L) },

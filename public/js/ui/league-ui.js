@@ -5,6 +5,8 @@ import { dayLabel } from '/js/ui/format.js';
 export const esc = (s) => String(s ?? '').replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]);
 
 export const STATUS_TEXT = { draft: 'Đang soạn', published: 'Đã công bố', ongoing: 'Đang đá', finished: 'Đã kết thúc' };
+/** Nhãn cho khách (thẻ danh sách và trang giải công khai); màn chủ sân dùng STATUS_TEXT. */
+export const PUBLIC_STATUS_TEXT = { ...STATUS_TEXT, published: 'Sắp đá' };
 export const HERO_IMG = { small: '/img/photos/hero-13907438-800.jpg', large: '/img/photos/hero-13907438-1600.jpg' };
 
 /* ---------- Biểu tượng đội: tròn, màu cố định theo id ---------- */
@@ -21,11 +23,11 @@ export function progress(done, total, { label = 'trận đã đá' } = {}) {
 }
 
 /* ---------- Đầu trang ---------- */
-export function heroHtml(L, { sub = '', actions = '' } = {}) {
+export function heroHtml(L, { sub = '', actions = '', statusText = STATUS_TEXT } = {}) {
   return `<header class="lg-hero">
     <img src="${HERO_IMG.small}" srcset="${HERO_IMG.small} 800w, ${HERO_IMG.large} 1600w" sizes="(min-width: 1180px) 1180px, 100vw" alt="" width="800" height="533" fetchpriority="high">
     <div class="lg-hero-in">
-      <p class="lg-kicker"><span class="lg-st lg-st-${L.status}">${STATUS_TEXT[L.status]}</span><span>Sân ${esc(L.fieldType)} người · ${L.teams.length} đội</span></p>
+      <p class="lg-kicker"><span class="lg-st lg-st-${L.status}">${statusText[L.status]}</span><span>Sân ${esc(L.fieldType)} người · ${L.teams.length} đội</span></p>
       <h1 class="lg-title">${esc(L.name)}</h1>
       ${sub ? `<p class="lg-where">${sub}</p>` : ''}
       ${progress(L.counts.done, L.counts.matches)}
@@ -210,4 +212,34 @@ export function wireMenus(root) {
     });
     list.addEventListener('click', () => close(false));
   }
+}
+
+/* ---------- Thẻ giải ở trang danh sách và trang chủ; nút nhắn chủ sân ---------- */
+const dm = (ts) => `${ts.slice(11, 16)} ${ts.slice(8, 10)}/${ts.slice(5, 7)}`;
+
+/** Nút liên hệ: link nhóm Zalo/fanpage của giải nếu có, không thì số điện thoại của sân. Không có cả hai thì dẫn về trang sân, không tự đặt số. */
+export function contactLink(L, { cls = 'btn btn-sm' } = {}) {
+  const label = 'Muốn đăng ký đội? Nhắn chủ sân';
+  if (L.link) return `<a class="${cls}" href="${esc(L.link)}" target="_blank" rel="noopener" data-contact="link">${label}</a>`;
+  const tel = String(L.venuePhone || '').replace(/[^\d+]/g, '');
+  if (tel) return `<a class="${cls}" href="tel:${tel}" data-contact="tel">${label}</a>`;
+  return `<a class="${cls}" href="/venue.html?id=${L.venueId}" data-contact="venue">${label}</a>`;
+}
+export const REGISTER_NOTE = 'Web chưa cho đội tự đăng ký. Chủ sân là người thêm đội vào giải, nên hãy nhắn hoặc gọi chủ sân.';
+
+function leaderLine(L) {
+  if (L.leader) return `${L.status === 'finished' ? 'Vô địch' : 'Đầu bảng'}: <b>${esc(L.leader.name)}</b> · ${L.leader.points} điểm sau ${L.leader.played} trận`;
+  if (L.nextAt) return `Trận đầu tiên: ${dm(L.nextAt)}`;
+  return 'Chưa có trận nào được xếp';
+}
+
+export function leagueCard(L) {
+  return `<li class="lg-card lg-pubcard" data-id="${L.id}">
+    <p class="lc-top"><span class="lg-st lg-st-${L.status}">${PUBLIC_STATUS_TEXT[L.status]}</span><span class="muted">Sân ${esc(L.fieldType)} người · ${L.teamCount} đội</span></p>
+    <h3 class="lc-name"><a class="lc-link" href="/league.html?id=${L.id}">${esc(L.name)}</a></h3>
+    <p class="muted lc-where">${esc(L.venueName)} · ${esc(L.venueDistrict)}</p>
+    ${progress(L.done, L.matches)}
+    <p class="lc-lead">${leaderLine(L)}</p>
+    <div class="lc-foot">${contactLink(L)}</div>
+  </li>`;
 }

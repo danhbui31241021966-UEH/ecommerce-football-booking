@@ -105,6 +105,7 @@ export const api = {
   joinWaitlist: (body) => post('/api/waitlist', body),
   myWaitlist: () => get('/api/waitlist/mine'),
   /** Trang giải công khai (không cần đăng nhập): chỉ giải đã công bố. */
+  leagues: (district) => get('/api/leagues', district ? { district } : undefined),
   league: (id) => get(`/api/leagues/${id}`),
   leaveWaitlist: (id) => request('DELETE', `/api/waitlist/${id}`),
   /** Pass sân. offerTransfer: body { askPrice } (≤ giá đã trả, làm tròn 1.000đ) → Transfer. */

@@ -3220,3 +3220,32 @@ i.slot-league { min-height: 0; padding: 0; }
     transition: none;
   }
 }
+
+/* ---------- Giải đấu công khai: thẻ ở trang danh sách và trang chủ ---------- */
+.lg-pubgrid { margin-top: var(--sp-4); }
+@media (min-width: 1024px) { .lg-pubgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+.lg-pubcard { position: relative; display: grid; gap: var(--sp-2); align-content: start; padding: var(--sp-4); }
+.lg-pubcard:hover { border-color: var(--pitch-950); }
+.lg-pubcard .lg-st { border-color: var(--line-strong); background: var(--neutral-bg); color: var(--text-2); }
+.lg-pubcard .lg-st-ongoing { border-color: var(--lime-400); background: var(--lime-400); color: var(--pitch-950); }
+.lg-pubcard .lc-name { margin: 0; }
+.lg-pubcard .lc-link { color: inherit; text-decoration: none; }
+.lg-pubcard .lc-link::after { content: ''; position: absolute; inset: 0; border-radius: var(--r-lg); }
+.lg-pubcard .lc-link:focus-visible { outline: none; }
+.lg-pubcard .lc-link:focus-visible::after { outline: 2px solid var(--text); outline-offset: 2px; }
+.lg-pubcard .lc-where, .lg-pubcard .lc-lead { margin: 0; overflow-wrap: anywhere; }
+.lg-pubcard .lg-prog { max-width: none; }
+.lg-pubcard .lc-foot { position: relative; z-index: 1; margin-top: var(--sp-2); }
+.lg-regnote { margin: var(--sp-3) 0; padding: var(--sp-3) var(--sp-4); border: 1px solid var(--line-strong); border-radius: var(--r-lg); background: var(--surface); color: var(--text-2); font-size: var(--fs-sm); }
+.lg-filter { margin-bottom: var(--sp-5); }
+.lg-done { margin-top: var(--sp-6); }
+.lg-done > summary { cursor: pointer; list-style: none; }
+.lg-done > summary::-webkit-details-marker { display: none; }
+.lg-done > summary .h2 { display: inline-flex; align-items: center; gap: var(--sp-2); margin: 0; }
+.lg-done > summary .h2::before { content: '+'; display: inline-grid; place-items: center; width: 1.4em; height: 1.4em; border: 1px solid var(--text); border-radius: var(--r-sm); font-size: 0.8em; }
+.lg-done[open] > summary .h2::before { content: '–'; }
+.lg-done > summary:focus-visible { outline: 2px solid var(--text); outline-offset: 4px; }
+.home-leagues { padding: var(--sp-8) 0; border-bottom: 1px solid var(--line); }
+.home-leagues .rule-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--sp-3); }
+.home-leagues .rule-head .h2 { margin: 0; }
+.home-leagues[hidden] { display: none; }
