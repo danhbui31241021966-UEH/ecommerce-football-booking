@@ -4,11 +4,13 @@ const { pool, withTransaction } = require('../db');
 const { seedCore } = require('./core');
 const { seedBookings } = require('./bookings');
 const { seedBlocks } = require('./blocks');
+const { seedPhoneBookings } = require('./phoneBookings');
 
 const SEEDERS = [
   { name: 'core', run: seedCore },
   { name: 'bookings', run: seedBookings },
   { name: 'blocks', run: seedBlocks },
+  { name: 'phoneBookings', run: seedPhoneBookings }, // sau chặn giờ: chọn ô theo dữ liệu đã dựng
 ];
 
 /** Xóa mọi dữ liệu (giữ cấu trúc và bảng sessions, đặt lại AUTO_INCREMENT) rồi nạp lại. Trả số liệu của từng seeder. */

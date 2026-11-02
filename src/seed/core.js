@@ -45,6 +45,10 @@ async function seedCore(tx) {
       );
     }
   }
+  // R13: các sân chỉ nhận ghép kèo trong một khung giờ (cùng nguồn với prototype).
+  for (const k of readMock('matches').courtModes || []) {
+    await tx.query('UPDATE courts SET team_mode_enabled = 1, team_mode_from = ?, team_mode_to = ? WHERE id = ?', [k.from || null, k.to || null, k.courtId]);
+  }
   return { users: users.length, venues: venues.length, realVenues: venues.filter((v) => v.dataSource).length, demoVenues: venues.filter((v) => !v.dataSource).length };
 }
 

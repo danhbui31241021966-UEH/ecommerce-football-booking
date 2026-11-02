@@ -21,7 +21,7 @@ test('nạp demo: lịch mẫu theo khóa mock, đám đông chỉ ở sân th�
   const k1 = await h.db.one('SELECT code, id FROM bookings WHERE id = 1');
   assert.equal(k1.code, 'SN00001');
   assert.ok((await h.db.query('SELECT DISTINCT venue_id FROM bookings WHERE venue_id >= 7')).length > 10, 'sân thật có khách nền');
-  assert.ok((await h.db.one('SELECT COUNT(*) AS n FROM bookings WHERE venue_id < 7')).n <= 20, 'sân demo chỉ có lịch mẫu');
+  assert.ok((await h.db.one('SELECT COUNT(*) AS n FROM bookings WHERE venue_id < 7 AND source = \'web\'')).n <= 20, 'sân demo chỉ có lịch mẫu');
   assert.deepEqual(await h.findClaimDrift(h.db), { missing: [], stale: [] });
   const waits = await h.db.query('SELECT status FROM waitlist ORDER BY id');
   assert.deepEqual(waits.map((w) => w.status), ['waiting', 'waiting', 'waiting', 'offered']);
@@ -45,4 +45,14 @@ test('qua API: khach1 thấy lịch của mình, chusan1 thấy lịch chờ duy
   const pending = (await o.get('/api/owner/bookings?status=pending')).body;
   assert.ok(pending.length >= 1 && pending.every((b) => b.status === 'pending'));
   assert.equal((await o.get('/api/owner/bookings')).body.every((b) => [1, 2, 3, 4, 5, 6].includes(b.venueId) || b.venueId >= 1), true);
+});
+
+test('lịch điện thoại mẫu: Anh Tùng đã trả, Chị Lan (Zalo) chưa trả; không tài khoản, có claim, không thông báo', async () => {
+  const rows = await h.db.query("SELECT walk_in_name, payment_status, user_id, status, start_at FROM bookings WHERE source = 'phone' ORDER BY id");
+  assert.deepEqual(rows.map((r) => [r.walkInName, r.paymentStatus, r.userId, r.status]), [
+    ['Anh Tùng', 'paid', null, 'confirmed'],
+    ['Chị Lan (Zalo)', 'unpaid', null, 'confirmed'],
+  ]);
+  assert.ok(rows.every((r) => Date.parse(`${r.startAt.replace(' ', 'T')}+07:00`) > Date.now()), 'ô chưa bắt đầu');
+  assert.deepEqual(await h.findClaimDrift(h.db), { missing: [], stale: [] });
 });

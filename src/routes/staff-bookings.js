@@ -5,6 +5,7 @@ const { requireRole } = require('../middleware/auth');
 const { notFound } = require('../utils/errors');
 const ops = require('../services/bookingOps');
 const { listBookings } = require('../services/bookingView');
+const { createPhoneBooking, updatePhoneBooking } = require('../services/phoneBooking');
 
 /** role: 'owner' | 'admin'. Router gắn dưới /api/owner/bookings hoặc /api/admin/bookings. */
 function staffBookingRouter(role) {
@@ -23,6 +24,12 @@ function staffBookingRouter(role) {
     res.json(await listBookings({ ownerId: role === 'owner' ? req.user.id : null, status, date, venueId, q }));
   });
   if (role === 'owner') {
+    router.post('/', guard, async (req, res) => res.status(201).json(await createPhoneBooking(req.user, req.body)));
+    router.put('/:id', guard, async (req, res) => {
+      const id = Number(req.params.id);
+      if (!Number.isInteger(id) || id < 1) throw notFound('Không tìm thấy lịch đặt');
+      res.json(await updatePhoneBooking(req.user, id, req.body));
+    });
     act('approve', (u, id) => ops.approveBooking(u, id));
     act('reject', (u, id, p) => ops.rejectBooking(u, id, p.reason));
   }

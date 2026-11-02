@@ -215,7 +215,7 @@ router.get('/venues/:id/schedule', async (req, res) => {
   const to = `${addDays(date, 1)} 00:00:00`;
   const [bookings, waiters, blocks] = await Promise.all([
     db.query(
-      `SELECT b.id, b.code, b.status, b.user_id, b.start_at, b.end_at, b.payment_status, b.source,
+      `SELECT b.id, b.code, b.status, b.user_id, b.court_id, b.start_at, b.end_at, b.payment_status, b.source,
               b.walk_in_name, b.walk_in_phone, u.full_name, u.phone
          FROM bookings b
          LEFT JOIN users u ON u.id = b.user_id
