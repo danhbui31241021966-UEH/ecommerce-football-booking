@@ -1,14 +1,19 @@
 const config = require('./config');
 const { createApp } = require('./app');
-const { expireStale } = require('./services/bookings');
+const { pool } = require('./db');
 
 const app = createApp();
 
-app.listen(config.port, config.host, () => {
-  console.log(`Football booking chạy tại http://localhost:${config.port}`);
+const server = app.listen(config.port, config.host, () => {
+  console.log(`SânNhanh chạy tại http://localhost:${config.port}`);
 });
 
-// Quét booking chờ duyệt quá hạn mỗi 15 giây để giải phóng slot.
-setInterval(() => {
-  expireStale().catch((err) => console.error('expireStale lỗi:', err.message));
-}, 15_000);
+// Tắt gọn khi nhận SIGINT/SIGTERM để không bỏ lại kết nối MySQL.
+for (const sig of ['SIGINT', 'SIGTERM']) {
+  process.on(sig, () => {
+    server.close(() => {
+      app.shutdown();
+      pool.end().finally(() => process.exit(0));
+    });
+  });
+}

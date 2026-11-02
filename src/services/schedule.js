@@ -1,101 +1,96 @@
-const { pool } = require('../db');
-const config = require('../config');
-const { badRequest, notFound } = require('../utils/errors');
-const slots = require('./slots');
+// Đọc trạng thái ô giờ cho API công khai (lưới giờ, giờ trống trên thẻ sân, tìm theo giờ).
+// Trạng thái ô suy ra từ slot_claims (ai đang giữ ô) + danh sách chờ đang được giữ quyền; ô "past" suy từ đồng hồ.
+const { db } = require('../db');
+const clock = require('../clock');
+const { RULES } = require('../rules');
+const { vnToMs, addDays, discountedPrice } = require('../lib/time');
+const { slotGrid, slotEnd, isPeak, basePriceOf, teamModeAt } = require('./slotGrid');
 
-async function getPublicVenue(venueId) {
-  const [rows] = await pool.query(
-    `SELECT v.* FROM venues v JOIN users o ON o.id = v.owner_id
-     WHERE v.id = ? AND v.is_active = 1 AND o.is_active = 1`,
-    [venueId],
+/** Ai đang giữ các ô trong ngày `date` của các sân con `courtIds`. Trả Map khóa `${courtId} ${HH:mm}`. */
+async function loadOccupancy(courtIds, date, conn = db) {
+  const occ = { claims: new Map(), waits: new Map() };
+  if (!courtIds.length) return occ;
+  const from = `${date} 00:00:00`;
+  const to = `${addDays(date, 1)} 00:00:00`;
+  const claims = await conn.query(
+    `SELECT sc.court_id, sc.start_at, sc.kind, b.status AS booking_status, b.user_id AS booking_user_id,
+            bl.reason AS block_reason, bl.league_id AS block_league_id
+       FROM slot_claims sc
+       LEFT JOIN bookings b ON b.id = sc.booking_id
+       LEFT JOIN blocks bl ON bl.id = sc.block_id
+      WHERE sc.court_id IN (?) AND sc.start_at >= ? AND sc.start_at < ?`,
+    [courtIds, from, to],
   );
-  if (!rows.length) throw notFound('Không tìm thấy sân hoặc sân đang tạm ngưng');
-  return rows[0];
+  for (const c of claims) occ.claims.set(`${c.courtId} ${c.startAt.slice(11, 16)}`, c);
+  const waits = await conn.query(
+    `SELECT id, user_id, court_id, start_at, status, offer_expires_at FROM waitlist
+      WHERE court_id IN (?) AND start_at >= ? AND start_at < ? ORDER BY id`,
+    [courtIds, from, to],
+  );
+  for (const w of waits) {
+    const key = `${w.courtId} ${w.startAt.slice(11, 16)}`;
+    if (!occ.waits.has(key)) occ.waits.set(key, []);
+    occ.waits.get(key).push(w);
+  }
+  return occ;
 }
-
-// Ngày được phép xem/đặt: từ hôm nay đến hôm nay + BOOKING_WINDOW_DAYS.
-function assertBookableDate(date) {
-  const today = slots.toDateStr(new Date());
-  const last = slots.addDays(today, config.bookingWindowDays);
-  if (date < today) throw badRequest('Không thể chọn ngày trong quá khứ');
-  if (date > last) throw badRequest(`Chỉ được đặt trước tối đa ${config.bookingWindowDays} ngày`);
-}
-
-// Booking đang giữ slot: đã xác nhận, hoặc chờ xác nhận và chưa quá hạn giữ chỗ.
-const HOLDING_SQL = `b.slot_lock = 1 AND (b.status = 'confirmed' OR b.expires_at > NOW())`;
 
 /**
- * Lịch trong ngày của một cụm sân: mỗi sân con x mỗi slot kèm trạng thái
- * available | held | booked | blocked | past.
- * withDetails=true (chủ sân/admin) trả thêm thông tin booking và lý do chặn.
+ * Một ô giờ. viewer = người xem (hoặc null). Thứ tự ưu tiên trạng thái: past > blocked > booked/held > offered > available.
+ * Các thuộc tính của tính năng chưa làm (match, transfer, league) sẽ được thêm ở đây khi bảng tương ứng có.
  */
-async function getDaySchedule(venue, date, { withDetails = false } = {}) {
-  const dayStart = `${date} 00:00:00`;
-  const dayEnd = `${slots.addDays(date, 1)} 00:00:00`;
+function slotInfo(venue, court, date, start, occ, viewer, nowMs = clock.nowMs()) {
+  const end = slotEnd(venue, start);
+  const peak = isPeak(venue, start);
+  const basePrice = basePriceOf(venue, court, start);
+  const startMs = vnToMs(`${date} ${start}`);
+  const slot = { start, end, basePrice, discountPercent: 0, price: basePrice, peak, status: 'available' };
 
-  const [courts] = await pool.query(
-    'SELECT * FROM courts WHERE venue_id = ? AND is_active = 1 ORDER BY name',
-    [venue.id],
-  );
-  const [bookings] = await pool.query(
-    `SELECT b.id, b.code, b.court_id, b.start_at, b.end_at, b.status, b.expires_at, b.payment_status,
-            u.full_name AS customer_name, u.phone AS customer_phone
-     FROM bookings b JOIN users u ON u.id = b.customer_id
-     WHERE b.venue_id = ? AND b.start_at < ? AND b.end_at > ? AND ${HOLDING_SQL}`,
-    [venue.id, dayEnd, dayStart],
-  );
-  const [blocks] = courts.length
-    ? await pool.query(
-        `SELECT id, court_id, start_at, end_at, reason FROM slot_blocks
-         WHERE court_id IN (?) AND start_at < ? AND end_at > ?`,
-        [courts.map((c) => c.id), dayEnd, dayStart],
-      )
-    : [[]];
+  const key = `${court.id} ${start}`;
+  const claim = occ.claims.get(key);
+  const waits = occ.waits.get(key) || [];
+  const activeOffer = waits.find((w) => w.status === 'offered' && w.offerExpiresAt && vnToMs(w.offerExpiresAt) > nowMs);
 
-  const now = slots.toSqlDateTime(new Date());
-  const daySlots = slots.generateSlots(venue);
+  if (startMs <= nowMs) slot.status = 'past';
+  else if (claim?.kind === 'block') slot.status = 'blocked';
+  else if (claim?.kind === 'booking') slot.status = claim.bookingStatus === 'confirmed' ? 'booked' : 'held';
+  else if (activeOffer) slot.status = 'offered';
 
+  if (viewer) {
+    if (waits.some((w) => w.userId === viewer.id)) slot.onWaitlist = true;
+    if (activeOffer && activeOffer.userId === viewer.id) {
+      slot.offeredToYou = true;
+      slot.offerExpiresAt = activeOffer.offerExpiresAt;
+    }
+    if (claim?.kind === 'booking' && claim.bookingUserId === viewer.id) slot.mine = true;
+  }
+  const teamMode = teamModeAt(court, start);
+  if (teamMode && slot.status === 'available') slot.teamMode = true;
+
+  // R6: giảm giờ chót; giờ ghép kèo luôn giá gốc.
+  const bookable = (slot.status === 'available' || slot.offeredToYou) && !slot.teamMode;
+  const hoursAhead = (startMs - nowMs) / 3600000;
+  if (bookable && hoursAhead > 0 && hoursAhead <= RULES.lastMinuteHours && venue.lastMinutePercent > 0) {
+    slot.discountPercent = venue.lastMinutePercent;
+    slot.price = discountedPrice(basePrice, venue.lastMinutePercent);
+  }
+  return slot;
+}
+
+/** Lịch một ngày của cụm sân (chỉ sân con đang hoạt động). */
+async function scheduleOf(venue, date, viewer) {
+  const courts = venue.courts.filter((c) => c.isActive);
+  const occ = await loadOccupancy(courts.map((c) => c.id), date);
   return {
     date,
-    slotMinutes: venue.slot_minutes,
-    courts: courts.map((court) => ({
-      id: court.id,
-      name: court.name,
-      fieldType: court.field_type,
-      slots: daySlots.map((s) => {
-        const startAt = `${date} ${s.start}:00`;
-        const endAt = `${date} ${s.end}:00`;
-        const overlaps = (x) => x.court_id === court.id && x.start_at < endAt && x.end_at > startAt;
-        const booking = bookings.find(overlaps);
-        const block = blocks.find(overlaps);
-
-        let status = 'available';
-        if (booking) status = booking.status === 'confirmed' ? 'booked' : 'held';
-        else if (block) status = 'blocked';
-        else if (startAt <= now) status = 'past';
-
-        const cell = {
-          start: s.start,
-          end: s.end,
-          price: slots.slotPrice(venue, court, s.start),
-          peak: slots.isPeak(venue, s.start),
-          status,
-        };
-        if (withDetails && booking) {
-          cell.booking = {
-            id: booking.id,
-            code: booking.code,
-            status: booking.status,
-            paymentStatus: booking.payment_status,
-            customerName: booking.customer_name,
-            customerPhone: booking.customer_phone,
-          };
-        }
-        if (withDetails && block) cell.block = { id: block.id, reason: block.reason };
-        return cell;
-      }),
+    slotMinutes: venue.slotMinutes,
+    courts: courts.map((c) => ({
+      id: c.id,
+      name: c.name,
+      fieldType: c.fieldType,
+      slots: slotGrid(venue).map((s) => slotInfo(venue, c, date, s, occ, viewer)),
     })),
   };
 }
 
-module.exports = { getPublicVenue, getDaySchedule, assertBookableDate, HOLDING_SQL };
+module.exports = { loadOccupancy, slotInfo, scheduleOf };

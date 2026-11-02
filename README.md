@@ -30,12 +30,18 @@ Admin cấp tài khoản chủ sân và chỉ can thiệp booking khi có tranh 
    ```bash
    cp .env.example .env      # sửa DB_PASSWORD, SESSION_SECRET
    npm install
-   npm run db:seed           # tạo bảng + dữ liệu mẫu (XÓA dữ liệu cũ)
-   npm start                 # http://localhost:3000
+   npm run db:init           # tạo lại toàn bộ bảng từ db/schema.sql (XÓA dữ liệu cũ)
+   npm run db:seed           # nạp dữ liệu demo: 34 sân thật + 6 sân demo + tài khoản demo (XÓA dữ liệu cũ)
+   npm start                 # http://localhost:3000, giao diện chạy chế độ thật
    ```
 
-3. Kiểm thử: `npm test`. Integration test dùng database riêng `football_booking_test`
-   (cần tạo và cấp quyền như bước 1; nếu không kết nối được thì tự bỏ qua).
+   Giao diện do Express phục vụ chạy với API thật; bản tĩnh (Cloudflare, `npm run prototype` ở cổng 4100) vẫn là dữ liệu giả.
+   Ở máy local thêm `?mode=mock` hoặc `?mode=real` vào URL để đổi (nhớ trong localStorage, `?mode=` để xóa).
+   Khi không phải production, `/api/dev/*` cho phép đặt lại dữ liệu demo, tua đồng hồ server và đăng nhập nhanh theo vai trò.
+
+3. Kiểm thử: `npm test` (cần MySQL). Bộ chạy tự tạo CSDL `football_booking_test_<ngẫu nhiên>` bằng chính `DB_USER`
+   (cần quyền ALL trên các CSDL tên `football_booking_test_%`), chạy mọi test trên đó rồi xóa. Chạy một file:
+   `npm test -- tests/booking.race.test.js`.
 
 ### Tài khoản demo (mật khẩu chung `Matkhau@123`)
 
@@ -64,13 +70,12 @@ tests/          unit test + integration test nghiệp vụ booking
 
 ## Các quy tắc nghiệp vụ được hiện thực
 
-- **Chống trùng lịch (NFR04):** khi tạo booking, server khóa dòng sân con (`SELECT … FOR UPDATE`) rồi kiểm tra
-  booking đang giữ slot (Đã xác nhận hoặc Chờ xác nhận còn hạn) và slot bị chặn. Thêm ràng buộc UNIQUE
-  `(court_id, start_at, slot_lock)` ở DB làm lớp bảo vệ thứ hai. Test: 10 khách đặt cùng slot cùng lúc → đúng 1 thành công.
+- **Chống trùng lịch (NFR04):** do CSDL bảo đảm (UNIQUE `uq_booking_slot` + bảng `slot_claims`, xem đầu `db/schema.sql`),
+  code chỉ đổi lỗi trùng khóa thành 409. Test `tests/booking.race.test.js`: nhiều khách đặt cùng ô cùng lúc → đúng 1 thành công.
 - **Gửi lặp:** mỗi lần mở form đặt sân sinh một `idempotencyKey`; gửi lại cùng mã trả về booking cũ.
 - **Giá tính ở server**, không tin giá client gửi lên. Giá, điều kiện sử dụng, chính sách hủy và hướng dẫn thanh toán
   được lưu snapshot vào booking.
-- **Chờ duyệt:** sân bật `requiresApproval` → booking ở trạng thái Chờ xác nhận, giữ slot `HOLD_MINUTES` phút (mặc định 5).
+- **Chờ duyệt:** sân bật `requiresApproval` → booking ở trạng thái Chờ xác nhận, giữ slot 15 phút (R3, `src/rules.js`).
   Job chạy mỗi 15 giây (và chạy ngay trước khi tạo/duyệt booking) chuyển booking quá hạn sang Hết hạn.
 - **Hủy/hoàn:** khách hủy ≥24h hoàn 100%, 12–<24h hoàn 50%, <12h không hoàn; chủ sân/Admin hủy (bắt buộc lý do) hoàn 100%.
   Hoàn tiền thủ công, web lưu số tiền và trạng thái Chưa hoàn/Đã hoàn.
@@ -86,7 +91,7 @@ Những điểm tài liệu chưa nói rõ, nhóm đã chốt khi triển khai:
 - Khách **được hủy booking đang Chờ xác nhận** (không phát sinh hoàn tiền).
 - **Tiền hoàn tính trên số tiền đã thanh toán**: booking chưa thanh toán thì số tiền hoàn = 0.
 - Chống trùng áp dụng cho **cả booking Chờ xác nhận còn hạn**, không chỉ Đã xác nhận.
-- Không đặt slot đã qua; chỉ đặt trước tối đa `BOOKING_WINDOW_DAYS` ngày (mặc định 14).
+- Không đặt slot đã qua; chỉ đặt trước tối đa 3 ngày (R1, `src/rules.js`).
 - Chủ sân nhận **thông báo trong web khi có booking mới**; trang quản lý tự làm mới và hiện cảnh báo booking chờ duyệt.
 - Mỗi cụm sân có ô **hướng dẫn thanh toán** (STK/tiền mặt) hiển thị khi đặt.
 - Sân con **không xóa cứng**, chỉ ngừng hoạt động để giữ lịch sử booking.

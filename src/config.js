@@ -10,6 +10,7 @@ function required(name) {
 
 const isProduction = process.env.NODE_ENV === 'production';
 
+// Luật nghiệp vụ (giữ chỗ 15 phút, đặt trước 3 ngày...) nằm ở src/rules.js, không cấu hình bằng .env.
 module.exports = {
   isProduction,
   port: Number(process.env.PORT || 3000),
@@ -23,6 +24,4 @@ module.exports = {
     database: required('DB_NAME'),
   },
   sessionSecret: required('SESSION_SECRET'),
-  holdMinutes: Number(process.env.HOLD_MINUTES || 5),
-  bookingWindowDays: Number(process.env.BOOKING_WINDOW_DAYS || 14),
 };

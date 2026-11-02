@@ -4,7 +4,23 @@
 // Chuyển dữ liệu giả ↔ backend thật chỉ ở MỘT chỗ: hằng MODE bên dưới.
 //   'mock' = prototype, dữ liệu trong localStorage (public/mock/*.json + js/api-mock.js)
 //   'real' = fetch tới /api/... (CSRF từ /api/auth/csrf, header X-CSRF-Token cho POST/PUT/DELETE)
-export const MODE = 'mock';
+// Mặc định là 'mock' (bản tĩnh trên Cloudflare và prototype cổng 4100). Chỉ khi Express phục vụ giao diện thì nó
+// trả js/mode.js với SERVED_BY_API = true và MODE thành 'real'. Ở máy local có thể đổi bằng ?mode=mock|real
+// (nhớ trong localStorage, `?mode=` để xóa); trên host công khai tham số này bị bỏ qua nên link Cloudflare luôn là mock.
+import { SERVED_BY_API, DEV_TOOLS } from './mode.js';
+
+const LOCAL_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
+function pickMode() {
+  if (typeof location === 'undefined' || !LOCAL_HOSTS.includes(location.hostname)) return SERVED_BY_API ? 'real' : 'mock';
+  const asked = new URLSearchParams(location.search).get('mode');
+  if (asked !== null) {
+    if (asked === 'mock' || asked === 'real') localStorage.setItem('sannhanh.mode', asked);
+    else localStorage.removeItem('sannhanh.mode');
+  }
+  const saved = localStorage.getItem('sannhanh.mode');
+  return saved === 'mock' || saved === 'real' ? saved : SERVED_BY_API ? 'real' : 'mock';
+}
+export const MODE = pickMode();
 
 export class ApiError extends Error {
   constructor(status, message) {
@@ -213,9 +229,26 @@ export const api = {
     logs: () => get('/api/admin/logs'),
   },
 
-  // Chỉ có ở prototype (null khi MODE = 'real'): công tắc vai trò, đặt lại demo, tua đồng hồ, giả lập "người khác".
+  // Công cụ demo: công tắc vai trò, đặt lại demo, tua đồng hồ, giả lập "người khác".
+  // mock: đủ bộ. real: chỉ khi server dev bật (DEV_TOOLS) và chỉ các hàm có route /api/dev/*; còn lại là null ở production.
   proto:
-    MODE === 'mock'
+    MODE === 'real'
+      ? DEV_TOOLS
+        ? {
+            resetDemo: async () => {
+              csrfToken = null;
+              return post('/api/dev/reset-demo');
+            },
+            quickLogin: async (role) => {
+              const r = await post('/api/dev/login', { role });
+              csrfToken = null;
+              return r;
+            },
+            advanceClock: (minutes) => post('/api/dev/clock', { minutes }),
+            state: () => get('/api/dev/state'),
+          }
+        : null
+      : MODE === 'mock'
       ? {
           resetDemo: async () => (await loadMock()).proto.resetDemo(),
           quickLogin: async (role) => {
