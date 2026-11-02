@@ -70,7 +70,7 @@ test('dev: đăng nhập nhanh theo vai trò demo, tua đồng hồ, đặt lạ
     assert.equal(reset.status, 200);
     assert.equal(reset.body.seeded.core.venues, 40);
     assert.equal(h.clock.getOffsetMinutes(), 0);
-    assert.equal((await h.db.query('SELECT 1 FROM notifications')).length, 0);
+    assert.equal((await h.db.query("SELECT 1 FROM notifications WHERE message = 'x'")).length, 0, 'dữ liệu cũ bị xóa');
     assert.equal((await a.get('/api/auth/me')).body.user.email, 'khach1@datsan.local', 'phiên đăng nhập sống qua lần đặt lại');
   } finally {
     h.clock.setOffsetMinutes(0);

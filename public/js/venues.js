@@ -14,6 +14,8 @@ let nowTs;
 let windowDays = 3;
 const state = { date: '', at: '', fieldType: '', district: '', maxPrice: '', lastMinute: '', q: '' };
 
+document.getElementById('filters')?.addEventListener('submit', (event) => event.preventDefault());
+
 function readUrl() {
   const p = new URLSearchParams(location.search);
   for (const k of Object.keys(state)) state[k] = p.get(k) || '';

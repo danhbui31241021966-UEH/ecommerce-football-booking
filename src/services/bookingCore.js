@@ -1,7 +1,7 @@
-// LÕI TỐI THIỂU của việc đặt sân: tạo một lịch đặt và giữ ô giờ. Chống đặt trùng do DB (db/schema.sql: uq_booking_slot +
-// slot_claims), ở đây chỉ chuyển lỗi trùng khóa thành 409. Đổi trạng thái về sau dùng services/bookingState.js.
-// Chưa làm (việc của phần đặt sân đầy đủ): uy tín R10 khi chọn trạng thái, thông báo, duyệt/hủy/hoàn tiền, hết hạn,
-// danh sách chờ (xóa lượt chờ của người đặt, báo người chờ), nhượng/ghép kèo/báo giá.
+// Tạo lịch đặt (R1–R6, R9, R10) và dựng dữ liệu lịch đặt theo contract. Chống đặt trùng do DB (db/schema.sql:
+// uq_booking_slot + slot_claims), ở đây chỉ chuyển lỗi trùng khóa thành 409. Đổi trạng thái về sau dùng
+// services/bookingState.js (xem bookingOps.js cho hủy/duyệt/hoàn tiền/hết hạn).
+// Chưa làm: nhượng (R12), ghép kèo (R13), báo giá (R14), lịch gọi điện (R16).
 const crypto = require('crypto');
 const { withTransaction, db, isDuplicate } = require('../db');
 const clock = require('../clock');
@@ -9,15 +9,17 @@ const { RULES, CANCEL_POLICY_TEXT } = require('../rules');
 const { badRequest, conflict, notFound } = require('../utils/errors');
 const { isDate, isHm, addDays, vnToMs, msToVn } = require('../lib/time');
 const { loadCourt } = require('./venueStore');
-const { slotGrid } = require('./slotGrid');
+const { slotGrid, slotEndAt } = require('./slotGrid');
 const { isHolding, claimForBooking, TAKEN } = require('./bookingState');
 const { loadOccupancy, slotInfo } = require('./schedule');
+const { reliabilityOf } = require('./reliability');
+const { notify, addHistory, shortTs } = require('./notify');
 
 const bookingCode = (id) => `SN${String(id).padStart(5, '0')}`;
 
 /** Booking theo contract (PRD mục 7). Dựng từ hàng bookings JOIN venues/courts (xem BOOKING_SELECT). */
-function toBooking(b) {
-  return {
+function toBooking(b, { admin = false } = {}) {
+  const out = {
     id: b.id,
     code: b.code,
     venueId: b.venueId,
@@ -46,10 +48,16 @@ function toBooking(b) {
     source: b.source,
     paidVia: b.paymentStatus === 'paid' ? b.paidVia || null : null,
   };
+  if (admin) {
+    out.customerName = b.customerName ?? b.walkInName ?? '';
+    out.customerPhone = b.customerPhone ?? b.walkInPhone ?? '';
+  }
+  return out;
 }
 
-const BOOKING_SELECT = `SELECT b.*, v.name AS venue_name, c.name AS court_name, c.field_type
-  FROM bookings b JOIN venues v ON v.id = b.venue_id JOIN courts c ON c.id = b.court_id`;
+const BOOKING_SELECT = `SELECT b.*, v.name AS venue_name, v.owner_id, c.name AS court_name, c.field_type,
+    u.full_name AS customer_name, u.phone AS customer_phone, u.email AS customer_email
+  FROM bookings b JOIN venues v ON v.id = b.venue_id JOIN courts c ON c.id = b.court_id LEFT JOIN users u ON u.id = b.user_id`;
 
 const findBooking = (id, conn = db) => conn.one(`${BOOKING_SELECT} WHERE b.id = ?`, [id]);
 
@@ -86,7 +94,8 @@ async function createBooking(user, body = {}) {
   if (slot.teamMode) throw conflict('Giờ này chỉ nhận ghép kèo: hãy mở kèo hoặc vào một kèo có sẵn');
 
   const now = clock.now();
-  const pending = venue.requiresApproval; // R3 (R10 do phần đặt sân đầy đủ bổ sung)
+  const rel = await reliabilityOf(db, user.id);
+  const pending = venue.requiresApproval || rel.restricted; // R3, R10: khách uy tín thấp luôn phải chờ chủ sân đồng ý
   const status = pending ? 'pending' : 'confirmed';
   const expiresAt = pending ? msToVn(vnToMs(now) + RULES.holdMinutes * 60000) : null;
   try {
@@ -95,15 +104,25 @@ async function createBooking(user, body = {}) {
         `INSERT INTO bookings (code, user_id, venue_id, court_id, start_at, end_at, status, source, expires_at,
            price, base_price, discount_percent, customer_note, rules_snapshot, policy_snapshot, idempotency_key, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, 'web', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [`T${crypto.randomBytes(8).toString('hex')}`, user.id, venue.id, court.id, `${date} ${start}:00`, `${date} ${slot.end}:00`,
+        [`T${crypto.randomBytes(8).toString('hex')}`, user.id, venue.id, court.id, `${date} ${start}:00`, slotEndAt(venue, date, start),
           status, expiresAt, slot.price, slot.basePrice, slot.discountPercent, note, venue.rules, CANCEL_POLICY_TEXT, key, now, now],
       );
       await tx.query('UPDATE bookings SET code = ? WHERE id = ?', [bookingCode(r.insertId), r.insertId]);
       if (isHolding(status)) await claimForBooking(tx, { id: r.insertId, courtId: court.id, startAt: `${date} ${start}:00` });
-      await tx.query(
-        "INSERT INTO booking_history (booking_id, action, from_status, to_status, actor_id, actor_role, note, created_at) VALUES (?, 'create', NULL, ?, ?, 'customer', '', ?)",
-        [r.insertId, status, user.id, now],
-      );
+      // Người đặt được giữ quyền (hoặc đang chờ) thì lượt chờ của chính họ coi như hoàn tất.
+      await tx.query('DELETE FROM waitlist WHERE user_id = ? AND court_id = ? AND start_at = ?', [user.id, court.id, `${date} ${start}:00`]);
+      const code = bookingCode(r.insertId);
+      await addHistory(tx, r.insertId, 'create', {
+        to: status, actor: { id: user.id, role: 'customer' }, at: now,
+        note: rel.restricted && !venue.requiresApproval ? 'Chờ chủ sân đồng ý do uy tín của khách' : '',
+      });
+      const startAt = `${date} ${start}:00`;
+      if (pending) {
+        await notify(tx, venue.ownerId, `${user.fullName} vừa đặt sân (mã ${code}) và đang chờ bạn đồng ý, còn ${RULES.holdMinutes} phút.`, { bookingId: r.insertId, link: `/owner-bookings.html?id=${r.insertId}` });
+        await notify(tx, user.id, `Bạn đã đặt ${court.name} lúc ${shortTs(startAt)}. Chủ sân có ${RULES.holdMinutes} phút để đồng ý.`, { bookingId: r.insertId, link: `/booking.html?id=${r.insertId}` });
+      } else {
+        await notify(tx, user.id, `Bạn đã có sân (mã ${code}). Hãy chuyển khoản bằng mã QR.`, { bookingId: r.insertId, link: `/booking.html?id=${r.insertId}` });
+      }
       return r.insertId;
     });
     return { booking: toBooking(await findBooking(id)), created: true };

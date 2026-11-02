@@ -147,7 +147,7 @@ test('GET /api/venues/:id/schedule: trạng thái ô theo đặt/chặn/đã qua
   assert.equal(slots['14:00'].status, 'available');
   assert.equal('mine' in slots['10:00'], false);
   const court2 = Object.fromEntries(asGuest.courts[1].slots.map((s) => [s.start, s]));
-  assert.equal(court2['19:00'].teamMode, true);
+  assert.equal(court2['18:00'].teamMode, true);
   assert.equal(court2['17:00'].teamMode, undefined);
 
   // Người xem là chủ của lịch / người được giữ quyền.

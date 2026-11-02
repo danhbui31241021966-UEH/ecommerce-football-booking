@@ -4,6 +4,7 @@ import { mountShell } from '/js/ui/shell.js';
 import { $ } from '/js/ui/page.js';
 import { esc, leagueCard } from '/js/ui/league-ui.js';
 
+$('filters')?.addEventListener('submit', (event) => event.preventDefault());
 const root = $('lg-root');
 const sel = $('f-district');
 const summary = $('summary');

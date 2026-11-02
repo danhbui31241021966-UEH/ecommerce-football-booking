@@ -8,6 +8,7 @@ const { pool } = require('./db');
 const { loadUser } = require('./middleware/auth');
 const { csrfProtection } = require('./middleware/csrf');
 const { errorHandler, apiNotFound } = require('./middleware/error');
+const { sweepDue } = require('./middleware/sweep');
 
 /**
  * @param {{ production?: boolean }} [opts] production mặc định theo NODE_ENV; chỉ test truyền vào để dựng cả hai chế độ.
@@ -45,10 +46,19 @@ function createApp({ production = config.isProduction } = {}) {
   const api = express.Router();
   api.use(loadUser);
   api.use(csrfProtection);
+  api.use(sweepDue);
   api.use('/meta', require('./routes/meta'));
   api.use('/auth', require('./routes/auth').router);
   api.use('/venues', require('./routes/venues'));
   api.use('/bookings', require('./routes/bookings'));
+  api.use('/waitlist', require('./routes/waitlist'));
+  api.use('/notifications', require('./routes/notifications'));
+  api.use('/owner/bookings', require('./routes/owner-bookings'));
+  api.use('/admin/bookings', require('./routes/admin-bookings'));
+  api.use('/owner', require('./routes/owner-venues'));
+  api.use('/owner', require('./routes/owner-blocks'));
+  api.use('/admin', require('./routes/admin'));
+  api.use(require('./routes/not-built-yet'));
   if (!production) api.use('/dev', require('./routes/dev'));
   api.use(apiNotFound);
   app.use('/api', api);

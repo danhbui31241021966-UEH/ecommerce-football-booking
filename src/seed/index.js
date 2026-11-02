@@ -2,8 +2,14 @@
 // seeder nhận `tx` (transaction) và có thể dùng id cố định của seedCore.
 const { pool, withTransaction } = require('../db');
 const { seedCore } = require('./core');
+const { seedBookings } = require('./bookings');
+const { seedBlocks } = require('./blocks');
 
-const SEEDERS = [{ name: 'core', run: seedCore }];
+const SEEDERS = [
+  { name: 'core', run: seedCore },
+  { name: 'bookings', run: seedBookings },
+  { name: 'blocks', run: seedBlocks },
+];
 
 /** Xóa mọi dữ liệu (giữ cấu trúc và bảng sessions, đặt lại AUTO_INCREMENT) rồi nạp lại. Trả số liệu của từng seeder. */
 async function resetDemo() {

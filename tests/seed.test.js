@@ -29,6 +29,12 @@ test('seed: 34 sân thật + 6 sân demo, 18 tài khoản, id như mock', async 
   ]);
 });
 
+test('seed nạp block demo và claim tương ứng theo mock', async () => {
+  const rows = await h.db.query("SELECT b.id,b.court_id,b.start_at,b.end_at,b.reason,sc.kind FROM blocks b JOIN slot_claims sc ON sc.block_id=b.id ORDER BY b.id");
+  assert.equal(new Set(rows.map((r) => r.id)).size, mock('bookings').blocks.length);
+  assert.ok(rows.every((r) => r.kind === 'block'));
+});
+
 test('seed không bịa dữ liệu sân thật: tên, địa chỉ, số điện thoại, nguồn đúng như mock; không có số thì để rỗng', async () => {
   const rows = await h.db.query('SELECT id, name, address, phone, district, data_source, image_credit, image_is_illustrative FROM venues ORDER BY id');
   for (const m of mock('venues')) {
@@ -60,6 +66,6 @@ test('tài khoản demo đăng nhập được bằng mật khẩu chung của m
 test('nạp lại (db:seed / reset-demo) chạy lặp được và đặt lại AUTO_INCREMENT', async () => {
   await h.db.query("INSERT INTO notifications (user_id, message, created_at) VALUES (4, 'x', '2026-01-01 00:00:00')");
   await h.loadDemo();
-  assert.equal((await h.db.query('SELECT 1 FROM notifications')).length, 0);
+  assert.equal((await h.db.query("SELECT 1 FROM notifications WHERE message = 'x'")).length, 0, 'dữ liệu cũ bị xóa');
   assert.equal((await h.db.query('SELECT 1 FROM venues')).length, 40);
 });
