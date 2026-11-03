@@ -38,14 +38,18 @@ export async function loginAs(p, identifier) {
 }
 export const api = (p, expr) => p.evaluate(`(async()=>{const {api}=await import('/js/api.js');return await (${expr})(api)})()`);
 
-// Đặt lại demo rồi tua đồng hồ mock tới 08:00 (hôm nay nếu chưa tới 08:00, không thì sáng mai) để mọi slot cần dùng nằm ở tương lai.
+// Đặt lại demo rồi tua đồng hồ mock tới `hm` của NGÀY SAU ngày dựng demo, để mọi slot cần dùng nằm ở tương lai và kết quả
+// không phụ thuộc giờ thật lúc chạy. Dữ liệu mẫu (kèo, lịch đặt) nằm ở "ngày mai" của ngày dựng; tua qua nửa đêm thì "ngày mai của
+// bài kiểm" (hôm nay mock + 1) luôn không đụng chúng. Trước đây chạy trước 08:00 giờ thật thì chỉ tua trong cùng ngày nên bài kiểm
+// chọn đúng ô mẫu (f-phone: sân 6 19:00; f-owner-ux: sân 6 20:00) và đỏ.
 export async function anchor(p, hm = '08:00') {
   await p.goto(U + '/');
   await p.evaluate(async () => { const { api } = await import('/js/api.js'); await api.proto.resetDemo(); });
   const now = (await api(p, 'a=>a.meta()')).now;
   const toMin = (s) => +s.slice(0, 2) * 60 + +s.slice(3, 5);
   let add = toMin(hm) - toMin(now.slice(11, 16));
-  if (add <= 0) add += 1440;
+  while (add <= 0) add += 1440;
+  if (toMin(now.slice(11, 16)) + add < 1440) add += 1440; // vẫn trong ngày dựng demo thì thêm một ngày
   await api(p, `a=>a.proto.advanceClock(${add})`);
   return (await api(p, 'a=>a.meta()')).now;
 }

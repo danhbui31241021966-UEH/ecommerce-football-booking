@@ -59,6 +59,8 @@ await step(p, 'auth-intent', 'register-and-return-next', async () => {
   return `${p.url().replace(U, '')}; email=${me.user.email}; phone=${me.user.phone}`;
 });
 await step(p, 'auth-intent', 'null-email-account-menu', async () => {
+  // Sau đăng ký quay lại sân, hộp xác nhận đặt sân tự mở (đúng chủ ý) và phủ tiêu đề; đóng nó rồi mới mở menu tài khoản.
+  if (await p.locator('#confirm-dialog[open]').count()) await p.locator('#confirm-dialog [data-close]').first().click();
   await p.locator('.user-menu summary').click();
   const text = await p.locator('.user-menu-panel').innerText();
   assert.match(text, new RegExp(phone));
