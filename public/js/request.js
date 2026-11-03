@@ -34,7 +34,7 @@ function offerCard(o) {
   else if (o.endReason) action = `<p class="muted" style="font-size:var(--fs-sm)">${esc(o.endReason)}.</p>`;
   return `<article class="card booking-item offer-item${o.status === 'open' && o.usable ? '' : ' off'}">
     <div class="top"><div><div class="when">${esc(o.venueName)} · ${esc(o.courtName)}</div>
-      <div class="where">${o.startAt.slice(11, 16)}–${o.endAt.slice(11, 16)}, ${esc(dayLabel(o.startAt.slice(0, 10)))} · ${o.requiresApproval ? 'Chủ sân duyệt' : 'Đặt là chốt'}</div></div>
+      <div class="where">${o.startAt.slice(11, 16)}–${o.endAt.slice(11, 16)}, ${esc(dayLabel(o.startAt.slice(0, 10)))} · ${o.requiresApproval ? 'Chủ sân duyệt' : 'Xác nhận ngay'}</div></div>
       <div class="badges"><span class="badge badge-${cls}">${label}</span></div></div>
     <p class="transfer-price"><b class="num">${money(o.price)}</b> ${off ? `<span class="price-old">${money(o.listedPrice)}</span> <span class="tag-sale">-${off}%</span>` : '<span class="muted">bằng giá thường</span>'}
       <span class="badge ${o.overBudget ? 'badge-pending' : 'badge-confirmed'}">${o.overBudget ? `Cao hơn mức bạn muốn ${money(o.price - r.budget)}` : 'Đúng mức bạn muốn'}</span></p>

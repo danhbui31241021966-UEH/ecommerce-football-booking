@@ -27,7 +27,7 @@ export const paymentBadge = (p) => `<span class="badge badge-${p}">${PAYMENT_LAB
 export const modeTag = (requiresApproval) =>
   requiresApproval
     ? '<span class="tag-mode approval" data-icon="hourglass">Chủ sân duyệt</span>'
-    : '<span class="tag-mode" data-icon="bolt">Đặt là chốt</span>';
+    : '<span class="tag-mode" data-icon="bolt">Xác nhận ngay</span>';
 
 /** Đếm ngược: gọi mỗi giây, hết giờ thì gọi onEnd một lần. Trả hàm dừng. */
 export function countdown(el, seconds, text, onEnd) {

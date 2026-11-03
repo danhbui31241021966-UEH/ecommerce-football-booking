@@ -21,10 +21,11 @@ const venueLink = (w) => `/venue.html?id=${w.venueId}&date=${w.startAt.slice(0, 
 function bookingCard(b) {
   const pending = b.status === 'pending';
   const awaitingPay = b.status === 'confirmed' && b.paymentStatus === 'unpaid' && !!b.expiresAt;
+  const confirmedLabel = b.status !== 'confirmed' ? null : b.paymentStatus === 'paid' ? 'Đã có sân' : awaitingPay ? `Đang giữ sân · chuyển khoản trước ${timeOf(b.expiresAt)}` : 'Đã có sân · chưa chuyển khoản';
   return `<article class="card booking-item">
     <div class="top"><div><div class="when">${timeOf(b.startAt)}–${timeOf(b.endAt)} · ${dayLabel(b.startAt.slice(0, 10))}</div>
       <div class="where">${esc(b.venueName)} · ${esc(b.courtName)} (sân ${b.fieldType}) · <b class="num">${money(b.price)}</b></div></div>
-      <div class="badges">${statusBadge(b.status)}${['pending', 'confirmed'].includes(b.status) ? paymentBadge(b.paymentStatus) : ''}${['open', 'claimed'].includes(b.transfer?.status) ? '<span class="badge badge-transferred">Đang pass</span>' : ''}${b.acquiredByTransfer ? '<span class="badge badge-pending">Nhận pass</span>' : ''}</div></div>
+      <div class="badges">${confirmedLabel ? `<span class="badge badge-confirmed">${confirmedLabel}</span>` : statusBadge(b.status)}${['pending', 'confirmed'].includes(b.status) ? paymentBadge(b.paymentStatus) : ''}${['open', 'claimed'].includes(b.transfer?.status) ? '<span class="badge badge-transferred">Đang pass</span>' : ''}${b.acquiredByTransfer ? '<span class="badge badge-pending">Nhận pass</span>' : ''}</div></div>
     ${pending ? `<span class="countdown" data-cd="${esc(b.expiresAt)}"></span>` : ''}
     ${awaitingPay ? `<span class="countdown" data-cd="${esc(b.expiresAt)}" data-pay-by="${esc(b.expiresAt.slice(11, 16))}"></span>` : ''}
     <div class="actions"><a class="btn btn-sm${b.status === 'confirmed' && b.paymentStatus === 'unpaid' ? ' btn-lime' : ''}" href="/booking.html?id=${b.id}">${b.status === 'confirmed' && b.paymentStatus === 'unpaid' ? 'Xem mã QR chuyển khoản' : 'Xem chi tiết'}</a><span class="muted num" style="font-size:var(--fs-sm)">Mã ${esc(b.code)}</span></div>

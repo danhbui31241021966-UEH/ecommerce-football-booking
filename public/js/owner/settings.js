@@ -65,9 +65,9 @@ function render() {
           ${field('Cao điểm từ', `<select class="select" id="peakStart" name="peakStart">${hourOpts(v.peakStart, 0)}</select>`, { id: 'peakStart' })}
           ${field('Cao điểm đến', `<select class="select" id="peakEnd" name="peakEnd">${hourOpts(v.peakEnd, 1)}</select>`, { id: 'peakEnd', hint: 'Giờ trong khung này tính giá cao điểm.' })}
         </div>`, { saveLabel: 'Lưu giờ mở cửa' })}
-    ${group('mode', 'Cách nhận đặt sân', `${v.requiresApproval ? 'Bạn duyệt từng đơn' : 'Đặt là chốt'} · giảm giờ chót ${v.lastMinutePercent}%`, `
+    ${group('mode', 'Cách nhận đặt sân', `${v.requiresApproval ? 'Bạn duyệt từng đơn' : 'Xác nhận ngay'} · giảm giờ chót ${v.lastMinutePercent}%`, `
           <fieldset class="mode-pick" style="border:0;padding:0;margin:0"><legend class="sr-only">Chế độ xác nhận</legend>
-            <label><input type="radio" name="requiresApproval" value="0" ${v.requiresApproval ? '' : 'checked'}><b>Đặt là chốt</b><span>Khách đặt là có sân ngay. Khách đã bùng hoặc hủy sát giờ ${meta.reliabilityMaxViolations} lần trong ${meta.reliabilityWindowDays} ngày thì vẫn phải chờ bạn đồng ý.</span></label>
+            <label><input type="radio" name="requiresApproval" value="0" ${v.requiresApproval ? '' : 'checked'}><b>Xác nhận ngay</b><span>Khách đặt được xác nhận ngay. Khách đã bùng hoặc hủy sát giờ ${meta.reliabilityMaxViolations} lần trong ${meta.reliabilityWindowDays} ngày thì vẫn phải chờ bạn đồng ý.</span></label>
             <label><input type="radio" name="requiresApproval" value="1" ${v.requiresApproval ? 'checked' : ''}><b>Chủ sân duyệt</b><span>Khách đặt xong, bạn có ${meta.holdMinutes} phút để đồng ý. Quá hạn thì giờ tự mở lại cho người khác.</span></label>
           </fieldset>
           ${field(`Giảm giá giờ chót (giờ sắp đá trong ${meta.lastMinuteHours} giờ tới)`, `<div class="input-suffix"><input class="input" id="lastMinutePercent" name="lastMinutePercent" type="number" inputmode="numeric" min="0" max="90" value="${v.lastMinutePercent}"><span>%</span></div>`, { id: 'lastMinutePercent', hint: 'Giờ còn trống sát giờ đá được giảm giá để dễ có khách. Để 0 là không giảm.' })}

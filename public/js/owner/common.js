@@ -40,7 +40,7 @@ export const hasStarted = (b) => startsAt(b).getTime() <= nowMs();
 
 export const STATUS_LABEL = {
   pending: 'Chờ chủ sân đồng ý',
-  confirmed: 'Đã có sân',
+  confirmed: 'Đã xác nhận',
   rejected: 'Chủ sân từ chối',
   cancelled: 'Đã hủy',
   expired: 'Quá hạn',
@@ -148,7 +148,7 @@ export const countdownHtml = (b) =>
 /** R3: đơn đã có sân chưa trả tiền còn hạn chuyển khoản (expiresAt của bước đang chờ), khác hạn chủ sân đồng ý của đơn pending. */
 export const payByHtml = (b) =>
   b.status === 'confirmed' && b.paymentStatus === 'unpaid' && b.expiresAt
-    ? `<span class="countdown-sm" data-expires="${esc(b.expiresAt)}" data-pre="Chờ chuyển khoản · ">Chờ chuyển khoản · Còn --:--</span>`
+    ? `<span class="countdown-sm" data-expires="${esc(b.expiresAt)}" data-pre="Đang giữ sân · chuyển khoản trước ${esc(b.expiresAt.slice(11, 16))} · ">Đang giữ sân · chuyển khoản trước ${esc(b.expiresAt.slice(11, 16))} · Còn --:--</span>`
     : '';
 
 // ---------- hộp thoại ----------
@@ -470,7 +470,7 @@ export function bookingRow(b, { showDate = true } = {}) {
       b.source !== 'phone' && (b.status === 'pending' || b.customerReliability) ? `<p>${reliabilityHtml(b.customerReliability)}</p>` : ''
     }</div>
     <div class="bk-court"><span>${esc(b.courtName)} · sân ${esc(b.fieldType)} người</span><span class="code">${esc(b.code)}</span></div>
-    <div class="bk-state">${badge(b.status)}${sourceBadge(b)}${payBadge(b)}${refundBadge(b)}${b.status === 'pending' ? countdownHtml(b) : payByHtml(b)}</div>
+    <div class="bk-state">${b.status === 'confirmed' ? badge(b.status, b.paymentStatus === 'paid' ? 'Đã có sân' : b.expiresAt ? `Đang giữ sân · chuyển khoản trước ${esc(b.expiresAt.slice(11, 16))}` : 'Đã có sân · chưa chuyển khoản') : badge(b.status)}${sourceBadge(b)}${payBadge(b)}${refundBadge(b)}${b.status === 'pending' ? countdownHtml(b) : payByHtml(b)}</div>
     <div class="bk-money"><span class="price">${money(b.price)}</span>${sale}</div>
     <div class="bk-actions">${actionButtons(b)}</div>
   </li>`;

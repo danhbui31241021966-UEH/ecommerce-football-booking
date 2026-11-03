@@ -319,8 +319,8 @@ function openConfirm() {
       : `Sân này cần chủ sân đồng ý: chủ sân có ${meta.holdMinutes} phút để trả lời, quá hạn thì giờ tự mở lại.`) + ` Bạn chưa cần chuyển khoản lúc này.${payTail}`;
   } else {
     $('dlg-auto').textContent = venue.vietQr
-      ? `Sân đặt là chốt: đặt xong là giữ được sân và bạn nhận mã QR. Hãy chuyển khoản trong ${payMin} phút, quá giờ đơn tự hết hạn và giờ này mở lại cho người khác.`
-      : 'Sân đặt là chốt: đặt xong là giữ được sân. Sân này chưa có mã QR, bạn liên hệ chủ sân để biết cách chuyển khoản.';
+      ? `Sân được giữ ${payMin} phút để bạn chuyển khoản. Quá hạn thì giờ này trống lại.`
+      : 'Sân được giữ cho bạn. Sân này chưa có mã QR, bạn liên hệ chủ sân để biết cách chuyển khoản.';
   }
   $('dlg-policy').innerHTML = policyStepsHtml(`${date} ${s.start}:00`, meta.now);
   $('dlg-error').hidden = true;
