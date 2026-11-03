@@ -115,6 +115,18 @@ test('GET /api/venues?date=: availableSlots đủ trường, tôn trọng from v
   assert.equal((await guest.get('/api/venues?date=2026-13-45')).status, 400);
 });
 
+test('GET schedule công khai chỉ nhận ngày trong cửa sổ đặt', async () => {
+  const venues = (await guest.get('/api/venues')).body.venues;
+  const id = venues[0].id;
+  const last = addDays(h.clock.today(), require('../src/rules').RULES.bookingWindowDays - 1);
+  const next = addDays(last, 1);
+  const inWindow = await guest.get(`/api/venues/${id}/schedule?date=${last}`);
+  assert.equal(inWindow.status, 200);
+  assert.ok(inWindow.body.courts[0].slots.length > 0);
+  assert.equal((await guest.get(`/api/venues/${id}/schedule?date=${next}`)).status, 400);
+  assert.equal((await guest.get(`/api/venues/${id}/schedule?date=${addDays(h.clock.today(), -1)}`)).status, 400);
+});
+
 test('GET /api/venues/:id/schedule: trạng thái ô theo đặt/chặn/đã qua/ghép kèo/đang giữ cho người chờ', async () => {
   const user = await h.makeUser();
   const other = await h.makeUser();
