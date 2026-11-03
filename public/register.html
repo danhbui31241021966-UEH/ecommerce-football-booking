@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Đăng ký tài khoản – GGO</title>
-  <meta name="description" content="Tạo tài khoản GGO để đặt sân bóng mini, pass sân, ghép kèo và nhờ sân báo giá.">
+  <meta name="description" content="Tạo tài khoản GGO để đặt sân bóng mini.">
   <meta name="robots" content="noindex,follow">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="GGO">
@@ -30,11 +30,11 @@
     <section class="auth-panel" aria-labelledby="auth-title">
       <p class="eyebrow">Khách hàng</p>
       <h1 class="h1" id="auth-title">Tạo tài khoản</h1>
+      <p id="booking-context" class="auth-booking-context" hidden></p>
       <form id="auth-form" data-mode="register" novalidate>
         <p class="form-error" id="form-error" role="alert" hidden></p>
         <div class="field"><label for="fullName">Họ tên</label><input class="input" id="fullName" name="fullName" autocomplete="name" required></div>
-        <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email" required></div>
-        <div class="field"><label for="phone">Số điện thoại</label><input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" required><span class="hint">10 chữ số, bắt đầu bằng 0. Chủ sân dùng số này để liên hệ khi cần.</span></div>
+        <div class="field"><label for="phone">Số điện thoại</label><input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="Ví dụ: 0901234567 hoặc +84 901 234 567" required><span class="hint">Có thể nhập số bắt đầu bằng 0 hoặc +84.</span></div>
         <div class="field"><label for="password">Mật khẩu</label><input class="input" id="password" name="password" type="password" autocomplete="new-password" required><span class="hint">Ít nhất 8 ký tự.</span></div>
         <button class="btn btn-dark btn-lg btn-block" type="submit">Đăng ký</button>
       </form>

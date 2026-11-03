@@ -165,6 +165,21 @@ test('tạo chủ sân trùng email thì 409', async () => {
   }
 });
 
+test('admin không thể tạo tài khoản với số đã gắn cho khách', async () => {
+  const ctx = await setup();
+  try {
+    const admin = await login(ctx.app, ctx.admin);
+    const customerPhone = (await h.db.one('SELECT phone FROM users WHERE id = ?', [ctx.customer.id])).phone;
+    const response = await admin.post('/api/admin/owners', {
+      fullName: 'Trùng số', email: `duplicate-phone-${Date.now()}@test.local`, phone: customerPhone, password: 'OwnerPass123',
+    });
+    assert.equal(response.status, 409, response.text);
+    assert.match(response.body.error, /Số điện thoại/);
+  } finally {
+    await ctx.app.close();
+  }
+});
+
 test('tạo chủ sân với dữ liệu sai thì 400', async () => {
   const ctx = await setup();
   try {

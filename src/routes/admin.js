@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs');
 const { db, isDuplicate } = require('../db');
 const { requireRole } = require('../middleware/auth');
 const { badRequest, conflict, notFound } = require('../utils/errors');
+const v = require('../utils/validate');
 const clock = require('../clock');
 
 const router = express.Router();
@@ -26,12 +27,12 @@ router.post('/owners', async (req, res) => {
   const p = req.body || {};
   const name = String(p.fullName || '').trim();
   const email = String(p.email || '').trim();
-  const phone = String(p.phone || '').replace(/\s/g, '');
+  const rawPhone = p.phone;
   const password = String(p.password || '');
 
   if (name.length < 2) throw badRequest('Vui lòng nhập họ tên');
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw badRequest('Email không hợp lệ');
-  if (!/^0\d{9}$/.test(phone)) throw badRequest('Số điện thoại gồm 10 chữ số, bắt đầu bằng 0');
+  const phone = v.phone(rawPhone);
   if (password.length < 8) throw badRequest('Mật khẩu cần ít nhất 8 ký tự');
 
   const hash = await bcrypt.hash(password, 10);
@@ -42,7 +43,9 @@ router.post('/owners', async (req, res) => {
     );
     res.status(201).json({ id: result.insertId });
   } catch (err) {
-    if (isDuplicate(err)) throw conflict('Email này đã được đăng ký');
+    if (isDuplicate(err, 'uq_user_phone')) throw conflict('Số điện thoại này đã được đăng ký');
+    if (isDuplicate(err, 'uq_user_email')) throw conflict('Email này đã được đăng ký');
+    if (isDuplicate(err)) throw conflict('Thông tin tài khoản đã được sử dụng');
     throw err;
   }
 });

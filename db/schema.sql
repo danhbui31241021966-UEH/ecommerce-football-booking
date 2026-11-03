@@ -42,14 +42,15 @@ SET FOREIGN_KEY_CHECKS = 1;
 CREATE TABLE users (
   id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   full_name     VARCHAR(100) NOT NULL,
-  email         VARCHAR(191) NOT NULL,
+  email         VARCHAR(191) NULL,
   phone         VARCHAR(15)  NOT NULL,
   password_hash VARCHAR(100) NOT NULL,
   role          ENUM('customer','owner','admin') NOT NULL DEFAULT 'customer',
   is_active     TINYINT(1) NOT NULL DEFAULT 1,
   created_at    DATETIME NOT NULL,
   -- collation _ai_ci: email so khớp không phân biệt hoa thường.
-  UNIQUE KEY uq_user_email (email)
+  UNIQUE KEY uq_user_email (email),
+  UNIQUE KEY uq_user_phone (phone)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Cụm sân. Giờ (slot) sinh từ open_time, close_time, slot_minutes. Giờ cao điểm cấu hình theo cụm sân (R5).

@@ -8,6 +8,33 @@ const next = new URLSearchParams(location.search).get('next');
 const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : null;
 const HOME = { customer: '/', owner: '/owner.html', admin: '/admin.html' };
 
+async function showBookingContext() {
+  const box = document.getElementById('booking-context');
+  if (!box || !safeNext) return;
+  try {
+    const target = new URL(safeNext, location.origin);
+    if (target.origin !== location.origin || !['/venue', '/venue.html'].includes(target.pathname)) return;
+    const params = target.searchParams;
+    const id = params.get('id');
+    const date = params.get('date') || '';
+    const slot = params.get('slot') || '';
+    const courtId = params.get('court');
+    if (!/^\d+$/.test(id || '') || !/^\d{4}-\d{2}-\d{2}$/.test(date) || !/^([01]\d|2[0-3]):[0-5]\d$/.test(slot) || !/^\d+$/.test(courtId || '') || params.get('book') !== '1') return;
+    const [year, month, day] = date.split('-').map(Number);
+    const dateObj = new Date(Date.UTC(year, month - 1, day));
+    if (dateObj.getUTCFullYear() !== year || dateObj.getUTCMonth() !== month - 1 || dateObj.getUTCDate() !== day) return;
+    const venue = await api.venue(id);
+    const court = venue.courts?.find((item) => String(item.id) === courtId);
+    if (!venue.name || !court?.name) return;
+    const dateLabel = new Intl.DateTimeFormat('vi-VN', { timeZone: 'UTC', day: '2-digit', month: '2-digit', year: 'numeric' }).format(dateObj);
+    box.textContent = `Đang đặt ${venue.name} · ${court.name} · ${dateLabel} lúc ${slot}.`;
+    box.hidden = false;
+  } catch {
+    // Thiếu sân hoặc API không truy cập được: giữ nguyên trang đăng nhập/đăng ký.
+  }
+}
+void showBookingContext();
+
 // Giữ ?next= khi chuyển qua lại giữa hai trang
 if (safeNext) {
   const alt = document.getElementById('alt-link');
@@ -42,16 +69,3 @@ form.addEventListener('submit', async (e) => {
     form.querySelector('input').focus();
   }
 });
-
-// Đường tắt cho prototype: điền sẵn tài khoản demo
-const demo = document.getElementById('demo-accounts');
-if (demo && api.proto) {
-  demo.hidden = false;
-  demo.addEventListener('click', (e) => {
-    const b = e.target.closest('button[data-email]');
-    if (!b) return;
-    form.email.value = b.dataset.email;
-    form.password.value = 'Matkhau@123';
-    form.requestSubmit();
-  });
-}

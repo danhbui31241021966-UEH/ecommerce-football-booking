@@ -95,8 +95,8 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 | 5 | Chi tiết lịch đặt + thanh toán | Mã lịch đặt, trạng thái, đồng hồ đếm ngược nếu đang chờ duyệt. **VietQR** + ngân hàng, số TK, tên TK, số tiền, nội dung – mỗi dòng có nút Sao chép. Nút hủy hiện số tiền sẽ được hoàn. Lịch sử trạng thái. |
 | 6 | Lịch đặt của tôi | Tab: Sắp tới / Đã qua / Đang chờ slot (danh sách chờ, có nút rời hàng; lượt đang được giữ quyền nổi bật kèm hạn) / Pass sân (các lần mình đăng, kèm Chưa hoàn / Đã hoàn) / Ghép kèo (các trận mình mở hoặc vào, kèm trạng thái và Chưa hoàn / Đã hoàn). Trang chi tiết lịch đặt (màn 5) có form "Pass lại" và nút rút đăng pass. |
 | 7 | Thông báo | Danh sách, đánh dấu đã đọc, bấm để mở trang liên quan. *(Dùng chung cho chủ sân.)* |
-| 8 | Đăng nhập | |
-| 9 | Đăng ký | Họ tên, email, số điện thoại, mật khẩu. |
+| 8 | Đăng nhập | Một ô “Số điện thoại hoặc email” và mật khẩu. Tài khoản cũ vẫn đăng nhập bằng email. Khi `next` là một giờ đặt sân đã chọn, hiện tên sân, sân con, ngày và giờ trước khi đăng nhập. |
+| 9 | Đăng ký | Chỉ bắt buộc họ tên, số điện thoại và mật khẩu; email không bắt buộc và không hiện trên form. Số Việt Nam chuẩn hóa về `0` + 9 chữ số; chấp nhận đầu vào `0`, `84` hoặc `+84` và dấu cách. Không có xác minh OTP hay quên mật khẩu; số điện thoại chưa xác minh nên người dùng cần nhập đúng số để tránh mất khả năng đăng nhập. |
 | 17 | Pass sân (danh sách) | Lịch đặt đang được pass, lọc theo ngày; giá pass cạnh giá gốc gạch ngang; nhãn ưu tiên người chờ. Cũng có chip "Đang pass · giá" ở ô đã đặt trong lưới slot (màn 3) và mục "Pass sân" trên thanh điều hướng. |
 | 19 | Ghép kèo (danh sách) | Kèo đã có phần đội mở và còn nhận đội thứ hai, lọc theo ngày; kèo tiền sân (5-5, 6-4, 7-3, thua bao sân), phần trả trước của đội vào, hạn chót. Ở màn 2 và trang chủ, giờ đủ hai đội **không bị ẩn** khỏi kết quả tìm: hiện thành ô viền nét đứt có chữ "Ghép kèo" (thẻ sân: một hàng riêng "Ghép kèo · chốt khi đủ hai đội"; trang chủ: dòng có nhãn Ghép kèo), bấm vào dẫn tới trận đang chờ đội thứ hai (màn 21) hoặc màn mở trận (màn 20); cuối danh sách có lối "Nhờ sân báo giá". Ở màn 3, ô giờ của sân bật chế độ hiện nhãn "Đủ hai đội" (viền nét đứt) dẫn tới màn 20; ô đang có trận hiện liên kết vào trận. Mục "Ghép kèo" trên thanh điều hướng. |
 | 20 | Mở trận | Sân, giờ, giá sân; chọn phần của đội mình (chip %), hiện hai phần cộng đúng giá sân; chọn hạn chót; nói rõ giữ slot 15 phút và quy tắc hoàn. |
@@ -163,8 +163,8 @@ Prototype FE dùng dữ liệu giả **đúng theo contract này**; khi có BE c
 |---|---|---|
 | GET | `/api/auth/csrf` | `{ csrfToken }` |
 | GET | `/api/auth/me` | `{ user: User hoặc null }` |
-| POST | `/api/auth/register` | `{ fullName, email, phone, password }` → `{ user }` |
-| POST | `/api/auth/login` | `{ email, password }` → `{ user }` |
+| POST | `/api/auth/register` | `{ fullName, phone, password, email? }` → `{ user }`. Email null/không gửi được; nếu có thì vẫn duy nhất. Chuẩn hóa và bắt buộc số điện thoại duy nhất trên mọi vai trò. |
+| POST | `/api/auth/login` | `{ identifier, password }` → `{ user }`; `identifier` là email hoặc số điện thoại đã chuẩn hóa (đầu vào `0`, `84`, `+84`, bỏ dấu cách/chấm). Tương thích body cũ `{ email, password }`. |
 | POST | `/api/auth/logout` | |
 
 ### Khách hàng
@@ -318,7 +318,7 @@ Offer        { id, requestId, status: "open"|"chosen"|"lost"|"withdrawn"|"expire
                overBudget, note, validUntil, createdAt, endReason, usable, unusableReason (khi open mà usable = false,
                tính tại lúc xem vì chào giá không giữ slot), bookingId (khi chosen) }
 Notification { id, bookingId, message, link, isRead, createdAt }
-User         { id, fullName, email, phone, role: "customer"|"owner"|"admin" }
+User         { id, fullName, email: string|null, phone, role: "customer"|"owner"|"admin" }
 ```
 
 > Bản nháp BE hiện trả một số đối tượng booking theo snake_case; khi nối BE sẽ chuyển sang camelCase cho khớp contract.

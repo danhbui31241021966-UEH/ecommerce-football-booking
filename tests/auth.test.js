@@ -34,7 +34,7 @@ test('CSRF: ghi mà thiếu hoặc sai token thì 403; GET /csrf cấp token', a
 test('đăng nhập → me → đăng xuất → me null; session nằm trong MySQL', async () => {
   const a = app.agent();
   assert.deepEqual((await a.get('/api/auth/me')).body, { user: null });
-  const login = await a.post('/api/auth/login', creds);
+  const login = await a.post('/api/auth/login', { identifier: creds.email, password: creds.password });
   assert.equal(login.status, 200);
   assert.deepEqual(Object.keys(login.body.user).sort(), ['email', 'fullName', 'id', 'phone', 'role']);
   assert.equal(login.body.user.role, 'customer');
@@ -51,8 +51,8 @@ test('đăng nhập → me → đăng xuất → me null; session nằm trong My
 
 test('đăng nhập sai: 401 cùng một thông báo cho sai email và sai mật khẩu; tài khoản khóa 403', async () => {
   const a = app.agent();
-  const wrongPw = await a.post('/api/auth/login', { ...creds, password: 'saisai123' });
-  const noUser = await a.post('/api/auth/login', { email: 'khong@test.local', password: 'saisai123' });
+  const wrongPw = await a.post('/api/auth/login', { identifier: creds.email, password: 'saisai123' });
+  const noUser = await a.post('/api/auth/login', { identifier: 'khong@test.local', password: 'saisai123' });
   assert.equal(wrongPw.status, 401);
   assert.equal(noUser.status, 401);
   assert.equal(wrongPw.body.error, noUser.body.error);
@@ -60,22 +60,44 @@ test('đăng nhập sai: 401 cùng một thông báo cho sai email và sai mật
   assert.equal((await a.post('/api/auth/login', { email: 'khach@test.local' })).status, 400);
 });
 
-test('đăng ký: tạo khách hàng, vào luôn phiên đăng nhập; email trùng (kể cả khác hoa thường) 409; dữ liệu sai 400', async () => {
+test('đăng ký ba trường, phone được chuẩn hóa và trùng số bị từ chối; email nếu có vẫn duy nhất', async () => {
   const a = app.agent();
-  const r = await a.post('/api/auth/register', { fullName: 'Lê Văn Mới', email: 'Moi@Test.local', phone: '0912345678', password: 'matkhau123' });
+  const r = await a.post('/api/auth/register', { fullName: 'Lê Văn Mới', phone: '+84 912 345 678', password: 'matkhau123' });
   assert.equal(r.status, 201, r.text);
   assert.equal(r.body.user.role, 'customer');
+  assert.equal(r.body.user.email, null);
+  assert.equal(r.body.user.phone, '0912345678');
   assert.equal((await a.get('/api/auth/me')).body.user.fullName, 'Lê Văn Mới');
+  assert.equal((await a.get('/api/auth/me')).body.user.email, null);
   const row = await h.db.one('SELECT password_hash FROM users WHERE id = ?', [r.body.user.id]);
   assert.notEqual(row.passwordHash, 'matkhau123');
   assert.ok(row.passwordHash.startsWith('$2'));
 
+  const phoneLogin = await app.agent().post('/api/auth/login', { identifier: '84 912 345 678', password: 'matkhau123' });
+  assert.equal(phoneLogin.status, 200);
+  assert.equal(phoneLogin.body.user.id, r.body.user.id);
+
   const b = app.agent();
-  assert.equal((await b.post('/api/auth/register', { fullName: 'Ai Đó', email: 'moi@test.local', phone: '0912345679', password: 'matkhau123' })).status, 409);
-  assert.equal((await b.post('/api/auth/register', { fullName: 'A', email: 'x@test.local', phone: '0912345679', password: 'matkhau123' })).status, 400);
-  assert.equal((await b.post('/api/auth/register', { fullName: 'Ai Đó', email: 'khong-phai-email', phone: '0912345679', password: 'matkhau123' })).status, 400);
-  assert.equal((await b.post('/api/auth/register', { fullName: 'Ai Đó', email: 'y@test.local', phone: '123', password: 'matkhau123' })).status, 400);
-  assert.equal((await b.post('/api/auth/register', { fullName: 'Ai Đó', email: 'y@test.local', phone: '0912345679', password: 'ngan' })).status, 400);
+  const owner = await h.makeUser({ role: 'owner', phone: '0912345681' });
+  const ownerPhoneLogin = await app.agent().post('/api/auth/login', { identifier: '+84 912 345 681', password: 'Matkhau@123' });
+  assert.equal(ownerPhoneLogin.status, 200);
+  assert.equal(ownerPhoneLogin.body.user.role, 'owner');
+  assert.equal(ownerPhoneLogin.body.user.id, owner.id);
+  assert.equal((await b.post('/api/auth/register', { fullName: 'Trùng số chủ sân', phone: '+84 912 345 681', password: 'matkhau123' })).status, 409);
+  assert.equal((await b.post('/api/auth/register', { fullName: 'Trùng số', phone: '0912345678', password: 'matkhau123' })).status, 409);
+  assert.equal((await b.post('/api/auth/register', { fullName: 'A', phone: '0912345679', password: 'matkhau123', email: 'khong-phai-email' })).status, 400);
+  assert.equal((await b.post('/api/auth/register', { fullName: 'Ai Đó', phone: '123', password: 'matkhau123' })).status, 400);
+  assert.equal((await b.post('/api/auth/register', { fullName: 'Ai Đó', phone: '0912345679', password: 'ngan' })).status, 400);
+
+  const withEmail = await b.post('/api/auth/register', { fullName: 'Có Email', email: 'Moi@Test.local', phone: '0912345679', password: 'matkhau123' });
+  assert.equal(withEmail.status, 201);
+  const emailLogin = await app.agent().post('/api/auth/login', { identifier: 'MOI@test.local', password: 'matkhau123' });
+  assert.equal(emailLogin.status, 200);
+  assert.equal(emailLogin.body.user.id, withEmail.body.user.id);
+  assert.equal((await app.agent().post('/api/auth/register', { fullName: 'Email trùng', email: 'moi@test.local', phone: '0912345680', password: 'matkhau123' })).status, 409);
+  const explicitNull = await b.post('/api/auth/register', { fullName: 'Email null', email: null, phone: '0912345682', password: 'matkhau123' });
+  assert.equal(explicitNull.status, 201, explicitNull.text);
+  assert.equal(explicitNull.body.user.email, null);
 });
 
 test('tài khoản bị khóa sau khi đã đăng nhập mất hiệu lực ngay ở request kế tiếp', async () => {

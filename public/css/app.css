@@ -2345,6 +2345,20 @@ body:has(.booking-bar) .toast-stack {
   font-size: clamp(2.75rem, 11vw, 4.5rem);
   line-height: 1.04;
 }
+.auth-booking-context {
+  margin: calc(-1 * var(--sp-3)) 0 var(--sp-5);
+  padding: var(--sp-3) var(--sp-4);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: var(--surface);
+  color: var(--text-2);
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  line-height: 1.45;
+}
+.auth-booking-context[hidden] {
+  display: none;
+}
 .auth-panel form {
   display: grid;
   gap: var(--sp-4);
@@ -2367,34 +2381,6 @@ body:has(.booking-bar) .toast-stack {
 }
 .auth-alt a {
   font-weight: 700;
-}
-.demo-accounts {
-  margin-top: var(--sp-8);
-  padding-top: var(--sp-4);
-  border-top: 1px solid var(--line-strong);
-}
-.demo-accounts[hidden] {
-  display: none;
-}
-.demo-accounts div {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--sp-2);
-  margin-top: var(--sp-2);
-}
-.demo-accounts button {
-  min-height: 44px;
-  padding: 0 14px;
-  border: 1px solid var(--text);
-  border-radius: var(--r-md);
-  background: transparent;
-  font: inherit;
-  font-weight: 600;
-  cursor: pointer;
-}
-.demo-accounts button:hover {
-  background: var(--text);
-  color: var(--on-dark);
 }
 @media (min-width: 900px) {
   .auth {

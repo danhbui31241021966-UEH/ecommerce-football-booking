@@ -41,7 +41,8 @@ router.get('/me', (req, res) => {
 
 router.post('/register', authLimiter, async (req, res) => {
   const fullName = v.str(req.body.fullName, 'Họ tên', { min: 2, max: 100 });
-  const email = v.email(req.body.email);
+  const rawEmail = String(req.body.email ?? '').trim();
+  const email = rawEmail ? v.email(rawEmail) : null;
   const phone = v.phone(req.body.phone);
   const password = v.password(req.body.password);
   const hash = await bcrypt.hash(password, 10);
@@ -53,7 +54,9 @@ router.post('/register', authLimiter, async (req, res) => {
     );
     id = r.insertId;
   } catch (err) {
-    if (isDuplicate(err)) throw conflict('Email này đã được đăng ký');
+    if (isDuplicate(err, 'uq_user_phone')) throw conflict('Số điện thoại này đã được đăng ký');
+    if (isDuplicate(err, 'uq_user_email')) throw conflict('Email này đã được đăng ký');
+    if (isDuplicate(err)) throw conflict('Thông tin tài khoản đã được sử dụng');
     throw err;
   }
   await startSession(req, id);
@@ -62,11 +65,13 @@ router.post('/register', authLimiter, async (req, res) => {
 
 router.post('/login', authLimiter, async (req, res) => {
   const password = String(req.body.password || '');
-  if (!req.body.email || !password) throw badRequest('Vui lòng nhập email và mật khẩu');
-  const email = v.email(req.body.email);
-  const user = await db.one('SELECT * FROM users WHERE email = ?', [email]);
-  // Cùng một thông báo cho sai email và sai mật khẩu để không lộ email nào đã đăng ký.
-  if (!user || !(await bcrypt.compare(password, user.passwordHash))) throw unauthorized('Email hoặc mật khẩu không đúng');
+  const identifier = String(req.body.identifier ?? req.body.email ?? '').trim();
+  if (!identifier || !password) throw badRequest('Vui lòng nhập số điện thoại hoặc email và mật khẩu');
+  const user = identifier.includes('@')
+    ? await db.one('SELECT * FROM users WHERE email = ?', [v.email(identifier)])
+    : await db.one('SELECT * FROM users WHERE phone = ?', [v.phone(identifier)]);
+  // Cùng một thông báo cho sai thông tin đăng nhập để không lộ tài khoản nào đã đăng ký.
+  if (!user || !(await bcrypt.compare(password, user.passwordHash))) throw unauthorized('Số điện thoại/email hoặc mật khẩu không đúng');
   if (!user.isActive) throw forbidden('Tài khoản đã bị khóa, vui lòng liên hệ quản trị viên');
   await startSession(req, user.id);
   res.json({ user: publicUser(user) });

@@ -26,11 +26,11 @@ export async function step(p, flow, name, fn, { shot = true, full = false } = {}
   return ok;
 }
 export const save = () => fs.writeFileSync(`e2e/out/results-${process.argv[1].split('/').pop().replace('.mjs','')}-${W}.json`, JSON.stringify({ results, logs }, null, 1));
-export async function loginAs(p, email) {
+export async function loginAs(p, identifier) {
   await p.goto(U + '/');
   await p.evaluate(async () => { const { api } = await import('/js/api.js'); await api.logout().catch(() => {}); });
   await p.goto(U + '/login');
-  await p.fill('input[name=email]', email);
+  await p.fill('input[name=identifier]', identifier);
   await p.fill('input[name=password]', 'Matkhau@123');
   await Promise.all([p.waitForURL((u) => !u.pathname.includes('login')), p.click('button[type=submit]')]);
   // Chờ trang đích tải xong dữ liệu: nếu bước sau đăng xuất ngay, các request còn dở của trang trả 401 trên BE thật.
