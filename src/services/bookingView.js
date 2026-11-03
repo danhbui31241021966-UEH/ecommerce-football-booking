@@ -91,4 +91,4 @@ async function myBookings(userId) {
   return rows.map((b) => toBooking(b));
 }
 
-module.exports = { bookingDetail, listBookings, myBookings, paymentQr, findBooking };
+module.exports = { bookingDetail, listBookings, myBookings, paymentQr, findBooking, vietQr };

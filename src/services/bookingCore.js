@@ -1,7 +1,7 @@
 // Tạo lịch đặt (R1–R6, R9, R10) và dựng dữ liệu lịch đặt theo contract. Chống đặt trùng do DB (db/schema.sql:
 // uq_booking_slot + slot_claims), ở đây chỉ chuyển lỗi trùng khóa thành 409. Đổi trạng thái về sau dùng
 // services/bookingState.js (xem bookingOps.js cho hủy/duyệt/hoàn tiền/hết hạn).
-// Chưa làm: nhượng (R12), ghép kèo (R13), báo giá (R14), lịch gọi điện (R16).
+// Ghép kèo (R13) nằm ở matchOps.js; ở đây chỉ dựng tóm tắt `match`. Chưa làm: nhượng (R12), báo giá (R14).
 const crypto = require('crypto');
 const { withTransaction, db, isDuplicate } = require('../db');
 const clock = require('../clock');
@@ -16,6 +16,17 @@ const { reliabilityOf } = require('./reliability');
 const { notify, addHistory, shortTs } = require('./notify');
 
 const bookingCode = (id) => `SN${String(id).padStart(5, '0')}`;
+
+/** Tóm tắt trận của booking ghép kèo (null nếu không phải). Chủ sân/admin thấy thêm các khoản trả lại từng đội. */
+function matchBrief(b, staff) {
+  if (b.matchId == null) return null;
+  const out = { id: b.matchId, status: b.matchStatus, closesAt: b.matchClosesAt };
+  if (staff) {
+    const list = typeof b.matchRefunds === 'string' ? JSON.parse(b.matchRefunds) : b.matchRefunds || [];
+    out.refunds = [...list].sort((x, y) => (x.part === y.part ? 0 : x.part === 'host' ? -1 : 1));
+  }
+  return out;
+}
 
 /** Booking theo contract (PRD mục 7). Dựng từ hàng bookings JOIN venues/courts (xem BOOKING_SELECT). */
 function toBooking(b, { admin = false } = {}) {
@@ -42,8 +53,15 @@ function toBooking(b, { admin = false } = {}) {
     cancelReason: b.cancelReason,
     createdAt: b.createdAt,
     acquiredByTransfer: b.transferFromBookingId != null,
-    transfer: null,
-    match: null,
+    transfer: b.transferId == null ? null : {
+      id: b.transferId,
+      status: b.transferStatus,
+      askPrice: b.transferAskPrice,
+      closesAt: b.transferClosesAt,
+      claimExpiresAt: b.transferStatus === 'claimed' ? b.transferClaimExpiresAt : null,
+      ...(admin && b.transferToUserId ? { claimerName: b.transferClaimerName } : {}),
+    },
+    match: matchBrief(b, admin),
     fromOffer: b.offerId != null,
     source: b.source,
     paidVia: b.paymentStatus === 'paid' ? b.paidVia || null : null,
@@ -56,8 +74,20 @@ function toBooking(b, { admin = false } = {}) {
 }
 
 const BOOKING_SELECT = `SELECT b.*, v.name AS venue_name, v.owner_id, c.name AS court_name, c.field_type,
-    u.full_name AS customer_name, u.phone AS customer_phone, u.email AS customer_email
-  FROM bookings b JOIN venues v ON v.id = b.venue_id JOIN courts c ON c.id = b.court_id LEFT JOIN users u ON u.id = b.user_id`;
+    u.full_name AS customer_name, u.phone AS customer_phone, u.email AS customer_email,
+    mt.status AS match_status, mt.closes_at AS match_closes_at,
+    (SELECT JSON_ARRAYAGG(JSON_OBJECT('part', r.part, 'name', IF(r.part = 'host', hu.full_name, gu.full_name), 'amount', r.amount, 'status', r.status))
+       FROM match_refunds r JOIN users hu ON hu.id = mt.host_id LEFT JOIN users gu ON gu.id = mt.guest_id WHERE r.match_id = b.match_id) AS match_refunds,
+    tr.id AS transfer_id, tr.status AS transfer_status, tr.ask_price AS transfer_ask_price,
+    tr.closes_at AS transfer_closes_at, tr.claim_expires_at AS transfer_claim_expires_at,
+    tr.to_user_id AS transfer_to_user_id, tu.full_name AS transfer_claimer_name
+  FROM bookings b
+  JOIN venues v ON v.id = b.venue_id
+  JOIN courts c ON c.id = b.court_id
+  LEFT JOIN users u ON u.id = b.user_id
+  LEFT JOIN matches mt ON mt.id = b.match_id
+  LEFT JOIN transfers tr ON tr.id = (SELECT MAX(t.id) FROM transfers t WHERE t.booking_id = b.id)
+  LEFT JOIN users tu ON tu.id = tr.to_user_id`;
 
 const findBooking = (id, conn = db) => conn.one(`${BOOKING_SELECT} WHERE b.id = ?`, [id]);
 

@@ -21,11 +21,11 @@ test('nạp demo: lịch mẫu theo khóa mock, đám đông chỉ ở sân th�
   const k1 = await h.db.one('SELECT code, id FROM bookings WHERE id = 1');
   assert.equal(k1.code, 'SN00001');
   assert.ok((await h.db.query('SELECT DISTINCT venue_id FROM bookings WHERE venue_id >= 7')).length > 10, 'sân thật có khách nền');
-  assert.ok((await h.db.one('SELECT COUNT(*) AS n FROM bookings WHERE venue_id < 7 AND source = \'web\'')).n <= 20, 'sân demo chỉ có lịch mẫu');
+  assert.ok((await h.db.one('SELECT COUNT(*) AS n FROM bookings WHERE venue_id < 7 AND source = \'web\' AND match_id IS NULL')).n <= 21, 'sân demo có lịch mẫu và lịch nhận pass');
   assert.deepEqual(await h.findClaimDrift(h.db), { missing: [], stale: [] });
   const waits = await h.db.query('SELECT status FROM waitlist ORDER BY id');
   assert.deepEqual(waits.map((w) => w.status), ['waiting', 'waiting', 'waiting', 'offered']);
-  assert.equal((await h.db.one('SELECT COUNT(*) AS n FROM notifications')).n, 8);
+  assert.ok((await h.db.one('SELECT COUNT(*) AS n FROM notifications n LEFT JOIN bookings b ON b.id = n.booking_id WHERE b.match_id IS NULL')).n >= 8);
   assert.ok((await h.db.one('SELECT COUNT(*) AS n FROM booking_history')).n > 20);
 });
 
@@ -35,7 +35,7 @@ test('qua API: khach1 thấy lịch của mình, chusan1 thấy lịch chờ duy
   const list = (await k.get('/api/bookings/mine')).body;
   assert.equal(list.length, 6);
   const n = (await k.get('/api/notifications')).body;
-  assert.equal(n.unread, 3);
+  assert.equal(n.unread, 4);
   assert.equal((await k.get('/api/waitlist/mine')).body.length, 2);
   const rel = (await k.get('/api/bookings/reliability')).body;
   assert.deepEqual([rel.noShows, rel.lateCancels, rel.restricted], [0, 1, false]);

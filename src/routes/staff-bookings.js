@@ -35,7 +35,7 @@ function staffBookingRouter(role) {
   }
   act('cancel', (u, id, p) => ops.cancelBooking(u, id, p.reason, role));
   act('paid', (u, id, p) => ops.markPaid(u, id, p.note));
-  act('refund', (u, id, p) => ops.markRefunded(u, id, p.note));
+  act('refund', (u, id, p) => ops.markRefunded(u, id, p.note, p.part));
   act('attendance', (u, id, p) => ops.markAttendance(u, id, p.result));
   return router;
 }

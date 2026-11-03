@@ -18,6 +18,9 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS match_refunds;
+DROP TABLE IF EXISTS matches;
+DROP TABLE IF EXISTS transfers;
 DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS waitlist;
 DROP TABLE IF EXISTS slot_claims;
@@ -154,6 +157,32 @@ CREATE TABLE bookings (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 -- Nhật ký thao tác trên lịch đặt; cũng là nguồn của "Nhật ký" admin. actor_id NULL khi do hệ thống/ngân hàng.
+-- R12: một lịch có thể đăng pass nhiều lần tuần tự; khóa booking trong ứng dụng ngăn đăng hai pass cùng lúc.
+CREATE TABLE transfers (
+  id                INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  booking_id        INT UNSIGNED NOT NULL,
+  from_user_id      INT UNSIGNED NOT NULL,
+  ask_price         INT UNSIGNED NOT NULL,
+  status            ENUM('open','claimed','completed','cancelled','expired') NOT NULL,
+  created_at        DATETIME NOT NULL,
+  closes_at         DATETIME NOT NULL,
+  priority_until    DATETIME NULL,
+  to_user_id        INT UNSIGNED NULL,
+  claimed_at        DATETIME NULL,
+  claim_expires_at  DATETIME NULL,
+  new_booking_id    INT UNSIGNED NULL,
+  completed_at      DATETIME NULL,
+  end_reason        VARCHAR(255) NULL,
+  CONSTRAINT fk_transfer_booking FOREIGN KEY (booking_id) REFERENCES bookings(id),
+  CONSTRAINT fk_transfer_from_user FOREIGN KEY (from_user_id) REFERENCES users(id),
+  CONSTRAINT fk_transfer_to_user FOREIGN KEY (to_user_id) REFERENCES users(id),
+  CONSTRAINT fk_transfer_new_booking FOREIGN KEY (new_booking_id) REFERENCES bookings(id),
+  INDEX idx_transfer_booking_status (booking_id, status),
+  INDEX idx_transfer_status_close (status, closes_at),
+  INDEX idx_transfer_from_user (from_user_id, id),
+  INDEX idx_transfer_to_user (to_user_id, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 CREATE TABLE booking_history (
   id          INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   booking_id  INT UNSIGNED NOT NULL,
@@ -245,7 +274,76 @@ CREATE TABLE sessions (
   INDEX idx_session_expires (expires)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Chưa có bảng (cố ý, sẽ thêm bằng migration riêng khi làm tính năng): transfers (pass), matches (ghép kèo),
+-- Ghép kèo (R13) và kèo tiền sân (R15). Mỗi trận có đúng một booking (matches.booking_id, trạng thái `matching` giữ ô qua
+-- slot_claims như mọi lịch khác). bookings.match_id trỏ ngược lại nhưng KHÔNG có FK (vòng tham chiếu); services/matchOps.js
+-- đặt nó khi tạo trận. Hai đội cùng vào một trận cùng lúc: matchOps khóa dòng matches (SELECT ... FOR UPDATE) rồi UPDATE có
+-- điều kiện `status = 'open' AND guest_id IS NULL`, nên đúng một bên thắng, bên kia 409.
+-- Khóa dòng luôn theo thứ tự matches -> bookings (setStatus khóa bookings).
+CREATE TABLE matches (
+  id                    INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  booking_id            INT UNSIGNED NOT NULL,
+  host_id               INT UNSIGNED NOT NULL,                 -- đội mở kèo (đứng tên booking)
+  guest_id              INT UNSIGNED NULL,                     -- đội vào kèo
+  price                 INT UNSIGNED NOT NULL,                 -- giá sân tại lúc mở kèo
+  loser_percent         TINYINT UNSIGNED NOT NULL DEFAULT 50,  -- R15: 50 / 60 / 70 / 100
+  host_amount           INT UNSIGNED NOT NULL,                 -- phần chuyển trước của đội mở
+  guest_amount          INT UNSIGNED NOT NULL,                 -- phần còn lại (host + guest = price)
+  status                ENUM('open','joined','confirmed','cancelled','expired') NOT NULL DEFAULT 'open',
+  created_at            DATETIME NOT NULL,
+  closes_at             DATETIME NOT NULL,                     -- hạn tìm đủ hai đội
+  host_pay_by           DATETIME NOT NULL,                     -- hạn chủ sân xác nhận phần của đội mở
+  host_paid_at          DATETIME NULL,                         -- chủ sân đã xác nhận nhận tiền
+  guest_paid_at         DATETIME NULL,
+  guest_hold_until      DATETIME NULL,                         -- hạn giữ chỗ của đội vào khi status = joined
+  joined_at             DATETIME NULL,
+  ended_at              DATETIME NULL,
+  end_reason            VARCHAR(300) NULL,
+  host_bank_bin         VARCHAR(10) NULL,
+  host_bank_account     VARCHAR(20) NULL,
+  host_bank_name        VARCHAR(60) NULL,
+  guest_bank_bin        VARCHAR(10) NULL,
+  guest_bank_account    VARCHAR(20) NULL,
+  guest_bank_name       VARCHAR(60) NULL,
+  -- R15: kết quả (NULL khi kèo 5-5, hoặc chưa đá xong)
+  result_status         ENUM('awaiting','needs_owner','settled') NULL,
+  report_by             DATETIME NULL,
+  host_report           ENUM('host','guest','draw') NULL,
+  guest_report          ENUM('host','guest','draw') NULL,
+  winner                ENUM('host','guest','draw') NULL,
+  settled_by            ENUM('agree','owner') NULL,
+  settled_at            DATETIME NULL,
+  topup_from            ENUM('host','guest') NULL,
+  topup_to              ENUM('host','guest') NULL,
+  topup_amount          INT UNSIGNED NULL,
+  topup_status          ENUM('unpaid','received') NULL,
+  topup_due_by          DATETIME NULL,
+  topup_received_at     DATETIME NULL,
+  UNIQUE KEY uq_match_booking (booking_id),
+  CONSTRAINT fk_match_booking FOREIGN KEY (booking_id) REFERENCES bookings(id),
+  CONSTRAINT fk_match_host    FOREIGN KEY (host_id)  REFERENCES users(id),
+  CONSTRAINT fk_match_guest   FOREIGN KEY (guest_id) REFERENCES users(id),
+  CONSTRAINT ck_match_loser   CHECK (loser_percent IN (50, 60, 70, 100)),
+  CONSTRAINT ck_match_amounts CHECK (host_amount + guest_amount = price),
+  INDEX idx_match_status (status, closes_at),
+  INDEX idx_match_host  (host_id),
+  INDEX idx_match_guest (guest_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Tiền chủ sân phải chuyển lại cho từng đội khi trận không thành (R13e–g). Chỉ ghi cho phần chủ sân đã xác nhận nhận.
+CREATE TABLE match_refunds (
+  id        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  match_id  INT UNSIGNED NOT NULL,
+  part      ENUM('host','guest') NOT NULL,
+  user_id   INT UNSIGNED NOT NULL,
+  amount    INT UNSIGNED NOT NULL,
+  status    ENUM('pending','done') NOT NULL DEFAULT 'pending',
+  done_at   DATETIME NULL,
+  UNIQUE KEY uq_match_refund_part (match_id, part),
+  CONSTRAINT fk_mrefund_match FOREIGN KEY (match_id) REFERENCES matches(id),
+  CONSTRAINT fk_mrefund_user  FOREIGN KEY (user_id)  REFERENCES users(id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Chưa có bảng (cố ý, sẽ thêm bằng migration riêng khi làm tính năng):
 -- requests/offers (nhờ báo giá), leagues/league_teams/league_matches (giải), bank_transactions (SePay).
 -- Chúng tham chiếu bookings/blocks/courts có sẵn: bookings.offer_id/match_id/transfer_from_booking_id và
 -- blocks.league_id/league_match_id đã có cột để nối.

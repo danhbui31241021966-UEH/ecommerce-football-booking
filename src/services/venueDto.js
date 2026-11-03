@@ -87,7 +87,9 @@ function availableOn(v, date, params, viewer, occ) {
     for (const s of slotGrid(v)) {
       if (hmToMin(s) < fromMin) continue;
       const slot = slotInfo(v, c, date, s, occ, viewer);
-      if (!(slot.status === 'available' || slot.offeredToYou)) continue;
+      // Giờ đủ hai đội vẫn hiện trong kết quả tìm; ô đang có trận chờ đội thứ hai dẫn tới trận đó.
+      const joinableMatch = slot.match?.joinable ? slot.match : null;
+      if (!(slot.status === 'available' || slot.offeredToYou) && !joinableMatch) continue;
       if (max && slot.price > max) continue;
       out.push({
         courtId: c.id,
@@ -101,7 +103,7 @@ function availableOn(v, date, params, viewer, occ) {
         peak: slot.peak,
         offeredToYou: !!slot.offeredToYou,
         teamMode: !!slot.teamMode,
-        match: null, // R13: ô đang có trận chờ đội thứ hai; nối khi có bảng trận
+        match: joinableMatch ? { id: joinableMatch.id } : null,
       });
     }
   }

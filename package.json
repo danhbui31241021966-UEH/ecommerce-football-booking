@@ -10,7 +10,9 @@
     "prototype": "node scripts/prototype-server.js",
     "db:init": "node scripts/db-init.js",
     "db:seed": "node scripts/db-seed.js",
-    "test": "node scripts/test.js"
+    "test": "node scripts/test.js",
+    "e2e": "node e2e/run.mjs",
+    "e2e:all": "node e2e/run-all.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -27,5 +29,8 @@
   },
   "overrides": {
     "mysql2": "$mysql2"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
   }
 }

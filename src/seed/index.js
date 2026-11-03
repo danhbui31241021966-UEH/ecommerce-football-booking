@@ -5,12 +5,16 @@ const { seedCore } = require('./core');
 const { seedBookings } = require('./bookings');
 const { seedBlocks } = require('./blocks');
 const { seedPhoneBookings } = require('./phoneBookings');
+const { seedMatches } = require('./matches');
+const { seedTransfers } = require('./transfers');
 
 const SEEDERS = [
   { name: 'core', run: seedCore },
   { name: 'bookings', run: seedBookings },
   { name: 'blocks', run: seedBlocks },
   { name: 'phoneBookings', run: seedPhoneBookings }, // sau chặn giờ: chọn ô theo dữ liệu đã dựng
+  { name: 'matches', run: seedMatches }, // kèo mẫu của R13/R15, giờ cố định theo ngày của mẫu
+  { name: 'transfers', run: seedTransfers }, // sau lịch mẫu và waitlist để đăng pass theo dữ liệu mock
 ];
 
 /** Xóa mọi dữ liệu (giữ cấu trúc và bảng sessions, đặt lại AUTO_INCREMENT) rồi nạp lại. Trả số liệu của từng seeder. */

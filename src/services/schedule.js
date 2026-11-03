@@ -14,9 +14,13 @@ async function loadOccupancy(courtIds, date, conn = db) {
   const to = `${addDays(date, 1)} 00:00:00`;
   const claims = await conn.query(
     `SELECT sc.court_id, sc.start_at, sc.kind, b.status AS booking_status, b.user_id AS booking_user_id,
-            bl.reason AS block_reason, bl.league_id AS block_league_id
+            b.match_id, mt.status AS match_status, mt.host_paid_at AS match_host_paid_at, mt.closes_at AS match_closes_at,
+            b.price AS booking_price, t.id AS transfer_id, t.ask_price AS transfer_ask_price,
+            t.status AS transfer_status, bl.reason AS block_reason, bl.league_id AS block_league_id
        FROM slot_claims sc
        LEFT JOIN bookings b ON b.id = sc.booking_id
+       LEFT JOIN matches mt ON mt.id = b.match_id
+       LEFT JOIN transfers t ON t.booking_id = b.id AND t.status = 'open'
        LEFT JOIN blocks bl ON bl.id = sc.block_id
       WHERE sc.court_id IN (?) AND sc.start_at >= ? AND sc.start_at < ?`,
     [courtIds, from, to],
@@ -37,7 +41,7 @@ async function loadOccupancy(courtIds, date, conn = db) {
 
 /**
  * Một ô giờ. viewer = người xem (hoặc null). Thứ tự ưu tiên trạng thái: past > blocked > booked/held > offered > available.
- * Các thuộc tính của tính năng chưa làm (match, transfer, league) sẽ được thêm ở đây khi bảng tương ứng có.
+ * Các thuộc tính của tính năng chưa làm (transfer, league) sẽ được thêm ở đây khi bảng tương ứng có.
  */
 function slotInfo(venue, court, date, start, occ, viewer, nowMs = clock.nowMs()) {
   const end = slotEnd(venue, start);
@@ -56,6 +60,10 @@ function slotInfo(venue, court, date, start, occ, viewer, nowMs = clock.nowMs())
   else if (claim?.kind === 'booking') slot.status = claim.bookingStatus === 'confirmed' ? 'booked' : 'held';
   else if (activeOffer) slot.status = 'offered';
 
+  if (claim?.kind === 'booking' && claim.transferId && claim.transferStatus === 'open') {
+    slot.transfer = { id: claim.transferId, askPrice: claim.transferAskPrice, originalPrice: claim.bookingPrice };
+  }
+
   if (viewer) {
     if (waits.some((w) => w.userId === viewer.id)) slot.onWaitlist = true;
     if (activeOffer && activeOffer.userId === viewer.id) {
@@ -65,7 +73,11 @@ function slotInfo(venue, court, date, start, occ, viewer, nowMs = clock.nowMs())
     if (claim?.kind === 'booking' && claim.bookingUserId === viewer.id) slot.mine = true;
   }
   const teamMode = teamModeAt(court, start);
-  if (teamMode && slot.status === 'available') slot.teamMode = true;
+  if (claim?.kind === 'booking' && claim.matchId != null) {
+    // Ô đang giữ cho một trận (R13): nhận đội thứ hai khi chủ sân đã xác nhận phần đội mở, còn hạn, và người xem không phải đội mở.
+    const joinable = claim.matchStatus === 'open' && !!claim.matchHostPaidAt && vnToMs(claim.matchClosesAt) > nowMs && !slot.mine;
+    slot.match = { id: claim.matchId, status: claim.matchStatus, joinable };
+  } else if (teamMode && slot.status === 'available') slot.teamMode = true;
 
   // R6: giảm giờ chót; giờ ghép kèo luôn giá gốc.
   const bookable = (slot.status === 'available' || slot.offeredToYou) && !slot.teamMode;

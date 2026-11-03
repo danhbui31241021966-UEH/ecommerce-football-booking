@@ -11,6 +11,7 @@ const { notify, addHistory, money } = require('./notify');
 const { offerSlot } = require('./waitlist');
 const { reliabilityOf } = require('./reliability');
 const { findBooking, toBooking } = require('./bookingCore');
+const { closeTransferForBookingCancellation } = require('./transfers');
 
 const actorOf = (user) => ({ id: user.id, role: user.role });
 const link = (id) => `/booking.html?id=${id}`;
@@ -51,9 +52,19 @@ function refundTier(startAt, now, by) {
 /** Hủy: dùng chung cho khách (by='customer'), chủ sân ('owner') và admin ('admin'). */
 async function cancelBooking(user, id, reason, by) {
   await assertAccess(user, id);
+  // Booking của trận ghép kèo (R13) đi theo luồng của trận: khách rút ở trang kèo; chủ sân/admin hủy cả trận (hoàn 100% hai đội).
+  // matchOps được nạp lúc cần vì nó dùng lại refundTier ở file này.
+  const own = await db.one('SELECT b.match_id, b.status FROM bookings b WHERE b.id = ?', [id]);
+  if (own.matchId != null) {
+    if (by === 'customer') throw conflict(own.status === 'matching' ? 'Lịch đặt này đang chờ ghép kèo: hãy rút khỏi kèo ở trang kèo' : 'Kèo đã chốt: nếu cần hủy, hãy liên hệ chủ sân');
+    const why = String(reason ?? '').trim() || (by === 'admin' ? 'Quản trị viên hủy' : 'Chủ sân hủy');
+    await require('./matchOps').cancelByStaff(user, own.matchId, why, { allowConfirmed: true });
+    return;
+  }
   await withTransaction(async (tx) => {
     const b = await lock(tx, id);
     if (!['pending', 'confirmed'].includes(b.status)) throw conflict('Lịch đặt này không hủy được nữa');
+    await closeTransferForBookingCancellation(tx, id, user, by);
     const now = clock.now();
     const paid = b.paymentStatus === 'paid';
     const walkIn = b.source === 'phone'; // tiền của khách gọi điện xử lý ngoài web
@@ -117,8 +128,13 @@ async function markPaid(user, id, note) {
   });
 }
 
-async function markRefunded(user, id, note) {
+async function markRefunded(user, id, note, part) {
   await assertAccess(user, id);
+  const own = await db.one('SELECT match_id FROM bookings WHERE id = ?', [id]);
+  if (own.matchId != null) {
+    await require('./matchOps').refundPart(user, own.matchId, part, note); // khoản trả lại theo từng đội (R13f)
+    return;
+  }
   await withTransaction(async (tx) => {
     const b = await lock(tx, id);
     if (b.refundStatus !== 'pending') throw conflict('Lịch đặt này không có khoản cần chuyển lại');
@@ -185,6 +201,7 @@ function sweep() {
     for (const r of await db.query("SELECT id FROM waitlist WHERE status = 'offered' AND offer_expires_at <= ? ORDER BY id", [now])) {
       await expireOffer(r.id);
     }
+    await require('./matchOps').sweepMatches();
   })().finally(() => {
     running = null;
   });
