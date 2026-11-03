@@ -246,13 +246,13 @@ function paintBar() {
   const user = getUser();
   if (user && !isCustomer()) {
     $('bar-what').textContent = 'Chỉ tài khoản khách mới đặt được sân';
-    $('bar-total').textContent = '—';
+    $('bar-total').textContent = '';
     btn.disabled = true;
     return;
   }
   if (!s) {
     $('bar-what').textContent = 'Chọn một giờ trống ở lưới phía trên';
-    $('bar-total').textContent = '—';
+    $('bar-total').textContent = '';
     btn.disabled = true;
     return;
   }
