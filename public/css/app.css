@@ -145,7 +145,6 @@ p {
 .site-footer,
 .hero-main,
 .band-dark,
-.ticker,
 .lg-hero,
 .toast,
 .role-dock-panel,
@@ -2030,46 +2029,6 @@ body:has(.booking-bar) .toast-stack {
   text-overflow: ellipsis;
 }
 
-/* Dải chữ chạy: chỉ CSS, đứng yên khi người dùng tắt chuyển động */
-.ticker {
-  overflow: hidden;
-  border-bottom: 1px solid rgb(255 255 255 / 0.22);
-  background: var(--pitch-950);
-  color: var(--lime-400);
-}
-.ticker-track {
-  display: flex;
-  width: max-content;
-  animation: ticker 60s linear infinite;
-}
-.ticker:hover .ticker-track {
-  animation-play-state: paused;
-}
-.ticker span {
-  padding: 10px var(--sp-5);
-  font-stretch: var(--stretch-cond);
-  font-weight: 800;
-  font-size: var(--fs-md);
-  text-transform: uppercase;
-  white-space: nowrap;
-}
-@keyframes ticker {
-  to {
-    transform: translateX(-50%);
-  }
-}
-@media (prefers-reduced-motion: reduce) {
-  .ticker {
-    overflow-x: auto;
-  }
-  .ticker-track {
-    animation: none;
-  }
-  .ticker-track [aria-hidden='true'] {
-    display: none;
-  }
-}
-
 /* Dải đen: thẻ lịch thi đấu */
 .band-dark {
   padding-block: var(--sp-12) var(--sp-16);
@@ -2312,7 +2271,6 @@ body:has(.booking-bar) .toast-stack {
   }
 }
 
-.ticker[hidden],
 [hidden].swipe {
   display: none;
 }

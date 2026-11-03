@@ -18,6 +18,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="/img/favicon.svg">
   <link rel="preload" href="/fonts/Archivo-vietnamese.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/Archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="/css/app.css">
 </head>
 <body class="page-home">
@@ -32,12 +33,12 @@
           <img src="/img/photos/hero-1920.jpg" srcset="/img/photos/hero-800.jpg 800w, /img/photos/hero-1920.jpg 1920w" sizes="(min-width: 960px) 67vw, 100vw"
              width="1920" height="1280" alt="Cầu thủ áo xanh vàng đứng trên sân cỏ nhân tạo có lưới bao, đèn pha sáng về đêm" fetchpriority="high">
         </picture>
-        <p class="eyebrow">TP.HCM · Sân 5 và sân 7 người</p>
+        <p class="eyebrow">Đặt sân bóng mini ở TP.HCM</p>
         <h1 class="display"><span id="hero-when">Tối nay</span><br>đá ở đâu?</h1>
-        <p class="lead">GGO giúp bạn tìm sân bóng mini còn trống, xem giá thật và đặt luôn. Chuyển khoản thẳng cho chủ sân, không cần gọi điện.</p>
+        <p class="lead">Xem sân còn trống, chọn giờ, đặt luôn. Không cần gọi điện.</p>
         <form class="search-panel" id="search" action="/venues.html" method="get">
           <label class="cell"><span>Ngày</span><select name="date" id="f-date"></select></label>
-          <label class="cell"><span>Giờ muốn đá</span><select name="at" id="f-at"></select></label>
+          <label class="cell"><span>Giờ</span><select name="at" id="f-at"></select></label>
           <label class="cell"><span>Loại sân</span>
             <select name="fieldType"><option value="5">Sân 5</option><option value="7">Sân 7</option><option value="">Tất cả</option></select></label>
           <label class="cell"><span>Khu vực</span><select name="district" id="f-district"><option value="">Tất cả quận</option></select></label>
@@ -45,48 +46,10 @@
         </form>
       </div>
       <aside class="tonight" aria-labelledby="tonight-title">
-        <div class="tonight-head"><h2 class="h2" id="tonight-title">Giờ trống gần nhất</h2><span id="tonight-meta">Đang tải…</span></div>
+        <div class="tonight-head"><h2 class="h2" id="tonight-title">Giờ trống quanh 19:00</h2><span id="tonight-meta">Đang tải…</span></div>
         <div id="tonight-rows"></div>
-        <a class="link-more" id="tonight-more" href="/venues.html">Xem tất cả giờ trống <span aria-hidden="true">→</span></a>
+        <a class="link-more" id="tonight-more" href="/venues.html">Xem thêm <span aria-hidden="true">→</span></a>
       </aside>
-    </section>
-
-    <!-- BA CÁCH KHÁC ĐỂ CÓ SÂN -->
-    <section class="home-tools" aria-labelledby="tools-title">
-      <div class="container">
-        <h2 class="h2" id="tools-title">Chưa có sân? Thử ba cách này</h2>
-        <ul class="tool-list">
-          <li><a href="/transfers.html"><b>Pass sân</b><span>Nhận lại sân mà đội khác không đá được nữa.</span><i>Xem sân đang pass <span aria-hidden="true">→</span></i></a></li>
-          <li><a href="/matches.html"><b>Ghép kèo</b><span>Chưa đủ người? Tìm đội đá cùng, kèo tiền sân 5-5, 6-4, 7-3 hoặc thua bao sân.</span><i>Xem các kèo đang mở <span aria-hidden="true">→</span></i></a></li>
-          <li><a href="/request-new.html"><b>Nhờ sân báo giá</b><span>Nói giờ và loại sân bạn cần, các sân sẽ báo giá cho bạn.</span><i>Nhờ báo giá <span aria-hidden="true">→</span></i></a></li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- GIẢI ĐANG ĐÁ: ẩn khi chưa có giải nào -->
-    <section class="home-leagues" id="home-leagues" aria-labelledby="hl-title" hidden>
-      <div class="container">
-        <div class="rule-head"><h2 class="h2" id="hl-title">Giải đang đá</h2><a class="link-more" href="/leagues.html">Xem tất cả giải <span aria-hidden="true">→</span></a></div>
-        <ul class="plain-list lg-cards lg-pubgrid" id="hl-list"></ul>
-      </div>
-    </section>
-
-    <!-- DẢI CHỮ CHẠY: giờ đang trống (nội dung lặp lần hai ẩn khỏi trình đọc màn hình) -->
-    <div class="ticker" id="ticker" role="marquee" aria-label="Giờ còn trống" hidden>
-      <div class="ticker-track" id="ticker-track"></div>
-    </div>
-
-    <!-- GIỜ CHÓT -->
-    <section class="band-dark" id="gio-chot">
-      <div class="container">
-        <div class="rule-head">
-          <h2 class="h1">Giờ chót,<br>giá nhẹ hơn</h2>
-          <p>Giờ nào sắp đá trong vài tiếng tới mà vẫn trống thì sân giảm giá. Giá bạn thấy đã là giá sau giảm.</p>
-        </div>
-        <p class="swipe-hint">Vuốt ngang để xem thêm →</p>
-        <div class="swipe" id="fixtures"></div>
-        <p class="empty-note" id="fixtures-empty" hidden>Chưa có giờ nào đang giảm giá. Sân chỉ giảm cho giờ còn trống và sắp đá trong 3 giờ tới.</p>
-      </div>
     </section>
 
     <!-- SÂN CÒN TRỐNG -->
@@ -98,6 +61,38 @@
         </div>
         <p class="swipe-hint">Vuốt ngang để xem thêm →</p>
         <div class="swipe" id="venue-list"></div>
+      </div>
+    </section>
+
+    <!-- GIỜ CHÓT -->
+    <section class="band-dark" id="gio-chot">
+      <div class="container">
+        <div class="rule-head">
+          <h2 class="h1">Giờ chót,<br>giá nhẹ hơn</h2>
+          <p>Giờ nào sắp đá trong vài tiếng tới mà vẫn trống thì sân giảm giá. Giá bạn thấy đã là giá sau giảm.</p>
+        </div>
+        <p class="swipe-hint">Vuốt ngang để xem thêm →</p>
+        <div class="swipe" id="fixtures"></div>
+      </div>
+    </section>
+
+    <!-- BA CÁCH KHÁC ĐỂ CÓ SÂN -->
+    <section class="home-tools" aria-labelledby="tools-title">
+      <div class="container">
+        <h2 class="h2" id="tools-title">Chưa tìm được sân?</h2>
+        <ul class="tool-list">
+          <li><a href="/transfers.html"><b>Pass sân</b><span>Nhận lại sân đội khác không đá được.</span><i>Xem sân pass <span aria-hidden="true">→</span></i></a></li>
+          <li><a href="/matches.html"><b>Ghép kèo</b><span>Thiếu người? Tìm đội đá cùng.</span><i>Xem kèo <span aria-hidden="true">→</span></i></a></li>
+          <li><a href="/request-new.html"><b>Nhờ sân báo giá</b><span>Nói giờ bạn cần, các sân báo giá cho bạn.</span><i>Nhờ báo giá <span aria-hidden="true">→</span></i></a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- GIẢI ĐANG ĐÁ: ẩn khi chưa có giải nào -->
+    <section class="home-leagues" id="home-leagues" aria-labelledby="hl-title" hidden>
+      <div class="container">
+        <div class="rule-head"><h2 class="h2" id="hl-title">Giải đang đá</h2><a class="link-more" href="/leagues.html">Xem tất cả giải <span aria-hidden="true">→</span></a></div>
+        <ul class="plain-list lg-cards lg-pubgrid" id="hl-list"></ul>
       </div>
     </section>
 
