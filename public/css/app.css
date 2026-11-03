@@ -3407,3 +3407,13 @@ body:has(.booking-bar) { scroll-padding-bottom: 104px; }
   border-radius: 0;
   padding-top: 16px;
 }
+/* Trang sân ở điện thoại: hàng ô giờ đầu tiên phải nằm trong màn đầu, trên thanh đặt cố định.
+   Không bỏ thông tin nào: ảnh thấp lại, khoảng cách giữa các dòng thông tin hẹp lại, chip ngày nằm một hàng. */
+@media (max-width: 719px) {
+  .venue-top { gap: var(--sp-2); margin-bottom: var(--sp-4); }
+  .venue-top .info { gap: var(--sp-2); }
+  .venue-top .photo { aspect-ratio: 5 / 1; }
+  .pick-head { margin-bottom: var(--sp-3); }
+  .day-chip { grid-auto-flow: column; justify-content: center; align-items: baseline; gap: 6px; padding: 8px; }
+  .day-chip .dnum { font-size: 1.25rem; }
+}
