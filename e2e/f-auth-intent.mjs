@@ -1,24 +1,33 @@
 import assert from 'node:assert/strict';
-import { start, step, save, api, U, W, logs } from './lib.mjs';
+import { start, step, save, api, U, W, logs, dayPlus } from './lib.mjs';
 const { b, p } = await start();
-const next = '/venue?id=1&date=2026-11-04&slot=19%3A00&court=1&book=1';
-const nextQuery = `?next=${encodeURIComponent(next)}`;
 const phone = `091${String(W).padStart(7, '0')}`;
+// Bản live dùng URL không đuôi .html (Cloudflare đổi /owner.html thành /owner), bản máy giữ nguyên: so đường dẫn sau khi bỏ đuôi.
+const pathOf = (u) => u.pathname.replace(/\.html$/, '');
 await p.goto(U + '/login');
 await p.evaluate(async () => { const { api } = await import('/js/api.js'); await api.proto.resetDemo(); });
+// Ngày mai theo đồng hồ của app: luôn nằm trong cửa sổ đặt và chưa qua giờ, chạy ngày nào cũng được.
+const day = dayPlus((await api(p, 'a=>a.meta()')).now.slice(0, 10), 1);
+const dayVn = `${day.slice(8, 10)}/${day.slice(5, 7)}/${day.slice(0, 4)}`;
+// Ô còn trống đầu tiên của Sân 1 ngày mai (dữ liệu mẫu có giải chặn một số giờ, nên không cố định 19:00).
+const sc = await api(p, `a=>a.schedule(1,'${day}')`);
+const court1 = sc.courts.find((c) => c.name === 'Sân 1');
+const slotStart = court1.slots.find((s) => s.status === 'available').start;
+const next = `/venue?id=1&date=${day}&slot=${encodeURIComponent(slotStart)}&court=${court1.id}&book=1`;
+const nextQuery = `?next=${encodeURIComponent(next)}`;
 
 await step(p, 'auth-intent', 'demo-role-shortcuts', async () => {
   const accounts = [
     { identifier: 'khach1@datsan.local', role: 'customer', path: '/' },
-    { identifier: 'chusan1@datsan.local', role: 'owner', path: '/owner.html' },
-    { identifier: 'admin@datsan.local', role: 'admin', path: '/admin.html' },
+    { identifier: 'chusan1@datsan.local', role: 'owner', path: '/owner' },
+    { identifier: 'admin@datsan.local', role: 'admin', path: '/admin' },
   ];
   for (const account of accounts) {
     await p.goto(U + '/login');
     assert.equal(await p.locator('#demo-accounts').isVisible(), true);
     assert.equal(await p.locator('#demo-accounts button').count(), 3);
     await Promise.all([
-      p.waitForURL((url) => url.pathname === account.path),
+      p.waitForURL((url) => pathOf(url) === account.path),
       p.locator(`#demo-accounts button[data-identifier="${account.identifier}"]`).click(),
     ]);
     const me = await api(p, 'a=>a.me()');
@@ -34,8 +43,8 @@ await step(p, 'auth-intent', 'login-context', async () => {
   const text = await p.locator('#booking-context').innerText();
   assert.match(text, /Sân bóng Thành Phát/);
   assert.match(text, /Sân 1/);
-  assert.match(text, /19:00/);
-  assert.match(text, /04\/11\/2026/);
+  assert.ok(text.includes(slotStart), `thiếu giờ ${slotStart}: ${text}`);
+  assert.ok(text.includes(dayVn), `thiếu ngày ${dayVn}: ${text}`);
   return text;
 });
 await step(p, 'auth-intent', 'register-3-fields-context', async () => {
@@ -43,15 +52,15 @@ await step(p, 'auth-intent', 'register-3-fields-context', async () => {
   await p.waitForURL(/register/);
   assert.equal(await p.locator('#auth-form input[required]').count(), 3);
   assert.equal(await p.locator('#auth-form input[name=email]').count(), 0);
-  assert.equal(await p.locator('#booking-context').isVisible(), true);
+  await p.waitForSelector('#booking-context:not([hidden])');
   return `required fields=${await p.locator('#auth-form input[required]').count()}; ${await p.locator('#booking-context').innerText()}`;
 });
 await step(p, 'auth-intent', 'register-and-return-next', async () => {
   await p.fill('input[name=fullName]', 'Khách Đặt Sân Mới');
   await p.fill('input[name=phone]', phone);
   await p.fill('input[name=password]', 'Matkhau@123');
-  await Promise.all([p.waitForURL((u) => u.pathname === '/venue'), p.locator('button[type=submit]').click()]);
-  assert.equal(p.url().split('?')[0], U + '/venue');
+  await Promise.all([p.waitForURL((u) => pathOf(u) === '/venue'), p.locator('button[type=submit]').click()]);
+  assert.equal(pathOf(new URL(p.url())), '/venue');
   assert.equal(new URL(p.url()).searchParams.get('book'), '1');
   const me = await api(p, 'a=>a.me()');
   assert.equal(me.user.email, null);
@@ -79,7 +88,7 @@ await step(p, 'auth-intent', 'duplicate-phone-and-login-phone', async () => {
   await p.goto(U + '/login' + nextQuery);
   await p.fill('input[name=identifier]', `+84 ${phone.slice(1)}`);
   await p.fill('input[name=password]', 'Matkhau@123');
-  await Promise.all([p.waitForURL((u) => u.pathname === '/venue'), p.locator('button[type=submit]').click()]);
+  await Promise.all([p.waitForURL((u) => pathOf(u) === '/venue'), p.locator('button[type=submit]').click()]);
   const logged = await api(p, 'a=>a.me()');
   assert.equal(logged.user.phone, phone);
   assert.equal(logged.user.email, null);
@@ -97,10 +106,10 @@ await step(p, 'auth-intent', 'admin-renders-null-email', async () => {
 });
 await step(p, 'auth-intent', 'missing-or-bad-context-hidden', async () => {
   await p.evaluate(async () => { const { api } = await import('/js/api.js'); await api.logout(); });
-  await p.goto(U + '/login?next=' + encodeURIComponent('/venue?id=999999&date=2026-11-04&slot=19%3A00&court=1&book=1'));
+  await p.goto(U + '/login?next=' + encodeURIComponent(`/venue?id=999999&date=${day}&slot=19%3A00&court=1&book=1`));
   await p.waitForTimeout(150);
   assert.equal(await p.locator('#booking-context').isHidden(), true);
-  await p.goto(U + '/register?next=' + encodeURIComponent('/venue?id=1&date=2026-11-04&slot=19%3A00&book=1'));
+  await p.goto(U + '/register?next=' + encodeURIComponent(`/venue?id=1&date=${day}&slot=19%3A00&book=1`));
   await p.waitForTimeout(150);
   assert.equal(await p.locator('#booking-context').isHidden(), true);
   return 'API 404 and missing court both keep context hidden';
