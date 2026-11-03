@@ -41,7 +41,7 @@ Quy ước ánh xạ theo đề: "sản phẩm" là **sân bóng**, "nút mua" l
 | --- | --- | --- |
 | Header (logo, menu, nút Đăng nhập) | `<header class="site-header">` trong `public/js/ui/shell.js` | Mọi trang |
 | Menu điện thoại | `<nav class="mobile-nav">`, nút `.menu-btn` | Mọi trang, dưới 900 px |
-| Footer | `<footer class="site-footer">` trong `shell.js` | Mọi trang |
+| Footer (logo GGO, khẩu hiệu, liên kết Giới thiệu, chữ GGO cỡ lớn) | `<footer class="site-footer">` trong `shell.js` | Mọi trang |
 | Nút | `.btn`, `.btn-lime`, `.btn-primary`, `.btn-sm`, `.btn-lg` | Mọi trang |
 | Thẻ sân | `.card.card-hover.venue-card` | Trang chủ, danh sách sân |
 | Chip lọc, ô giờ | `.chip`, `.slot-pill` | Trang chủ, danh sách, chi tiết |
@@ -187,10 +187,10 @@ Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc w
 
 ## 3.1. Bố cục từng trang
 
-- **Trang chủ:** header tối, banner ảnh sân bóng có tiêu đề lớn "Tối nay đá ở đâu?" và ô tìm sân, rồi đến dải giờ trống gần nhất, danh sách sân còn trống, khối giới thiệu cách đặt sân, cuối cùng là footer.
+- **Trang chủ:** header tối, banner ảnh sân bóng có tiêu đề lớn "Tối nay đá ở đâu?" và ô tìm sân, rồi đến dải giờ trống gần nhất, danh sách sân còn trống, khối giới thiệu cách đặt sân, cuối cùng là footer có khẩu hiệu "Thấy sân trống, đặt là đá.".
 - **Danh sách sân:** tiêu đề trang, hàng chip lọc, lưới thẻ sân 3/2/1 cột.
 - **Chi tiết sân:** breadcrumb, ảnh sân lớn, tên và giá, thông tin sân, lưới giờ trống, thanh **Đặt sân** cố định ở cuối màn hình.
-- **Giới thiệu:** phần mở đầu chữ + ảnh, "GGO làm gì", "Dành cho ai" (2 thẻ), "Điểm nổi bật" (6 mục trên nền tối), ảnh minh họa, "Liên hệ".
+- **Giới thiệu:** phần mở đầu có tiêu đề lớn "Thấy sân trống, đặt là đá." (khẩu hiệu của GGO) kèm ảnh, "GGO làm gì", "Dành cho ai" (2 thẻ), "Điểm nổi bật" (6 mục trên nền tối), ảnh minh họa, "Liên hệ".
 
 ## 3.2. Bảng màu và kiểu chữ thống nhất
 
@@ -241,7 +241,7 @@ Header dùng thẻ semantic `<header>` chứa logo, `<nav>` chứa menu và nút
 ```
 <header class="site-header">
   <div class="container">
-    <a class="brand" href="/">GGO</a>
+    <a class="brand" href="/">…dấu logo…<span>GGO</span></a>
     <nav class="nav" aria-label="Điều hướng chính">…các liên kết…</nav>
     <div class="header-actions">
       <a class="btn btn-lime btn-sm" href="/login.html">Đăng nhập</a>

@@ -34,6 +34,7 @@ Vì vậy **không viết là "chỉ dùng HTML/CSS"**. Phần HTML/CSS là các
 
 - **File:** `public/index.html` + `public/css/app.css`, header/footer dựng bởi `public/js/ui/shell.js`, nội dung bởi `public/js/index-page.js`.
 - **Header:** logo "GGO" (`.brand`), menu `<nav class="nav">` với Trang chủ, Tìm sân, Pass sân, Ghép kèo, Giải đấu, nút Đăng nhập (`shell.js`, hằng `NAV`).
+- **Footer:** `footer.site-footer` dựng bởi `shell.js`: logo GGO, khẩu hiệu "Thấy sân trống, đặt là đá." (`.footer-slogan`), một dòng mô tả, liên kết "Giới thiệu GGO" và chữ GGO cỡ lớn ở cuối (`.footer-wordmark`).
 - **Banner:** `section.match-hero` có ảnh (`hero-1920.jpg`, ảnh dọc riêng cho màn nhỏ bằng `<picture>`), tiêu đề `h1`, lời dẫn, form tìm sân (lời kêu gọi hành động) và nút "Xem tất cả giờ trống".
 - **Sân nổi bật:** khối "Sân còn trống" (`#venue-list`) và "Giờ trống gần nhất" (`#tonight-rows`).
 - **Liên kết tới trang danh sách:** form `action="/venues.html"` và liên kết "Xem tất cả giờ trống".
@@ -46,7 +47,7 @@ Vì vậy **không viết là "chỉ dùng HTML/CSS"**. Phần HTML/CSS là các
 - **File:** `public/venues.html`, thẻ sân dựng bởi `public/js/venues.js` (hàm tạo `<article class="card card-hover venue-card">`).
 - **Số lượng:** dữ liệu mẫu có **40 sân** (`public/mock/venues.json`), nhiều hơn mức tối thiểu 8. Số sân hiện ra thực tế phụ thuộc bộ lọc ngày/giờ/quận đang chọn.
 - **Mỗi thẻ có:** ảnh, tên, giá, giờ trống; bấm vào mở trang chi tiết.
-- **Bố cục:** `.card-grid` dùng CSS Grid, 1 cột (dưới 720 px), 2 cột (từ 720 px), 3 cột (từ 1100 px) (`public/css/app.css`, quanh dòng 2426).
+- **Bố cục:** `.card-grid` dùng CSS Grid, 1 cột (dưới 720 px), 2 cột (từ 720 px), 3 cột (từ 1100 px) (`public/css/app.css`, quanh dòng 2480).
 - **Danh mục:** có chip lọc ngày, giờ, quận, loại sân (không bắt buộc theo đề).
 
 ![Danh sách sân 1366](screens/danh-sach-san-1366.png)
@@ -64,6 +65,7 @@ Vì vậy **không viết là "chỉ dùng HTML/CSS"**. Phần HTML/CSS là các
 
 - **Có.** File `public/about.html` (script `public/js/about.js` chỉ dựng header và footer chung), dùng chung `public/css/app.css` (khối "Trang giới thiệu" ở cuối file). HTML semantic: `header`, `main`, các `section` có `h2`, `figure`/`figcaption`, `dl` cho thông tin liên hệ. Có title, description, og và canonical riêng, và nằm trong `public/sitemap.xml`.
 - **Nội dung trên trang** (căn cứ `docs/PRD.md` mục 1 và 2, chỉ nêu tính năng đã có trên giao diện):
+  - **Tiêu đề trang (`h1`):** khẩu hiệu "Thấy sân trống, đặt là đá.", cùng khẩu hiệu ở footer.
   - **Kinh doanh gì:** website đặt sân bóng đá mini 5 và 7 người ở TP.HCM; khách xem giờ trống, giá thật và đặt sân trên web, không cần gọi điện.
   - **Khách hàng là ai:** hai thẻ "Đội đá phủi và nhóm bạn" và "Chủ sân mini".
   - **Điểm nổi bật** (6 mục): tìm theo giờ trước, chọn sân sau; giá thật và giờ chót giảm giá; "Báo tôi khi trống" (danh sách chờ); chuyển khoản VietQR thẳng cho chủ sân, web không giữ tiền; ba cách khác để có sân (Pass sân, Ghép kèo, Nhờ báo giá); Giải đấu phủi.
@@ -95,9 +97,9 @@ Danh sách lỗi giao diện ở ba khổ (tràn ngang, ảnh méo, menu chồng
 Trong mã (`public/css/app.css`):
 
 - **Focus bàn phím chung:** `:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }` (dòng 135–138). Biến `--focus` là mực `#15150f` trên nền sáng và lime `#d9f23d` trên vùng nền tối (header, menu điện thoại, footer, ảnh nền trang chủ, dải đen, giải đấu, hộp thông báo, bảng công cụ demo): dòng 139–161. Dùng `outline` nên không làm xê dịch bố cục.
-- **Liên kết menu:** `.nav a:hover` đổi màu, `transition: color` (dòng 307–321).
-- **Nút:** `.btn:hover`, `.btn-primary:hover`, `.btn-lime:hover`… đổi viền/nền, `transition: background, border-color` (dòng 651–722).
-- **Thẻ sân:** `.card-hover:hover` đổi màu viền, `transition: border-color` (dòng 955–960). **Tên sân trong thẻ:** `.venue-card .title:hover` hiện gạch chân 2 px màu mực, `transition: text-decoration-color` (dòng 989–1001).
+- **Liên kết menu:** `.nav a:hover` đổi màu, `transition: color` (dòng 307–319).
+- **Nút:** `.btn:hover`, `.btn-primary:hover`, `.btn-lime:hover`… đổi viền/nền, `transition: background, border-color` (dòng 651–723).
+- **Thẻ sân:** `.card-hover:hover` đổi màu viền, `transition: border-color` (dòng 952–957). **Tên sân trong thẻ:** `.venue-card .title:hover` hiện gạch chân 2 px màu mực, `transition: text-decoration-color` (dòng 989–1001).
 - **Ô giờ trên thẻ sân:** `.slot-pill:hover` (dòng 1065).
 - **Tôn trọng người giảm chuyển động:** khối `@media (prefers-reduced-motion: reduce)` (dòng 166).
 
@@ -147,7 +149,7 @@ Một ghi nhận khác, không phải lỗi: `docs/TASKS.md` mục T6 ghi "Đã 
 
 | # | Lỗi | Trang / khổ | Cách xử lý | Kết quả (số đo trước → sau) |
 | --- | --- | --- | --- | --- |
-| 1 | Một số nút **nhỏ hơn 44 px** (mức thường khuyên cho vùng bấm trên điện thoại) | 390 px: nút Đăng nhập, chip lọc ở danh sách, nút "Báo tôi khi trống", nút mở menu | **Đã xử lý.** Khối `@media (max-width: 639.98px)` ở cuối `public/css/app.css` (dòng 3332–3346) đặt `min-height: 44px` cho `.btn-sm`, `.chip`, `.segmented button`, `.slot .wait-btn`, `.role-switch button`, `.proto-tools button` và nút menu 44×44 px; ô chọn ở khung tìm kiếm trang chủ được kéo phủ cả ô để vùng bấm cao 48 px mà ô giữ nguyên kích thước (dòng 1426–1435) | Đăng nhập 91×34 → 91×44 px; chip lọc 36 → 44 px; "Báo tôi khi trống" 114×33 → 114×44 px; nút menu 40×40 → 44×44 px. Rà thêm cả 3 trang ở 390: "Muốn đăng ký đội?" 34 → 44; nút chọn sân (Sân 1 · 5…) và "Tất cả / Sân 5 / Sân 7" 36 → 44; 4 ô chọn ở trang chủ 26 → 48 px; nút chọn vai trò và nút giả lập (chỉ có trên dữ liệu giả) 39 → 44. Sau khi sửa không còn nút hay ô chọn nào dưới 44 px trên 3 trang; không tràn ngang ở 9 trường hợp |
+| 1 | Một số nút **nhỏ hơn 44 px** (mức thường khuyên cho vùng bấm trên điện thoại) | 390 px: nút Đăng nhập, chip lọc ở danh sách, nút "Báo tôi khi trống", nút mở menu | **Đã xử lý.** Khối `@media (max-width: 639.98px)` ở cuối `public/css/app.css` (dòng 3338–3351) đặt `min-height: 44px` cho `.btn-sm`, `.chip`, `.segmented button`, `.slot .wait-btn`, `.role-switch button`, `.proto-tools button` và nút menu 44×44 px; ô chọn ở khung tìm kiếm trang chủ được kéo phủ cả ô để vùng bấm cao 48 px mà ô giữ nguyên kích thước (dòng 1426–1435) | Đăng nhập 91×34 → 91×44 px; chip lọc 36 → 44 px; "Báo tôi khi trống" 114×33 → 114×44 px; nút menu 40×40 → 44×44 px. Rà thêm cả 3 trang ở 390: "Muốn đăng ký đội?" 34 → 44; nút chọn sân (Sân 1 · 5…) và "Tất cả / Sân 5 / Sân 7" 36 → 44; 4 ô chọn ở trang chủ 26 → 48 px; nút chọn vai trò và nút giả lập (chỉ có trên dữ liệu giả) 39 → 44. Sau khi sửa không còn nút hay ô chọn nào dưới 44 px trên 3 trang; không tràn ngang ở 9 trường hợp |
 | 2 | Tên sân (đóng vai trò liên kết xem chi tiết) **không có hiệu ứng hover riêng**; chỉ thẻ chứa nó đổi viền | Danh sách sân, mọi khổ | **Đã xử lý.** `.venue-card .title` có gạch chân 2 px trong suốt, `.venue-card .title:hover` đổi màu gạch chân sang mực, `transition: text-decoration-color var(--dur)` (`public/css/app.css` dòng 989–1001). Không đổi cỡ chữ hay độ đậm | Trước: màu và gạch chân không đổi, `transition: all 0s`. Sau: gạch chân từ trong suốt sang `#15150f`, `transition: text-decoration-color 0.18s`; kích thước trước/sau hover giữ nguyên 332,7×24,2 px, vị trí không đổi; ảnh `hover-xem-chi-tiet.png` |
 | 3 | Trang chủ **chưa có liên kết tới trang giới thiệu** | Trang chủ | **Đã xử lý.** Thêm trang `public/about.html` (mục 5), liên kết "Giới thiệu GGO" ở footer mọi trang (`public/js/ui/shell.js`) và liên kết "Tìm hiểu về GGO →" ở cuối trang chủ (`public/index.html`). Không đặt vào menu trên cùng vì ở khổ 900 px menu sẽ bị tràn | Trước: không có trang giới thiệu trong `public/`. Sau: trang có và trả 200, đã thêm vào `public/sitemap.xml`; hai liên kết trên đều trỏ tới `about.html` |
 | 5 | **Vòng focus gần như không thấy trên nền tối**: quy tắc chung `:focus-visible { outline: 2px solid var(--text) }` dùng màu `#15150f` trên nền header `#0d0e0b` | Header và menu điện thoại, mọi khổ (liên kết menu, logo, nút Đăng nhập, nút mở menu, mục trong menu, nút khung tìm kiếm trang chủ) | **Đã xử lý.** Vòng focus dùng biến `--focus`: mực trên nền sáng, lime `#d9f23d` trên các vùng nền tối (dòng 135–161). Khung tìm kiếm trang chủ (nền trắng nằm trong ảnh tối) trả lại mực; nút trong khung đó vẽ vòng vào trong nút (`outline-offset: -4px`) vì khung cắt phần vẽ ra ngoài. Nút công cụ demo nổi vẽ vòng lime sát nút (dòng 463–467). Khi kiểm còn phát hiện và sửa thêm hai lỗi cùng nhóm: menu điện thoại đóng vẫn nhận phím Tab dù đã mờ hẳn (nay `visibility: hidden` khi đóng, dòng 401), và header dính che phần tử đang focus khi Tab ngược (`scroll-padding-top` ở dòng 98) | Đo bằng ảnh chụp thật ở mỗi lần Tab, lấy màu nền ngay quanh vòng (3 trang, 390 và 1366, Tab xuôi và ngược, trước 363 mẫu, sau 355 mẫu có vòng): tương phản vòng với nền **trước: 1,06:1** ở header (135 mẫu dưới 3:1); **sau: 15,41:1** trên nền tối, 14,59:1 (vòng mực vào trong nút lime), 16,66–18,16:1 trên nền sáng (liên kết, thẻ, nút Đặt sân). Còn 5 mẫu bị đánh dấu là nút công cụ demo (chỉ có trên dữ liệu giả): vòng sát nút đen nên tương phản đo với chính nút là 15,41:1, không đo với nền trang. Ảnh `focus-lien-ket-menu.png`, `focus-nut-menu.png` |
