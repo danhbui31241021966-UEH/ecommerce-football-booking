@@ -91,7 +91,12 @@ const BOOKING_SELECT = `SELECT b.*, v.name AS venue_name, v.owner_id, c.name AS 
 
 const findBooking = (id, conn = db) => conn.one(`${BOOKING_SELECT} WHERE b.id = ?`, [id]);
 
-async function createBooking(user, body = {}) {
+/**
+ * opts.offer = { id, price }: đặt theo chào giá đã chọn (R14): giá lưu = giá chào, không giảm giờ chót, ghi offer_id.
+ * opts.inTx(tx, bookingId): chạy trong CÙNG transaction sau khi chèn lịch (chốt nhu cầu/chào giá cùng lúc tạo lịch).
+ * Mọi kiểm tra và chống trùng ô vẫn là của luồng đặt thường.
+ */
+async function createBooking(user, body = {}, opts = {}) {
   const courtId = Number(body.courtId);
   const { date, start } = body;
   const note = String(body.note || '').slice(0, 300);
@@ -132,10 +137,10 @@ async function createBooking(user, body = {}) {
     const id = await withTransaction(async (tx) => {
       const r = await tx.query(
         `INSERT INTO bookings (code, user_id, venue_id, court_id, start_at, end_at, status, source, expires_at,
-           price, base_price, discount_percent, customer_note, rules_snapshot, policy_snapshot, idempotency_key, created_at, updated_at)
-         VALUES (?, ?, ?, ?, ?, ?, ?, 'web', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+           price, base_price, discount_percent, offer_id, customer_note, rules_snapshot, policy_snapshot, idempotency_key, created_at, updated_at)
+         VALUES (?, ?, ?, ?, ?, ?, ?, 'web', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
         [`T${crypto.randomBytes(8).toString('hex')}`, user.id, venue.id, court.id, `${date} ${start}:00`, slotEndAt(venue, date, start),
-          status, expiresAt, slot.price, slot.basePrice, slot.discountPercent, note, venue.rules, CANCEL_POLICY_TEXT, key, now, now],
+          status, expiresAt, opts.offer ? opts.offer.price : slot.price, slot.basePrice, opts.offer ? 0 : slot.discountPercent, opts.offer?.id ?? null, note, venue.rules, CANCEL_POLICY_TEXT, key, now, now],
       );
       await tx.query('UPDATE bookings SET code = ? WHERE id = ?', [bookingCode(r.insertId), r.insertId]);
       if (isHolding(status)) await claimForBooking(tx, { id: r.insertId, courtId: court.id, startAt: `${date} ${start}:00` });
@@ -153,6 +158,7 @@ async function createBooking(user, body = {}) {
       } else {
         await notify(tx, user.id, `Bạn đã có sân (mã ${code}). Hãy chuyển khoản bằng mã QR.`, { bookingId: r.insertId, link: `/booking.html?id=${r.insertId}` });
       }
+      if (opts.inTx) await opts.inTx(tx, r.insertId);
       return r.insertId;
     });
     return { booking: toBooking(await findBooking(id)), created: true };

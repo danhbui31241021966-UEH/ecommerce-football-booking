@@ -82,7 +82,7 @@ await step(p, 'league', '02-create-league-ui', async () => {
   await p.fill('#lg-link', 'https://zalo.me/g/thu-nghiem');
   await shot('create-dialog');
   await p.click('dialog[open] button[type=submit]');
-  await p.waitForURL(/owner-league\.html\?id=/);
+  await p.waitForURL(/\/owner-league(\.html)?\?id=/);
   await p.waitForSelector('#add-team');
   const id = Number(new URL(p.url()).searchParams.get('id'));
   LG = await call(`a=>a.owner.league(${id})`);

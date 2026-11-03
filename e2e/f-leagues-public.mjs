@@ -105,7 +105,7 @@ await step(p, 'lgpub', '03-district-filter-matches-api', async () => {
 await step(p, 'lgpub', '04-open-league-and-contact-button', async () => {
   await p.goto(U + '/leagues'); await p.waitForSelector('.lg-pubcard');
   const live = ALL[0];
-  await p.locator(`.lg-pubcard[data-id="${live.id}"] .lc-link`).click(); await p.waitForURL(/league\.html\?id=/);
+  await p.locator(`.lg-pubcard[data-id="${live.id}"] .lc-link`).click(); await p.waitForURL(/\/league(\.html)?\?id=/);
   await p.waitForSelector('.lg-title');
   must((await p.locator('.lg-title').innerText()).trim().toLowerCase() === live.name.toLowerCase(), 'mở nhầm giải');
   const note = (await p.locator('.lg-regnote').innerText());

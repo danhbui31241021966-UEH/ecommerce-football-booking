@@ -202,6 +202,7 @@ function sweep() {
       await expireOffer(r.id);
     }
     await require('./matchOps').sweepMatches();
+    await require('./requestOps').sweepRequests();
   })().finally(() => {
     running = null;
   });

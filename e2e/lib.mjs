@@ -6,7 +6,7 @@ fs.mkdirSync('e2e/out', { recursive: true });
 const results = [];
 export const logs = [];
 export async function start() {
-  const b = await chromium.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
+  const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
   const c = await b.newContext({ viewport: { width: W, height: W > 600 ? 860 : 844 }, isMobile: W < 600, hasTouch: W < 600 });
   // FAKE_HM=HH:MM giả lập "bây giờ" (giờ VN, hôm nay) để thử demo ở các giờ khác nhau; đồng hồ vẫn chạy tiếp.
   if (process.env.FAKE_HM) { const day = new Date(Date.now() + 7 * 3600000).toISOString().slice(0, 10); await c.clock.install({ time: new Date(`${day}T${process.env.FAKE_HM}:00+07:00`) }); }

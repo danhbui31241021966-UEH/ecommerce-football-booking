@@ -18,6 +18,8 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS offers;
+DROP TABLE IF EXISTS requests;
 DROP TABLE IF EXISTS match_refunds;
 DROP TABLE IF EXISTS matches;
 DROP TABLE IF EXISTS transfers;
@@ -343,7 +345,59 @@ CREATE TABLE match_refunds (
   CONSTRAINT fk_mrefund_user  FOREIGN KEY (user_id)  REFERENCES users(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Nhu cầu của khách và chào giá của sân (R14). Chào giá KHÔNG giữ ô (không có slot_claims): chỉ khi khách chọn thì mới tạo booking
+-- qua luồng đặt thường (bookingCore.createBooking), nên chống trùng ô vẫn là của bookings/slot_claims.
+-- bookings.offer_id trỏ tới offers.id nhưng không có FK (vòng tham chiếu requests.booking_id <-> bookings).
+-- offers.open_key (cột sinh ra) = 1 khi chào giá còn mở: UNIQUE (request_id, venue_id, open_key) là luật "mỗi cụm sân chỉ một chào giá
+-- đang mở cho một nhu cầu" do DB giữ. Thứ tự khóa dòng luôn requests -> offers.
+CREATE TABLE requests (
+  id              INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id         INT UNSIGNED NOT NULL,
+  district        VARCHAR(60) NOT NULL,
+  want_date       DATE NOT NULL,
+  from_time       TIME NOT NULL,
+  to_time         TIME NOT NULL,
+  field_type      ENUM('5','7') NOT NULL,
+  budget          INT UNSIGNED NOT NULL,                      -- cho một slot; chỉ để hiển thị, không lọc
+  note            VARCHAR(300) NOT NULL DEFAULT '',
+  status          ENUM('open','chosen','expired','cancelled') NOT NULL DEFAULT 'open',
+  closes_at       DATETIME NOT NULL,                          -- hạn nhận chào giá
+  created_at      DATETIME NOT NULL,
+  end_reason      VARCHAR(255) NULL,
+  chosen_offer_id INT UNSIGNED NULL,
+  booking_id      INT UNSIGNED NULL,
+  CONSTRAINT fk_request_user FOREIGN KEY (user_id) REFERENCES users(id),
+  CONSTRAINT fk_request_booking FOREIGN KEY (booking_id) REFERENCES bookings(id),
+  INDEX idx_request_user (user_id, status),
+  INDEX idx_request_open (status, closes_at),
+  INDEX idx_request_district (district, want_date)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE offers (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  request_id   INT UNSIGNED NOT NULL,
+  venue_id     INT UNSIGNED NOT NULL,
+  court_id     INT UNSIGNED NOT NULL,
+  start_at     DATETIME NOT NULL,
+  end_at       DATETIME NOT NULL,
+  price        INT UNSIGNED NOT NULL,                         -- giá chào (bội số 1.000đ, không vượt giá niêm yết)
+  listed_price INT UNSIGNED NOT NULL,                         -- giá niêm yết của slot lúc chào
+  valid_until  DATETIME NOT NULL,
+  note         VARCHAR(200) NOT NULL DEFAULT '',
+  status       ENUM('open','chosen','lost','withdrawn','expired','void') NOT NULL DEFAULT 'open',
+  end_reason   VARCHAR(255) NULL,
+  created_at   DATETIME NOT NULL,
+  open_key     TINYINT AS (IF(status = 'open', 1, NULL)) STORED,
+  UNIQUE KEY uq_offer_open_venue (request_id, venue_id, open_key),
+  CONSTRAINT fk_offer_request FOREIGN KEY (request_id) REFERENCES requests(id),
+  CONSTRAINT fk_offer_venue FOREIGN KEY (venue_id) REFERENCES venues(id),
+  CONSTRAINT fk_offer_court FOREIGN KEY (court_id) REFERENCES courts(id),
+  INDEX idx_offer_request (request_id, status),
+  INDEX idx_offer_venue (venue_id, status),
+  INDEX idx_offer_valid (status, valid_until)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 -- Chưa có bảng (cố ý, sẽ thêm bằng migration riêng khi làm tính năng):
--- requests/offers (nhờ báo giá), leagues/league_teams/league_matches (giải), bank_transactions (SePay).
+-- leagues/league_teams/league_matches (giải), bank_transactions (SePay).
 -- Chúng tham chiếu bookings/blocks/courts có sẵn: bookings.offer_id/match_id/transfer_from_booking_id và
 -- blocks.league_id/league_match_id đã có cột để nối.

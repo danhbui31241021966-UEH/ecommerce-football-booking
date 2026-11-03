@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import fs from 'node:fs';
 const U = process.env.U || 'http://127.0.0.1:4100';
 fs.mkdirSync('e2e/out', { recursive: true });
-const b = await chromium.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
+const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
 const p = await b.newPage({ viewport: { width: 390, height: 900 } });
 await p.goto(U+'/'); await p.evaluate(async()=>{const {api}=await import('/js/api.js'); await api.proto.resetDemo();});
 const ids = await p.evaluate(async()=>{const {api}=await import('/js/api.js'); return (await api.venues({})).venues.map(v=>v.id);});

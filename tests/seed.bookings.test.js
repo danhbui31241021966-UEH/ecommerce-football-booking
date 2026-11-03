@@ -14,7 +14,7 @@ test.after(async () => {
 });
 
 test('nạp demo: lịch mẫu theo khóa mock, đám đông chỉ ở sân thật, claim khớp trạng thái', async () => {
-  const mine = await h.db.query("SELECT status, COUNT(*) AS n FROM bookings WHERE user_id = 4 GROUP BY status");
+  const mine = await h.db.query("SELECT status, COUNT(*) AS n FROM bookings WHERE user_id = 4 AND offer_id IS NULL GROUP BY status");
   const by = Object.fromEntries(mine.map((r) => [r.status, r.n]));
   // k1,k2,k3,k4,k5,k11 của khach1: confirmed k1,k5; pending k2; completed k3; cancelled k4; rejected k11
   assert.deepEqual(by, { confirmed: 2, pending: 1, completed: 1, cancelled: 1, rejected: 1 });
@@ -33,9 +33,10 @@ test('qua API: khach1 thấy lịch của mình, chusan1 thấy lịch chờ duy
   const k = app.agent();
   assert.equal((await k.post('/api/auth/login', { email: 'khach1@datsan.local', password: 'Matkhau@123' })).status, 200);
   const list = (await k.get('/api/bookings/mine')).body;
-  assert.equal(list.length, 6);
+  assert.equal(list.filter((b) => !b.fromOffer).length, 6); // chưa tính lịch đặt từ chào giá mẫu (R14)
   const n = (await k.get('/api/notifications')).body;
-  assert.equal(n.unread, 4);
+  const requestUnread = (await h.db.one("SELECT COUNT(*) AS n FROM notifications WHERE user_id = 4 AND is_read = 0 AND link LIKE '%request%'")).n;
+  assert.equal(n.unread - requestUnread, 4); // chưa tính thông báo của nhu cầu báo giá mẫu (R14)
   assert.equal((await k.get('/api/waitlist/mine')).body.length, 2);
   const rel = (await k.get('/api/bookings/reliability')).body;
   assert.deepEqual([rel.noShows, rel.lateCancels, rel.restricted], [0, 1, false]);

@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 import fs from 'fs';
 const B=process.env.U||'http://127.0.0.1:4100';
-const b = await chromium.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
+const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
 const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
 const errs=[]; p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
 const pub=['index','venues','transfers','matches','leagues'];

@@ -7,6 +7,7 @@ const { seedBlocks } = require('./blocks');
 const { seedPhoneBookings } = require('./phoneBookings');
 const { seedMatches } = require('./matches');
 const { seedTransfers } = require('./transfers');
+const { seedRequests } = require('./requests');
 
 const SEEDERS = [
   { name: 'core', run: seedCore },
@@ -15,6 +16,7 @@ const SEEDERS = [
   { name: 'phoneBookings', run: seedPhoneBookings }, // sau chặn giờ: chọn ô theo dữ liệu đã dựng
   { name: 'matches', run: seedMatches }, // kèo mẫu của R13/R15, giờ cố định theo ngày của mẫu
   { name: 'transfers', run: seedTransfers }, // sau lịch mẫu và waitlist để đăng pass theo dữ liệu mock
+  { name: 'requests', run: seedRequests }, // nhu cầu/chào giá mẫu của R14, chọn ô trống thật lúc dựng
 ];
 
 /** Xóa mọi dữ liệu (giữ cấu trúc và bảng sessions, đặt lại AUTO_INCREMENT) rồi nạp lại. Trả số liệu của từng seeder. */

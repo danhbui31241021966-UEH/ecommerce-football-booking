@@ -1,7 +1,7 @@
 import { chromium } from 'playwright';
 const U = process.env.U || 'http://127.0.0.1:4100';
 const W = Number(process.argv[2] || 390);
-const EXE = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
+const EXE = process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 let fails = 0;
 const ok = (c, name, note = '') => { console.log(c ? 'OK  ' : 'FAIL', name, note); if (!c) fails++; };
 const day = (off = 0) => new Date(Date.now() + 7 * 3600000 + off * 86400000).toISOString().slice(0, 10);

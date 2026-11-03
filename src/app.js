@@ -47,6 +47,8 @@ function createApp({ production = config.isProduction } = {}) {
   api.use('/matches', require('./routes/matches'));
   api.use('/owner/matches', require('./routes/owner-matches'));
   api.use(require('./routes/transfers'));
+  api.use('/requests', require('./routes/requests'));
+  api.use('/owner', require('./routes/owner-requests'));
   api.use(require('./routes/not-built-yet'));
   if (!production) api.use('/dev', require('./routes/dev'));
   api.use(apiNotFound);

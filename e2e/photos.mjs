@@ -2,7 +2,7 @@ import { chromium } from 'playwright';
 import fs from 'node:fs';
 const U = process.env.U || 'http://127.0.0.1:4100';
 fs.mkdirSync('e2e/out', { recursive: true });
-const b = await chromium.launch({ executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
+const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
 const logs=[];
 for (const w of [390,1280]) {
   const p = await b.newPage({ viewport: { width: w, height: 900 } });
