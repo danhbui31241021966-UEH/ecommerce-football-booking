@@ -67,13 +67,13 @@ function fillSearch(meta, districts) {
 }
 
 function renderTonight(rows, date, today, at) {
-  $('tonight-title').textContent = `Giờ trống quanh ${at}`;
-  $('tonight-meta').textContent = relativeDayLabel(date, today);
+  $('tonight-meta').textContent = `Quanh ${at} · ${relativeDayLabel(date, today)}`;
   $('tonight-more').href = `/venues.html?date=${date}`;
   // Lấy các giờ gần giờ ô tìm đang chọn (không phải giờ sớm nhất trong ngày: khuya thì đó là 00:00, 01:00).
   // Giữ chỗ cho tối đa 2 dòng Ghép kèo để không bị đẩy ra ngoài danh sách bởi các giờ đặt thường.
   const near = (list, n) => [...list].sort((a, b) => Math.abs(hmToMin(a.start) - hmToMin(at)) - Math.abs(hmToMin(b.start) - hmToMin(at)) || a.start.localeCompare(b.start)).slice(0, n);
   const shown = [...near(rows.filter((s) => !isTeam(s)), 5), ...near(rows.filter(isTeam), 1)].sort((a, b) => a.start.localeCompare(b.start) || a.venue.id - b.venue.id || isTeam(a) - isTeam(b));
+  $('tonight-note').hidden = !shown.some((s) => s.discountPercent);
   $('tonight-rows').innerHTML = shown.length
     ? shown
         .map(
@@ -81,28 +81,6 @@ function renderTonight(rows, date, today, at) {
         )
         .join('')
     : '<p class="muted" style="padding:var(--sp-4) 0">Hôm nay đã hết giờ trống.</p>';
-}
-
-function renderFixtures(todayRows, today) {
-  const sale = todayRows.filter((s) => s.discountPercent > 0);
-  const seen = new Set();
-  const picks = [];
-  for (const s of sale) if (!seen.has(s.venue.id) && picks.length < 3) (seen.add(s.venue.id), picks.push(s));
-  for (const s of sale) if (picks.length < 3 && !picks.includes(s)) picks.push(s);
-  // Chưa có giờ giảm giá thì cả khối "Giờ chót" ẩn đi: một dải đen trống chen giữa các sân và các lối vào khác không giúp ai đặt sân.
-  $('gio-chot').hidden = picks.length === 0;
-  $('fixtures').hidden = picks.length === 0;
-  $('fixtures').innerHTML = picks
-    .map(
-      (s) => `<a class="fixture" href="${slotLink(s.venue.id, today, s)}">
-            <div class="fixture-top"><span class="tag-sale">-${s.discountPercent}%</span><span>Sân ${s.fieldType} · ${s.venue.requiresApproval ? 'Chủ sân duyệt' : 'Đặt là chốt'}</span></div>
-            <span class="time">${s.start}</span>
-            <div><b>${esc(s.venue.name)} · ${esc(s.courtName)}</b><div class="where">${esc(s.venue.district)}</div></div>
-            <div class="cost"><span class="price">${money(s.price)}</span><span class="price-old">${money(s.basePrice)}</span></div>
-            <span class="btn btn-lime">Đặt giờ này <span aria-hidden="true">→</span></span>
-          </a>`,
-    )
-    .join('');
 }
 
 function renderVenues(venues, date, today, at) {
@@ -224,7 +202,6 @@ async function main() {
       rows = flatten(r.venues);
     }
     renderTonight(rows, listDate, today, $('f-at').value || choice.at);
-    renderFixtures(todayRows, today);
     renderVenues(listVenues, listDate, today, $('f-at').value || choice.at);
     decorate();
   } catch (e) {
