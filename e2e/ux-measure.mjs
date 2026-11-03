@@ -4,7 +4,7 @@ import fs from 'node:fs';
 const width = Number(process.argv[2] || 390);
 if (![390, 1366].includes(width)) throw new Error('Usage: U=http://127.0.0.1:4110 node e2e/ux-measure.mjs <390|1366>');
 const base = process.env.U || 'http://127.0.0.1:4110';
-const out = '/tmp/ggo-ux-before';
+const out = process.env.OUT || '/tmp/ggo-ux-before';
 fs.mkdirSync(out, { recursive: true });
 const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
 const context = await browser.newContext({ viewport: { width, height: width === 390 ? 844 : 900 }, isMobile: width < 600, hasTouch: width < 600 });
@@ -70,15 +70,21 @@ try {
   await page.locator('#bar-book').click();
   await page.waitForURL(/login/);
   await record('04-login-required', 'Đăng nhập để tiếp tục đặt sân');
-  await page.fill('input[name=email]', 'khach1@datsan.local');
+  // Bản cũ: ô email, đăng nhập xong về trang chủ nên phải quay lại sân và bấm Đặt sân lần nữa.
+  // Bản mới: ô "Số điện thoại hoặc email", đăng nhập xong tự quay lại sân và mở hộp xác nhận.
+  const newLogin = await page.locator('input[name=identifier]').count();
+  await page.fill(newLogin ? 'input[name=identifier]' : 'input[name=email]', 'khach1@datsan.local');
   await page.fill('input[name=password]', 'Matkhau@123');
   await page.locator('button[type=submit]').click();
   await page.waitForURL(u => !u.pathname.includes('login'));
-  // Đăng nhập chuyển về trang chủ; quay lại cùng kết quả và chọn giờ còn trống.
-  await page.goto(selectedVenueUrl);
-  await page.locator('#bar-book').waitFor();
-  if (!(await page.locator('[data-pick][aria-pressed="true"]:visible').count())) await page.locator('[data-pick]:visible').first().click();
-  await page.locator('#bar-book').click();
+  let clicks = 5;
+  if (!newLogin || !(await page.locator('#confirm-dialog[open]').waitFor({ timeout: 10000 }).then(() => true, () => false))) {
+    clicks = 6;
+    await page.goto(selectedVenueUrl);
+    await page.locator('#bar-book').waitFor();
+    if (!(await page.locator('[data-pick][aria-pressed="true"]:visible').count())) await page.locator('[data-pick]:visible').first().click();
+    await page.locator('#bar-book').click();
+  }
   await page.locator('#confirm-dialog[open]').waitFor();
   await record('05-confirm', 'Xem thông tin và xác nhận đặt sân');
   await page.locator('#do-book').click();
@@ -92,7 +98,7 @@ try {
   await page.waitForURL(/my-bookings/);
   await page.waitForTimeout(500);
   await record('07-my-orders', 'Mở đơn vừa đặt', { bookingCode: code, measurements: await dimensions() });
-  const result = { width, base, date: today, desiredTime: desired, actionsUntilBookingCreated: { clicks: 6, fieldsFilled: 2, note: 'Tally: submit search; choose result slot; initial book; submit login; book again after login; confirm booking. No account creation.' }, steps: rows };
+  const result = { width, base, date: today, desiredTime: desired, actionsUntilBookingCreated: { clicks, fieldsFilled: 2, note: clicks === 6 ? 'Tally: submit search; choose result slot; initial book; submit login; book again after login; confirm booking. No account creation.' : 'Tally: submit search; choose result slot; initial book; submit login (returns to venue with dialog open); confirm booking. No account creation.' }, steps: rows };
   fs.writeFileSync(`${out}/${width}.json`, JSON.stringify(result, null, 2));
   console.log(JSON.stringify(result, null, 2));
 } finally { await browser.close(); }
