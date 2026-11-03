@@ -47,7 +47,7 @@ function topUpBox() {
   if (!t) return `<div class="notice"><div><b>${winnerWord(m, r.winner)}.</b> Không có phần chênh để trả.</div></div>`;
   const state = t.status === 'received' ? '<b>Đã nhận</b>' : `<b>Chưa trả</b>${t.overdue ? ' · quá hạn' : ` · hạn ${shortTs(t.dueBy)}`}`;
   const head = `<p><b>${winnerWord(m, r.winner)}.</b> Đội thua trả thêm <b class="num">${money(t.amount)}</b> cho đội thắng. Trạng thái: ${state}.</p>`;
-  const foot = '<p class="muted" style="font-size:var(--fs-sm)">Khoản này chuyển thẳng giữa hai đội. SânNhanh không giữ tiền và không bắt buộc trả, chỉ ghi lại trạng thái.</p>';
+  const foot = '<p class="muted" style="font-size:var(--fs-sm)">Khoản này chuyển thẳng giữa hai đội. GGO không giữ tiền và không bắt buộc trả, chỉ ghi lại trạng thái.</p>';
   if (m.role === t.from) {
     if (t.status === 'received') return `<div class="refund-box">${head}</div>`;
     return `<div class="notice warn" role="status"><div>${head}${m.topUpQr ? '<p>Quét mã QR bên cạnh để chuyển cho đội thắng.</p>' : '<p>Đội thắng chưa nhập số tài khoản. Khi họ nhập xong, mã QR sẽ hiện ở đây.</p>'}${foot}</div></div>`;
@@ -146,10 +146,10 @@ function render() {
         ${partsHtml(m)}
         ${action()}
       </div></div>
-      ${qr ? (m.paymentQr ? qrHtml(qr, `Chuyển phần của đội bạn · ${money(qr.amount)}`) : qrHtml(qr, `Trả thêm cho đội thắng · ${money(qr.amount)}`, 'Tiền chuyển thẳng cho đội thắng. SânNhanh không giữ tiền, chỉ ghi lại Chưa trả hoặc Đã nhận.', { simulate: false })) : ''}
+      ${qr ? (m.paymentQr ? qrHtml(qr, `Chuyển phần của đội bạn · ${money(qr.amount)}`) : qrHtml(qr, `Trả thêm cho đội thắng · ${money(qr.amount)}`, 'Tiền chuyển thẳng cho đội thắng. GGO không giữ tiền, chỉ ghi lại Chưa trả hoặc Đã nhận.', { simulate: false })) : ''}
       <div class="stack area-rest"><div class="card card-pad"><h2 class="h3" style="margin-bottom:var(--sp-2)">Ghép kèo hoạt động thế nào</h2>${steps()}</div></div>
     </div>`;
-  document.title = `Kèo ${timeOf(m.startAt)} – SânNhanh`;
+  document.title = `Kèo ${timeOf(m.startAt)} – GGO`;
   decorate();
   if (picked) document.querySelectorAll('[data-report]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.report === picked)));
   const until = m.status === 'joined' ? m.guestHoldUntil : m.hostPayBy;

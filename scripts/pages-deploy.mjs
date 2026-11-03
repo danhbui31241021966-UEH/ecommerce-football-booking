@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Deploy bản tĩnh (public/ + functions/) lên Cloudflare Pages, project "sannhanh".
+// Deploy bản tĩnh (public/ + functions/) lên Cloudflare Pages, project "ggo-datsan".
 //   node scripts/pages-deploy.mjs --branch <tên> [--backend https://xxx.trycloudflare.com]
 //   - có --backend: bản trỏ về BE đó (Function /api/* chuyển tới BE, /js/mode.js ra chế độ thật)
 //   - không có --backend: bản mock (dữ liệu giả, Function không chuyển gì)
@@ -7,8 +7,8 @@
 //   Thành công: exit 0 và dòng cuối stdout là URL của bản deploy.
 //   Địa chỉ BE được nhúng vào functions/_lib/backend.generated.js (gitignore) cho đúng lần deploy này, rồi trả về rỗng sau khi xong.
 //   PROXY_SECRET không do script đặt. Đặt một lần cho mỗi môi trường, giá trị trùng PROXY_SECRET trong .env của BE:
-//     printf %s "$PROXY_SECRET" | npx wrangler pages secret put PROXY_SECRET --project-name sannhanh --env preview
-//     printf %s "$PROXY_SECRET" | npx wrangler pages secret put PROXY_SECRET --project-name sannhanh --env production   (không có --env = production)
+//     printf %s "$PROXY_SECRET" | npx wrangler pages secret put PROXY_SECRET --project-name ggo-datsan --env preview
+//     printf %s "$PROXY_SECRET" | npx wrangler pages secret put PROXY_SECRET --project-name ggo-datsan --env production   (không có --env = production)
 //   --env không hiện trong --help của wrangler 4.111 nhưng có hiệu lực (kiểm bằng `secret list --env preview|production`). Secret chỉ ăn ở lần deploy KẾ TIẾP:
 //   đổi giá trị xong phải deploy lại. Nhánh preview nào cũng dùng chung secret của môi trường preview.
 //   --dev [--port 8788]: chạy `wrangler pages dev` tại máy, cần PROXY_SECRET trong môi trường (ghi tạm vào .dev.vars rồi xóa).
@@ -20,7 +20,7 @@ import { fileURLToPath } from 'node:url';
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const GENERATED = path.join(ROOT, 'functions/_lib/backend.generated.js');
 const DEV_VARS = path.join(ROOT, '.dev.vars');
-const PROJECT = 'sannhanh';
+const PROJECT = 'ggo-datsan';
 const PRODUCTION_BRANCH = 'main';
 
 const args = process.argv.slice(2);

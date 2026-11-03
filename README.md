@@ -1,4 +1,6 @@
-# SânNhanh – Website đặt sân bóng đá mini 5/7 người tại TP.HCM
+# GGO – Website đặt sân bóng đá mini 5/7 người tại TP.HCM
+
+**Slogan:** *Thấy sân trống, đặt là đá.*
 
 Đồ án môn Phát triển ứng dụng Thương mại điện tử – Nhóm 8.
 
@@ -18,7 +20,7 @@ Trang chủ, Tìm sân, Chi tiết sân, Giới thiệu (cùng các trang khác 
 
 ### Cách xem
 
-Chạy `npm install` rồi `npm run prototype`, mở http://localhost:4100. Hoặc mở bản đã deploy: https://sannhanh.pages.dev.
+Chạy `npm install` rồi `npm run prototype`, mở http://localhost:4100. Hoặc mở bản đã deploy: https://ggo-datsan.pages.dev.
 
 ### Cách kiểm responsive
 
@@ -148,13 +150,13 @@ Web vẫn chạy trên Cloudflare Pages; Express/MySQL chạy local. Quick Tunne
 3. Đặt Pages secret cho **Preview** một lần, phải cùng giá trị với `PROXY_SECRET` trong `.env`. Trên Wrangler 4.111, lệnh `--env preview` đã được xác nhận và báo rõ môi trường; secret chỉ có hiệu lực sau lần deploy tiếp theo. Chạy tại root worktree; giá trị đi qua stdin, không vào history/command line:
 
    ```bash
-   PROXY_SECRET="$(node -e 'const d=require("dotenv"); process.stdout.write(d.parse(require("fs").readFileSync(".env","utf8")).PROXY_SECRET)')" && printf %s "$PROXY_SECRET" | npx --no-install wrangler pages secret put PROXY_SECRET --project-name sannhanh --env preview
+   PROXY_SECRET="$(node -e 'const d=require("dotenv"); process.stdout.write(d.parse(require("fs").readFileSync(".env","utf8")).PROXY_SECRET)')" && printf %s "$PROXY_SECRET" | npx --no-install wrangler pages secret put PROXY_SECRET --project-name ggo-datsan --env preview
    ```
 
-   Cần đăng nhập Wrangler và project `sannhanh` đã tồn tại. Production secret do Pine đặt, không chạy trong demo. Lệnh production có `--env production` tường minh; không bỏ cờ vì Wrangler mặc định vào production:
+   Cần đăng nhập Wrangler và project `ggo-datsan` đã tồn tại. Production secret do Pine đặt, không chạy trong demo. Lệnh production có `--env production` tường minh; không bỏ cờ vì Wrangler mặc định vào production:
 
    ```bash
-   PROXY_SECRET="$(node -e 'const d=require("dotenv"); process.stdout.write(d.parse(require("fs").readFileSync(".env","utf8")).PROXY_SECRET)')" && printf %s "$PROXY_SECRET" | npx --no-install wrangler pages secret put PROXY_SECRET --project-name sannhanh --env production
+   PROXY_SECRET="$(node -e 'const d=require("dotenv"); process.stdout.write(d.parse(require("fs").readFileSync(".env","utf8")).PROXY_SECRET)')" && printf %s "$PROXY_SECRET" | npx --no-install wrangler pages secret put PROXY_SECRET --project-name ggo-datsan --env production
    ```
 4. Bật một branch preview tường minh (branch `main` bị chặn):
 

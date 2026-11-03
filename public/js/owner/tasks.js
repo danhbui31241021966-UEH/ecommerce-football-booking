@@ -96,7 +96,7 @@ export function wireTasks(root, getMatches, getTransfers, reload) {
               <label><input type="radio" name="winner" value="host" required data-label="kết quả"> Đội mở kèo thắng</label>
               <label><input type="radio" name="winner" value="guest"> Đội vào kèo thắng</label>
               <label><input type="radio" name="winner" value="draw"> Hòa, không ai trả thêm</label></fieldset>
-            <p class="muted">Đội thua sẽ chuyển phần chênh thẳng cho đội thắng. SânNhanh không giữ tiền.</p>`,
+            <p class="muted">Đội thua sẽ chuyển phần chênh thẳng cho đội thắng. GGO không giữ tiền.</p>`,
         });
         if (!r) return;
         if (!r.winner) throw new Error('Chọn kết quả');

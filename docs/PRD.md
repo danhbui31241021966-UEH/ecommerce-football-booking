@@ -12,6 +12,8 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 
 **Định vị:** *Đặt sân cho cả đội, ngay trên web – không app, không gọi điện.*
 
+**Slogan:** *GGO – Thấy sân trống, đặt là đá.*
+
 **Khác biệt so với các nền tảng hiện có:**
 
 1. Tìm theo giờ trước, chọn sân sau ("19h tối nay sân nào trống?").

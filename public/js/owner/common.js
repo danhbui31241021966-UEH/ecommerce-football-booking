@@ -273,7 +273,7 @@ export async function openAddBooking({ venues, venueId, date = todayStr(), court
     if (!cache.has(d)) cache.set(d, await api.owner.schedule(venue.id, d));
     return cache.get(d);
   };
-  const body = `<p class="muted">Dùng khi khách gọi điện hoặc nhắn Zalo đặt sân. Lịch này giữ giờ như lịch đặt thật nên khách đặt trên web không đặt trùng được. SânNhanh không tạo tài khoản và không nhắn tin cho khách.</p>
+  const body = `<p class="muted">Dùng khi khách gọi điện hoặc nhắn Zalo đặt sân. Lịch này giữ giờ như lịch đặt thật nên khách đặt trên web không đặt trùng được. GGO không tạo tài khoản và không nhắn tin cho khách.</p>
     <div class="field"><label for="pb-name">Tên khách</label><input class="input" id="pb-name" name="customerName" maxlength="80" autocomplete="off" placeholder="Ví dụ: Anh Tùng"></div>
     <div class="field"><label for="pb-phone">Số điện thoại (không bắt buộc)</label><input class="input" id="pb-phone" name="customerPhone" type="tel" inputmode="tel" autocomplete="off"></div>
     <div class="field"><label for="pb-date">Ngày</label><input class="input" id="pb-date" name="date" type="date" min="${todayStr()}" value="${esc(date)}"></div>
@@ -374,7 +374,7 @@ export async function runAction(kind, b) {
         title: 'Hủy đặt sân',
         confirm: 'Hủy đặt sân',
         danger: true,
-        body: b.source === 'phone' ? `${who(b)}<p>Giờ sẽ trống lại ngay. Lịch này đặt qua điện thoại nên SânNhanh không ghi trả lại tiền${b.paymentStatus === 'paid' ? `: nếu bạn đã nhận ${money(b.price)}, bạn tự trả lại cho khách ngoài web` : ''}.</p>${noteField('Lý do (không bắt buộc)', 'Ví dụ: khách báo đổi lịch')}` : `${who(b)}<p>Nếu bạn hủy, khách được trả lại 100%${b.paymentStatus === 'paid' ? ` (${money(b.price)} bạn đã nhận)` : '. Bạn chưa nhận tiền nên không có tiền để trả lại'}.</p>${noteField('Lý do', 'Gửi cho khách', true)}`,
+        body: b.source === 'phone' ? `${who(b)}<p>Giờ sẽ trống lại ngay. Lịch này đặt qua điện thoại nên GGO không ghi trả lại tiền${b.paymentStatus === 'paid' ? `: nếu bạn đã nhận ${money(b.price)}, bạn tự trả lại cho khách ngoài web` : ''}.</p>${noteField('Lý do (không bắt buộc)', 'Ví dụ: khách báo đổi lịch')}` : `${who(b)}<p>Nếu bạn hủy, khách được trả lại 100%${b.paymentStatus === 'paid' ? ` (${money(b.price)} bạn đã nhận)` : '. Bạn chưa nhận tiền nên không có tiền để trả lại'}.</p>${noteField('Lý do', 'Gửi cho khách', true)}`,
       });
       return r && call(() => api.owner.cancel(b.id, (r.note || '').trim()));
     }
@@ -382,7 +382,7 @@ export async function runAction(kind, b) {
       const r = await dialog({
         title: 'Ghi nhận đã nhận tiền',
         confirm: `Đã nhận ${money(b.price)}`,
-        body: `${who(b)}<p>Chỉ bấm khi tiền đã vào tài khoản của bạn. SânNhanh không giữ tiền.</p>${noteField('Ghi chú (không bắt buộc)', 'Ví dụ: nhận lúc 18:40, nội dung ' + b.code)}`,
+        body: `${who(b)}<p>Chỉ bấm khi tiền đã vào tài khoản của bạn. GGO không giữ tiền.</p>${noteField('Ghi chú (không bắt buộc)', 'Ví dụ: nhận lúc 18:40, nội dung ' + b.code)}`,
       });
       return r && call(() => api.owner.markPaid(b.id, r.note.trim()));
     }

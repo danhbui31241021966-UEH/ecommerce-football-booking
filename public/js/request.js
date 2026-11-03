@@ -55,7 +55,7 @@ function render() {
     <h2 class="h3" style="margin:var(--sp-5) 0 var(--sp-3)">Báo giá (${r.offers.length})</h2>
     <div class="booking-list">${r.offers.length ? r.offers.map(offerCard).join('') : `<div class="card empty"><div class="art" data-icon="calendar"></div><p><b style="color:var(--text)">${open ? 'Chưa có sân nào báo giá' : 'Không có báo giá nào'}</b><br>${open ? 'Các sân phù hợp đã nhận được tin của bạn. Có báo giá, bạn sẽ được báo.' : ''}</p></div>`}</div>
     ${open ? cancelHtml() : ''}`;
-  document.title = `Nhờ báo giá ${r.district} – SânNhanh`;
+  document.title = `Nhờ báo giá ${r.district} – GGO`;
   decorate();
   if ($('cd')) countdown($('cd'), secondsLeft(r.closesAt, meta.now), (n) => (n > 0 ? (n >= 3600 ? `${Math.floor(n / 3600)} giờ ${Math.floor((n % 3600) / 60)} phút` : mmss(n)) : 'đã hết hạn'), load);
 }

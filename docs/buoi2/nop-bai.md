@@ -1,7 +1,7 @@
-# Hồ sơ nộp bài tập nhóm Buổi 2 – HTML & CSS (SânNhanh, Nhóm 8)
+# Hồ sơ nộp bài tập nhóm Buổi 2 – HTML & CSS (GGO, Nhóm 8)
 
 Tài liệu này đi theo đúng thứ tự 12 mục của bảng "Sản phẩm cuối cùng cần nộp" trong `docs/buoi2/de-bai.md`.
-Quy ước ánh xạ sang SânNhanh: "sản phẩm" là **sân bóng**, trang danh sách là `venues.html`, trang chi tiết là `venue.html`, "nút mua" là nút **Đặt sân**.
+Quy ước ánh xạ sang GGO: "sản phẩm" là **sân bóng**, trang danh sách là `venues.html`, trang chi tiết là `venue.html`, "nút mua" là nút **Đặt sân**.
 
 Ký hiệu: **[ĐIỀN]** = chủ dự án hoặc thành viên tự điền. Ảnh nằm trong `docs/buoi2/screens/`.
 
@@ -33,11 +33,11 @@ Vì vậy **không viết là "chỉ dùng HTML/CSS"**. Phần HTML/CSS là các
 ## 2. Trang chủ
 
 - **File:** `public/index.html` + `public/css/app.css`, header/footer dựng bởi `public/js/ui/shell.js`, nội dung bởi `public/js/index-page.js`.
-- **Header:** logo "SânNhanh" (`.brand`), menu `<nav class="nav">` với Trang chủ, Tìm sân, Pass sân, Ghép kèo, Giải đấu, nút Đăng nhập (`shell.js`, hằng `NAV`).
+- **Header:** logo "GGO" (`.brand`), menu `<nav class="nav">` với Trang chủ, Tìm sân, Pass sân, Ghép kèo, Giải đấu, nút Đăng nhập (`shell.js`, hằng `NAV`).
 - **Banner:** `section.match-hero` có ảnh (`hero-1920.jpg`, ảnh dọc riêng cho màn nhỏ bằng `<picture>`), tiêu đề `h1`, lời dẫn, form tìm sân (lời kêu gọi hành động) và nút "Xem tất cả giờ trống".
 - **Sân nổi bật:** khối "Sân còn trống" (`#venue-list`) và "Giờ trống gần nhất" (`#tonight-rows`).
 - **Liên kết tới trang danh sách:** form `action="/venues.html"` và liên kết "Xem tất cả giờ trống".
-- **Liên kết tới trang giới thiệu:** có, liên kết "Tìm hiểu về SânNhanh →" ở cuối trang chủ và liên kết "Giới thiệu SânNhanh" ở footer (xem mục 5).
+- **Liên kết tới trang giới thiệu:** có, liên kết "Tìm hiểu về GGO →" ở cuối trang chủ và liên kết "Giới thiệu GGO" ở footer (xem mục 5).
 
 ![Trang chủ 1366](screens/trang-chu-1366.png)
 
@@ -69,7 +69,7 @@ Vì vậy **không viết là "chỉ dùng HTML/CSS"**. Phần HTML/CSS là các
   - **Điểm nổi bật** (6 mục): tìm theo giờ trước, chọn sân sau; giá thật và giờ chót giảm giá; "Báo tôi khi trống" (danh sách chờ); chuyển khoản VietQR thẳng cho chủ sân, web không giữ tiền; ba cách khác để có sân (Pass sân, Ghép kèo, Nhờ báo giá); Giải đấu phủi.
   - **Ảnh minh họa:** hai ảnh có sẵn trong `public/img/photos/` (`hero-13907438-1600.jpg`, `stats-1400.jpg`), có `alt` mô tả đúng nội dung, có `width`/`height`, hiển thị theo tỉ lệ 3:2 bằng `object-fit: cover` (không méo), chú thích "Ảnh minh họa, không phải ảnh của một sân cụ thể".
   - **Liên hệ:** "Đồ án môn Phát triển ứng dụng TMĐT – Nhóm 8", kèm hai ô giữ chỗ viền nét đứt cho email và điện thoại. Trong HTML có chú thích `CHỦ DỰ ÁN ĐIỀN` ngay trên hai ô này. **Không có email, số điện thoại, địa chỉ hay tên người nào được bịa.**
-- **Liên kết tới trang:** (1) trang chủ có liên kết "Tìm hiểu về SânNhanh →" ở cuối nội dung (`public/index.html`), thấy được cả ở 390 px mà không cần mở menu; (2) footer của mọi trang có liên kết "Giới thiệu SânNhanh" (`public/js/ui/shell.js`). Không thêm vào menu chính vì menu khách hàng đã có 7 mục, thêm nữa sẽ sát mép ở khổ 900 px.
+- **Liên kết tới trang:** (1) trang chủ có liên kết "Tìm hiểu về GGO →" ở cuối nội dung (`public/index.html`), thấy được cả ở 390 px mà không cần mở menu; (2) footer của mọi trang có liên kết "Giới thiệu GGO" (`public/js/ui/shell.js`). Không thêm vào menu chính vì menu khách hàng đã có 7 mục, thêm nữa sẽ sát mép ở khổ 900 px.
 
 ![Trang giới thiệu 1366](screens/about-1366.png)
 
@@ -149,7 +149,7 @@ Một ghi nhận khác, không phải lỗi: `docs/TASKS.md` mục T6 ghi "Đã 
 | --- | --- | --- | --- | --- |
 | 1 | Một số nút **nhỏ hơn 44 px** (mức thường khuyên cho vùng bấm trên điện thoại) | 390 px: nút Đăng nhập, chip lọc ở danh sách, nút "Báo tôi khi trống", nút mở menu | **Đã xử lý.** Khối `@media (max-width: 639.98px)` ở cuối `public/css/app.css` (dòng 3332–3346) đặt `min-height: 44px` cho `.btn-sm`, `.chip`, `.segmented button`, `.slot .wait-btn`, `.role-switch button`, `.proto-tools button` và nút menu 44×44 px; ô chọn ở khung tìm kiếm trang chủ được kéo phủ cả ô để vùng bấm cao 48 px mà ô giữ nguyên kích thước (dòng 1426–1435) | Đăng nhập 91×34 → 91×44 px; chip lọc 36 → 44 px; "Báo tôi khi trống" 114×33 → 114×44 px; nút menu 40×40 → 44×44 px. Rà thêm cả 3 trang ở 390: "Muốn đăng ký đội?" 34 → 44; nút chọn sân (Sân 1 · 5…) và "Tất cả / Sân 5 / Sân 7" 36 → 44; 4 ô chọn ở trang chủ 26 → 48 px; nút chọn vai trò và nút giả lập (chỉ có trên dữ liệu giả) 39 → 44. Sau khi sửa không còn nút hay ô chọn nào dưới 44 px trên 3 trang; không tràn ngang ở 9 trường hợp |
 | 2 | Tên sân (đóng vai trò liên kết xem chi tiết) **không có hiệu ứng hover riêng**; chỉ thẻ chứa nó đổi viền | Danh sách sân, mọi khổ | **Đã xử lý.** `.venue-card .title` có gạch chân 2 px trong suốt, `.venue-card .title:hover` đổi màu gạch chân sang mực, `transition: text-decoration-color var(--dur)` (`public/css/app.css` dòng 989–1001). Không đổi cỡ chữ hay độ đậm | Trước: màu và gạch chân không đổi, `transition: all 0s`. Sau: gạch chân từ trong suốt sang `#15150f`, `transition: text-decoration-color 0.18s`; kích thước trước/sau hover giữ nguyên 332,7×24,2 px, vị trí không đổi; ảnh `hover-xem-chi-tiet.png` |
-| 3 | Trang chủ **chưa có liên kết tới trang giới thiệu** | Trang chủ | **Đã xử lý.** Thêm trang `public/about.html` (mục 5), liên kết "Giới thiệu SânNhanh" ở footer mọi trang (`public/js/ui/shell.js`) và liên kết "Tìm hiểu về SânNhanh →" ở cuối trang chủ (`public/index.html`). Không đặt vào menu trên cùng vì ở khổ 900 px menu sẽ bị tràn | Trước: không có trang giới thiệu trong `public/`. Sau: trang có và trả 200, đã thêm vào `public/sitemap.xml`; hai liên kết trên đều trỏ tới `about.html` |
+| 3 | Trang chủ **chưa có liên kết tới trang giới thiệu** | Trang chủ | **Đã xử lý.** Thêm trang `public/about.html` (mục 5), liên kết "Giới thiệu GGO" ở footer mọi trang (`public/js/ui/shell.js`) và liên kết "Tìm hiểu về GGO →" ở cuối trang chủ (`public/index.html`). Không đặt vào menu trên cùng vì ở khổ 900 px menu sẽ bị tràn | Trước: không có trang giới thiệu trong `public/`. Sau: trang có và trả 200, đã thêm vào `public/sitemap.xml`; hai liên kết trên đều trỏ tới `about.html` |
 | 5 | **Vòng focus gần như không thấy trên nền tối**: quy tắc chung `:focus-visible { outline: 2px solid var(--text) }` dùng màu `#15150f` trên nền header `#0d0e0b` | Header và menu điện thoại, mọi khổ (liên kết menu, logo, nút Đăng nhập, nút mở menu, mục trong menu, nút khung tìm kiếm trang chủ) | **Đã xử lý.** Vòng focus dùng biến `--focus`: mực trên nền sáng, lime `#d9f23d` trên các vùng nền tối (dòng 135–161). Khung tìm kiếm trang chủ (nền trắng nằm trong ảnh tối) trả lại mực; nút trong khung đó vẽ vòng vào trong nút (`outline-offset: -4px`) vì khung cắt phần vẽ ra ngoài. Nút công cụ demo nổi vẽ vòng lime sát nút (dòng 463–467). Khi kiểm còn phát hiện và sửa thêm hai lỗi cùng nhóm: menu điện thoại đóng vẫn nhận phím Tab dù đã mờ hẳn (nay `visibility: hidden` khi đóng, dòng 401), và header dính che phần tử đang focus khi Tab ngược (`scroll-padding-top` ở dòng 98) | Đo bằng ảnh chụp thật ở mỗi lần Tab, lấy màu nền ngay quanh vòng (3 trang, 390 và 1366, Tab xuôi và ngược, trước 363 mẫu, sau 355 mẫu có vòng): tương phản vòng với nền **trước: 1,06:1** ở header (135 mẫu dưới 3:1); **sau: 15,41:1** trên nền tối, 14,59:1 (vòng mực vào trong nút lime), 16,66–18,16:1 trên nền sáng (liên kết, thẻ, nút Đặt sân). Còn 5 mẫu bị đánh dấu là nút công cụ demo (chỉ có trên dữ liệu giả): vòng sát nút đen nên tương phản đo với chính nút là 15,41:1, không đo với nền trang. Ảnh `focus-lien-ket-menu.png`, `focus-nut-menu.png` |
 | 4 | Ở 768 và 390, các mục "Giờ chót" và "Sân còn trống" của trang chủ là **băng cuộn ngang** (có chữ "Vuốt ngang để xem thêm"), nên ảnh chỉ thấy 1–2 thẻ | Trang chủ, 768 / 390 | Cố ý theo thiết kế; nêu rõ khi nộp để người chấm không hiểu là thiếu nội dung | Ở 1366 hiện đủ 3 thẻ trên một hàng |
 
@@ -187,7 +187,7 @@ Một ghi nhận khác, không phải lỗi: `docs/TASKS.md` mục T6 ghi "Đã 
 
 ## 10. README
 
-`README.md` có mục **"Phạm vi Buổi 2 (HTML & CSS)"** ngay sau phần giới thiệu, gồm: các trang nộp (`index.html`, `venues.html`, `venue.html`, `about.html`), danh sách trang, **cách xem** (`npm run prototype` rồi mở http://localhost:4100, hoặc bản deploy https://sannhanh.pages.dev), **cách kiểm responsive** (DevTools ở 1366 / 768 / 390 px và các điểm cần kiểm) và **hạn chế hiện tại** (dữ liệu giả lưu trong trình duyệt, cần JavaScript, phần Express + MySQL là mở rộng ngoài phạm vi Buổi 2, thông tin liên hệ trang giới thiệu chưa điền).
+`README.md` có mục **"Phạm vi Buổi 2 (HTML & CSS)"** ngay sau phần giới thiệu, gồm: các trang nộp (`index.html`, `venues.html`, `venue.html`, `about.html`), danh sách trang, **cách xem** (`npm run prototype` rồi mở http://localhost:4100, hoặc bản deploy https://ggo-datsan.pages.dev), **cách kiểm responsive** (DevTools ở 1366 / 768 / 390 px và các điểm cần kiểm) và **hạn chế hiện tại** (dữ liệu giả lưu trong trình duyệt, cần JavaScript, phần Express + MySQL là mở rộng ngoài phạm vi Buổi 2, thông tin liên hệ trang giới thiệu chưa điền).
 
 Đối chiếu với nội dung đề yêu cầu (bước 9C):
 
@@ -257,7 +257,7 @@ Trang `public/about.html` đã làm theo đề xuất dựa trên `docs/PRD.md`.
 
 | Ý đề yêu cầu | Trên trang | Trạng thái |
 | --- | --- | --- |
-| Kinh doanh gì | Mục "SânNhanh làm gì" và đoạn mở đầu: website đặt sân bóng đá mini 5 và 7 người ở TP.HCM, không cần gọi điện (PRD mục 1) | Xong |
+| Kinh doanh gì | Mục "GGO làm gì" và đoạn mở đầu: website đặt sân bóng đá mini 5 và 7 người ở TP.HCM, không cần gọi điện (PRD mục 1) | Xong |
 | Khách hàng là ai | Mục "Dành cho ai": đội đá phủi và nhóm bạn; chủ sân mini (PRD mục 1 "Vấn đề", mục 2) | Xong |
 | Điểm nổi bật | Mục "Điểm nổi bật", 6 mục, chỉ gồm tính năng đã có trên giao diện | Xong |
 | Ảnh minh họa | 2 ảnh trong `public/img/photos/`, có `alt`, ghi chú là ảnh minh họa (PRD mục 10, câu 4 về ảnh tự vẽ hay ảnh thật vẫn còn mở) | Xong |

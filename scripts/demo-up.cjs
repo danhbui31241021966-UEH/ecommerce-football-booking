@@ -148,10 +148,10 @@ async function run() {
     }
     const lines = (deployed.stdout || '').trim().split(/\r?\n/);
     const pagesUrl = lines.at(-1)?.trim() || '';
-    const validPreviewUrl = /^https:\/\/[a-z0-9-]+\.sannhanh\.pages\.dev\/?$/i.test(pagesUrl);
-    const validProductionUrl = /^https:\/\/sannhanh\.pages\.dev\/?$/i.test(pagesUrl);
+    const validPreviewUrl = /^https:\/\/[a-z0-9-]+\.ggo-datsan\.pages\.dev\/?$/i.test(pagesUrl);
+    const validProductionUrl = /^https:\/\/ggo-datsan\.pages\.dev\/?$/i.test(pagesUrl);
     if (deployProduction ? !validProductionUrl : !validPreviewUrl) {
-      throw new Error(`Script Pages không trả URL ${deployProduction ? 'production sannhanh.pages.dev' : 'preview sannhanh.pages.dev'} ở dòng cuối stdout.`);
+      throw new Error(`Script Pages không trả URL ${deployProduction ? 'production ggo-datsan.pages.dev' : 'preview ggo-datsan.pages.dev'} ở dòng cuối stdout.`);
     }
     const targetEnvironment = deployProduction ? 'Production' : 'Preview';
     try { await waitForApi(pagesUrl, proxySecret, 15000, null, '', `Pages ${targetEnvironment} API`, { record: state.services.server, log: SERVER_LOG, label: 'Server' }); }

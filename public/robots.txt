@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://sannhanh.pages.dev/sitemap.xml
+Sitemap: https://ggo-datsan.pages.dev/sitemap.xml

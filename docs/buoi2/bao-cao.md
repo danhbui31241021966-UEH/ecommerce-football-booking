@@ -8,7 +8,7 @@
 
 ## 1.1. Mục tiêu và phạm vi triển khai
 
-Kế thừa kết quả phân tích yêu cầu ở Buổi 1 (báo cáo Chương 1, các chức năng F01–F16), nhóm tiếp tục phát triển **SânNhanh**, website đặt sân bóng đá mini 5 và 7 người ở TP.HCM. Ý tưởng chính giữ nguyên từ Buổi 1: khách tìm theo giờ muốn đá trước rồi mới chọn sân, thấy giá thật, đặt ngay trên web và chuyển khoản thẳng cho chủ sân, không cần gọi điện.
+Kế thừa kết quả phân tích yêu cầu ở Buổi 1 (báo cáo Chương 1, các chức năng F01–F16), nhóm tiếp tục phát triển **GGO**, website đặt sân bóng đá mini 5 và 7 người ở TP.HCM. Ý tưởng chính giữ nguyên từ Buổi 1: khách tìm theo giờ muốn đá trước rồi mới chọn sân, thấy giá thật, đặt ngay trên web và chuyển khoản thẳng cho chủ sân, không cần gọi điện.
 
 Trong Buổi 2, nhóm tập trung vào giao diện: 4 trang chính dùng HTML5 và CSS3, bố cục bằng Flexbox và CSS Grid, responsive ở 3 khổ màn hình, có hover và focus cho các thành phần thao tác được.
 
@@ -27,7 +27,7 @@ Hai phần này **ngoài phạm vi Buổi 2** và không được chấm ở bá
 | Trang chủ | `index.html` | Header, banner có ô tìm sân theo ngày/giờ/quận, khối "Giờ trống gần nhất", "Sân còn trống", liên kết sang trang danh sách và trang giới thiệu |
 | Danh sách sản phẩm (sân) | `venues.html` | 40 sân dạng thẻ: ảnh, tên, quận, loại sân, khoảng giá, giờ còn trống; chip lọc ngày, giờ, quận, loại sân |
 | Chi tiết sản phẩm (sân) | `venue.html` | Ảnh sân, tên, giá từng giờ, mô tả, tiện ích, loại sân, giờ mở cửa, chính sách hủy, lưới giờ trống, nút **Đặt sân**, breadcrumb quay lại danh sách |
-| Giới thiệu cửa hàng | `about.html` | SânNhanh làm gì, dành cho ai, 6 điểm nổi bật, ảnh minh họa, thông tin liên hệ |
+| Giới thiệu cửa hàng | `about.html` | GGO làm gì, dành cho ai, 6 điểm nổi bật, ảnh minh họa, thông tin liên hệ |
 
 *Nguồn: Nhóm tác giả*
 
@@ -105,7 +105,7 @@ Nhóm làm phần dùng chung trước (màu, chữ, nút, header), rồi mới 
 
 **Câu 1. Vì sao nhóm cần tiếp tục dựa trên yêu cầu và bản phác thảo ở Buổi 1?**
 
-Buổi 1 đã chốt khách hàng là ai, họ cần gì và web có những chức năng nào. Nếu Buổi 2 làm giao diện mới mà không dựa vào đó, nhóm dễ làm ra trang đẹp nhưng sai nhu cầu. Ví dụ: Buổi 1 xác định khách tìm "giờ nào còn trống" trước khi chọn sân, nên trang chủ của SânNhanh đặt ô chọn ngày, giờ, quận ngay trên banner. Dựa vào Buổi 1 cũng giúp cả nhóm cùng một mục tiêu và không phải bàn lại từ đầu.
+Buổi 1 đã chốt khách hàng là ai, họ cần gì và web có những chức năng nào. Nếu Buổi 2 làm giao diện mới mà không dựa vào đó, nhóm dễ làm ra trang đẹp nhưng sai nhu cầu. Ví dụ: Buổi 1 xác định khách tìm "giờ nào còn trống" trước khi chọn sân, nên trang chủ của GGO đặt ô chọn ngày, giờ, quận ngay trên banner. Dựa vào Buổi 1 cũng giúp cả nhóm cùng một mục tiêu và không phải bàn lại từ đầu.
 
 **Câu 2. Những thành phần nào nên được thiết kế thống nhất giữa các trang?**
 
@@ -116,7 +116,7 @@ Buổi 1 đã chốt khách hàng là ai, họ cần gì và web có những ch�
 - khoảng cách giữa các khối;
 - kiểu hover và focus.
 
-Ở SânNhanh, các thành phần này nằm chung trong `app.css` và dùng chung biến CSS, nên đổi một chỗ là mọi trang cùng đổi.
+Ở GGO, các thành phần này nằm chung trong `app.css` và dùng chung biến CSS, nên đổi một chỗ là mọi trang cùng đổi.
 
 **Câu 3. Nếu hai thành viên xây dựng các trang có phong cách khác nhau, nhóm sẽ xử lý thế nào?**
 
@@ -159,7 +159,7 @@ ecommerce-football-booking/
 
 Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc website**, ví dụ `<link rel="stylesheet" href="/css/app.css">` và `src="/img/photos/stats-1400.jpg"`. Nhóm chọn cách này vì trang nằm ở đâu thì đường dẫn vẫn đúng.
 
-Đổi lại, phải mở web qua máy chủ: chạy `npm run prototype` rồi mở http://localhost:4100, hoặc mở bản trên mạng https://sannhanh.pages.dev. Nhấp đúp file `index.html` để mở trực tiếp thì CSS và ảnh không tải được. README có ghi điều này.
+Đổi lại, phải mở web qua máy chủ: chạy `npm run prototype` rồi mở http://localhost:4100, hoặc mở bản trên mạng https://ggo-datsan.pages.dev. Nhấp đúp file `index.html` để mở trực tiếp thì CSS và ảnh không tải được. README có ghi điều này.
 
 ## 2.4. Trả lời câu hỏi kiểm tra kiến thức
 
@@ -169,7 +169,7 @@ Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc w
 - Sửa một lần là cả web đổi, không phải sửa từng trang.
 - Trình duyệt tải file CSS một lần rồi lưu lại, sang trang khác không phải tải lại nên trang mở nhanh hơn.
 
-Ở SânNhanh, cả 4 trang đều dùng chung `/css/app.css`.
+Ở GGO, cả 4 trang đều dùng chung `/css/app.css`.
 
 **Câu 2. Đường dẫn `images/product-1.jpg` có ý nghĩa gì?**
 
@@ -181,7 +181,7 @@ Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc w
 - Nếu ảnh không khai báo `width`/`height`, bố cục có thể bị co lại hoặc lệch.
 - Kiểm tra bằng tab Console hoặc Network trong DevTools: ảnh lỗi hiện màu đỏ.
 
-Ảnh trong SânNhanh đều khai báo `width`, `height` và có `alt`, nên nếu ảnh lỗi thì khung vẫn giữ đúng kích thước.
+Ảnh trong GGO đều khai báo `width`, `height` và có `alt`, nên nếu ảnh lỗi thì khung vẫn giữ đúng kích thước.
 
 # III. Thiết kế giao diện tổng thể
 
@@ -190,7 +190,7 @@ Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc w
 - **Trang chủ:** header tối, banner ảnh sân bóng có tiêu đề lớn "Tối nay đá ở đâu?" và ô tìm sân, rồi đến dải giờ trống gần nhất, danh sách sân còn trống, khối giới thiệu cách đặt sân, cuối cùng là footer.
 - **Danh sách sân:** tiêu đề trang, hàng chip lọc, lưới thẻ sân 3/2/1 cột.
 - **Chi tiết sân:** breadcrumb, ảnh sân lớn, tên và giá, thông tin sân, lưới giờ trống, thanh **Đặt sân** cố định ở cuối màn hình.
-- **Giới thiệu:** phần mở đầu chữ + ảnh, "SânNhanh làm gì", "Dành cho ai" (2 thẻ), "Điểm nổi bật" (6 mục trên nền tối), ảnh minh họa, "Liên hệ".
+- **Giới thiệu:** phần mở đầu chữ + ảnh, "GGO làm gì", "Dành cho ai" (2 thẻ), "Điểm nổi bật" (6 mục trên nền tối), ảnh minh họa, "Liên hệ".
 
 ## 3.2. Bảng màu và kiểu chữ thống nhất
 
@@ -211,7 +211,7 @@ Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc w
 
 - Menu trên header có **Trang chủ** và **Tìm sân** (đi tới danh sách sân), cùng các mục mở rộng (Pass sân, Ghép kèo, Giải đấu).
 - Từ danh sách, bấm thẻ sân để mở **chi tiết sân**. Ở trang chi tiết, breadcrumb "Trang chủ / Tìm sân / tên sân" đưa về danh sách.
-- **Trang giới thiệu** được mở từ liên kết "Tìm hiểu về SânNhanh →" ở cuối trang chủ và liên kết "Giới thiệu SânNhanh" ở footer của mọi trang.
+- **Trang giới thiệu** được mở từ liên kết "Tìm hiểu về GGO →" ở cuối trang chủ và liên kết "Giới thiệu GGO" ở footer của mọi trang.
 
 ## 3.4. Những điểm cần lưu ý để giao diện dễ sử dụng
 
@@ -230,7 +230,7 @@ Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc w
 
 **Câu 2. Nếu giao diện có quá nhiều màu sắc và kiểu chữ khác nhau, điều đó ảnh hưởng thế nào đến trải nghiệm người dùng?**
 
-Người dùng sẽ khó biết đâu là nút bấm, đâu là chữ thường, đâu là thông tin quan trọng. Web trông thiếu chuyên nghiệp, giống nhiều trang ghép lại. Mỗi trang lại phải "học" một kiểu mới. SânNhanh giữ ít màu: màu lime chỉ dùng cho nút chính và thứ cần chú ý, nên khách nhìn là biết chỗ cần bấm.
+Người dùng sẽ khó biết đâu là nút bấm, đâu là chữ thường, đâu là thông tin quan trọng. Web trông thiếu chuyên nghiệp, giống nhiều trang ghép lại. Mỗi trang lại phải "học" một kiểu mới. GGO giữ ít màu: màu lime chỉ dùng cho nút chính và thứ cần chú ý, nên khách nhìn là biết chỗ cần bấm.
 
 # IV. Header, menu điều hướng và banner
 
@@ -241,7 +241,7 @@ Header dùng thẻ semantic `<header>` chứa logo, `<nav>` chứa menu và nút
 ```
 <header class="site-header">
   <div class="container">
-    <a class="brand" href="/">SânNhanh</a>
+    <a class="brand" href="/">GGO</a>
     <nav class="nav" aria-label="Điều hướng chính">…các liên kết…</nav>
     <div class="header-actions">
       <a class="btn btn-lime btn-sm" href="/login.html">Đăng nhập</a>
@@ -279,7 +279,7 @@ Banner trang chủ có:
 - `<header>` đánh dấu phần đầu trang, nơi chứa logo, menu, nút đăng nhập.
 - `<nav>` đánh dấu nhóm liên kết điều hướng chính.
 
-Hai thẻ này không đổi giao diện, nhưng giúp trình duyệt, công cụ tìm kiếm và trình đọc màn hình hiểu đâu là phần đầu trang, đâu là menu. Người khiếm thị có thể nhảy thẳng tới menu. SânNhanh có hai `<nav>` (menu máy tính và menu điện thoại), nên mỗi cái có `aria-label` riêng để phân biệt.
+Hai thẻ này không đổi giao diện, nhưng giúp trình duyệt, công cụ tìm kiếm và trình đọc màn hình hiểu đâu là phần đầu trang, đâu là menu. Người khiếm thị có thể nhảy thẳng tới menu. GGO có hai `<nav>` (menu máy tính và menu điện thoại), nên mỗi cái có `aria-label` riêng để phân biệt.
 
 **Câu 2. Vì sao dùng Flexbox cho header có thể thuận tiện hơn so với định vị thủ công?**
 
@@ -287,7 +287,7 @@ Với Flexbox, chỉ cần `display: flex; align-items: center` là logo, menu, 
 
 **Câu 3. Nếu menu hiển thị tốt trên máy tính nhưng bị chật trên điện thoại, nhóm sẽ điều chỉnh như thế nào?**
 
-Dùng `@media` để đổi cách hiện menu theo độ rộng màn hình. SânNhanh đang làm như vậy: dưới 900 px thì ẩn menu ngang (`.nav { display: none }`) và hiện nút ba gạch; bấm nút thì mở menu dọc toàn chiều ngang, mỗi mục cao 47 px cho dễ bấm. Menu đóng thì có thêm `visibility: hidden` để phím Tab không rơi vào liên kết đang ẩn.
+Dùng `@media` để đổi cách hiện menu theo độ rộng màn hình. GGO đang làm như vậy: dưới 900 px thì ẩn menu ngang (`.nav { display: none }`) và hiện nút ba gạch; bấm nút thì mở menu dọc toàn chiều ngang, mỗi mục cao 47 px cho dễ bấm. Menu đóng thì có thêm `visibility: hidden` để phím Tab không rơi vào liên kết đang ẩn.
 
 # V. Trang danh sách sản phẩm
 
@@ -319,7 +319,7 @@ Dùng `@media` để đổi cách hiện menu theo độ rộng màn hình. Sân
 - **Flexbox** bố trí theo **một chiều**: một hàng hoặc một cột. Hợp với thanh menu, hàng nút, hàng chip.
 - **Grid** bố trí theo **hai chiều**: cả hàng và cột cùng lúc. Hợp với lưới thẻ sản phẩm, bố cục trang nhiều cột.
 
-Ở SânNhanh, header và hàng chip dùng Flexbox, còn lưới thẻ sân `.card-grid` dùng Grid.
+Ở GGO, header và hàng chip dùng Flexbox, còn lưới thẻ sân `.card-grid` dùng Grid.
 
 **Câu 2. Nếu muốn hiển thị 4 sản phẩm mỗi hàng trên máy tính, nhóm cần điều chỉnh thuộc tính nào?**
 
@@ -337,7 +337,7 @@ Nên giữ 4 cột chỉ cho màn hình đủ rộng. Ở 1100 px, mỗi thẻ s
 - Có thể giới hạn tên trong 2 dòng bằng `display: -webkit-box; -webkit-line-clamp: 2; overflow: hidden`.
 - Hoặc đặt `min-height` cho phần tên để mọi thẻ chừa chỗ như nhau.
 
-Tên sân ở SânNhanh khá dài (ví dụ "SÂN BANH MINI 20 CỘNG HÒA GARDENS") nên được cho xuống dòng tự nhiên, còn Grid giữ các thẻ cùng chiều cao.
+Tên sân ở GGO khá dài (ví dụ "SÂN BANH MINI 20 CỘNG HÒA GARDENS") nên được cho xuống dòng tự nhiên, còn Grid giữ các thẻ cùng chiều cao.
 
 # VI. Trang chi tiết sản phẩm và trang giới thiệu
 
@@ -357,7 +357,7 @@ Tên sân ở SânNhanh khá dài (ví dụ "SÂN BANH MINI 20 CỘNG HÒA GARDE
 
 - Trang `about.html` dùng HTML semantic: `<header>`, `<main>`, các `<section>` có tiêu đề `<h2>`, ảnh trong `<figure>`/`<figcaption>`, thông tin liên hệ trong `<dl>`.
 - Nội dung chia 5 phần:
-  1. SânNhanh làm gì;
+  1. GGO làm gì;
   2. Dành cho ai (đội đá phủi và chủ sân mini);
   3. Điểm nổi bật (6 mục);
   4. Ảnh minh họa;
@@ -382,7 +382,7 @@ Hai trang phục vụ hai việc khác nhau:
 
 **Câu 3. Vì sao nội dung giới thiệu cần được chia thành các phần thay vì đặt trong một đoạn văn dài?**
 
-Người đọc trên web thường lướt chứ không đọc từng chữ. Chia thành các phần có tiêu đề ("SânNhanh làm gì", "Dành cho ai", "Điểm nổi bật") giúp khách tìm nhanh điều mình cần. Trên điện thoại, một đoạn văn dài rất mệt mắt. Mỗi phần dùng `<section>` có `<h2>` còn giúp trình đọc màn hình và công cụ tìm kiếm hiểu cấu trúc trang.
+Người đọc trên web thường lướt chứ không đọc từng chữ. Chia thành các phần có tiêu đề ("GGO làm gì", "Dành cho ai", "Điểm nổi bật") giúp khách tìm nhanh điều mình cần. Trên điện thoại, một đoạn văn dài rất mệt mắt. Mỗi phần dùng `<section>` có `<h2>` còn giúp trình đọc màn hình và công cụ tìm kiếm hiểu cấu trúc trang.
 
 # VII. Responsive
 
@@ -450,7 +450,7 @@ Nhóm đo bằng Playwright trên Chrome, chạy bản dữ liệu mẫu ở má
 
 **Câu 1. `@media` trong CSS có vai trò gì?**
 
-`@media` cho phép áp quy tắc CSS chỉ khi màn hình thỏa điều kiện, thường là độ rộng. Ví dụ, `@media (min-width: 720px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }` nghĩa là chỉ khi màn hình rộng từ 720 px thì lưới sân mới chia 2 cột. Nhờ đó, cùng một trang HTML hiển thị khác nhau trên máy tính, máy tính bảng và điện thoại. SânNhanh viết CSS cho điện thoại trước, rồi dùng `min-width` để thêm cột khi màn hình rộng ra.
+`@media` cho phép áp quy tắc CSS chỉ khi màn hình thỏa điều kiện, thường là độ rộng. Ví dụ, `@media (min-width: 720px) { .card-grid { grid-template-columns: repeat(2, 1fr); } }` nghĩa là chỉ khi màn hình rộng từ 720 px thì lưới sân mới chia 2 cột. Nhờ đó, cùng một trang HTML hiển thị khác nhau trên máy tính, máy tính bảng và điện thoại. GGO viết CSS cho điện thoại trước, rồi dùng `min-width` để thêm cột khi màn hình rộng ra.
 
 **Câu 2. Nếu trang danh sách bị tràn ngang trên điện thoại, nhóm sẽ kiểm tra những thành phần nào?**
 
@@ -501,11 +501,11 @@ Mỗi ảnh dưới đây đặt hai trạng thái cạnh nhau: "Bình thường
 - `:hover` xảy ra khi **di chuột** lên phần tử. Trên điện thoại gần như không có hover thật.
 - `:focus` xảy ra khi phần tử **đang được chọn để nhận thao tác**: bấm Tab tới, bấm vào ô nhập, hoặc chạm vào. Người dùng bàn phím và người dùng trình đọc màn hình dựa vào focus để biết mình đang ở đâu.
 
-`:focus-visible` là dạng focus chỉ hiện khi dùng bàn phím, nên bấm chuột vào nút không làm hiện vòng viền thừa. SânNhanh dùng `:focus-visible` cho vòng focus chung.
+`:focus-visible` là dạng focus chỉ hiện khi dùng bàn phím, nên bấm chuột vào nút không làm hiện vòng viền thừa. GGO dùng `:focus-visible` cho vòng focus chung.
 
 **Câu 2. Vì sao không nên loại bỏ hoàn toàn đường viền focus mà không có phương án thay thế?**
 
-Người dùng bàn phím sẽ không biết mình đang đứng ở liên kết hay nút nào, bấm Enter mà không biết sẽ mở cái gì. Như vậy web không dùng được với bàn phím, vi phạm nguyên tắc dễ tiếp cận. Nếu thấy viền mặc định xấu, hãy thay bằng kiểu khác đủ rõ chứ không xóa. SânNhanh từng gặp trường hợp viền có nhưng gần như vô hình: màu đen trên header đen, tương phản 1,06:1. Nhóm đã sửa thành lime trên nền tối (15,41:1).
+Người dùng bàn phím sẽ không biết mình đang đứng ở liên kết hay nút nào, bấm Enter mà không biết sẽ mở cái gì. Như vậy web không dùng được với bàn phím, vi phạm nguyên tắc dễ tiếp cận. Nếu thấy viền mặc định xấu, hãy thay bằng kiểu khác đủ rõ chứ không xóa. GGO từng gặp trường hợp viền có nhưng gần như vô hình: màu đen trên header đen, tương phản 1,06:1. Nhóm đã sửa thành lime trên nền tối (15,41:1).
 
 **Câu 3. Nếu hiệu ứng hover làm thẻ sản phẩm che mất thẻ bên cạnh, nhóm sẽ xử lý ra sao?**
 
@@ -513,11 +513,11 @@ Người dùng bàn phím sẽ không biết mình đang đứng ở liên kết
 - Thay bằng hiệu ứng không đổi kích thước: đổi màu viền, đổi bóng đổ, gạch chân tiêu đề.
 - Nếu vẫn muốn phóng to, giữ mức nhỏ (`scale(1.02)`), tăng `gap` giữa các thẻ và đặt `z-index` cho thẻ đang hover.
 
-SânNhanh chọn cách đổi màu viền nên kích thước thẻ trước và sau hover giữ nguyên (661×367 px).
+GGO chọn cách đổi màu viền nên kích thước thẻ trước và sau hover giữ nguyên (661×367 px).
 
 # IX. Tích hợp, kiểm thử và hoàn thiện GitHub
 
-## 9.1. Bảng kiểm thử website SânNhanh
+## 9.1. Bảng kiểm thử website GGO
 
 Ngoài kiểm bằng mắt, nhóm có bộ kiểm thử tự động trên trình duyệt (thư mục `e2e/`, dùng Playwright). Bộ này tự mở trang, bấm nút, kiểm kết quả ở khổ 390 và 1280 px. Lần chạy cuối: **30/30 luồng đạt, 0 lỗi**.
 
@@ -528,7 +528,7 @@ Ngoài kiểm bằng mắt, nhóm có bộ kiểm thử tự động trên trìn
 | TC01 | Liên kết | Bấm từng mục menu: Trang chủ, Tìm sân | Mở đúng `index.html`, `venues.html` | Đạt |
 | TC02 | Liên kết | Ở danh sách, bấm tên một sân | Mở `venue.html` đúng sân | Đạt |
 | TC03 | Liên kết | Ở chi tiết, bấm "Tìm sân" trên breadcrumb | Về danh sách sân | Đạt |
-| TC04 | Liên kết | Bấm "Tìm hiểu về SânNhanh →" và "Giới thiệu SânNhanh" ở footer | Mở `about.html` | Đạt |
+| TC04 | Liên kết | Bấm "Tìm hiểu về GGO →" và "Giới thiệu GGO" ở footer | Mở `about.html` | Đạt |
 | TC05 | Liên kết | Kiểm mọi liên kết nội bộ trên 4 trang | Không có liên kết chết | Đạt: trang chủ 25, danh sách 257, chi tiết 9, giới thiệu 10 liên kết đều trả 200 |
 | TC06 | CSS chung | Kiểm thẻ `<link>` của 4 trang | Cùng dùng `/css/app.css` | Đạt |
 | TC07 | Hình ảnh | Mở 4 trang, xem Console | Không có lỗi tải ảnh | Đạt: Console 0 lỗi |
@@ -582,7 +582,7 @@ Nhóm làm web với sự hỗ trợ **lớn** của AI (viết mã, viết ki�
 ## 9.3. GitHub và README
 
 - **Link repository:** **[ĐIỀN]**
-- **Web xem trực tiếp:** https://sannhanh.pages.dev (bản dữ liệu mẫu, không cần backend).
+- **Web xem trực tiếp:** https://ggo-datsan.pages.dev (bản dữ liệu mẫu, không cần backend).
 - `README.md` có mục **"Phạm vi Buổi 2 (HTML & CSS)"**:
   - giới thiệu và danh sách trang;
   - công nghệ;
@@ -645,7 +645,7 @@ Nhóm làm web với sự hỗ trợ **lớn** của AI (viết mã, viết ki�
 - ảnh trong thẻ to hơn; nếu ảnh có tỉ lệ cố định thì thẻ cũng cao hơn;
 - `gap: 16px` giữ nguyên.
 
-Lý do: `repeat(n, 1fr)` quyết định số cột, còn các thẻ tự xếp lần lượt vào ô trống, hết hàng thì xuống hàng mới. Ở SânNhanh, chính thuộc tính này đổi theo `@media`: 1 cột trên điện thoại, 2 cột từ 720 px, 3 cột từ 1100 px.
+Lý do: `repeat(n, 1fr)` quyết định số cột, còn các thẻ tự xếp lần lượt vào ô trống, hết hàng thì xuống hàng mới. Ở GGO, chính thuộc tính này đổi theo `@media`: 1 cột trên điện thoại, 2 cột từ 720 px, 3 cột từ 1100 px.
 
 ## 10.3. Phát hiện lỗi
 
@@ -664,7 +664,7 @@ Lý do: `repeat(n, 1fr)` quyết định số cột, còn các thẻ tự xếp 
   - `object-fit: cover`: giữ đúng tỉ lệ ảnh, phóng ảnh cho phủ kín khung rồi cắt phần thừa;
   - `object-position: center`: chọn phần giữ lại khi cắt (giữa ảnh); đổi thành `top` nếu phần quan trọng ở phía trên;
   - `display: block`: bỏ khoảng hở nhỏ dưới ảnh do ảnh mặc định nằm trên dòng chữ.
-- **Cách khác:** bỏ `height: 250px`, dùng `aspect-ratio: 4 / 3` cho chiều cao tự theo chiều rộng. SânNhanh dùng cách này: `aspect-ratio` cho khung, `object-fit: cover` cho ảnh.
+- **Cách khác:** bỏ `height: 250px`, dùng `aspect-ratio: 4 / 3` cho chiều cao tự theo chiều rộng. GGO dùng cách này: `aspect-ratio` cho khung, `object-fit: cover` cho ảnh.
 - Nếu ảnh phải hiện đủ, không được cắt (ví dụ logo), dùng `object-fit: contain`. Ảnh sẽ nằm gọn trong khung và có thể có viền trống.
 
 ## 10.4. Grid hay Flexbox? Vì sao?
@@ -704,7 +704,7 @@ Lý do: chỉ cần xếp một hàng, kích thước mỗi phần tử theo n�
    - `margin` âm.
 4. Sửa trong tab Elements để thử ngay, đúng rồi mới chép vào file CSS. Kiểm lại ở cả 768 và 1366 để chắc không làm hỏng khổ khác.
 
-Ví dụ thực tế ở SânNhanh: khi đo, phần tử duy nhất vượt mép phải là dải chữ chạy `.ticker-track` ở trang chủ. Nhưng nó nằm trong khung `overflow: hidden` nên không tạo thanh cuộn ngang. Đây là cố ý, không phải lỗi.
+Ví dụ thực tế ở GGO: khi đo, phần tử duy nhất vượt mép phải là dải chữ chạy `.ticker-track` ở trang chủ. Nhưng nó nằm trong khung `overflow: hidden` nên không tạo thanh cuộn ngang. Đây là cố ý, không phải lỗi.
 
 ## 10.6. Đánh giá nội dung AI tạo ra
 
@@ -719,7 +719,7 @@ Ví dụ thực tế ở SânNhanh: khi đo, phần tử duy nhất vượt mép
 ## 1. Link GitHub và web
 
 - GitHub: **[ĐIỀN]**
-- Web: https://sannhanh.pages.dev
+- Web: https://ggo-datsan.pages.dev
 
 ## 2. Các yêu cầu chính nhóm đã giao cho AI
 

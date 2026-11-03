@@ -54,7 +54,7 @@ function setUrl() {
 }
 
 // Tiêu đề, mô tả, thẻ xem trước (Open Graph) và canonical theo từng sân; trang tĩnh chỉ có bản chung.
-const SITE = 'https://sannhanh.pages.dev';
+const SITE = 'https://ggo-datsan.pages.dev';
 function setMeta(attr, key, value) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`);
   if (!el) (el = document.createElement('meta'), el.setAttribute(attr, key), document.head.append(el));
@@ -62,7 +62,7 @@ function setMeta(attr, key, value) {
 }
 function setSeo() {
   const where = venue.name.includes(venue.district) ? 'TP.HCM' : `${venue.district}, TP.HCM`; // tên đã có quận thì không lặp lại
-  const title = `${venue.name} – ${where} | Đặt sân SânNhanh`;
+  const title = `${venue.name} – ${where} | Đặt sân GGO`;
   const types = venue.fieldTypes?.length ? `, sân ${venue.fieldTypes.join(' và ')} người` : '';
   const desc = `Đặt ${venue.name} ở ${where}: xem giờ còn trống, giá từ ${money(venue.minPrice)}/giờ${types}. Đặt online, chuyển khoản bằng mã QR.`;
   const url = `${SITE}/venue.html?id=${venue.id}`;

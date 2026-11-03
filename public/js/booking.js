@@ -118,7 +118,7 @@ function render() {
         </div>
       </div>
     </div>`;
-  document.title = `${b.code} – SânNhanh`;
+  document.title = `${b.code} – GGO`;
   decorate();
   if (claimed()) countdown($('tr-cd'), secondsLeft(b.transfer.claimExpiresAt, meta.now), (n) => (n > 0 ? mmss(n) : 'hết hạn'), load);
   if (pending) {

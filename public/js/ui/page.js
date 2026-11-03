@@ -91,7 +91,7 @@ document.addEventListener('click', async (e) => {
 });
 
 /** Khung mã QR dùng ở chi tiết lịch đặt và chi tiết pass: tiền vào thẳng tài khoản chủ sân. */
-export function qrHtml(q, title = 'Chuyển khoản để giữ sân', note = 'Tiền vào thẳng tài khoản chủ sân. Ngân hàng báo đã nhận thì đơn tự chuyển sang "Đã nhận tiền" (nếu chưa tự được, chủ sân xác nhận tay). SânNhanh không giữ tiền của bạn.', { simulate = true } = {}) {
+export function qrHtml(q, title = 'Chuyển khoản để giữ sân', note = 'Tiền vào thẳng tài khoản chủ sân. Ngân hàng báo đã nhận thì đơn tự chuyển sang "Đã nhận tiền" (nếu chưa tự được, chủ sân xác nhận tay). GGO không giữ tiền của bạn.', { simulate = true } = {}) {
   const row = (k, v, copy) => `<div class="copy-row"><div><div class="k">${k}</div><div class="v">${esc(v)}</div></div>${copy ? `<button type="button" data-copy="${esc(copy)}" aria-label="Sao chép ${k.toLowerCase()}">Sao chép</button>` : ''}</div>`;
   return `<aside class="qr-card" aria-labelledby="qr-title">
     <div class="row"><span class="h3" id="qr-title">${esc(title)}</span></div>

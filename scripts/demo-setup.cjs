@@ -57,5 +57,5 @@ if (changed) {
 }
 for (const outcome of outcomes) console.log(outcome);
 console.log('Không in giá trị bí mật. Lệnh đặt PROXY_SECRET lên Pages Preview (chạy ở root worktree; đọc từ .env và gửi qua stdin):');
-console.log(`PROXY_SECRET="$(node -e 'const d=require("dotenv"); process.stdout.write(d.parse(require("fs").readFileSync(".env","utf8")).PROXY_SECRET)')" && printf %s "$PROXY_SECRET" | npx --no-install wrangler pages secret put PROXY_SECRET --project-name sannhanh --env preview`);
+console.log(`PROXY_SECRET="$(node -e 'const d=require("dotenv"); process.stdout.write(d.parse(require("fs").readFileSync(".env","utf8")).PROXY_SECRET)')" && printf %s "$PROXY_SECRET" | npx --no-install wrangler pages secret put PROXY_SECRET --project-name ggo-datsan --env preview`);
 console.log('Khi gắn webhook SePay, lấy SEPAY_API_KEY từ .env và dán vào cấu hình webhook; hiện chưa cấu hình webhook.');

@@ -1,4 +1,4 @@
-// Chuyển nguyên vẹn /api/* tới BE (Express trên Mac, qua Cloudflare tunnel). Cookie phiên là first-party của sannhanh.pages.dev, không mở CORS.
+// Chuyển nguyên vẹn /api/* tới BE (Express trên Mac, qua Cloudflare tunnel). Cookie phiên là first-party của ggo-datsan.pages.dev, không mở CORS.
 // Code ở đây không hiểu nội dung request/response: chỉ gắn hai header tin cậy, bỏ header giả, chuyển và báo "BE tắt".
 import { backendUrl } from '../_lib/config.js';
 

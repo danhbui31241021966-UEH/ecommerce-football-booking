@@ -80,7 +80,7 @@ function render() {
         ${field('Ngân hàng', `<select class="select" id="bankBin" name="bankBin"><option value="">Chọn ngân hàng</option>${opts(meta.banks.map((b) => [b.bin, b.name]), bank.bin)}</select>`, { id: 'bankBin', full: true })}
         ${field('Số tài khoản', `<input class="input" id="bankAccount" name="bankAccount" inputmode="numeric" autocomplete="off" value="${esc(bank.account || '')}">`, { id: 'bankAccount' })}
         ${field('Tên chủ tài khoản', `<input class="input" id="bankAccountName" name="bankAccountName" autocomplete="off" value="${esc(bank.accountName || '')}">`, { id: 'bankAccountName' })}
-        <p class="hint full" style="font-size:var(--fs-xs);color:var(--muted)">Khách chuyển khoản thẳng vào tài khoản này, SânNhanh không giữ tiền. Khách chỉ thấy mã QR khi đã có sân mà chưa chuyển khoản.</p>
+        <p class="hint full" style="font-size:var(--fs-xs);color:var(--muted)">Khách chuyển khoản thẳng vào tài khoản này, GGO không giữ tiền. Khách chỉ thấy mã QR khi đã có sân mà chưa chuyển khoản.</p>
       </div>`, { saveLabel: 'Lưu tài khoản' })}
 
     <details class="panel set-group" data-key="courts" ${openGroups.has('courts') ? 'open' : ''}>

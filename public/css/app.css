@@ -1,4 +1,4 @@
-/* SânNhanh – hệ giao diện dùng chung.
+/* GGO – hệ giao diện dùng chung.
    Biến ở :root là nguồn duy nhất cho màu, chữ, khoảng cách, bo góc; component chỉ dùng biến. */
 @import url('/fonts/fonts.css');
 
@@ -630,11 +630,11 @@ body:has(.booking-bar) .role-dock {
 .site-footer p + p {
   margin-top: var(--sp-2);
 }
-/* Chữ thương hiệu tràn ngang; padding-top chừa chỗ cho dấu mũ của Â ở cỡ lớn */
+/* Chữ thương hiệu GGO cỡ lớn ở cuối trang, canh giữa */
 .site-footer .footer-wordmark {
   margin: var(--sp-8) 0 0;
-  padding: 0.16em 0 0.04em;
-  font-size: 22.5vw; /* SÂNNHANH rộng 4,4em ở stretch 68% → vừa khít chiều ngang */
+  padding: 0.04em 0;
+  font-size: 22.5vw;
   font-stretch: var(--stretch-cond);
   font-weight: 850;
   line-height: 0.82;
@@ -1770,8 +1770,14 @@ body:has(.booking-bar) .toast-stack {
 /* ---------- Trang chủ (editorial) ----------
    Ảnh thật là phần chủ đạo; lớp phủ trên ảnh là một màu phẳng (không gradient) để chữ đọc được.
    Khoảng cách giữa các khu lớn hơn thang 4–40px của khối trong app: cố ý, để trang thoáng như báo. */
-.footer-note {
+.footer-slogan {
   margin-top: var(--sp-3);
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--lime-400);
+}
+.footer-note {
+  margin-top: var(--sp-2);
   max-width: 340px;
 }
 .hero-photo {

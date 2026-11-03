@@ -52,7 +52,7 @@ function render() {
         <p class="muted" style="font-size:var(--fs-sm)">${loserPercent === 50
           ? `Hòa vốn: mỗi đội chịu <b class="num">${money(host)}</b>, không ai phải trả thêm.`
           : `Đội thua chịu <b class="num">${money(loser)}</b>, đội thắng chịu <b class="num">${money(slot.basePrice - loser)}</b>. Mỗi đội đã trả trước nửa tiền sân, nên đá xong đội thua chuyển thêm khoảng <b class="num">${money(Math.max(0, loser - host))}</b> cho đội thắng. Hòa thì không ai trả thêm.`}</p>
-        <p class="muted" style="font-size:var(--fs-sm)">Chỉ có kèo tiền sân: hai đội cộng lại luôn đúng giá sân. Không cược thêm tiền, không kèo theo tỉ số. Khoản trả thêm chuyển thẳng giữa hai đội, SânNhanh không giữ tiền.</p>
+        <p class="muted" style="font-size:var(--fs-sm)">Chỉ có kèo tiền sân: hai đội cộng lại luôn đúng giá sân. Không cược thêm tiền, không kèo theo tỉ số. Khoản trả thêm chuyển thẳng giữa hai đội, GGO không giữ tiền.</p>
       </fieldset>
       <div class="field"><label for="closes">Hạn tìm đủ đội</label>
         <select class="select" id="closes">${opts.map(([v, l]) => `<option value="${v}" ${v === closesAt ? 'selected' : ''}>${esc(l)}</option>`).join('')}</select>

@@ -4,7 +4,7 @@ import { mountShell, toast } from '/js/ui/shell.js';
 import { $ } from '/js/ui/page.js';
 import { esc, heroHtml, tabsHtml, wireTabs, standingsHtml, scheduleHtml, rulesHtml, teamBadge, TAB_KEYS, PUBLIC_STATUS_TEXT, contactLink, REGISTER_NOTE } from '/js/ui/league-ui.js';
 
-const SITE = 'https://sannhanh.pages.dev';
+const SITE = 'https://ggo-datsan.pages.dev';
 const root = $('league-root');
 const id = Number(new URLSearchParams(location.search).get('id'));
 let L;
@@ -15,7 +15,7 @@ function setMeta(attr, key, value) {
   el.setAttribute('content', value);
 }
 function setSeo() {
-  const title = `${L.name} – bóng đá phủi tại ${L.venueName} | SânNhanh`;
+  const title = `${L.name} – bóng đá phủi tại ${L.venueName} | GGO`;
   const desc = `${L.name}: giải sân ${L.fieldType} người, ${L.teams.length} đội đá vòng tròn tại ${L.venueName}. Xem lịch thi đấu, kết quả và bảng xếp hạng.`;
   const url = `${SITE}/league.html?id=${L.id}`;
   document.title = title;
@@ -66,7 +66,7 @@ try {
   setSeo();
   render();
 } catch (err) {
-  document.title = 'Không tìm thấy giải – SânNhanh';
+  document.title = 'Không tìm thấy giải – GGO';
   setMeta('name', 'robots', 'noindex');
   root.innerHTML = `<div class="empty"><p>${esc(err.status === 404 ? 'Không tìm thấy giải này, hoặc giải chưa được công bố.' : err.message || 'Không tải được giải')}</p><a class="btn" href="/venues.html">Xem các sân</a></div>`;
 }

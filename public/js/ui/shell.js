@@ -114,7 +114,7 @@ export async function mountShell() {
     header.outerHTML = `
       <header class="site-header">
         <div class="container">
-          <a class="brand" href="${role === 'owner' ? '/owner.html' : role === 'admin' ? '/admin.html' : '/'}">${brandMark}<span>Sân<b>Nhanh</b></span></a>
+          <a class="brand" href="${role === 'owner' ? '/owner.html' : role === 'admin' ? '/admin.html' : '/'}">${brandMark}<span>GGO</span></a>
           <nav class="nav" aria-label="Điều hướng chính">${links}</nav>
           <div class="header-actions">
             ${
@@ -152,20 +152,21 @@ export async function mountShell() {
       <footer class="site-footer">
         <div class="container">
           <div>
-            <a class="brand" href="/">${brandMark}<span>Sân<b>Nhanh</b></span></a>
+            <a class="brand" href="/">${brandMark}<span>GGO</span></a>
+            <p class="footer-slogan">Thấy sân trống, đặt là đá.</p>
             <p class="footer-note">Đặt sân bóng mini 5 và 7 người ở TP.HCM, không cần gọi điện.</p>
           </div>
           <div>
             <p>Bạn chuyển khoản thẳng cho chủ sân bằng mã QR.</p>
-            <p>SânNhanh không giữ tiền của bạn: tiền đi thẳng tới chủ sân.</p>
+            <p>GGO không giữ tiền của bạn: tiền đi thẳng tới chủ sân.</p>
           </div>
           <div>
-            <p><a class="footer-link" href="/about.html">Giới thiệu SânNhanh</a></p>
+            <p><a class="footer-link" href="/about.html">Giới thiệu GGO</a></p>
             <p>Đồ án môn Phát triển ứng dụng TMĐT – Nhóm 8</p>
           </div>
           ${proto ? `<div class="footer-role"><span>Xem với vai trò</span>${roleSwitch}${protoTools}</div>` : ''}
         </div>
-        <p class="footer-wordmark" aria-hidden="true">SânNhanh</p>
+        <p class="footer-wordmark" aria-hidden="true">GGO</p>
       </footer>`;
   }
 }

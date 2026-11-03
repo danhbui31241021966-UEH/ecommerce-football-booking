@@ -68,7 +68,7 @@ function render() {
       ${qr ? qrHtml(qr, 'Chuyển khoản cho chủ sân') : ''}
       <div class="stack area-rest"><div class="card card-pad"><h2 class="h3" style="margin-bottom:var(--sp-2)">Pass sân hoạt động thế nào</h2>${steps()}</div></div>
     </div>`;
-  document.title = `Pass ${timeOf(t.startAt)} – SânNhanh`;
+  document.title = `Pass ${timeOf(t.startAt)} – GGO`;
   decorate();
   if (t.status === 'claimed' && $('cd')) countdown($('cd'), secondsLeft(t.claimExpiresAt, meta.now), (n) => (n > 0 ? mmss(n) : 'đã hết hạn'), load);
 }

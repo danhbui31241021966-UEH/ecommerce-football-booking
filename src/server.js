@@ -16,7 +16,7 @@ const { sweep } = require('./services/bookingOps');
 const app = createApp();
 
 const server = app.listen(config.port, config.host, () => {
-  console.log(`SânNhanh chạy tại http://localhost:${config.port}`);
+  console.log(`GGO chạy tại http://localhost:${config.port}`);
 });
 
 // Hết hạn giữ chỗ / lượt giữ quyền đặt cũng được quét định kỳ (mỗi request còn tự quét), để thông báo không chờ tới khi có người gọi API.

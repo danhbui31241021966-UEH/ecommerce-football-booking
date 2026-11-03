@@ -1,4 +1,4 @@
--- SânNhanh - MySQL 8.4, utf8mb4. Giờ lưu theo giờ TP.HCM (UTC+7) dạng DATETIME/TIME, không dùng TIMESTAMP.
+-- GGO - MySQL 8.4, utf8mb4. Giờ lưu theo giờ TP.HCM (UTC+7) dạng DATETIME/TIME, không dùng TIMESTAMP.
 -- Tên cột snake_case; lớp truy cập (src/db.js) đổi sang camelCase cho code và JSON, xem docs ở đó.
 -- Chạy bằng `npm run db:init` (xóa và tạo lại toàn bộ bảng).
 --

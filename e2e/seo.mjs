@@ -9,7 +9,7 @@ const noindex=['owner-leagues','owner-league','transfer','match','match-new','re
 const all=fs.readdirSync('public').filter(f=>f.endsWith('.html')).map(f=>f.slice(0,-5));
 let fail=0; const bad=(m)=>{fail++;console.log('FAIL',m)};
 for(const n of all) if(!pub.includes(n)&&n!=='venue'&&n!=='league'&&!noindex.includes(n)) bad('unclassified page '+n);
-const D='https://sannhanh.pages.dev'; const staticTitles=new Map(); const staticRows=[]; const titles=new Map(); const rows=[];
+const D='https://ggo-datsan.pages.dev'; const staticTitles=new Map(); const staticRows=[]; const titles=new Map(); const rows=[];
 const imgOk=new Map();
 async function info(url){ await p.goto(B+url,{waitUntil:'domcontentloaded'}); await p.waitForTimeout(1200);
   return p.evaluate(()=>{const m=(a,k)=>document.head.querySelector(`meta[${a}="${k}"]`)?.content||null;return {lang:document.documentElement.lang,title:document.title,desc:m('name','description'),robots:m('name','robots'),canon:document.head.querySelector('link[rel=canonical]')?.href||null,og:Object.fromEntries(['og:title','og:description','og:image','og:url','og:type','og:locale'].map(k=>[k,m('property',k)])),final:location.pathname}}); }
@@ -43,7 +43,7 @@ for(const n of all){
     for(const [k,v] of Object.entries(r.og)) if(!v) bad(n+' missing '+k);
     if(r.og['og:locale']!=='vi_VN') bad(n+' locale');
     if(r.og['og:image']) imgOk.set(r.og['og:image'],n);
-    if(r.og['og:url'] && !r.og['og:url'].startsWith('https://sannhanh.pages.dev/')) bad(n+' og:url '+r.og['og:url']);
+    if(r.og['og:url'] && !r.og['og:url'].startsWith('https://ggo-datsan.pages.dev/')) bad(n+' og:url '+r.og['og:url']);
   }
   rows.push(`${n.padEnd(18)} ${idx?'index  ':'noindex'} | ${r.title.slice(0,70)} | ${(r.desc||'').length}c ${isGate?'(chuyển sang '+r.final+')':''}`);
 }
@@ -53,20 +53,20 @@ console.log('STATIC HEAD (từ HTML tải về)\n'+staticRows.join('\n'));
 const ids=await p.evaluate(async()=>{const {api}=await import('/js/api.js');const L=(await api.venues({})).venues; const out=[]; for(const v of L){ const d=await api.venue(v.id); out.push({id:v.id,name:v.name,district:v.district,real:!!(d.venue||d).dataSource}); } return out;});
 let vOk=0;const vt=new Set();
 for(const v of ids){ const r=await info('/venue?id='+v.id); const okT=r.title.includes(v.name)&&r.title.includes(v.district); if(!okT) bad('venue '+v.id+' title '+r.title); if(vt.has(r.title)) bad('venue dup title '+v.id); vt.add(r.title);
-  if(!(r.desc||'').includes(v.name)) bad('venue '+v.id+' desc'); if(r.canon!=='https://sannhanh.pages.dev/venue.html?id='+v.id) bad('venue canon '+r.canon); if(!r.og['og:title']?.includes(v.name)||!r.og['og:url']?.endsWith('id='+v.id)) bad('venue og '+v.id); if(v.real){ if(r.robots) bad('real venue '+v.id+' robots '+r.robots); } else if(!/noindex/.test(r.robots||'')) bad('demo venue '+v.id+' missing noindex'); if(okT) vOk++; if(v.id===12) console.log('venue 12:',r.title,'|',r.desc); }
+  if(!(r.desc||'').includes(v.name)) bad('venue '+v.id+' desc'); if(r.canon!=='https://ggo-datsan.pages.dev/venue.html?id='+v.id) bad('venue canon '+r.canon); if(!r.og['og:title']?.includes(v.name)||!r.og['og:url']?.endsWith('id='+v.id)) bad('venue og '+v.id); if(v.real){ if(r.robots) bad('real venue '+v.id+' robots '+r.robots); } else if(!/noindex/.test(r.robots||'')) bad('demo venue '+v.id+' missing noindex'); if(okT) vOk++; if(v.id===12) console.log('venue 12:',r.title,'|',r.desc); }
 console.log('venue pages ok',vOk,'/',ids.length);
 // robots + sitemap
 const rb=await fetch(B+'/robots.txt'); console.log('robots',rb.status,(await rb.text()).replace(/\n/g,' ⏎ '));
 const sm=await fetch(B+'/sitemap.xml'); const x=await sm.text(); console.log('sitemap',sm.status,sm.headers.get('content-type'));
 const urls=[...x.matchAll(/<loc>([^<]+)<\/loc>/g)].map(m=>m[1].replace(/&amp;/g,'&'));
 console.log('sitemap urls',urls.length); const ids2=new Set(ids.map(v=>v.id)); let sbad=0;
-for(const u of urls){ const U=new URL(u); if(U.origin!=='https://sannhanh.pages.dev'){bad('sitemap origin '+u);continue}
+for(const u of urls){ const U=new URL(u); if(U.origin!=='https://ggo-datsan.pages.dev'){bad('sitemap origin '+u);continue}
   const path=U.pathname==='/'?'/':U.pathname; const page=path==='/'?'index':path.replace(/^\//,'').replace(/\.html$/,'');
   if(!(pub.includes(page)||page==='venue')) bad('sitemap has non-public '+u);
   const r=await fetch(B+path+(page==='venue'?'':'')); if(r.status!==200) bad('sitemap 404 '+u);
   if(page==='venue'&&!ids2.has(Number(U.searchParams.get('id')))) bad('sitemap unknown venue '+u); }
-for(const n of pub) if(!urls.includes(n==='index'?'https://sannhanh.pages.dev/':`https://sannhanh.pages.dev/${n}.html`)) bad('sitemap lacks '+n);
-for(const v of ids){ const inMap=urls.includes(`https://sannhanh.pages.dev/venue.html?id=${v.id}`); if(v.real&&!inMap) bad('sitemap lacks venue '+v.id); if(!v.real&&inMap) bad('sitemap has demo venue '+v.id); }
+for(const n of pub) if(!urls.includes(n==='index'?'https://ggo-datsan.pages.dev/':`https://ggo-datsan.pages.dev/${n}.html`)) bad('sitemap lacks '+n);
+for(const v of ids){ const inMap=urls.includes(`https://ggo-datsan.pages.dev/venue.html?id=${v.id}`); if(v.real&&!inMap) bad('sitemap lacks venue '+v.id); if(!v.real&&inMap) bad('sitemap has demo venue '+v.id); }
 console.log('demo ids in sitemap:',ids.filter(v=>!v.real&&urls.some(u=>u.endsWith('id='+v.id))).length,'; demo venues:',ids.filter(v=>!v.real).map(v=>v.id).join(','));
 console.log('console errors',errs.length?errs.slice(0,3):0,'FAILS',fail);
 await b.close();
