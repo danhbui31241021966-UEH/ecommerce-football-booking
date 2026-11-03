@@ -17,7 +17,7 @@ const slots = await p.evaluate(async (d) => {
   return out;
 }, DATE);
 const uniq = []; for (const s of slots) if (!uniq.find((x) => x.start === s.start)) uniq.push(s);
-must(uniq.length >= 8, 'không đủ giờ trống');
+must(uniq.length >= 11, 'không đủ giờ trống');
 let next = 0;
 // Khách đặt qua API (chủ sân duyệt nếu cần) → booking đã có sân, chưa trả tiền, có QR.
 async function unpaid() {
@@ -157,11 +157,7 @@ await step(p, 'autopay', '06-short-over-wrongcode-not-auto', async () => {
   must(evCode.status === 'unmatched' && evCode.reason === 'no_code', 'sai nội dung: ' + JSON.stringify(evCode));
   must(evOrphan.status === 'unmatched' && evOrphan.reason === 'unknown_order', 'mã lạ: ' + JSON.stringify(evOrphan));
   for (const d of [C, D, E]) { const x = await detail(d.id); must(x.paymentStatus === 'unpaid' && !x.paidVia, `${d.code} bị tự đánh dấu ${x.paymentStatus}`); }
-  // trộn số tiền khớp nhưng nội dung chỉ nhái: "KEO"+mã không được coi là mã đơn
-  const f = (await rep('TX-KEO', E.price, 'KEO' + E.code, E.paymentQr.account)).r;
-  must(f.status === 'unmatched' && f.reason === 'no_code', 'KEO+mã bị hiểu nhầm là mã đơn: ' + JSON.stringify(f));
-  must((await detail(E.id)).paymentStatus === 'unpaid', 'E bị đánh dấu trả');
-  return 'thiếu, thừa, sai nội dung, mã lạ, KEO+mã: không tự đánh dấu';
+  return 'thiếu, thừa, nội dung không có mã, mã lạ: không tự đánh dấu';
 }, { shot: false });
 
 await step(p, 'autopay', '07-owner-sees-mismatch-items', async () => {
@@ -192,7 +188,7 @@ await step(p, 'autopay', '08-resolve-card-and-manual-paid-still-works', async ()
   await p.click(`li[data-id="${C.id}"] [data-act="paid"]`);
   await p.waitForSelector('dialog.modal[open] button[type=submit]');
   await p.click('dialog.modal[open] button[type=submit]');
-  await p.waitForFunction((id) => /Đã nhận tiền/.test(document.querySelector(`li[data-id="${id}"]`)?.innerText || ''), C.id);
+  await p.waitForFunction((id) => document.querySelector(`li[data-id="${id}"]`) && !document.querySelector(`li[data-id="${id}"] [data-act="paid"]`), C.id); // nút biến mất khi yêu cầu xong (chữ "Đã nhận tiền" có sẵn trong nút)
   const d = await detail(C.id); must(d.paymentStatus === 'paid' && d.paidVia === 'owner', `${d.paymentStatus}/${d.paidVia}`);
   must(hist(d, 'paid').length === 1 && !hist(d, 'bank_paid').length, 'nguồn log phải là chủ sân bấm');
   const row = (await p.locator(`li[data-id="${C.id}"]`).first().innerText()).replace(/\s+/g, ' ');
@@ -305,6 +301,38 @@ await step(p, 'autopay', '11-demo-button-flush', async () => {
     must((await detail(G.id)).paidVia === 'bank', 'Demo flush không ra paidVia=bank');
   }
   return 'nút Demo "ngân hàng báo có tiền ngay" hoạt động';
+}, { shot: false });
+
+// Luật tìm mã: mã nằm ở bất kỳ đâu trong nội dung (bên trái không cần ranh giới), bên phải phải có ranh giới, hai mã khác nhau thì không tự ghi nhận.
+let H, I, J;
+await step(p, 'autopay', '12-code-anywhere-in-text-matches', async () => {
+  H = await unpaid(); I = await unpaid();
+  const rep = (tx, amount, content, account) => call(`a=>a.proto.bankReport({txId:'${tx}',amount:${amount},content:'${content}',account:'${account}'})`);
+  const h = (await rep('TX-BANKPREFIX', H.price, `MBVCB.123456.${H.code} chuyen tien`, H.paymentQr.account)).r;
+  must(h.status === 'matched' && h.bookingId === H.id, 'ngân hàng dán chữ trước mã phải khớp: ' + JSON.stringify(h));
+  const k = (await rep('TX-KEO', I.price, 'KEO' + I.code, I.paymentQr.account)).r;
+  must(k.status === 'matched' && k.bookingId === I.id, 'KEO+mã phải khớp: ' + JSON.stringify(k));
+  for (const d of [H, I]) { const x = await detail(d.id); must(x.paymentStatus === 'paid' && x.paidVia === 'bank', `${d.code} ${x.paymentStatus}/${x.paidVia}`); }
+  return 'chữ dính trước mã vẫn khớp, đơn tự đánh dấu đã trả';
+}, { shot: false });
+
+await step(p, 'autopay', '13-extra-digit-not-matched', async () => {
+  J = await unpaid();
+  const rep = (tx, amount, content, account) => call(`a=>a.proto.bankReport({txId:'${tx}',amount:${amount},content:'${content}',account:'${account}'})`);
+  const r = (await rep('TX-DIGIT', J.price, J.code + '1', J.paymentQr.account)).r;
+  must(r.status === 'unmatched' && r.reason === 'no_code', 'thừa chữ số phải không khớp: ' + JSON.stringify(r));
+  must((await detail(J.id)).paymentStatus === 'unpaid', 'J bị đánh dấu trả');
+  return 'mã dính thêm chữ số: không khớp';
+}, { shot: false });
+
+await step(p, 'autopay', '14-two-codes-not-auto-recorded', async () => {
+  const rep = (tx, amount, content, account) => call(`a=>a.proto.bankReport({txId:'${tx}',amount:${amount},content:'${content}',account:'${account}'})`);
+  const r = (await rep('TX-TWOCODES', J.price, `${J.code} ${I.code}`, J.paymentQr.account)).r;
+  must(r.status === 'unmatched' && r.reason === 'multiple_codes', 'hai mã khác nhau phải không tự ghi nhận: ' + JSON.stringify(r));
+  must((await detail(J.id)).paymentStatus === 'unpaid', 'J bị đánh dấu trả');
+  const same = (await rep('TX-SAMECODE', J.price, `${J.code} ${J.code}`, J.paymentQr.account)).r;
+  must(same.status === 'matched' && same.bookingId === J.id, 'cùng một mã lặp lại vẫn khớp: ' + JSON.stringify(same));
+  return 'hai mã khác nhau: chưa tự ghi nhận; cùng một mã lặp lại: khớp';
 }, { shot: false });
 
 await b.close();

@@ -20,7 +20,7 @@ export function transferRow(t) {
 export function bankRow(e) {
   return `<li class="tr-row" data-bank="${e.id}">
     <div><b>Ngân hàng báo có <span class="num">${money(e.amount)}</span></b> · nội dung <b>${esc(e.content)}</b>${e.bookingCode ? ` · đơn <span class="code">${esc(e.bookingCode)}</span>${e.expected ? ` cần <span class="num">${money(e.expected)}</span>` : ''}` : ''}</div>
-    <div class="tr-state"><span class="badge badge-pending">Chưa tự ghi nhận: ${esc(e.reasonText)}</span><span class="muted">${esc(e.receivedAt.slice(11, 16))} ${dm(e.receivedAt)} · mã giao dịch ${esc(e.txId)} (mô phỏng)</span></div>
+    <div class="tr-state"><span class="badge badge-pending">Chưa tự ghi nhận: ${esc(e.reasonText)}</span><span class="muted">${esc(e.receivedAt.slice(11, 16))} ${dm(e.receivedAt)} · mã giao dịch ${esc(e.txId)}${api.proto ? ' (mô phỏng)' : ''}</span></div>
     <p class="muted">Kiểm lại với khách rồi bấm “Đã xử lý”.</p>
     <div class="row-actions"><button class="btn btn-lime btn-sm" type="button" data-bank-resolve="${e.id}">Đã xử lý</button></div>
   </li>`;

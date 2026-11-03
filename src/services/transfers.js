@@ -227,77 +227,89 @@ async function withdrawTransfer(user, id) {
   return { ok: true };
 }
 
+/**
+ * Chốt pass khi đã nhận tiền của đội nhận (transfer đã bị khóa). Chủ sân bấm tay (via 'owner', user = chủ sân)
+ * hoặc ngân hàng báo về (via 'bank', user = null).
+ */
+async function completeTransfer(tx, transfer, user, note, via) {
+  const bank = via === 'bank';
+  if (transfer.status !== 'claimed') throw conflict('Chưa có đội nhận hoặc sân pass đã xử lý xong');
+  if (vnToMs(transfer.claimExpiresAt) <= clock.nowMs()) throw conflict('Lượt nhận đã quá hạn, sân được mở pass lại cho đội khác');
+
+  const booking = await tx.one('SELECT * FROM bookings WHERE id = ? FOR UPDATE', [transfer.bookingId]);
+  if (!booking || booking.status !== 'confirmed' || booking.paymentStatus !== 'paid') throw conflict('Lịch đặt không còn hợp lệ để đổi chủ');
+  const now = clock.now();
+  await setStatus(tx, booking.id, 'transferred', {
+    expires_at: null,
+    cancel_reason: 'Đã pass cho đội khác',
+    cancelled_at: now,
+    late_cancel: 0,
+    refund_amount: transfer.askPrice,
+    refund_percent: Math.round((transfer.askPrice / booking.price) * 100),
+    refund_status: 'pending',
+  });
+  const inserted = await tx.query(
+    `INSERT INTO bookings (
+       code, user_id, venue_id, court_id, start_at, end_at, status, source, expires_at,
+       price, base_price, discount_percent, payment_status, paid_at, paid_via,
+       refund_status, refund_percent, refund_amount, cancelled_by, cancelled_at, cancel_reason, late_cancel,
+       customer_note, rules_snapshot, policy_snapshot, transfer_from_booking_id, created_at, updated_at
+     ) VALUES (?, ?, ?, ?, ?, ?, 'confirmed', 'web', NULL, ?, ?, 0, 'paid', ?, ?,
+               'none', 0, 0, NULL, NULL, NULL, 0, '', ?, ?, ?, ?, ?)`,
+    [
+      `T${Math.random().toString(16).slice(2, 18).padEnd(16, '0')}`,
+      transfer.toUserId,
+      booking.venueId,
+      booking.courtId,
+      booking.startAt,
+      booking.endAt,
+      transfer.askPrice,
+      transfer.askPrice,
+      now,
+      via,
+      booking.rulesSnapshot,
+      booking.policySnapshot,
+      booking.id,
+      now,
+      now,
+    ],
+  );
+  const newBookingId = inserted.insertId;
+  const newCode = bookingCode(newBookingId);
+  await tx.query('UPDATE bookings SET code = ? WHERE id = ?', [newCode, newBookingId]);
+  await claimForBooking(tx, { id: newBookingId, courtId: booking.courtId, startAt: booking.startAt });
+  await tx.query(
+    `UPDATE transfers SET status = 'completed', new_booking_id = ?, completed_at = ?, claim_expires_at = NULL
+      WHERE id = ?`,
+    [newBookingId, now, transfer.id],
+  );
+  await addHistory(tx, booking.id, 'transfer_done', {
+    from: 'confirmed', to: 'transferred', actor: bank ? { id: null, role: 'bank' } : actor(user),
+    note: String(note || (bank ? `Ngân hàng báo đã nhận ${money(transfer.askPrice)} của đội nhận` : `Chủ sân xác nhận đã nhận ${money(transfer.askPrice)} của đội nhận`)), at: now,
+  });
+  await addHistory(tx, newBookingId, 'create', {
+    to: 'confirmed', actor: { id: transfer.toUserId, role: 'customer' },
+    note: bank ? 'Nhận pass từ lịch đặt cũ, ngân hàng báo đã nhận tiền' : 'Nhận pass từ lịch đặt cũ, chủ sân đã xác nhận nhận tiền', at: now,
+  });
+  await notify(tx, booking.userId,
+    `Sân ${booking.code} đã sang đội khác. Chủ sân sẽ chuyển lại ${money(transfer.askPrice)} cho bạn và ghi nhận khi xong.`,
+    { bookingId: booking.id, link: `/booking.html?id=${booking.id}`, at: now });
+  await notify(tx, transfer.toUserId,
+    `Bạn đã nhận pass thành công (mã ${newCode}): ${transfer.courtName} ${shortTs(booking.startAt)} tại ${transfer.venueName}. ${bank ? 'Ngân hàng báo đã nhận' : 'Chủ sân đã nhận'} ${money(transfer.askPrice)}.`,
+    { bookingId: newBookingId, link: `/booking.html?id=${newBookingId}`, at: now });
+  return transfer.id;
+}
+
 async function confirmTransfer(user, id, note = '') {
   await withTransaction(async (tx) => {
     const transfer = await loadTransfer(id, tx, true);
     if (!transfer) throw notFound('Không tìm thấy sân pass này');
     if (transfer.ownerId !== user.id) throw forbidden('Sân pass này không thuộc sân của bạn');
-    if (transfer.status !== 'claimed') throw conflict('Chưa có đội nhận hoặc sân pass đã xử lý xong');
-    if (vnToMs(transfer.claimExpiresAt) <= clock.nowMs()) throw conflict('Lượt nhận đã quá hạn, sân được mở pass lại cho đội khác');
-
-    const booking = await tx.one('SELECT * FROM bookings WHERE id = ? FOR UPDATE', [transfer.bookingId]);
-    if (!booking || booking.status !== 'confirmed' || booking.paymentStatus !== 'paid') throw conflict('Lịch đặt không còn hợp lệ để đổi chủ');
-    const now = clock.now();
-    await setStatus(tx, booking.id, 'transferred', {
-      expires_at: null,
-      cancel_reason: 'Đã pass cho đội khác',
-      cancelled_at: now,
-      late_cancel: 0,
-      refund_amount: transfer.askPrice,
-      refund_percent: Math.round((transfer.askPrice / booking.price) * 100),
-      refund_status: 'pending',
-    });
-    const inserted = await tx.query(
-      `INSERT INTO bookings (
-         code, user_id, venue_id, court_id, start_at, end_at, status, source, expires_at,
-         price, base_price, discount_percent, payment_status, paid_at, paid_via,
-         refund_status, refund_percent, refund_amount, cancelled_by, cancelled_at, cancel_reason, late_cancel,
-         customer_note, rules_snapshot, policy_snapshot, transfer_from_booking_id, created_at, updated_at
-       ) VALUES (?, ?, ?, ?, ?, ?, 'confirmed', 'web', NULL, ?, ?, 0, 'paid', ?, 'owner',
-                 'none', 0, 0, NULL, NULL, NULL, 0, '', ?, ?, ?, ?, ?)`,
-      [
-        `T${Math.random().toString(16).slice(2, 18).padEnd(16, '0')}`,
-        transfer.toUserId,
-        booking.venueId,
-        booking.courtId,
-        booking.startAt,
-        booking.endAt,
-        transfer.askPrice,
-        transfer.askPrice,
-        now,
-        booking.rulesSnapshot,
-        booking.policySnapshot,
-        booking.id,
-        now,
-        now,
-      ],
-    );
-    const newBookingId = inserted.insertId;
-    const newCode = bookingCode(newBookingId);
-    await tx.query('UPDATE bookings SET code = ? WHERE id = ?', [newCode, newBookingId]);
-    await claimForBooking(tx, { id: newBookingId, courtId: booking.courtId, startAt: booking.startAt });
-    await tx.query(
-      `UPDATE transfers SET status = 'completed', new_booking_id = ?, completed_at = ?, claim_expires_at = NULL
-        WHERE id = ?`,
-      [newBookingId, now, transfer.id],
-    );
-    await addHistory(tx, booking.id, 'transfer_done', {
-      from: 'confirmed', to: 'transferred', actor: actor(user),
-      note: String(note || `Chủ sân xác nhận đã nhận ${money(transfer.askPrice)} của đội nhận`), at: now,
-    });
-    await addHistory(tx, newBookingId, 'create', {
-      to: 'confirmed', actor: { id: transfer.toUserId, role: 'customer' },
-      note: 'Nhận pass từ lịch đặt cũ, chủ sân đã xác nhận nhận tiền', at: now,
-    });
-    await notify(tx, booking.userId,
-      `Sân ${booking.code} đã sang đội khác. Chủ sân sẽ chuyển lại ${money(transfer.askPrice)} cho bạn và ghi nhận khi xong.`,
-      { bookingId: booking.id, link: `/booking.html?id=${booking.id}`, at: now });
-    await notify(tx, transfer.toUserId,
-      `Bạn đã nhận pass thành công (mã ${newCode}): ${transfer.courtName} ${shortTs(booking.startAt)} tại ${transfer.venueName}. Chủ sân đã nhận ${money(transfer.askPrice)}.`,
-      { bookingId: newBookingId, link: `/booking.html?id=${newBookingId}`, at: now });
+    await completeTransfer(tx, transfer, user, note, 'owner');
   });
   return toTransfer(await findTransfer(id), user);
 }
+
 
 async function rejectTransfer(user, id, reason) {
   const text = String(reason || '').trim();
@@ -408,6 +420,8 @@ module.exports = {
   claimTransfer,
   withdrawTransfer,
   confirmTransfer,
+  completeTransfer,
+  loadTransfer,
   rejectTransfer,
   listTransfers,
   listMine,

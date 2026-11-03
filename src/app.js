@@ -29,6 +29,7 @@ function createApp({ production = config.isProduction } = {}) {
   // Construct the API router before creating MySQLStore: a synchronous route-module load error must not leak
   // the store's expiry timer and keep startup/test processes alive.
   const api = express.Router();
+  api.use('/webhooks', require('./routes/webhooks')); // máy chủ gọi máy chủ: không phiên, không CSRF, tự xác thực bằng khóa API
   api.use(loadUser);
   api.use(csrfProtection);
   api.use(sweepDue);
@@ -51,7 +52,7 @@ function createApp({ production = config.isProduction } = {}) {
   api.use('/owner', require('./routes/owner-requests'));
   api.use('/leagues', require('./routes/leagues'));
   api.use('/owner/leagues', require('./routes/owner-leagues'));
-  api.use(require('./routes/not-built-yet'));
+  api.use('/owner', require('./routes/owner-bank'));
   if (!production) api.use('/dev', require('./routes/dev'));
   api.use(apiNotFound);
 

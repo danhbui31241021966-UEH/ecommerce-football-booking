@@ -115,16 +115,26 @@ async function rejectBooking(user, id, reason) {
   });
 }
 
+/** Ghi nhận đã nhận tiền của một lịch (booking đã bị khóa). Chủ sân bấm tay (via 'owner') hoặc ngân hàng báo về (via 'bank', actor = null). */
+async function applyPaid(tx, b, { actor = null, via = 'owner', note = '' } = {}) {
+  if (b.status !== 'confirmed' && b.status !== 'completed') throw conflict('Chỉ ghi nhận được cho lịch đặt đã có sân');
+  if (b.paymentStatus === 'paid') throw conflict('Lịch đặt đã được ghi nhận chuyển khoản');
+  const now = clock.now();
+  await tx.query('UPDATE bookings SET payment_status = \'paid\', paid_at = ?, paid_via = ?, updated_at = ? WHERE id = ?', [now, via, now, b.id]);
+  await addHistory(tx, b.id, via === 'bank' ? 'bank_paid' : 'paid', { actor: via === 'bank' ? { id: null, role: 'bank' } : actor, note: typeof note === 'string' ? note : '' });
+  await notify(
+    tx,
+    b.userId,
+    via === 'bank' ? `Ngân hàng báo đã nhận tiền của lịch đặt ${b.code}. Đơn của bạn đã ghi nhận chuyển khoản.` : `Chủ sân đã nhận tiền của lịch đặt ${b.code}.`,
+    { bookingId: b.id, link: link(b.id) },
+  );
+}
+
 async function markPaid(user, id, note) {
   await assertAccess(user, id);
   await withTransaction(async (tx) => {
     const b = await lock(tx, id);
-    if (b.status !== 'confirmed' && b.status !== 'completed') throw conflict('Chỉ ghi nhận được cho lịch đặt đã có sân');
-    if (b.paymentStatus === 'paid') throw conflict('Lịch đặt đã được ghi nhận chuyển khoản');
-    const now = clock.now();
-    await tx.query("UPDATE bookings SET payment_status = 'paid', paid_at = ?, paid_via = 'owner', updated_at = ? WHERE id = ?", [now, now, id]);
-    await addHistory(tx, id, 'paid', { actor: actorOf(user), note: typeof note === 'string' ? note : '' });
-    await notify(tx, b.userId, `Chủ sân đã nhận tiền của lịch đặt ${b.code}.`, { bookingId: id, link: link(id) });
+    await applyPaid(tx, b, { actor: actorOf(user), via: 'owner', note });
   });
 }
 
@@ -215,6 +225,6 @@ async function reloadBooking(id, opts) {
 }
 
 module.exports = {
-  assertAccess, refundTier, cancelBooking, approveBooking, rejectBooking, markPaid, markRefunded, markAttendance,
+  assertAccess, refundTier, cancelBooking, approveBooking, rejectBooking, markPaid, applyPaid, markRefunded, markAttendance,
   expireBooking, expireOffer, sweep, reloadBooking,
 };

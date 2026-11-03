@@ -1744,9 +1744,12 @@ function confirmPart(m, b, owner, part, note) {
  * nên luật khớp mã / số tiền chỉ nằm ở đây. Code chỉ đọc mã đơn có cấu trúc và so số tiền, không hiểu ý lời nhắn. */
 const BANK_ACTOR = { fullName: 'Ngân hàng báo (mô phỏng)', role: 'bank' };
 const BANK_DELAY_MS = 4000; // thời gian thật (không tính đồng hồ tua) từ lúc khách bấm giả lập đến lúc "ngân hàng báo"
-const BANK_CODE_RE = /(?<![A-Z0-9])(TD|NH)?(SN\d{5})([AB])?(?![A-Z0-9])/i;
+// Mã tìm ở bất kỳ đâu trong nội dung (ngân hàng hay dán chữ vào trước mã: KEOSN01238, MBVCB.123.SN01238). Bên trái không cần ranh giới;
+// bên phải phải có ranh giới vì mã có đúng 5 chữ số (SN012381 không khớp). Dạng dài nhất thắng: TD…A/B, NH…, SN… trơn.
+const BANK_CODE_RE = /(TD|NH)?(SN\d{5})([AB])?(?![A-Z0-9])/gi;
 const BANK_REASONS = {
   no_code: 'Nội dung chuyển khoản không có mã đơn hợp lệ',
+  multiple_codes: 'Nội dung chuyển khoản có hơn một mã đơn khác nhau',
   unknown_order: 'Không có đơn nào mang mã này ở sân của bạn',
   not_approved: 'Đơn chưa được chủ sân đồng ý nên chưa nhận tiền tự động',
   not_payable: 'Đơn không còn chờ tiền (đã trả, đã hủy hoặc hết hạn)',
@@ -1757,15 +1760,20 @@ const BANK_REASONS = {
 };
 
 function parseBankCode(content) {
-  const m = BANK_CODE_RE.exec(String(content || ''));
-  if (!m) return null;
-  const prefix = (m[1] || '').toUpperCase();
-  const code = m[2].toUpperCase();
-  const part = (m[3] || '').toUpperCase();
-  if (prefix === 'TD' && part) return { kind: 'match', code, part: part === 'A' ? 'host' : 'guest' };
-  if (prefix === 'NH' && !part) return { kind: 'transfer', code };
-  if (!prefix && !part) return { kind: 'booking', code };
-  return null;
+  const found = new Map();
+  for (const m of String(content || '').matchAll(BANK_CODE_RE)) {
+    const prefix = (m[1] || '').toUpperCase();
+    const code = m[2].toUpperCase();
+    const part = (m[3] || '').toUpperCase();
+    let c = null;
+    if (prefix === 'TD' && part) c = { kind: 'match', code, part: part === 'A' ? 'host' : 'guest' };
+    else if (prefix === 'NH' && !part) c = { kind: 'transfer', code };
+    else if (!prefix && !part) c = { kind: 'booking', code };
+    if (c) found.set(`${c.kind}|${c.code}|${c.part || ''}`, c);
+  }
+  if (!found.size) return null;
+  if (found.size > 1) return { ambiguous: true };
+  return [...found.values()][0];
 }
 
 /** Đơn/khoản đang chờ tiền ứng với mã, hoặc lý do không khớp. */
@@ -1800,7 +1808,7 @@ function bankReport(d) {
   const content = String(d.content || '').slice(0, 200);
   const parsed = parseBankCode(content);
   const account = String(d.account || '').trim();
-  const target = parsed ? bankTarget(parsed) : { reason: 'no_code' };
+  const target = parsed?.ambiguous ? { reason: 'multiple_codes' } : parsed ? bankTarget(parsed) : { reason: 'no_code' };
   // Mỗi báo cáo gắn với một tài khoản nhận: tìm sân theo tài khoản trước, đơn chỉ được tự nhận khi thuộc đúng tài khoản đó.
   const accountVenue = account ? S.venues.find((v) => v.bank?.account === account) || null : null;
   const orderVenue = target.b ? courtOf(target.b.courtId)[0] : null;
@@ -1836,7 +1844,7 @@ function bankReport(d) {
     ev.status = 'unmatched';
     ev.reason = reason;
     const b = target.b;
-    if (b) addLog(b, 'bank_unmatched', null, null, BANK_ACTOR, `Ngân hàng báo ${vnd(amount)}, nội dung "${content}" nhưng chưa tự ghi nhận: ${BANK_REASONS[reason]}${target.due ? ` (cần ${vnd(target.due)})` : ''} (mô phỏng SePay)`);
+    if (b && reason !== 'wrong_account') addLog(b, 'bank_unmatched', null, null, BANK_ACTOR, `Ngân hàng báo ${vnd(amount)}, nội dung "${content}" nhưng chưa tự ghi nhận: ${BANK_REASONS[reason]}${target.due ? ` (cần ${vnd(target.due)})` : ''} (mô phỏng SePay)`);
     if (ev.ownerId != null) notify(ev.ownerId, `Ngân hàng báo ${vnd(amount)}, nội dung "${content}" nhưng chưa tự ghi nhận được: ${BANK_REASONS[reason].toLowerCase()}. Cần bạn xem và xử lý.`, { bookingId: b?.id ?? null, link: '/owner.html' });
     if (b?.userId != null && ['short', 'over'].includes(reason)) notify(b.userId, `Ngân hàng báo đã nhận ${vnd(amount)} cho ${b.code}, chưa khớp số cần chuyển (${vnd(target.due)}). Chủ sân sẽ xem và liên hệ bạn.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }

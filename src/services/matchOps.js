@@ -386,6 +386,43 @@ function assertOwns(user, m) {
   if (m.ownerId !== user.id) throw forbidden('Kèo này không thuộc sân của bạn');
 }
 
+/**
+ * Ghi nhận đã nhận tiền một phần của trận (matches đã bị khóa bằng lockMatch). Chủ sân bấm tay (via 'owner')
+ * hoặc ngân hàng báo về (via 'bank', actor = null); đủ hai phần thì chốt sân.
+ */
+async function applyPart(tx, m, part, { actor = null, via = 'owner', note = '' } = {}) {
+  const bank = via === 'bank';
+  const who = bank ? { id: null, role: 'bank' } : actor;
+  const nowMs = clock.nowMs();
+  const now = clock.now();
+  const id = m.id;
+  if (part === 'host') {
+    if (m.hostPaidAt) throw conflict('Đã nhận tiền của đội mở kèo');
+    if (!hostPending(m, nowMs)) throw conflict('Đội mở kèo đã hết thời gian giữ chỗ hoặc kèo đã kết thúc');
+    await tx.query('UPDATE matches SET host_paid_at = ? WHERE id = ?', [now, id]);
+    await addHistory(tx, m.bookingId, 'match_part_paid', { actor: who, note: `Đã nhận phần đội mở kèo ${money(m.hostAmount)}${note ? `. ${note}` : ''}` });
+    await notify(tx, m.hostId, `${bank ? 'Ngân hàng báo đã nhận' : 'Chủ sân đã nhận'} ${money(m.hostAmount)} của bạn. Kèo ${slotText(m)} đang tìm đội đá cùng đến ${shortTs(m.closesAt)}; sân vẫn được giữ cho bạn.`, { link: matchLink(id) });
+    const waiters = await tx.query('SELECT user_id FROM waitlist WHERE court_id = ? AND start_at = ? AND user_id <> ?', [m.courtId, m.startAt, m.hostId]);
+    for (const w of waiters) {
+      await notify(tx, w.userId, `Có kèo ${slotText(m)} tại ${m.courtName} đang tìm đội đá cùng, phần ${money(m.guestAmount)}. Bạn đang chờ giờ này nên có thể vào kèo.`, { link: matchLink(id) });
+    }
+    return;
+  }
+  if (m.guestPaidAt) throw conflict('Đã nhận tiền của đội vào kèo');
+  if (!guestPending(m, nowMs)) throw conflict('Chưa có đội vào kèo, hoặc đội đó đã hết thời gian giữ chỗ');
+  await tx.query('UPDATE matches SET guest_paid_at = ? WHERE id = ?', [now, id]);
+  await addHistory(tx, m.bookingId, 'match_part_paid', { actor: who, note: `Đã nhận phần đội vào kèo ${money(m.guestAmount)}${note ? `. ${note}` : ''}` });
+  if (m.hostPaidAt) {
+    // Đủ hai phần: chốt sân. Booking đứng tên đội mở kèo.
+    await tx.query("UPDATE matches SET status = 'confirmed', guest_hold_until = NULL WHERE id = ?", [id]);
+    await setStatus(tx, m.bookingId, 'confirmed', { payment_status: 'paid', paid_at: now, paid_via: via });
+    await addHistory(tx, m.bookingId, 'match_confirm', { from: 'matching', to: 'confirmed', actor: who, note: 'Đủ hai phần tiền, chốt sân' });
+    for (const uid of [m.hostId, m.guestId]) {
+      await notify(tx, uid, `Kèo ${m.courtName} ${slotText(m)} tại ${m.venueName} đã chốt: ${bank ? 'ngân hàng báo đã nhận đủ tiền của hai đội' : 'chủ sân nhận đủ tiền của hai đội'}.`, { link: matchLink(id) });
+    }
+  }
+}
+
 async function confirmPart(user, rawId, part, note) {
   const id = matchId(rawId);
   if (!['host', 'guest'].includes(part)) throw badRequest('part phải là host hoặc guest');
@@ -393,33 +430,7 @@ async function confirmPart(user, rawId, part, note) {
   await withTransaction(async (tx) => {
     const m = await lockMatch(tx, id);
     assertOwns(user, m);
-    const nowMs = clock.nowMs();
-    const now = clock.now();
-    if (part === 'host') {
-      if (m.hostPaidAt) throw conflict('Đã nhận tiền của đội mở kèo');
-      if (!hostPending(m, nowMs)) throw conflict('Đội mở kèo đã hết thời gian giữ chỗ hoặc kèo đã kết thúc');
-      await tx.query('UPDATE matches SET host_paid_at = ? WHERE id = ?', [now, id]);
-      await addHistory(tx, m.bookingId, 'match_part_paid', { actor: actorOf(user), note: `Đã nhận phần đội mở kèo ${money(m.hostAmount)}${text ? `. ${text}` : ''}` });
-      await notify(tx, m.hostId, `Chủ sân đã nhận ${money(m.hostAmount)} của bạn. Kèo ${slotText(m)} đang tìm đội đá cùng đến ${shortTs(m.closesAt)}; sân vẫn được giữ cho bạn.`, { link: matchLink(id) });
-      const waiters = await tx.query('SELECT user_id FROM waitlist WHERE court_id = ? AND start_at = ? AND user_id <> ?', [m.courtId, m.startAt, m.hostId]);
-      for (const w of waiters) {
-        await notify(tx, w.userId, `Có kèo ${slotText(m)} tại ${m.courtName} đang tìm đội đá cùng, phần ${money(m.guestAmount)}. Bạn đang chờ giờ này nên có thể vào kèo.`, { link: matchLink(id) });
-      }
-      return;
-    }
-    if (m.guestPaidAt) throw conflict('Đã nhận tiền của đội vào kèo');
-    if (!guestPending(m, nowMs)) throw conflict('Chưa có đội vào kèo, hoặc đội đó đã hết thời gian giữ chỗ');
-    await tx.query('UPDATE matches SET guest_paid_at = ? WHERE id = ?', [now, id]);
-    await addHistory(tx, m.bookingId, 'match_part_paid', { actor: actorOf(user), note: `Đã nhận phần đội vào kèo ${money(m.guestAmount)}${text ? `. ${text}` : ''}` });
-    if (m.hostPaidAt) {
-      // Đủ hai phần: chốt sân. Booking đứng tên đội mở kèo.
-      await tx.query("UPDATE matches SET status = 'confirmed', guest_hold_until = NULL WHERE id = ?", [id]);
-      await setStatus(tx, m.bookingId, 'confirmed', { payment_status: 'paid', paid_at: now, paid_via: 'owner' });
-      await addHistory(tx, m.bookingId, 'match_confirm', { from: 'matching', to: 'confirmed', actor: actorOf(user), note: 'Đủ hai phần tiền, chốt sân' });
-      for (const uid of [m.hostId, m.guestId]) {
-        await notify(tx, uid, `Kèo ${m.courtName} ${slotText(m)} tại ${m.venueName} đã chốt: chủ sân nhận đủ tiền của hai đội.`, { link: matchLink(id) });
-      }
-    }
+    await applyPart(tx, m, part, { actor: actorOf(user), via: 'owner', note: text });
   });
   return presentOne(id, user);
 }
@@ -658,6 +669,6 @@ async function sweepMatches() {
 
 module.exports = {
   STAKES, halfOf, loserShareOf, roundThousand, stakeText, payContent, REPORT_HOURS, TOPUP_HOURS,
-  getMatch, listOpen, listMine, listForOwner, openMatch, joinMatch, withdrawMatch, confirmPart, rejectGuest, cancelByStaff, refundPart,
+  getMatch, listOpen, listMine, listForOwner, openMatch, joinMatch, withdrawMatch, confirmPart, applyPart, lockMatch, hostPending, guestPending, rejectGuest, cancelByStaff, refundPart,
   reportResult, ownerSettle, setBank, topUpReceived, sweepMatches, tickMatch,
 };

@@ -24,4 +24,8 @@ module.exports = {
     database: required('DB_NAME'),
   },
   sessionSecret: required('SESSION_SECRET'),
+  // Khóa API SePay (R17); đọc lúc gọi để đổi/đặt trong test. Không đặt thì webhook từ chối mọi yêu cầu.
+  get sepayApiKey() {
+    return process.env.SEPAY_API_KEY || '';
+  },
 };

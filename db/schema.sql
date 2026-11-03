@@ -18,6 +18,7 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS bank_transactions;
 DROP TABLE IF EXISTS league_events;
 DROP TABLE IF EXISTS league_matches;
 DROP TABLE IF EXISTS league_teams;
@@ -476,7 +477,34 @@ CREATE TABLE league_events (
   INDEX idx_levent_match (match_id, id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
--- Chưa có bảng (cố ý, sẽ thêm bằng migration riêng khi làm tính năng):
--- bank_transactions (SePay).
--- Chúng tham chiếu bookings/blocks/courts có sẵn: bookings.offer_id/match_id/transfer_from_booking_id và
+-- Ngân hàng báo có tiền (SePay, R17). Mỗi giao dịch tiền vào là một dòng, kể cả khoản không khớp.
+-- provider_tx_id UNIQUE (id giao dịch của SePay) làm webhook gọi lại vô hại: services/bankOps.js chèn dòng này TRƯỚC, trong cùng
+-- transaction với việc khóa và đổi trạng thái đơn, nên hai webhook cùng id (hoặc hai id cho cùng một đơn) tuần tự hóa.
+-- owner_id/venue_id = sân nhận tiền theo số tài khoản; NULL khi không sân nào dùng tài khoản đó hoặc tài khoản dùng chung
+-- nhiều chủ mà đơn không phân định được.
+CREATE TABLE bank_transactions (
+  id             INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  provider_tx_id VARCHAR(64) NOT NULL,
+  account_number VARCHAR(30) NULL,
+  content        VARCHAR(300) NOT NULL DEFAULT '',
+  amount         INT UNSIGNED NOT NULL,
+  owner_id       INT UNSIGNED NULL,
+  venue_id       INT UNSIGNED NULL,
+  booking_id     INT UNSIGNED NULL,
+  booking_code   VARCHAR(20) NULL,                        -- mã đọc được trong nội dung (kể cả khi không có đơn)
+  expected       INT UNSIGNED NULL,                       -- số tiền cần chuyển của khoản chờ tiền tìm được
+  status         ENUM('matched','unmatched','resolved') NOT NULL,
+  reason         ENUM('no_code','unknown_order','wrong_account','no_account','not_approved','not_payable','short','over','multiple_codes') NULL,
+  handled_by     VARCHAR(100) NULL,
+  handled_at     DATETIME NULL,
+  received_at    DATETIME NOT NULL,
+  UNIQUE KEY uq_banktx_provider (provider_tx_id),
+  CONSTRAINT fk_banktx_owner FOREIGN KEY (owner_id) REFERENCES users(id),
+  CONSTRAINT fk_banktx_venue FOREIGN KEY (venue_id) REFERENCES venues(id),
+  CONSTRAINT fk_banktx_booking FOREIGN KEY (booking_id) REFERENCES bookings(id),
+  CONSTRAINT ck_banktx_reason CHECK ((status = 'matched') = (reason IS NULL)),
+  INDEX idx_banktx_owner (owner_id, received_at, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Các bảng khác tham chiếu bookings/blocks/courts có sẵn: bookings.offer_id/match_id/transfer_from_booking_id và
 -- blocks.league_id/league_match_id đã có cột để nối.

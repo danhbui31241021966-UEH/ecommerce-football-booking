@@ -245,6 +245,9 @@ export const api = {
               return r;
             },
             advanceClock: (minutes) => post('/api/dev/clock', { minutes }),
+            simulateTransfer: (d) => post('/api/dev/simulate-transfer', d), // { txId, delayMs }
+            bankReport: (d) => post('/api/dev/bank-report', d), // { txId, content, amount, account }
+            flushBank: () => post('/api/dev/flush-bank'), // { reported }
             state: () => get('/api/dev/state'),
           }
         : null

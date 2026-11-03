@@ -8,6 +8,7 @@ const { badRequest } = require('../utils/errors');
 const { resetDemo } = require('../seed');
 const { demoLogins } = require('../seed/core');
 const { startSession, publicUser } = require('./auth');
+const bank = require('../services/bankOps');
 
 const router = express.Router();
 
@@ -48,6 +49,39 @@ router.post('/login', async (req, res) => {
   if (!user) throw badRequest('Chưa có dữ liệu demo, hãy gọi /api/dev/reset-demo hoặc chạy npm run db:seed');
   await startSession(req, user.id);
   res.json({ user: publicUser({ id: user.id, fullName: user.fullName, email: user.email, phone: user.phone, role: user.role }) });
+});
+
+// Mô phỏng ngân hàng báo có tiền (R17): cùng hàm xử lý với webhook SePay thật (services/bankOps.report), chỉ bỏ bước xác thực khóa.
+// Body giống webhook rút gọn: { txId, content, amount, account }.
+const BANK_DELAY_MS = 4000;
+const bankQueue = new Set(); // khoản "khách bấm giả lập chuyển khoản", chờ vài giây rồi mới báo về
+
+router.post('/bank-report', async (req, res) => {
+  const { event, duplicate } = await bank.report(req.body || {});
+  res.json({ ...event, duplicate });
+});
+
+router.post('/simulate-transfer', async (req, res) => {
+  const { content, amount, account, immediate } = req.body || {};
+  const q = { txId: `SIM${Date.now().toString(36)}${Math.random().toString(36).slice(2, 6)}`.toUpperCase(), content, amount, account };
+  const fire = () => {
+    if (!bankQueue.delete(q)) return;
+    bank.report(q).catch((err) => console.error('Giả lập ngân hàng báo lỗi:', err.message));
+  };
+  if (immediate) await bank.report(q);
+  else {
+    bankQueue.add(q);
+    setTimeout(fire, BANK_DELAY_MS).unref();
+  }
+  res.json({ txId: q.txId, delayMs: immediate ? 0 : BANK_DELAY_MS });
+});
+
+// Ngân hàng báo ngay mọi khoản đang chờ.
+router.post('/flush-bank', async (req, res) => {
+  const due = [...bankQueue];
+  bankQueue.clear();
+  for (const q of due) await bank.report(q).catch((err) => console.error('Giả lập ngân hàng báo lỗi:', err.message));
+  res.json({ reported: due.length });
 });
 
 module.exports = router;

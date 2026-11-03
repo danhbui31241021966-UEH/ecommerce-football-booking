@@ -50,7 +50,7 @@ async function bookingDetail(id, viewer) {
     policySnapshot: b.policySnapshot,
     history: history.map((h) => ({
       action: h.action, fromStatus: h.fromStatus, toStatus: h.toStatus,
-      actorName: h.actorName || (h.actorRole === 'bank' ? 'Ngân hàng' : 'Hệ thống'), note: h.note, createdAt: h.createdAt,
+      actorName: h.actorName || (h.actorRole === 'bank' ? 'Ngân hàng báo' : 'Hệ thống'), note: h.note, createdAt: h.createdAt,
     })),
     paymentQr: paymentQr(b),
     customerReliability: staff && b.source !== 'phone' ? await reliabilityOf(db, b.userId) : null,
