@@ -3419,3 +3419,10 @@ i.slot-league { min-height: 0; padding: 0; }
 .venue-more > summary, .slot-legend-wrap > summary { display: flex; align-items: center; min-height: 44px; font-weight: 600; cursor: pointer; }
 .venue-more-body { padding-block: var(--sp-3) var(--sp-4); }
 .slot-legend-wrap .slot-legend { padding-block: var(--sp-3); }
+/* Thanh đặt: chưa chọn giờ thì không có ô tổng tiền; trên máy tính gọn một dòng; phần tử được focus/cuộn tới không nằm sau thanh */
+.booking-bar .summary .total:empty { display: none; }
+body:has(.booking-bar) { scroll-padding-bottom: 104px; }
+@media (min-width: 720px) {
+  .booking-bar .summary { display: flex; align-items: baseline; gap: var(--sp-5); }
+  .booking-bar .summary .what { font-size: var(--fs-md); }
+}
