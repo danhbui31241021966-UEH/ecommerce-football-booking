@@ -44,6 +44,21 @@ function paintFilters(districts) {
     $(id).querySelectorAll('[data-v]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === state[key])));
   }
   $('f-last').setAttribute('aria-pressed', String(!!state.lastMinute));
+  paintSummary();
+}
+
+// Một dòng tóm tắt điều kiện đang lọc; bộ lọc đầy đủ chỉ mở khi khách bấm "Đổi".
+function paintSummary() {
+  const parts = [relativeDayLabel(state.date, today), state.at || 'Cả ngày', state.fieldType ? `Sân ${state.fieldType}` : 'Mọi loại sân'];
+  if (state.district) parts.push(state.district);
+  if (state.maxPrice) parts.push(`đến ${state.maxPrice / 1000}k`);
+  if (state.lastMinute) parts.push('giờ chót');
+  $('f-now').textContent = parts.join(' · ');
+}
+function setFiltersOpen(open) {
+  $('filters').hidden = !open;
+  $('f-toggle').setAttribute('aria-expanded', String(open));
+  $('f-change').textContent = open ? 'Xong' : 'Đổi';
 }
 
 const slotLink = (venueId, s) => teamSlotHref(venueId, state.date, s) || `/venue.html?id=${venueId}&date=${state.date}&slot=${s.start}&court=${s.courtId}`;
@@ -109,12 +124,18 @@ async function load() {
   try {
     const r = await api.venues({ date: state.date, fieldType: state.fieldType, district: state.district, maxPrice: state.maxPrice, q: state.q });
     const rows = r.venues.map((v) => ({ v, pills: pillsOf(v) }));
-    const withSlots = rows.filter((x) => x.pills.length).sort((a, b) => b.pills.length - a.pills.length);
+    // Đặt nhanh trước: sân đặt-là-chốt lên trước sân chờ chủ sân duyệt; rồi sân có giờ sát giờ đã chọn nhất; rồi sân nhiều giờ hơn.
+    const gap = (x) => {
+      if (!state.at) return 0;
+      const plain = x.pills.filter((s) => !kind(s));
+      return Math.min(...(plain.length ? plain : x.pills).map((s) => Math.abs(hmToMin(s.start) - hmToMin(state.at))));
+    };
+    const withSlots = rows
+      .filter((x) => x.pills.length)
+      .sort((a, b) => Number(!!a.v.requiresApproval) - Number(!!b.v.requiresApproval) || gap(a) - gap(b) || b.pills.length - a.pills.length);
     const without = rows.filter((x) => !x.pills.length);
     const total = withSlots.reduce((n, x) => n + x.pills.length, 0);
-    $('summary').textContent = withSlots.length
-      ? `${withSlots.length} sân còn ${total} giờ trống · ${relativeDayLabel(state.date, today)}${state.at ? ` · quanh ${state.at}` : ''}`
-      : `Không sân nào còn giờ trống · ${relativeDayLabel(state.date, today)}${state.at ? ` · quanh ${state.at}` : ''}`;
+    $('summary').textContent = withSlots.length ? `${withSlots.length} sân còn ${total} giờ trống` : 'Không sân nào còn giờ trống';
     $('results').innerHTML = [...withSlots, ...without].map((x, i) => card(x.v, i, x.pills)).join('');
     $('empty').hidden = withSlots.length > 0 || rows.length > 0;
     $('req-cta').innerHTML = `<div class="card card-pad req-cta"><div><b>Chưa thấy giờ hợp ý?</b><br><span class="muted">Nhờ sân báo giá (quận, giờ, mức giá bạn muốn), các sân phù hợp sẽ gửi báo giá để bạn chọn.</span></div><a class="btn btn-lime" href="/request-new.html?${new URLSearchParams({ date: state.date, ...(state.district && { district: state.district }), ...(state.fieldType && { fieldType: state.fieldType }), ...(state.at && { from: state.at }) })}">Nhờ sân báo giá</a></div>`;
@@ -127,6 +148,7 @@ async function load() {
 }
 
 function wire() {
+  $('f-toggle').addEventListener('click', () => setFiltersOpen($('filters').hidden));
   $('f-days').addEventListener('click', (e) => {
     const b = e.target.closest('[data-date]');
     if (!b) return;

@@ -30,7 +30,13 @@
         <p class="sub" id="summary" aria-live="polite">Đang tải…</p>
       </div>
 
-      <form class="filter-bar" id="filters" aria-label="Bộ lọc sân">
+      <div class="filter-summary">
+        <button type="button" class="filter-toggle" id="f-toggle" aria-expanded="false" aria-controls="filters">
+          <span class="filter-now" id="f-now">Đang tải…</span><span class="filter-change" id="f-change">Đổi</span>
+        </button>
+      </div>
+
+      <form class="filter-bar" id="filters" aria-label="Bộ lọc sân" hidden>
         <div class="filter-row">
           <span class="filter-label">Ngày</span>
           <div class="day-chips" id="f-days" role="group" aria-label="Chọn ngày"></div>

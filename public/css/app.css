@@ -3395,3 +3395,27 @@ i.slot-league { min-height: 0; padding: 0; }
 @media (min-width: 1100px) {
   .about-feat { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+
+/* ---------- Trang kết quả và thanh đặt sân: gọn để thấy giờ trống ngay ---------- */
+.filter-summary { margin-bottom: var(--sp-3); }
+.filter-toggle { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); width: 100%; min-height: 48px; padding: 0 var(--sp-4); border: 1px solid var(--line-strong); border-radius: var(--r-lg); background: var(--surface); color: var(--text); font: inherit; font-weight: 600; text-align: left; cursor: pointer; transition: border-color var(--dur) var(--ease); }
+.filter-toggle:hover { border-color: var(--text); }
+.filter-now { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.filter-change { flex: none; font-size: var(--fs-sm); font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.filter-bar:not([hidden]) { padding: var(--sp-4); border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--surface); }
+.booking-bar .summary .what b { display: block; color: var(--text); font-weight: 700; overflow: hidden; text-overflow: ellipsis; }
+@media (min-width: 720px) {
+  .filter-toggle { width: auto; min-width: 360px; }
+}
+/* Trang sân: tên, giá và giờ trống lên trước; mô tả, nội quy, chú giải nằm trong mục thu gọn */
+.venue-top { gap: var(--sp-3); margin-bottom: var(--sp-5); }
+.venue-top .photo { aspect-ratio: 3 / 1; }
+@media (min-width: 720px) {
+  .venue-top { grid-template-columns: minmax(0, 1fr) minmax(0, 340px); align-items: start; gap: var(--sp-6); }
+  .venue-top .photo { aspect-ratio: 16 / 9; order: 2; }
+}
+.venue-leagues { font-size: var(--fs-sm); }
+.venue-more, .slot-legend-wrap { margin-top: var(--sp-5); border-top: 1px solid var(--line); padding-top: var(--sp-3); }
+.venue-more > summary, .slot-legend-wrap > summary { display: flex; align-items: center; min-height: 44px; font-weight: 600; cursor: pointer; }
+.venue-more-body { padding-block: var(--sp-3) var(--sp-4); }
+.slot-legend-wrap .slot-legend { padding-block: var(--sp-3); }
