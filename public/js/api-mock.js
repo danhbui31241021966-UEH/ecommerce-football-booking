@@ -2400,7 +2400,10 @@ route('GET', '/api/venues/:id', (c) => {
 route('GET', '/api/venues/:id/schedule', (c) => {
   const v = venueOf(c.params.id);
   if (!v || !v.isActive) fail(404, 'Không tìm thấy sân');
-  return scheduleOf(v, checkDate(c.query.date), c.user);
+  const date = checkDate(c.query.date);
+  const today = dateOf(now());
+  req(date >= today && date <= addDays(today, meta().bookingWindowDays - 1), `Chỉ đặt trước tối đa ${meta().bookingWindowDays} ngày`);
+  return scheduleOf(v, date, c.user);
 });
 
 route('GET', '/api/auth/csrf', () => ({ csrfToken: S.csrf }));
