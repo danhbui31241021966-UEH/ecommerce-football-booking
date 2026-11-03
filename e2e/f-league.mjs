@@ -145,7 +145,7 @@ await step(p, 'league', '03-publish-needs-all-hours-and-batch-clash', async () =
   must(!r.ok && r.status === 409 && /chặn/.test(r.msg), 'công bố phải bị từ chối vì ô bị chặn: ' + J(r));
   LG = await call(`a=>a.owner.league(${id})`);
   must(LG.status === 'draft' && LG.counts.held === 0 && LG.matches.every((m) => !m.held), 'không được giữ ô nào khi có một ô trùng');
-  for (const m of LG.matches.filter((x) => x.id !== victim.id)) { const c = await cellOf(m); must(c.status === 'available', `ô ${m.date} ${m.start} bị giữ dù công bố thất bại: ${c.status}`); }
+  for (const m of LG.matches.filter((x) => x.id !== victim.id)) { const c = await cellOf(m); must(['available', 'unavailable'].includes(c.status), `ô ${m.date} ${m.start} bị giữ dù công bố thất bại: ${c.status}`); }
   // trong giao diện: bấm công bố khi đang trùng → hộp báo lỗi, giờ vẫn chưa giữ
   await p.reload(); await p.waitForSelector('#publish');
   await p.click('#publish'); await p.waitForSelector('dialog[open] button[type=submit]'); await p.click('dialog[open] button[type=submit]');

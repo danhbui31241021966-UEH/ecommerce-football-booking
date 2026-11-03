@@ -442,7 +442,7 @@ function slotInfo(court, venue, date, start, viewer, forSeed = false, detail = f
   return slot;
 }
 
-function scheduleOf(venue, date, viewer, detail = false) {
+function scheduleOf(venue, date, viewer, detail = false, enforceBookingWindow = false) {
   return {
     date,
     slotMinutes: venue.slotMinutes,
@@ -453,7 +453,18 @@ function scheduleOf(venue, date, viewer, detail = false) {
         name: c.name,
         fieldType: c.fieldType,
         ...(detail ? { isActive: c.isActive } : {}),
-        slots: slotGrid(venue).map((s) => slotInfo(c, venue, date, s, viewer, false, detail)),
+        slots: slotGrid(venue).map((s) => {
+          const slot = slotInfo(c, venue, date, s, viewer, false, detail);
+          const today = dateOf(now());
+          if (enforceBookingWindow && slot.status === 'available' &&
+              (date < today || date > addDays(today, meta().bookingWindowDays - 1))) {
+            slot.status = 'unavailable';
+            slot.discountPercent = 0;
+            slot.price = slot.basePrice;
+            delete slot.teamMode;
+          }
+          return slot;
+        }),
       })),
   };
 }
@@ -2424,7 +2435,7 @@ route('GET', '/api/venues/:id', (c) => {
 route('GET', '/api/venues/:id/schedule', (c) => {
   const v = venueOf(c.params.id);
   if (!v || !v.isActive) fail(404, 'Không tìm thấy sân');
-  return scheduleOf(v, checkDate(c.query.date), c.user);
+  return scheduleOf(v, checkDate(c.query.date), c.user, false, true);
 });
 
 const normalizeAuthPhone = (value) => {

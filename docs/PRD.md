@@ -270,7 +270,7 @@ VenueDetail  Venue + { description, rules, peakStart, peakEnd, cancelPolicy, map
                (PUT /owner/courts/:id nhận teamMode: { from, to } hoặc null để tắt)
 Schedule     { date, slotMinutes, courts: [{ id, name, fieldType, slots: [Slot] }] }
 Slot         { start, end, teamMode? (giờ chỉ chốt khi đủ hai đội, ô còn trống), match? { id, status, joinable } (ô đang giữ cho trận), transfer? { id, askPrice, originalPrice } (ô đã đặt đang nhượng), basePrice, discountPercent, price, peak,
-               status: "available"|"booked"|"held"|"blocked"|"past"|"offered",
+               status: "available"|"unavailable" (ngoài cửa sổ đặt; chỉ lịch công khai)|"booked"|"held"|"blocked"|"past"|"offered",
                offeredToYou?, offerExpiresAt?, onWaitlist?,
                (lịch chủ sân) booking? { id, code, status, paymentStatus, customerName, customerPhone, source },
                block? { id, reason, leagueId? }, waitlistCount? (chỉ có khi >0; đếm entry waiting và offered) }

@@ -1,7 +1,9 @@
 const express = require('express');
 const { db } = require('../db');
 const { badRequest, notFound } = require('../utils/errors');
-const { isDate, isHm, hmToMin } = require('../lib/time');
+const { isDate, isHm, hmToMin, addDays, today } = require('../lib/time');
+const { RULES } = require('../rules');
+const clock = require('../clock');
 const { loadVenues, loadVenue } = require('../services/venueStore');
 const { scheduleOf } = require('../services/schedule');
 const { venueLeagues } = require('../services/leagueOps');
@@ -62,7 +64,7 @@ router.get('/:id', async (req, res) => {
 
 router.get('/:id/schedule', async (req, res) => {
   const v = await venueOr404(req.params.id);
-  res.json(await scheduleOf(v, checkDate(req.query.date), req.user));
+  res.json(await scheduleOf(v, checkDate(req.query.date), req.user, { enforceBookingWindow: true }));
 });
 
 module.exports = router;

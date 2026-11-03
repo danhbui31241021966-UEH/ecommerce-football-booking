@@ -92,7 +92,7 @@ function slotInfo(venue, court, date, start, occ, viewer, nowMs = clock.nowMs())
 }
 
 /** Lịch một ngày của cụm sân (chỉ sân con đang hoạt động). */
-async function scheduleOf(venue, date, viewer) {
+async function scheduleOf(venue, date, viewer, { enforceBookingWindow = false } = {}) {
   const courts = venue.courts.filter((c) => c.isActive);
   const occ = await loadOccupancy(courts.map((c) => c.id), date);
   return {
@@ -102,7 +102,17 @@ async function scheduleOf(venue, date, viewer) {
       id: c.id,
       name: c.name,
       fieldType: c.fieldType,
-      slots: slotGrid(venue).map((s) => slotInfo(venue, c, date, s, occ, viewer)),
+      slots: slotGrid(venue).map((s) => {
+        const slot = slotInfo(venue, c, date, s, occ, viewer);
+        if (enforceBookingWindow && slot.status === 'available' &&
+            (date < clock.today() || date > addDays(clock.today(), RULES.bookingWindowDays - 1))) {
+          slot.status = 'unavailable';
+          slot.discountPercent = 0;
+          slot.price = slot.basePrice;
+          delete slot.teamMode;
+        }
+        return slot;
+      }),
     })),
   };
 }

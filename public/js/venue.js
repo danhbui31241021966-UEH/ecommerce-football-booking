@@ -149,6 +149,8 @@ function cell(court, s, layout) {
       ? `<span class="s">${label} · bạn đang chờ</span>`
       : `<span class="s">${label}</span>${isCustomer() || !getUser() ? `<button type="button" class="wait-btn" data-wait ${key}>Báo tôi khi trống</button>` : ''}`;
   switch (s.status) {
+    case 'unavailable':
+      return `<div class="slot slot-blocked">${top('')}<span class="s">Ngoài thời hạn đặt</span></div>`;
     case 'past':
       return `<div class="slot slot-past">${top('')}<span class="s">Đã qua</span></div>`;
     case 'blocked':
