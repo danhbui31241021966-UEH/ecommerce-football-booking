@@ -64,11 +64,7 @@ router.get('/:id', async (req, res) => {
 
 router.get('/:id/schedule', async (req, res) => {
   const v = await venueOr404(req.params.id);
-  const date = checkDate(req.query.date);
-  if (date < clock.today() || date > addDays(clock.today(), RULES.bookingWindowDays - 1)) {
-    throw badRequest(`Chỉ đặt trước tối đa ${RULES.bookingWindowDays} ngày`);
-  }
-  res.json(await scheduleOf(v, date, req.user));
+  res.json(await scheduleOf(v, checkDate(req.query.date), req.user, { enforceBookingWindow: true }));
 });
 
 module.exports = router;

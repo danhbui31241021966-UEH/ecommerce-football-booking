@@ -115,16 +115,25 @@ test('GET /api/venues?date=: availableSlots đủ trường, tôn trọng from v
   assert.equal((await guest.get('/api/venues?date=2026-13-45')).status, 400);
 });
 
-test('GET schedule công khai chỉ nhận ngày trong cửa sổ đặt', async () => {
+test('GET schedule công khai giữ lịch sử/claim xa ngoài cửa sổ nhưng không hiện ô trống là đặt được', async () => {
   const venues = (await guest.get('/api/venues')).body.venues;
   const id = venues[0].id;
+  const courtId = (await h.db.one('SELECT id FROM courts WHERE venue_id = ? ORDER BY id LIMIT 1', [id])).id;
   const last = addDays(h.clock.today(), require('../src/rules').RULES.bookingWindowDays - 1);
   const next = addDays(last, 1);
   const inWindow = await guest.get(`/api/venues/${id}/schedule?date=${last}`);
   assert.equal(inWindow.status, 200);
-  assert.ok(inWindow.body.courts[0].slots.length > 0);
-  assert.equal((await guest.get(`/api/venues/${id}/schedule?date=${next}`)).status, 400);
-  assert.equal((await guest.get(`/api/venues/${id}/schedule?date=${addDays(h.clock.today(), -1)}`)).status, 400);
+  assert.ok(inWindow.body.courts[0].slots.some((slot) => slot.status === 'available'));
+  const blockOwner = await h.makeUser({ role: 'owner' });
+  await h.db.query('INSERT INTO blocks (court_id, start_at, end_at, reason, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?)',
+    [courtId, `${next} 06:00:00`, `${next} 07:00:00`, 'Giải thử', blockOwner.id, h.clock.now()]);
+  const blockId = (await h.db.one('SELECT id FROM blocks WHERE court_id = ? AND start_at = ?', [courtId, `${next} 06:00:00`])).id;
+  await h.db.query("INSERT INTO slot_claims (court_id, start_at, kind, block_id) VALUES (?, ?, 'block', ?)", [courtId, `${next} 06:00:00`, blockId]);
+  const outWindow = await guest.get(`/api/venues/${id}/schedule?date=${next}`);
+  assert.equal(outWindow.status, 200);
+  assert.equal(outWindow.body.courts[0].slots.find((slot) => slot.start === '06:00').status, 'blocked');
+  assert.ok(outWindow.body.courts[0].slots.some((slot) => slot.status === 'unavailable'));
+  assert.equal((await guest.get(`/api/venues/${id}/schedule?date=${addDays(h.clock.today(), -1)}`)).status, 200);
 });
 
 test('GET /api/venues/:id/schedule: trạng thái ô theo đặt/chặn/đã qua/ghép kèo/đang giữ cho người chờ', async () => {
