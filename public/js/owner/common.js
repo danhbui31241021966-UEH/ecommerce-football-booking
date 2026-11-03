@@ -132,7 +132,7 @@ export function tickCountdowns(onExpire) {
         expired = true;
         return;
       }
-      el.textContent = `Còn ${p2(Math.floor(left / 60))}:${p2(left % 60)}`;
+      el.textContent = `${el.dataset.pre || ''}Còn ${p2(Math.floor(left / 60))}:${p2(left % 60)}`;
       el.classList.toggle('soon', left < 180);
     });
     if (expired && onExpire) {
@@ -145,6 +145,11 @@ export function tickCountdowns(onExpire) {
 }
 export const countdownHtml = (b) =>
   b.expiresAt ? `<span class="countdown-sm" data-expires="${esc(b.expiresAt)}">Còn --:--</span>` : '';
+/** R3: đơn đã có sân chưa trả tiền còn hạn chuyển khoản (expiresAt của bước đang chờ), khác hạn chủ sân đồng ý của đơn pending. */
+export const payByHtml = (b) =>
+  b.status === 'confirmed' && b.paymentStatus === 'unpaid' && b.expiresAt
+    ? `<span class="countdown-sm" data-expires="${esc(b.expiresAt)}" data-pre="Chờ chuyển khoản · ">Chờ chuyển khoản · Còn --:--</span>`
+    : '';
 
 // ---------- hộp thoại ----------
 // Trả về Promise<object|null>: null khi huỷ; ngược lại là giá trị các ô có name trong form.
@@ -465,7 +470,7 @@ export function bookingRow(b, { showDate = true } = {}) {
       b.source !== 'phone' && (b.status === 'pending' || b.customerReliability) ? `<p>${reliabilityHtml(b.customerReliability)}</p>` : ''
     }</div>
     <div class="bk-court"><span>${esc(b.courtName)} · sân ${esc(b.fieldType)} người</span><span class="code">${esc(b.code)}</span></div>
-    <div class="bk-state">${badge(b.status)}${sourceBadge(b)}${payBadge(b)}${refundBadge(b)}${b.status === 'pending' ? countdownHtml(b) : ''}</div>
+    <div class="bk-state">${badge(b.status)}${sourceBadge(b)}${payBadge(b)}${refundBadge(b)}${b.status === 'pending' ? countdownHtml(b) : payByHtml(b)}</div>
     <div class="bk-money"><span class="price">${money(b.price)}</span>${sale}</div>
     <div class="bk-actions">${actionButtons(b)}</div>
   </li>`;

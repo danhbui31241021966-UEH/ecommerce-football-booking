@@ -10,7 +10,7 @@ const { badRequest, conflict, notFound } = require('../utils/errors');
 const { isDate, isHm, addDays, vnToMs, msToVn } = require('../lib/time');
 const { loadCourt } = require('./venueStore');
 const { slotGrid, slotEndAt } = require('./slotGrid');
-const { isHolding, claimForBooking, TAKEN } = require('./bookingState');
+const { isHolding, claimForBooking, payByFor, TAKEN } = require('./bookingState');
 const { loadOccupancy, slotInfo } = require('./schedule');
 const { reliabilityOf } = require('./reliability');
 const { notify, addHistory, shortTs } = require('./notify');
@@ -132,7 +132,10 @@ async function createBooking(user, body = {}, opts = {}) {
   const rel = await reliabilityOf(db, user.id);
   const pending = venue.requiresApproval || rel.restricted; // R3, R10: khách uy tín thấp luôn phải chờ chủ sân đồng ý
   const status = pending ? 'pending' : 'confirmed';
-  const expiresAt = pending ? msToVn(vnToMs(now) + RULES.holdMinutes * 60000) : null;
+  // expires_at là hạn của bước đang chờ: chủ sân đồng ý (pending) hoặc khách chuyển khoản (confirmed, R3).
+  const expiresAt = pending
+    ? msToVn(vnToMs(now) + RULES.holdMinutes * 60000)
+    : payByFor({ source: 'web', startAt: `${date} ${start}:00`, hasQr: !!(venue.bank?.bin && venue.bank?.account) });
   try {
     const id = await withTransaction(async (tx) => {
       const r = await tx.query(
@@ -156,7 +159,7 @@ async function createBooking(user, body = {}, opts = {}) {
         await notify(tx, venue.ownerId, `${user.fullName} vừa đặt sân (mã ${code}) và đang chờ bạn đồng ý, còn ${RULES.holdMinutes} phút.`, { bookingId: r.insertId, link: `/owner-bookings.html?id=${r.insertId}` });
         await notify(tx, user.id, `Bạn đã đặt ${court.name} lúc ${shortTs(startAt)}. Chủ sân có ${RULES.holdMinutes} phút để đồng ý.`, { bookingId: r.insertId, link: `/booking.html?id=${r.insertId}` });
       } else {
-        await notify(tx, user.id, `Bạn đã có sân (mã ${code}). Hãy chuyển khoản bằng mã QR.`, { bookingId: r.insertId, link: `/booking.html?id=${r.insertId}` });
+        await notify(tx, user.id, `Bạn đã có sân (mã ${code}). Hãy chuyển khoản bằng mã QR${expiresAt ? ` trước ${expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn` : ''}.`, { bookingId: r.insertId, link: `/booking.html?id=${r.insertId}` });
       }
       if (opts.inTx) await opts.inTx(tx, r.insertId);
       return r.insertId;

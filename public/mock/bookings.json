@@ -1,5 +1,5 @@
 {
-  "_doc": "Mẫu booking. day = số ngày so với hôm nay; startAfterMin = bắt đầu sau bấy nhiêu phút (làm tròn lên lưới giờ của sân). Engine tính giá, mã, lịch sử từ các trường này mỗi lần dựng dữ liệu demo.",
+  "_doc": "Mẫu booking. expiresInMin = còn bấy nhiêu phút tới hạn của bước đang chờ (pending: chủ sân đồng ý; confirmed chưa trả: chuyển khoản, R3). day = số ngày so với hôm nay; startAfterMin = bắt đầu sau bấy nhiêu phút (làm tròn lên lưới giờ của sân). Engine tính giá, mã, lịch sử từ các trường này mỗi lần dựng dữ liệu demo.",
   "crowd": {
     "_doc": "Booking nền cho sân thật (id >= firstVenueId): engine sinh lại mỗi lần dựng dữ liệu, tất định theo ngày. Xác suất một ô có người đặt = hourWeights theo giờ bắt đầu x độ hút khách của sân x giảm dần theo số ngày tới. Booking thuộc khách nền, không sinh thông báo.",
     "firstVenueId": 7,
@@ -17,7 +17,7 @@
     "paidShare": 0.55
   },
   "bookings": [
-    { "key": "k1", "userId": 4, "courtId": 2, "day": 1, "start": "19:00", "status": "confirmed", "paid": false, "createdMinAgo": 30 },
+    { "key": "k1", "userId": 4, "courtId": 2, "day": 1, "start": "19:00", "status": "confirmed", "paid": false, "expiresInMin": 12, "createdMinAgo": 3 },
     { "key": "k2", "userId": 4, "courtId": 4, "day": 2, "start": "20:00", "status": "pending", "expiresInMin": 9, "createdMinAgo": 6, "note": "Đội 10 người, cần thêm áo bib" },
     { "key": "k3", "userId": 4, "courtId": 1, "day": -3, "start": "19:00", "status": "completed", "paid": true, "createdMinAgo": 5000 },
     { "key": "k4", "userId": 4, "courtId": 3, "day": -5, "start": "20:00", "status": "cancelled", "paid": true, "cancelledBy": "customer", "lateCancel": true, "refundPercent": 0, "refundStatus": "none", "cancelReason": "Đội thiếu người", "createdMinAgo": 8000 },
@@ -29,7 +29,7 @@
     { "key": "k10", "userId": 5, "courtId": 2, "day": 2, "start": "19:00", "status": "cancelled", "paid": true, "cancelledBy": "customer", "refundPercent": 100, "refundStatus": "pending", "cancelReason": "Trùng lịch giải", "createdMinAgo": 2000, "cancelledMinAgo": 120 },
     { "key": "k11", "userId": 4, "courtId": 4, "day": 1, "start": "21:00", "status": "rejected", "cancelReason": "Sân bảo trì khung giờ này", "createdMinAgo": 900 },
     { "key": "k12", "userId": 6, "courtId": 7, "day": 1, "start": "18:00", "status": "expired", "createdMinAgo": 700 },
-    { "key": "k13", "userId": 5, "courtId": 1, "startAfterMin": 120, "status": "confirmed", "paid": false, "createdMinAgo": 200 },
+    { "key": "k13", "userId": 5, "courtId": 1, "startAfterMin": 120, "status": "confirmed", "paid": false, "expiresInMin": 7, "createdMinAgo": 8 },
     { "key": "k14", "userId": 6, "courtId": 1, "day": -10, "start": "19:00", "status": "no_show", "paid": false, "createdMinAgo": 15000 },
     { "key": "k15", "userId": 6, "courtId": 2, "day": -20, "start": "20:00", "status": "no_show", "paid": false, "createdMinAgo": 30000 },
     { "key": "k16", "userId": 5, "courtId": 2, "day": -1, "start": "20:00", "status": "confirmed", "paid": false, "createdMinAgo": 2800 },
@@ -49,7 +49,7 @@
     { "key": "w4", "userId": 4, "courtId": 5, "day": 1, "start": "20:00", "status": "offered", "offerExpiresInMin": 8, "createdMinAgo": 40 }
   ],
   "notifications": [
-    { "userId": 4, "bookingKey": "k1", "message": "Booking đã được xác nhận. Vui lòng thanh toán bằng VietQR trước giờ đá.", "minAgo": 29, "isRead": false },
+    { "userId": 4, "bookingKey": "k1", "message": "Booking đã được xác nhận. Vui lòng thanh toán bằng VietQR trong 15 phút, quá giờ đơn tự hết hạn.", "minAgo": 3, "isRead": false },
     { "userId": 4, "bookingKey": "k2", "message": "Đã gửi yêu cầu đặt sân, chờ chủ sân duyệt trong 15 phút.", "minAgo": 6, "isRead": false },
     { "userId": 4, "bookingKey": null, "slot": "w4", "message": "Slot 20:00 ngày mai tại Sân cỏ nhân tạo Hoàng Gia đang giữ cho bạn.", "minAgo": 2, "isRead": false },
     { "userId": 4, "bookingKey": "k11", "message": "Booking bị từ chối: Sân bảo trì khung giờ này.", "minAgo": 800, "isRead": true },

@@ -33,6 +33,18 @@ const REASON_TEXT = {
   over: 'Số tiền nhiều hơn số cần chuyển',
   multiple_codes: 'Nội dung có nhiều hơn một mã đơn khác nhau nên không tự đoán đơn nào',
 };
+// Cùng lý do `not_payable` (không đổi enum trong CSDL) nhưng đơn đã hết hạn chờ chuyển khoản: tiền về muộn, chủ sân hoàn tay (R17c).
+const AFTER_HOLD_TEXT = 'Khách chuyển sau khi đơn đã hết hạn giữ chỗ';
+
+/** Tập id đơn đã hết hạn vì chưa chuyển khoản (nhật ký `expire` từ confirmed), để đổi lời giải thích của `not_payable`. */
+async function heldExpiredIds(conn, bookingIds) {
+  const ids = [...new Set(bookingIds.filter((x) => x != null))];
+  if (!ids.length) return new Set();
+  const rows = await conn.query(`SELECT DISTINCT booking_id FROM booking_history WHERE action = 'expire' AND from_status = 'confirmed' AND booking_id IN (${ids.map(() => '?').join(',')})`, ids);
+  return new Set(rows.map((r) => r.bookingId));
+}
+const dtoFor = async (conn, e) => dto(e, (await heldExpiredIds(conn, [e.bookingId])).has(e.bookingId));
+const reasonTextOf = (reason, afterHold) => (reason === 'not_payable' && afterHold ? AFTER_HOLD_TEXT : REASON_TEXT[reason]);
 
 /** Các mã đơn khác nhau tìm được trong nội dung (đã bỏ trùng); tổ hợp tiền tố/hậu tố không hợp lệ (TD thiếu A/B, NH kèm A/B, A/B không tiền tố) không tính là mã. */
 function parseCodes(content) {
@@ -50,7 +62,7 @@ function parseCodes(content) {
   return [...found.values()];
 }
 
-const dto = (e) => ({
+const dto = (e, afterHold = false) => ({
   id: e.id,
   txId: e.providerTxId,
   content: e.content,
@@ -61,7 +73,7 @@ const dto = (e) => ({
   expected: e.expected ?? null,
   status: e.status,
   reason: e.reason ?? null,
-  reasonText: e.reason ? REASON_TEXT[e.reason] : null,
+  reasonText: e.reason ? reasonTextOf(e.reason, afterHold) : null,
   receivedAt: e.receivedAt,
 });
 
@@ -75,6 +87,7 @@ async function lockTarget(tx, parsed, b, note) {
     const row = await tx.one('SELECT * FROM bookings WHERE id = ? FOR UPDATE', [b.id]);
     if (row.userId == null) return { reason: 'not_payable' }; // lịch chủ sân thêm tay: không có QR
     if (row.status === 'pending') return { reason: 'not_approved' };
+    if (row.status === 'expired' && row.paymentStatus === 'unpaid' && (await heldExpiredIds(tx, [row.id])).has(row.id)) return { reason: 'not_payable', afterHold: true };
     if (row.status !== 'confirmed' || row.paymentStatus !== 'unpaid') return { reason: 'not_payable' };
     return { due: row.price, apply: () => applyPaid(tx, row, { via: 'bank', note }) };
   }
@@ -115,7 +128,7 @@ async function report({ txId, content, amount, account }) {
       rowId = r.insertId;
     } catch (err) {
       if (!isDuplicate(err, 'uq_banktx_provider')) throw err;
-      return { event: dto(await tx.one('SELECT * FROM bank_transactions WHERE provider_tx_id = ?', [id])), duplicate: true };
+      return { event: await dtoFor(tx, await tx.one('SELECT * FROM bank_transactions WHERE provider_tx_id = ?', [id])), duplicate: true };
     }
 
     const codes = parseCodes(text);
@@ -127,6 +140,7 @@ async function report({ txId, content, amount, account }) {
     let inAccount = false;
     let reason = null;
     let target = null;
+    let afterHold = false;
     if (codes.length > 1) reason = 'multiple_codes';
     else if (!parsed) reason = 'no_code';
     else {
@@ -138,6 +152,7 @@ async function report({ txId, content, amount, account }) {
         inAccount = true;
         target = await lockTarget(tx, parsed, b, note);
         reason = target.reason || null;
+        afterHold = !!target.afterHold;
         if (!reason && sum !== target.due) reason = sum < target.due ? 'short' : 'over';
       }
     }
@@ -160,22 +175,23 @@ async function report({ txId, content, amount, account }) {
       if (inAccount) {
         await addHistory(tx, b.id, 'bank_unmatched', {
           actor: BANK_ACTOR,
-          note: `Ngân hàng báo ${money(sum)}, nội dung "${text}" nhưng chưa tự ghi nhận: ${REASON_TEXT[reason]}${expected ? ` (cần ${money(expected)})` : ''}`,
+          note: `Ngân hàng báo ${money(sum)}, nội dung "${text}" nhưng chưa tự ghi nhận: ${reasonTextOf(reason, afterHold)}${expected ? ` (cần ${money(expected)})` : ''}`,
         });
       }
-      await notify(tx, ownerId, `Ngân hàng báo ${money(sum)}, nội dung "${text}" nhưng chưa tự ghi nhận được: ${REASON_TEXT[reason].toLowerCase()}. Cần bạn xem và xử lý.`, { bookingId: inAccount ? b.id : null, link: '/owner.html' });
+      await notify(tx, ownerId, `Ngân hàng báo ${money(sum)}, nội dung "${text}" nhưng chưa tự ghi nhận được: ${reasonTextOf(reason, afterHold).toLowerCase()}. Cần bạn xem và xử lý.`, { bookingId: inAccount ? b.id : null, link: '/owner.html' });
       if (inAccount && ['short', 'over'].includes(reason)) {
         await notify(tx, b.userId, `Ngân hàng báo đã nhận ${money(sum)} cho ${b.code}, chưa khớp số cần chuyển (${money(expected)}). Chủ sân sẽ xem và liên hệ bạn.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
       }
     }
-    return { event: dto(await tx.one('SELECT * FROM bank_transactions WHERE id = ?', [rowId])), duplicate: false };
+    return { event: dto(await tx.one('SELECT * FROM bank_transactions WHERE id = ?', [rowId]), afterHold), duplicate: false };
   });
 }
 
 /** Khoản ngân hàng báo về tài khoản sân của chủ sân, mới nhất trước. */
 async function listForOwner(user) {
   const rows = await db.query('SELECT * FROM bank_transactions WHERE owner_id = ? ORDER BY received_at DESC, id DESC LIMIT ?', [user.id, LIST_LIMIT]);
-  return rows.map(dto);
+  const held = await heldExpiredIds(db, rows.map((e) => e.bookingId));
+  return rows.map((e) => dto(e, held.has(e.bookingId)));
 }
 
 async function resolve(user, rawId, note) {
@@ -191,10 +207,10 @@ async function resolve(user, rawId, note) {
     if (e.bookingId) {
       await addHistory(tx, e.bookingId, 'bank_resolved', {
         actor: { id: user.id, role: user.role },
-        note: `Đã xử lý khoản ${money(e.amount)} ngân hàng báo (${REASON_TEXT[e.reason].toLowerCase()})${text ? `. ${text}` : ''}`,
+        note: `Đã xử lý khoản ${money(e.amount)} ngân hàng báo (${reasonTextOf(e.reason, (await heldExpiredIds(tx, [e.bookingId])).has(e.bookingId)).toLowerCase()})${text ? `. ${text}` : ''}`,
       });
     }
-    return dto(await tx.one('SELECT * FROM bank_transactions WHERE id = ?', [id]));
+    return dtoFor(tx, await tx.one('SELECT * FROM bank_transactions WHERE id = ?', [id]));
   });
 }
 

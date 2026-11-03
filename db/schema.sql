@@ -123,7 +123,7 @@ CREATE TABLE bookings (
   source                   ENUM('web','phone') NOT NULL DEFAULT 'web',
   walk_in_name             VARCHAR(80) NULL,
   walk_in_phone            VARCHAR(20) NULL,
-  expires_at               DATETIME NULL,                    -- hạn chủ sân duyệt (R3) khi pending
+  expires_at               DATETIME NULL,                    -- hạn của bước đang chờ (R3): pending = chủ sân đồng ý; confirmed + unpaid = khách chuyển khoản; còn lại NULL
   price                    INT UNSIGNED NOT NULL,
   base_price               INT UNSIGNED NOT NULL,
   discount_percent         TINYINT UNSIGNED NOT NULL DEFAULT 0,

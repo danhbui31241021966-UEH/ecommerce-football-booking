@@ -13,7 +13,7 @@ let match = null;
 // "(mô phỏng)" chỉ có khi đang chạy công cụ mô phỏng; với SePay thật thì không.
 const SIM = api.proto ? ' (mô phỏng)' : '';
 const ACTION = {
-  create: 'Khách đặt sân', approve: 'Chủ sân đồng ý', reject: 'Chủ sân từ chối', cancel: 'Hủy đặt sân', expire: 'Quá hạn, chủ sân chưa trả lời',
+  create: 'Khách đặt sân', approve: 'Chủ sân đồng ý', reject: 'Chủ sân từ chối', cancel: 'Hủy đặt sân', expire: 'Quá hạn giữ chỗ',
   paid: 'Ghi nhận đã chuyển khoản', bank_paid: `Ngân hàng báo đã nhận tiền${SIM}`, bank_unmatched: 'Ngân hàng báo tiền nhưng chưa khớp đơn', bank_resolved: 'Chủ sân đã xử lý khoản tiền lệch', refund: 'Ghi nhận đã trả lại tiền', attendance: 'Ghi nhận đã đá hoặc bùng',
   match_part_paid: 'Đã nhận tiền của một đội', match_join: 'Có đội vào kèo', match_release: 'Đội vào kèo đã rút', match_confirm: 'Đủ hai đội, chốt sân', match_expire: 'Quá hạn, kèo không đủ đội', match_cancel: 'Hủy kèo', phone_create: 'Chủ sân thêm lịch đặt qua điện thoại', phone_update: 'Chủ sân sửa lịch đặt qua điện thoại', match_report: 'Đội báo kết quả', match_result: 'Chốt kết quả kèo', match_result_dispute: 'Cần chủ sân chốt kết quả', match_topup: 'Đội thắng đã nhận phần chênh', offer_accept: 'Đặt theo báo giá của sân',
   transfer_open: 'Đăng pass sân', transfer_withdraw: 'Rút đăng pass', transfer_claim: 'Có đội nhận pass', transfer_release: 'Mở lại đăng pass',
@@ -73,6 +73,7 @@ function render() {
   const hasQr = !!b.paymentQr;
   const pendingReason = b.history.find((h) => h.action === 'create')?.note || '';
   const pending = b.status === 'pending';
+  const awaitingPay = b.status === 'confirmed' && b.paymentStatus === 'unpaid' && !!b.expiresAt; // R3: hạn chuyển khoản
   const priceRows = b.discountPercent
     ? `<div><dt>Giá thường</dt><dd class="num price-old">${money(b.basePrice)}</dd></div><div><dt>Giảm giờ chót</dt><dd class="num" style="color:var(--sale-text)">-${money(b.basePrice - b.price)} (${b.discountPercent}%)</dd></div>`
     : '';
@@ -87,6 +88,7 @@ function render() {
         <div class="card card-pad stack">
           <div class="row"><h1 class="booking-code">${esc(b.code)}</h1><span class="spacer"></span>${statusBadge(b.status)}${paymentBadge(b.paymentStatus)}</div>
           ${pending ? `<div class="notice warn" role="status"><div><span class="countdown" id="cd"></span></div></div>${pendingReason ? `<p class="muted" style="font-size:var(--fs-sm)">${esc(pendingReason)}</p>` : ''}` : ''}
+          ${awaitingPay ? `<div class="notice warn" role="status"><div><span class="countdown" id="pay-cd"></span></div></div>` : ''}
           ${b.status === 'confirmed' && b.paymentStatus === 'unpaid' && !hasQr ? '<div class="notice">Bạn đã có sân. Sân này chưa có mã QR, hãy nhắn chủ sân để biết cách chuyển khoản.</div>' : ''}
           ${b.status === 'confirmed' && b.paymentStatus === 'paid' ? `<div class="notice" role="status">${b.paidVia === 'bank' ? `Ngân hàng báo đã nhận tiền${SIM}. Hẹn gặp bạn trên sân.` : 'Chủ sân đã nhận tiền. Hẹn gặp bạn trên sân.'}</div>` : ''}
           <dl class="kv">
@@ -121,6 +123,10 @@ function render() {
   document.title = `${b.code} – GGO`;
   decorate();
   if (claimed()) countdown($('tr-cd'), secondsLeft(b.transfer.claimExpiresAt, meta.now), (n) => (n > 0 ? mmss(n) : 'hết hạn'), load);
+  if (awaitingPay) {
+    const by = timeOf(b.expiresAt);
+    countdown($('pay-cd'), secondsLeft(b.expiresAt, meta.now), (n) => (n > 0 ? `Chuyển khoản trước ${by} (còn ${mmss(n)}), quá giờ đơn tự hết hạn.` : `Đã quá giờ chuyển khoản (${by}), đơn hết hạn.`), load);
+  }
   if (pending) {
     countdown($('cd'), secondsLeft(b.expiresAt, meta.now), (n) => (n > 0 ? `Chờ chủ sân đồng ý · còn ${mmss(n)}` : 'Đã hết thời gian chờ chủ sân đồng ý'), load);
   }

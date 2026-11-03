@@ -24,6 +24,7 @@ const BANKS = [
 const RULES = {
   bookingWindowDays: 3, // R1: hôm nay + 2 ngày tới
   holdMinutes: 15, // R3
+  payHoldMinutes: 15, // R3: đơn đã có sân giữ chừng này cho tới khi khách chuyển khoản
   waitlistOfferMinutes: 10, // R9
   lastMinuteHours: 3, // R6
   transferCloseMinutes: 60, // R12

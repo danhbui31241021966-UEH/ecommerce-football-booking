@@ -107,7 +107,7 @@ function buildState() {
       startAt,
       endAt: `${date} ${slot.end}:00`,
       status: b.status,
-      expiresAt: b.status === 'pending' ? inMin(b.expiresInMin ?? 15) : null,
+      expiresAt: b.status === 'pending' ? inMin(b.expiresInMin ?? 15) : b.status === 'confirmed' && !b.paid && b.expiresInMin != null ? inMin(b.expiresInMin) : null,
       price: slot.basePrice,
       basePrice: slot.basePrice,
       discountPercent: 0,
@@ -218,9 +218,12 @@ function seedCrowd(st, t, today, courts) {
           while (taken.has(`${venue.id}|${ci}|${date} ${start}`)) ci = (ci + 1) % cfg.customerIds.length;
           taken.add(`${venue.id}|${ci}|${date} ${start}`);
           const pending = rand01(`st|${key}`) < pendingShare;
+          const paid = !pending && rand01(`pay|${key}`) < cfg.paidShare;
+          // R3: đơn đã có sân mà chưa trả tiền (sân có VietQR) chỉ đang giữ ô trong hạn chuyển khoản.
+          const awaitingPay = !pending && !paid && !!(venue.bank?.bin && venue.bank?.account);
           const slot = slotInfo(court, venue, date, start, null, true);
           const holdLeft = 2 + Math.floor(rand01(`hold|${key}`) * (meta().holdMinutes - 1));
-          const createdMin = pending ? meta().holdMinutes - holdLeft : 40 + Math.floor(rand01(`new|${key}`) * 4000);
+          const createdMin = pending || awaitingPay ? meta().holdMinutes - holdLeft : 40 + Math.floor(rand01(`new|${key}`) * 4000);
           const id = nextId('booking');
           st.bookings.push({
             id,
@@ -231,11 +234,11 @@ function seedCrowd(st, t, today, courts) {
             startAt: `${date} ${start}:00`,
             endAt: `${date} ${slot.end}:00`,
             status: pending ? 'pending' : 'confirmed',
-            expiresAt: pending ? msToVn(t + holdLeft * 60000) : null,
+            expiresAt: pending ? msToVn(t + holdLeft * 60000) : awaitingPay ? msToVn(Math.min(t + holdLeft * 60000, vnToMs(`${date} ${start}:00`))) : null,
             price: slot.basePrice,
             basePrice: slot.basePrice,
             discountPercent: 0,
-            paymentStatus: !pending && rand01(`pay|${key}`) < cfg.paidShare ? 'paid' : 'unpaid',
+            paymentStatus: paid ? 'paid' : 'unpaid',
             refundStatus: 'none',
             refundPercent: 0,
             refundAmount: 0,
@@ -569,6 +572,11 @@ function qrBank(bank, amount, content) {
     content,
   };
 }
+/** R3: hạn chuyển khoản của đơn vừa thành confirmed: payHoldMinutes kể từ bây giờ, không vượt giờ đá; null với lịch điện thoại và sân chưa có VietQR. */
+function payByFor(b, venue) {
+  if (b.walkIn || !venue.bank?.bin || !venue.bank?.account) return null;
+  return msToVn(Math.min(nowMs() + meta().payHoldMinutes * 60000, vnToMs(b.startAt)));
+}
 function paymentQr(b, venue) {
   if (b.walkIn) return null; // tiền của khách gọi điện nhận ngoài web
   if (b.status !== 'confirmed' || b.paymentStatus !== 'unpaid') return null; // R8
@@ -641,10 +649,18 @@ function tick() {
   let changed = false;
   const t = now();
   for (const b of S.bookings) {
-    if (b.status === 'pending' && b.expiresAt && vnToMs(b.expiresAt) <= nowMs()) {
+    const waitingApproval = b.status === 'pending';
+    const waitingPayment = b.status === 'confirmed' && b.paymentStatus === 'unpaid';
+    if ((waitingApproval || waitingPayment) && b.expiresAt && vnToMs(b.expiresAt) <= nowMs()) {
+      const from = b.status;
       b.status = 'expired';
-      addLog(b, 'expire', 'pending', 'expired', null, 'Quá hạn giữ chỗ chưa được đồng ý', b.expiresAt);
-      notify(b.userId, `Lịch đặt ${b.code} đã quá hạn vì chủ sân chưa kịp đồng ý.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+      addLog(b, 'expire', from, 'expired', null, waitingApproval ? 'Quá hạn giữ chỗ chưa được đồng ý' : 'Quá hạn giữ chỗ chưa chuyển khoản', b.expiresAt);
+      if (waitingApproval) {
+        notify(b.userId, `Lịch đặt ${b.code} đã quá hạn vì chủ sân chưa kịp đồng ý.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+      } else {
+        notify(b.userId, `Lịch đặt ${b.code} đã hết hạn giữ chỗ vì chưa nhận được chuyển khoản. Giờ này đã mở lại cho người khác.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+        notify(courtOf(b.courtId)[0].ownerId, `Lịch đặt ${b.code} của ${userOf(b.userId).fullName} đã hết hạn giữ chỗ vì khách chưa chuyển khoản. Giờ này đã mở lại.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
+      }
       freeSlot(b);
       changed = true;
     }
@@ -767,7 +783,7 @@ function insertBooking(user, venue, court, date, start, slot, extra = {}) {
     startAt: `${date} ${start}:00`,
     endAt: `${date} ${slot.end}:00`,
     status: needsApproval ? 'pending' : 'confirmed',
-    expiresAt: needsApproval ? msToVn(nowMs() + meta().holdMinutes * 60000) : null,
+    expiresAt: needsApproval ? msToVn(nowMs() + meta().holdMinutes * 60000) : payByFor({ startAt: `${date} ${start}:00` }, venue),
     price: extra.price ?? slot.price, // R6: giá chốt tại lúc đặt
     basePrice: slot.basePrice,
     discountPercent: extra.price == null ? slot.discountPercent : 0,
@@ -795,7 +811,7 @@ function insertBooking(user, venue, court, date, start, slot, extra = {}) {
     notify(venue.ownerId, `${user.fullName} vừa đặt sân (mã ${b.code}) và đang chờ bạn đồng ý, còn ${meta().holdMinutes} phút.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
     notify(user.id, `Bạn đã đặt ${court.name} lúc ${shortTs(b.startAt)}. Chủ sân có ${meta().holdMinutes} phút để đồng ý.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   } else {
-    notify(user.id, `Bạn đã có sân (mã ${b.code}). Hãy chuyển khoản bằng mã QR.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+    notify(user.id, `Bạn đã có sân (mã ${b.code}). Hãy chuyển khoản bằng mã QR${b.expiresAt ? ` trước ${b.expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn` : ''}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }
   save();
   return b;
@@ -932,9 +948,9 @@ function doApprove(b, actor) {
   if (b.status !== 'pending') fail(409, 'Chỉ đồng ý được lịch đặt đang chờ chủ sân đồng ý');
   if (b.expiresAt && vnToMs(b.expiresAt) <= nowMs()) fail(409, 'Lịch đặt đã quá hạn giữ chỗ');
   b.status = 'confirmed';
-  b.expiresAt = null;
+  b.expiresAt = payByFor(b, courtOf(b.courtId)[0]); // hạn chuyển khoản tính từ lúc duyệt (R3)
   addLog(b, 'approve', 'pending', 'confirmed', actor);
-  notify(b.userId, `Chủ sân đã đồng ý lịch đặt ${b.code}. Hãy chuyển khoản bằng mã QR.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  notify(b.userId, `Chủ sân đã đồng ý lịch đặt ${b.code}. Hãy chuyển khoản bằng mã QR${b.expiresAt ? ` trước ${b.expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn` : ''}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   save();
 }
 function doReject(b, actor, reason) {
@@ -949,9 +965,11 @@ function doReject(b, actor, reason) {
   save();
 }
 function doPaid(b, actor, note, via = 'owner') {
+  if (b.status === 'expired' && b.paymentStatus === 'unpaid' && !matchOfBooking(b)) fail(409, 'Lịch đặt đã hết hạn giữ chỗ nên không ghi nhận tiền được. Nếu khách đã chuyển khoản, hãy chuyển lại cho khách');
   if (b.status !== 'confirmed' && b.status !== 'completed') fail(409, 'Chỉ ghi nhận được cho lịch đặt đã có sân');
   if (b.paymentStatus === 'paid') fail(409, 'Lịch đặt đã được ghi nhận chuyển khoản');
   b.paymentStatus = 'paid';
+  b.expiresAt = null;
   b.paidVia = via;
   addLog(b, via === 'bank' ? 'bank_paid' : 'paid', null, null, actor, note || '');
   notify(b.userId, via === 'bank' ? `Ngân hàng báo đã nhận tiền của lịch đặt ${b.code} (mô phỏng). Đơn của bạn đã ghi nhận chuyển khoản.` : `Chủ sân đã nhận tiền của lịch đặt ${b.code}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
@@ -1776,6 +1794,11 @@ function parseBankCode(content) {
   return [...found.values()][0];
 }
 
+const AFTER_HOLD_TEXT = 'Khách chuyển sau khi đơn đã hết hạn giữ chỗ';
+/** Đơn đã hết hạn vì chưa chuyển khoản (nhật ký `expire` từ confirmed), để đổi lời giải thích của not_payable (R17c). */
+const heldExpired = (b) => S.logs.some((l) => l.bookingId === b.id && l.action === 'expire' && l.fromStatus === 'confirmed');
+const reasonText = (reason, b) => (reason === 'not_payable' && b && heldExpired(b) ? AFTER_HOLD_TEXT : BANK_REASONS[reason]);
+
 /** Đơn/khoản đang chờ tiền ứng với mã, hoặc lý do không khớp. */
 function bankTarget(p) {
   const b = S.bookings.find((x) => x.code === p.code);
@@ -1783,6 +1806,7 @@ function bankTarget(p) {
   if (p.kind === 'booking') {
     if (b.walkIn) return { b, reason: 'not_payable' };
     if (b.status === 'pending') return { b, reason: 'not_approved' };
+    if (b.status === 'expired' && b.paymentStatus === 'unpaid' && heldExpired(b)) return { b, reason: 'not_payable', afterHold: true };
     if (b.status !== 'confirmed' || b.paymentStatus !== 'unpaid') return { b, reason: 'not_payable' };
     return { b, due: b.price, apply: (note) => doPaid(b, BANK_ACTOR, note, 'bank') };
   }
@@ -1844,12 +1868,12 @@ function bankReport(d) {
     ev.status = 'unmatched';
     ev.reason = reason;
     const b = target.b;
-    if (b && reason !== 'wrong_account') addLog(b, 'bank_unmatched', null, null, BANK_ACTOR, `Ngân hàng báo ${vnd(amount)}, nội dung "${content}" nhưng chưa tự ghi nhận: ${BANK_REASONS[reason]}${target.due ? ` (cần ${vnd(target.due)})` : ''} (mô phỏng SePay)`);
-    if (ev.ownerId != null) notify(ev.ownerId, `Ngân hàng báo ${vnd(amount)}, nội dung "${content}" nhưng chưa tự ghi nhận được: ${BANK_REASONS[reason].toLowerCase()}. Cần bạn xem và xử lý.`, { bookingId: b?.id ?? null, link: '/owner.html' });
+    if (b && reason !== 'wrong_account') addLog(b, 'bank_unmatched', null, null, BANK_ACTOR, `Ngân hàng báo ${vnd(amount)}, nội dung "${content}" nhưng chưa tự ghi nhận: ${reasonText(reason, b)}${target.due ? ` (cần ${vnd(target.due)})` : ''} (mô phỏng SePay)`);
+    if (ev.ownerId != null) notify(ev.ownerId, `Ngân hàng báo ${vnd(amount)}, nội dung "${content}" nhưng chưa tự ghi nhận được: ${reasonText(reason, b).toLowerCase()}. Cần bạn xem và xử lý.`, { bookingId: b?.id ?? null, link: '/owner.html' });
     if (b?.userId != null && ['short', 'over'].includes(reason)) notify(b.userId, `Ngân hàng báo đã nhận ${vnd(amount)} cho ${b.code}, chưa khớp số cần chuyển (${vnd(target.due)}). Chủ sân sẽ xem và liên hệ bạn.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }
   save();
-  return { ...ev, duplicate: false };
+  return { ...ev, reasonText: ev.reason ? reasonText(ev.reason, target.b) : null, duplicate: false };
 }
 
 /** Chạy các khoản giả lập đã đến hạn (hoặc tất cả khi force). */
@@ -1872,7 +1896,7 @@ function ownerBankEvents(user) {
   return S.bankEvents
     .filter((e) => e.ownerId === user.id)
     .sort((a, b) => b.receivedAt.localeCompare(a.receivedAt) || b.id - a.id)
-    .map((e) => ({ ...e, reasonText: e.reason ? BANK_REASONS[e.reason] : null }));
+    .map((e) => ({ ...e, reasonText: e.reason ? reasonText(e.reason, S.bookings.find((x) => x.id === e.bookingId)) : null }));
 }
 function resolveBankEvent(ctx) {
   const user = need(ctx, 'owner');
@@ -1884,9 +1908,9 @@ function resolveBankEvent(ctx) {
   e.handledAt = now();
   const note = String(ctx.body?.note || '').slice(0, 300);
   const b = e.bookingId ? S.bookings.find((x) => x.id === e.bookingId) : null;
-  if (b) addLog(b, 'bank_resolved', null, null, user, `Đã xử lý khoản ${vnd(e.amount)} ngân hàng báo (${BANK_REASONS[e.reason].toLowerCase()})${note ? `. ${note}` : ''}`);
+  if (b) addLog(b, 'bank_resolved', null, null, user, `Đã xử lý khoản ${vnd(e.amount)} ngân hàng báo (${reasonText(e.reason, b).toLowerCase()})${note ? `. ${note}` : ''}`);
   save();
-  return { ...e, reasonText: BANK_REASONS[e.reason] };
+  return { ...e, reasonText: reasonText(e.reason, b) };
 }
 
 function doRejectGuest(ctx) {
@@ -2345,7 +2369,7 @@ function seedRequests(st, ago) {
       st.offers.push(o);
       st.notifications.push({ id: nextId('notification'), userId: spec.userId, bookingId: null, message: `${venue.name} báo giá ${o.price.toLocaleString('vi-VN')}đ cho ${picked.c.name} ${picked.s}–${picked.e}.`, link: `/request.html?id=${r.id}`, isRead: spec.state === 'chosen', createdAt: o.createdAt });
       if (spec.state === 'chosen' && of.chosen) {
-        const b = { id: nextId('booking'), code: '', userId: spec.userId, venueId: venue.id, courtId: picked.c.id, startAt: o.startAt, endAt: o.endAt, status: venue.requiresApproval ? 'pending' : 'confirmed', expiresAt: venue.requiresApproval ? msToVn(Date.now() + meta().holdMinutes * 60000) : null, price: o.price, basePrice: listed, discountPercent: 0, offerId: o.id, paymentStatus: 'unpaid', refundStatus: 'none', refundPercent: 0, refundAmount: 0, cancelledBy: null, cancelReason: null, lateCancel: false, customerNote: '', rulesSnapshot: venue.rules, policySnapshot: venue.cancelPolicy, idempotencyKey: null, createdAt: ago(spec.minAgo - 20), cancelledAt: null };
+        const b = { id: nextId('booking'), code: '', userId: spec.userId, venueId: venue.id, courtId: picked.c.id, startAt: o.startAt, endAt: o.endAt, status: venue.requiresApproval ? 'pending' : 'confirmed', expiresAt: venue.requiresApproval ? msToVn(Date.now() + meta().holdMinutes * 60000) : venue.bank?.bin && venue.bank?.account ? msToVn(Math.min(Date.now() + 8 * 60000, vnToMs(o.startAt))) : null, price: o.price, basePrice: listed, discountPercent: 0, offerId: o.id, paymentStatus: 'unpaid', refundStatus: 'none', refundPercent: 0, refundAmount: 0, cancelledBy: null, cancelReason: null, lateCancel: false, customerNote: '', rulesSnapshot: venue.rules, policySnapshot: venue.cancelPolicy, idempotencyKey: null, createdAt: ago(spec.minAgo - 20), cancelledAt: null };
         b.code = bookingCode(b.id);
         st.bookings.push(b);
         o.status = 'chosen';
