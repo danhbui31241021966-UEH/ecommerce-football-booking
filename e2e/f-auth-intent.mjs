@@ -7,6 +7,27 @@ const phone = `091${String(W).padStart(7, '0')}`;
 await p.goto(U + '/login');
 await p.evaluate(async () => { const { api } = await import('/js/api.js'); await api.proto.resetDemo(); });
 
+await step(p, 'auth-intent', 'demo-role-shortcuts', async () => {
+  const accounts = [
+    { identifier: 'khach1@datsan.local', role: 'customer', path: '/' },
+    { identifier: 'chusan1@datsan.local', role: 'owner', path: '/owner.html' },
+    { identifier: 'admin@datsan.local', role: 'admin', path: '/admin.html' },
+  ];
+  for (const account of accounts) {
+    await p.goto(U + '/login');
+    assert.equal(await p.locator('#demo-accounts').isVisible(), true);
+    assert.equal(await p.locator('#demo-accounts button').count(), 3);
+    await Promise.all([
+      p.waitForURL((url) => url.pathname === account.path),
+      p.locator(`#demo-accounts button[data-identifier="${account.identifier}"]`).click(),
+    ]);
+    const me = await api(p, 'a=>a.me()');
+    assert.equal(me.user.role, account.role);
+    await p.evaluate(async () => { const { api } = await import('/js/api.js'); await api.logout(); });
+  }
+  return 'prototype quick login: customer, owner, admin';
+});
+
 await step(p, 'auth-intent', 'login-context', async () => {
   await p.goto(U + '/login' + nextQuery);
   await p.waitForSelector('#booking-context:not([hidden])');

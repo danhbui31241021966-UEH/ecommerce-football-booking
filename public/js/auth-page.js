@@ -51,6 +51,19 @@ const showError = (msg) => {
   if (getUser()) location.replace(safeNext || HOME[getUser().role] || '/');
 })();
 
+// Đường tắt tài khoản demo chỉ tồn tại ở prototype; bản thật không xuất api.proto.
+const demo = document.getElementById('demo-accounts');
+if (demo && api.proto) {
+  demo.hidden = false;
+  demo.addEventListener('click', (e) => {
+    const button = e.target.closest('button[data-identifier]');
+    if (!button) return;
+    form.elements.namedItem('identifier').value = button.dataset.identifier;
+    form.elements.namedItem('password').value = 'Matkhau@123';
+    form.requestSubmit();
+  });
+}
+
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   showError('');

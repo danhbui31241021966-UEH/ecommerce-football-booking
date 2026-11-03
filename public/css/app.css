@@ -2382,6 +2382,34 @@ body:has(.booking-bar) .toast-stack {
 .auth-alt a {
   font-weight: 700;
 }
+.demo-accounts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  margin-top: var(--sp-3);
+  color: var(--text-2);
+  font-size: var(--fs-xs);
+  line-height: 1.35;
+}
+.demo-accounts[hidden] {
+  display: none;
+}
+.demo-accounts button {
+  min-height: 44px;
+  padding: 3px 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  background: transparent;
+  color: var(--text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.demo-accounts button:hover {
+  background: var(--text);
+  color: var(--on-dark);
+}
 @media (min-width: 900px) {
   .auth {
     grid-template-columns: minmax(0, 1fr) minmax(480px, 40vw);
