@@ -104,7 +104,7 @@ function renderVenues(venues, date, today, at) {
             <span class="no">0${i + 1}</span>
             <a class="photo" href="/venue.html?id=${v.id}&date=${date}" tabindex="-1" aria-hidden="true">${v.imageUrl ? `<img src="${esc(v.imageUrl)}" width="900" height="600" loading="lazy" alt="">` : '<span class="no-photo">Chưa có ảnh</span>'}</a>
             <h3><a href="/venue.html?id=${v.id}&date=${date}">${esc(v.name)}</a></h3>
-            <div class="meta"><span data-icon="pin">${esc(v.district)}</span><span>${types}</span><span data-icon="${v.requiresApproval ? 'hourglass' : 'bolt'}">${v.requiresApproval ? 'Chủ sân duyệt' : 'Đặt là chốt'}</span></div>
+            <div class="meta"><span data-icon="pin">${esc(v.district)}</span><span>${types}</span><span data-icon="${v.requiresApproval ? 'hourglass' : 'bolt'}">${v.requiresApproval ? 'Chủ sân duyệt' : 'Xác nhận ngay'}</span></div>
             <p class="from"><span class="price">${money(v.minPrice)}</span> <span class="muted">– ${money(v.maxPrice)} / ${unit}</span></p>
             <p class="slot-row-label">Giờ còn trống</p>
             <div class="slot-pills">

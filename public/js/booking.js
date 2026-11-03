@@ -86,10 +86,10 @@ function render() {
     <div class="booking-layout${hasQr ? ' has-side' : ''}" style="margin-top:var(--sp-3)">
       <div class="area-sum">
         <div class="card card-pad stack">
-          <div class="row"><h1 class="booking-code">${esc(b.code)}</h1><span class="spacer"></span>${statusBadge(b.status)}${paymentBadge(b.paymentStatus)}</div>
+          <div class="row"><h1 class="booking-code">${esc(b.code)}</h1><span class="spacer"></span>${b.status === 'confirmed' && b.paymentStatus === 'unpaid' && b.expiresAt ? `<span class="badge badge-confirmed">Đang giữ sân · chuyển khoản trước ${timeOf(b.expiresAt)}</span>` : b.status === 'confirmed' && b.paymentStatus === 'unpaid' ? '<span class="badge badge-confirmed">Đã có sân · chưa chuyển khoản</span>' : b.status === 'confirmed' && b.paymentStatus === 'paid' ? '<span class="badge badge-confirmed">Đã có sân</span>' : statusBadge(b.status)}${paymentBadge(b.paymentStatus)}</div>
           ${pending ? `<div class="notice warn" role="status"><div><span class="countdown" id="cd"></span></div></div>${pendingReason ? `<p class="muted" style="font-size:var(--fs-sm)">${esc(pendingReason)}</p>` : ''}` : ''}
           ${awaitingPay ? `<div class="notice warn" role="status"><div><span class="countdown" id="pay-cd"></span></div></div>` : ''}
-          ${b.status === 'confirmed' && b.paymentStatus === 'unpaid' && !hasQr ? '<div class="notice">Bạn đã có sân. Sân này chưa có mã QR, hãy nhắn chủ sân để biết cách chuyển khoản.</div>' : ''}
+          ${b.status === 'confirmed' && b.paymentStatus === 'unpaid' && !hasQr ? '<div class="notice">Đã có sân · chưa chuyển khoản. Sân này chưa có mã QR, hãy nhắn chủ sân để biết cách chuyển khoản.</div>' : ''}
           ${b.status === 'confirmed' && b.paymentStatus === 'paid' ? `<div class="notice" role="status">${b.paidVia === 'bank' ? `Ngân hàng báo đã nhận tiền${SIM}. Hẹn gặp bạn trên sân.` : 'Chủ sân đã nhận tiền. Hẹn gặp bạn trên sân.'}</div>` : ''}
           <dl class="kv">
             <div><dt>Sân</dt><dd><a href="/venue.html?id=${b.venueId}">${esc(b.venueName)}</a> · ${esc(b.courtName)} (sân ${b.fieldType})</dd></div>

@@ -822,7 +822,7 @@ function insertBooking(user, venue, court, date, start, slot, extra = {}) {
     notify(venue.ownerId, `${user.fullName} vừa đặt sân (mã ${b.code}) và đang chờ bạn đồng ý, còn ${meta().holdMinutes} phút.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
     notify(user.id, `Bạn đã đặt ${court.name} lúc ${shortTs(b.startAt)}. Chủ sân có ${meta().holdMinutes} phút để đồng ý.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   } else {
-    notify(user.id, `Bạn đã có sân (mã ${b.code}). Hãy chuyển khoản bằng mã QR${b.expiresAt ? ` trước ${b.expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn` : ''}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+    notify(user.id, `${b.expiresAt ? `Đang giữ sân · chuyển khoản trước ${b.expiresAt.slice(11, 16)}` : 'Đã có sân · chưa chuyển khoản'} (mã ${b.code}). Hãy chuyển khoản${b.expiresAt ? ', quá giờ đơn tự hết hạn' : ' theo hướng dẫn của chủ sân'}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }
   save();
   return b;
@@ -961,7 +961,7 @@ function doApprove(b, actor) {
   b.status = 'confirmed';
   b.expiresAt = payByFor(b, courtOf(b.courtId)[0]); // hạn chuyển khoản tính từ lúc duyệt (R3)
   addLog(b, 'approve', 'pending', 'confirmed', actor);
-  notify(b.userId, `Chủ sân đã đồng ý lịch đặt ${b.code}. Hãy chuyển khoản bằng mã QR${b.expiresAt ? ` trước ${b.expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn` : ''}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  notify(b.userId, `Chủ sân đã đồng ý lịch đặt ${b.code}. ${b.expiresAt ? `Đang giữ sân · chuyển khoản trước ${b.expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn.` : 'Đã có sân · chưa chuyển khoản.'}`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   save();
 }
 function doReject(b, actor, reason) {

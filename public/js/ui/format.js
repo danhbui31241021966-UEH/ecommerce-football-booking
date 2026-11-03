@@ -83,7 +83,7 @@ export function cancelDeadlines(startAt) {
 
 export const STATUS_LABEL = {
   pending: 'Chờ chủ sân đồng ý',
-  confirmed: 'Đã có sân',
+  confirmed: 'Đã xác nhận',
   rejected: 'Chủ sân từ chối',
   cancelled: 'Đã hủy',
   expired: 'Quá hạn',

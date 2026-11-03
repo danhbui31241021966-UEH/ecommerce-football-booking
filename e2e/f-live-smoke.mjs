@@ -7,7 +7,7 @@ const must = (c, m) => { if (!c) throw new Error(m); };
 const EMAIL = 'khach1@datsan.local';
 const MIN_AHEAD_MS = 24 * 3600000 + 10 * 60000; // hơn 24 giờ: hủy được hoàn đủ, không tính hủy sát giờ
 const VN = (s) => Date.parse(s.replace(' ', 'T') + '+07:00');
-const STATUS_TEXT = { confirmed: 'Đã có sân', pending: 'Chờ chủ sân đồng ý' };
+const STATUS_TEXT = { confirmed: 'Đang giữ sân · chuyển khoản trước', pending: 'Chờ chủ sân đồng ý' };
 let code = null, url = null, cancelled = false;
 
 // Ô còn trống, cách bây giờ hơn 24 giờ, ở sân không cần chủ sân duyệt (ưu tiên). Chọn ngẫu nhiên để các lần chạy không tranh một ô.

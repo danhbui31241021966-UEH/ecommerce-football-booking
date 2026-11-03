@@ -76,8 +76,8 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 | Chào giá, ngân sách, giá niêm yết | Báo giá, mức giá bạn muốn, giá thường | |
 | Booking, Booking của tôi | Lịch đặt, Lịch đặt của tôi | |
 | slot, sân con | giờ, sân | "cụm sân" giữ nguyên |
-| Tự xác nhận / Chủ sân duyệt | Đặt là chốt / Chủ sân duyệt | câu dài: "chủ sân đồng ý mới có sân" |
-| Chờ duyệt, Đã xác nhận, Từ chối, Hết hạn | Chờ chủ sân đồng ý, Đã có sân, Chủ sân từ chối, Quá hạn | "Đã có sân" luôn đi kèm nhãn "Chưa chuyển khoản / Đã chuyển khoản" |
+| Tự xác nhận / Chủ sân duyệt | Xác nhận ngay / Chủ sân duyệt | câu dài: "chủ sân đồng ý mới có sân" |
+| Chờ duyệt, Đã xác nhận, Từ chối, Hết hạn | Chờ chủ sân đồng ý, Đang giữ sân · chuyển khoản trước HH:mm (khi có hạn), Đã có sân · chưa chuyển khoản (không hạn), Đã có sân · đã chuyển khoản, Chủ sân từ chối, Quá hạn | "Đã có sân" luôn đi kèm trạng thái chuyển khoản |
 | Chờ đủ hai đội (matching), Đã nhượng | Đang tìm đội đá cùng, Đã pass | |
 | Hoàn tiền, Chưa hoàn / Đã hoàn | Trả lại tiền, Chưa trả lại / Đã trả lại | nút chủ sân: "Đã chuyển lại …" |
 | Thanh toán, VietQR, thu tiền | Chuyển khoản, mã QR, "Đã nhận tiền" (nút chủ sân) | |
