@@ -443,7 +443,7 @@ Nhóm đo bằng Playwright trên Chrome, chạy bản dữ liệu mẫu ở má
 | 4 | **Vòng focus gần như không thấy trên nền tối**: viền màu `#15150f` trên header `#0d0e0b` | Header, menu điện thoại, mọi khổ | Vòng focus dùng biến `--focus`: màu chữ trên nền sáng, lime trên nền tối | Độ tương phản 1,06:1 → 15,41:1 |
 | 5 | Menu điện thoại đã đóng **vẫn nhận phím Tab** | 768 / 390 px | Thêm `visibility: hidden` khi menu đóng | Tab không còn rơi vào liên kết ẩn |
 | 6 | Mục "Sân còn trống" ở trang chủ là **băng cuộn ngang** | Trang chủ, 768 / 390 px | Giữ nguyên vì cố ý theo thiết kế, có chữ "Vuốt ngang để xem thêm" | Không tạo cuộn ngang cho cả trang |
-| 7 | Ba chip chọn ngày ở trang chi tiết sân cao **41 px** ở 390 px, thấp hơn mức 44 px (phát hiện khi đo lại sau đợt cải thiện) | Chi tiết sân, 390 px | **Chưa xử lý.** Ghi nhận để sửa tiếp, không ảnh hưởng chức năng | 41 px, chưa đạt 44 px |
+| 7 | Ba chip chọn ngày ở trang chi tiết sân cao **41 px** ở 390 px, thấp hơn mức 44 px (phát hiện khi đo lại sau đợt cải thiện) | Chi tiết sân, 390 px | **Đã xử lý** (commit `8838bcc`): chip cao tối thiểu 44 px ở 390 px | 41 px → 44 px |
 
 *Nguồn: Nhóm tác giả*
 
@@ -477,7 +477,7 @@ Nhóm đo bằng Playwright trên Chrome, chạy bản dữ liệu mẫu ở má
 | Chiều dài trang chủ | 4731 → 3730 px | 3779 → 2983 px |
 | Header và logo hiện ra sau | 284 → 64 ms | 109 → 44 ms |
 
-Ở trang sân, 390 × 844 px: hàng giờ đầu tiên trước đây nằm ở y 750–816 và bị thanh đặt sân (y 763) che một phần; nay ở y 624–690, không bị che. Ở 1366 px không đổi (y 489–553).
+Ở trang sân, 390 × 844 px: hàng giờ đầu tiên trước đây nằm ở y 750–816 và bị thanh đặt sân (y 763) che một phần; nay ở y 627–693 (đo sau khi chip ngày cao thêm lên 44 px), không bị che vì thanh đặt sân vẫn ở y 763. Ở 1366 px không đổi (y 489–553).
 
 **Ảnh trước và sau.** Ảnh chụp cùng một kịch bản cho cả hai bản (trước từ commit `a8085ce`, sau từ `main`), chỉ lấy màn hình đầu của mỗi bước. Kịch bản bấm vào giờ đầu tiên của sân đầu tiên trong kết quả nên hai bên có thể rơi vào hai sân khác nhau; so bố cục và chữ, không so tên sân. Ở bản trước, sau khi đăng nhập trang không tự mở hộp xác nhận nên kịch bản phải quay lại sân và bấm Đặt sân lần nữa; ảnh "Hộp xác nhận" của bản trước chụp sau bước đó.
 
