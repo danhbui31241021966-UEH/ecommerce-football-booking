@@ -3310,6 +3310,8 @@ body:has(.booking-bar) { scroll-padding-bottom: 104px; }
 @media (min-width: 720px) {
   .booking-bar .summary { display: flex; align-items: baseline; gap: var(--sp-5); }
   .booking-bar .summary .what { font-size: var(--fs-md); }
+}
+
 /* ===== Header: mục "Thêm" và header vẽ sớm ===== */
 /* Trước khi shell.js chạy, ô giữ chỗ vẫn hiện chữ GGO ngay ở lần vẽ đầu tiên (CSS nằm trong <head>, không chờ JS). */
 #app-header:empty {
@@ -3391,4 +3393,10 @@ body:has(.booking-bar) { scroll-padding-bottom: 104px; }
 .avatar-ghost {
   background: var(--pitch-800, var(--pitch-700));
   opacity: 0.6;
+}
+
+/* Điện thoại: thu khoảng trống phía trên tiêu đề để dòng giờ trống đầu tiên nằm trọn trong màn đầu (390×844) */
+@media (max-width: 639.98px) {
+  .hero-main { padding-top: 72px; }
+  .hero-main .display { margin-top: var(--sp-5); }
 }
