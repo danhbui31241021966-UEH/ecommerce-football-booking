@@ -88,7 +88,7 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 
 | # | Màn | Nội dung chính |
 |---|---|---|
-| 1 | Trang chủ | Ô tìm theo giờ (ngày + giờ muốn đá + loại sân 5/7 + quận). Khối "Giảm giá giờ chót". Lối vào danh sách sân. |
+| 1 | Trang chủ | Tiêu đề nói rõ đây là web đặt sân bóng mini; ô tìm theo giờ (ngày + giờ + loại sân 5/7 + quận). Cột "Tối nay/Hôm nay/Mai còn trống" liệt kê các giờ gần giờ đang chọn, giờ giảm giá giờ chót có nhãn -% (không còn khối "Giờ chót" riêng). Dưới là "Sân còn trống", rồi lối vào Pass sân, Ghép kèo, Nhờ báo giá và dải "Giải đang đá"; cuối trang một hàng ba điều cần biết (0đ phí, hủy miễn phí 24h, chuyển khoản thẳng cho chủ sân). |
 | 2 | Danh sách sân / kết quả tìm | Chip lọc (ngày, giờ, giá, 5/7, quận). Thẻ sân có **giờ trống ngay trên thẻ**, giá thấp–cao, nhãn giảm giá, nhãn "tự xác nhận / chờ duyệt". |
 | 3 | Chi tiết sân | Ảnh, địa chỉ + link Google Maps, tiện ích, nội quy, chính sách hủy. **Lưới slot**: 3 chip ngày; mobile chia Sáng/Chiều/Tối, desktop mỗi cột một sân con. Trạng thái ô: trống / đã đặt / đang giữ / bị chặn / đã qua / đang giữ cho người khác / **đang giữ cho bạn**. Ô đã có người giữ có nút "Báo tôi khi trống". Thanh dưới cùng tóm tắt lựa chọn + giá + nút Đặt. |
 | 4 | Xác nhận đặt (hộp thoại) | Sân, giờ, giá gốc/giảm/tổng, ghi chú, chính sách hủy kèm **mốc giờ cụ thể** ("hủy trước 19:00 30/10 hoàn 100%"). Báo trước nếu lịch đặt sẽ phải chờ duyệt (do sân hoặc do độ tin cậy). |
@@ -117,7 +117,7 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 | 13b | Giải đấu (danh sách + tạo giải) | Tab thứ ba cạnh "Lưới theo giờ" và "Danh sách" trong mục menu "Lịch sân" (menu chủ sân vẫn 4 mục), `/owner-leagues.html`, theo sân đang chọn. Hộp "Tạo giải mới": tên, loại sân, số đội, link. | owner |
 | 13c | Quản lý giải | `/owner-league.html?id=`: đội (thêm/sửa/xóa, tick lệ phí, cho rút), tạo trận, xếp tự động/chọn giờ từng trận, công bố, nhập/sửa tỉ số, hoãn trận, lịch sử, bảng xếp hạng, sửa điều lệ, xóa giải. | owner |
 | 6b | Trang giải công khai | `/league.html?id=` (R18i). | công khai |
-| 6c | Danh sách giải | `/leagues.html` (R18j), không cần đăng nhập, lọc theo quận (`?district=`). Mỗi giải một thẻ: tên, sân và quận, loại sân, tiến độ trận, đội đầu bảng (giải đã xong ghi "Vô địch"), nút nhắn chủ sân. Giải đang đá và sắp đá đứng trước, giải đã kết thúc thu gọn ở cuối; giải nháp không hiện. Trang chủ có dải "Giải đang đá" (tối đa 3 thẻ, ẩn khi không có giải đang đá hay sắp đá), đặt dưới "Chưa có sân? Thử ba cách này". Trang này nằm trong sitemap (trang cố định) và được lập chỉ mục; giải ở sân demo vẫn hiện trong danh sách để demo có dữ liệu, còn trang từng giải ở sân demo giữ noindex. | công khai |
+| 6c | Danh sách giải | `/leagues.html` (R18j), không cần đăng nhập, lọc theo quận (`?district=`). Mỗi giải một thẻ: tên, sân và quận, loại sân, tiến độ trận, đội đầu bảng (giải đã xong ghi "Vô địch"), nút nhắn chủ sân. Giải đang đá và sắp đá đứng trước, giải đã kết thúc thu gọn ở cuối; giải nháp không hiện. Trang chủ có dải "Giải đang đá" (tối đa 3 thẻ, ẩn khi không có giải đang đá hay sắp đá), đặt dưới "Chưa tìm được sân?". Trang này nằm trong sitemap (trang cố định) và được lập chỉ mục; giải ở sân demo vẫn hiện trong danh sách để demo có dữ liệu, còn trang từng giải ở sân demo giữ noindex. | công khai |
 
 ### Admin
 
