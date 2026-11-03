@@ -81,46 +81,54 @@ function setSeo() {
 function renderTop() {
   setSeo();
   const unit = venue.slotMinutes === 60 ? 'giờ' : `ca ${venue.slotMinutes} phút`;
+  const leagues = venue.leagues || [];
   $('venue-root').innerHTML = `
     <p class="crumb"><a href="/">Trang chủ</a> / <a href="/venues.html?date=${date}">Tìm sân</a> / ${esc(venue.name)}</p>
-    <div class="venue-top" style="margin-top:var(--sp-3)">
-      <div class="photo">${venue.imageUrl ? `<img src="${esc(venue.imageUrl)}" width="900" height="506" alt="${venue.imageIsIllustrative ? 'Ảnh minh họa, không phải ảnh của sân' : esc(venue.name)}">` : '<span class="no-photo">Chưa có ảnh</span>'}${photoNote()}</div>
+    <div class="venue-top">
       <div class="info">
         <div class="row" style="gap:8px">${modeTag(venue.requiresApproval)}${venue.lastMinutePercent ? `<span class="tag-sale">Giờ chót -${venue.lastMinutePercent}%</span>` : ''}</div>
         <h1 class="h1">${esc(venue.name)}</h1>
         <div class="addr"><span data-icon="pin">${esc(venue.address)}</span>
           <a href="${esc(venue.mapsUrl)}" target="_blank" rel="noopener">Mở Google Maps</a></div>
         <p><span class="price">${money(venue.minPrice)}</span> <span class="muted">– ${money(venue.maxPrice)} / ${unit} · mở ${venue.openTime}–${venue.closeTime}</span></p>
-        <p class="muted">${esc(venue.description)}</p>
-        ${venue.amenities.length ? `<div class="amenities" aria-label="Tiện ích">${venue.amenities.map((a) => `<span>${esc(a)}</span>`).join('')}</div>` : ''}
-        ${venue.phone ? `<p class="muted" style="font-size:var(--fs-sm)">Điện thoại: <a href="tel:${esc(venue.phone)}">${esc(venue.phone)}</a></p>` : ''}
-        ${sourceNote(venue.dataSource)}
+        ${leagues.length ? `<p class="venue-leagues muted">Giải đang đá ở sân này: ${leagues.map((l) => `<a href="/league.html?id=${l.id}">${esc(l.name)}</a> <span>(sân ${esc(l.fieldType)} người · ${l.status === 'ongoing' ? 'đang đá' : 'sắp đá'})</span>`).join(', ')}</p>` : ''}
       </div>
-    </div>
-    ${(venue.leagues || []).length ? `<section class="card card-pad venue-leagues" aria-labelledby="vl-title" style="margin-bottom:var(--sp-4)"><h2 class="h3" id="vl-title">Giải đang đá ở sân này</h2><ul>${venue.leagues.map((l) => `<li><a href="/league.html?id=${l.id}">${esc(l.name)}</a> <span class="muted">· sân ${esc(l.fieldType)} người · ${l.status === 'ongoing' ? 'đang đá' : 'sắp đá'}</span></li>`).join('')}</ul></section>` : ''}
-    <div class="rules-grid card card-pad" style="margin-bottom:var(--sp-8)">
-      ${venue.rules ? `<div><h3>Nội quy sân</h3><p>${esc(venue.rules)}</p></div>` : ''}
-      <div><h3>Chính sách hủy</h3><p>${esc(venue.cancelPolicy)}</p></div>
+      <div class="photo">${venue.imageUrl ? `<img src="${esc(venue.imageUrl)}" width="900" height="506" alt="${venue.imageIsIllustrative ? 'Ảnh minh họa, không phải ảnh của sân' : esc(venue.name)}">` : '<span class="no-photo">Chưa có ảnh</span>'}${photoNote()}</div>
     </div>
     <section aria-labelledby="pick-title">
       <div class="pick-head">
         <div><h2 class="h2" id="pick-title">Chọn giờ</h2><p class="muted" id="pick-sub"></p></div>
         <div class="day-chips" id="days" role="group" aria-label="Chọn ngày"></div>
       </div>
-      <div class="slot-legend" aria-label="Chú giải">
-        <span><i class="slot slot-available"></i>Trống</span>
-        <span><i class="slot" aria-pressed="true"></i>Bạn chọn</span>
-        <span><i class="slot slot-held"></i>Đang giữ</span>
-        <span><i class="slot slot-booked"></i>Đã đặt</span>
-        <span><i class="slot slot-blocked"></i>Bị chặn</span>
-        <span><i class="slot slot-league"></i>Giải</span>
-        <span><i class="slot slot-offered"></i>Giữ cho người đang chờ</span>
-        <span><i class="slot slot-for-you"></i>Giữ cho bạn</span>
-        <span><i class="slot slot-past"></i>Đã qua</span>
-      </div>
       <div id="picked-note"></div>
       <div id="grid" aria-live="polite"></div>
-    </section>`;
+      <details class="slot-legend-wrap"><summary>Chú giải màu</summary>
+        <div class="slot-legend" aria-label="Chú giải">
+          <span><i class="slot slot-available"></i>Trống</span>
+          <span><i class="slot" aria-pressed="true"></i>Bạn chọn</span>
+          <span><i class="slot slot-held"></i>Đang giữ</span>
+          <span><i class="slot slot-booked"></i>Đã đặt</span>
+          <span><i class="slot slot-blocked"></i>Bị chặn</span>
+          <span><i class="slot slot-league"></i>Giải</span>
+          <span><i class="slot slot-offered"></i>Giữ cho người đang chờ</span>
+          <span><i class="slot slot-for-you"></i>Giữ cho bạn</span>
+          <span><i class="slot slot-past"></i>Đã qua</span>
+        </div>
+      </details>
+    </section>
+    <details class="venue-more">
+      <summary>Mô tả, tiện ích, nội quy, chính sách hủy</summary>
+      <div class="venue-more-body stack">
+        <p class="muted">${esc(venue.description)}</p>
+        ${venue.amenities.length ? `<div class="amenities" aria-label="Tiện ích">${venue.amenities.map((a) => `<span>${esc(a)}</span>`).join('')}</div>` : ''}
+        ${venue.phone ? `<p class="muted" style="font-size:var(--fs-sm)">Điện thoại: <a href="tel:${esc(venue.phone)}">${esc(venue.phone)}</a></p>` : ''}
+        <div class="rules-grid">
+          ${venue.rules ? `<div><h3>Nội quy sân</h3><p>${esc(venue.rules)}</p></div>` : ''}
+          <div><h3>Chính sách hủy</h3><p>${esc(venue.cancelPolicy)}</p></div>
+        </div>
+        ${sourceNote(venue.dataSource)}
+      </div>
+    </details>`;
   $('days').innerHTML = Array.from({ length: meta.bookingWindowDays }, (_, i) => addDays(today, i))
     .map((d) => {
       const rel = relativeDayLabel(d, today).split(',')[0];
@@ -178,14 +186,14 @@ function renderGrid() {
     ${courts.length > 1 ? `<div class="segmented court-switch" role="group" aria-label="Chọn sân">${courts.map((c) => `<button type="button" data-court-tab="${c.id}" aria-pressed="${c.id === wantCourt}">${esc(c.name)} · ${c.fieldType}</button>`).join('')}</div>` : `<p class="muted" style="margin-bottom:var(--sp-3)">${esc(cur.name)} · sân ${cur.fieldType} người</p>`}
     ${periods
       .map((p) => {
-        const slots = cur.slots.filter((s) => periodOf(s.start) === p);
+        const slots = cur.slots.filter((s) => periodOf(s.start) === p && s.status !== 'past'); // giờ đã qua không giúp chọn, bỏ khỏi lưới điện thoại
         if (!slots.length) return '';
         return `<div class="slot-period"><div class="slot-period-head"><h3 style="font-weight:700;font-size:var(--fs-lg)">${p}</h3><span class="muted" style="font-size:12px">${slots[0].start} – ${slots.at(-1).end}</span>${slots.some((s) => s.peak) ? '<span class="tag-peak" data-icon="flame">Có giờ cao điểm</span>' : ''}</div>
           <div class="slot-period-grid">${slots.map((s) => cell(cur, s, 'm')).join('')}</div></div>`;
       })
-      .join('')}
+      .join('') || '<p class="muted">Không còn giờ nào trong ngày này. Chọn ngày khác ở trên.</p>'}
   </div>`;
-  const starts = courts[0].slots.map((s) => s.start);
+  const starts = courts[0].slots.map((s) => s.start).filter((st) => courts.some((c) => findSlot(c.id, st)?.status !== 'past')); // hàng mà mọi sân đều đã qua thì bỏ
   const desktop = `<div class="slot-desktop"><div class="slot-board"><table>
     <thead><tr><th><span class="sr-only">Giờ</span></th>${courts.map((c) => `<th scope="col">${esc(c.name)}<small>Sân ${c.fieldType} người</small></th>`).join('')}</tr></thead>
     <tbody>${starts
@@ -249,7 +257,7 @@ function paintBar() {
     return;
   }
   const court = courtById(picked.courtId);
-  $('bar-what').textContent = `${court.name} · ${s.start}–${s.end} · ${relativeDayLabel(date, today)}`;
+  $('bar-what').innerHTML = `<b>${esc(venue.name)}</b>${esc(court.name)} · ${s.start}–${s.end} · ${esc(relativeDayLabel(date, today))}`;
   $('bar-total').textContent = money(s.price);
   btn.disabled = false;
 }
@@ -261,7 +269,10 @@ function paintPickedNote() {
   if (!want || date !== params.get('date') || picked) return;
   const court = Number(params.get('court')) || null;
   const s = court ? findSlot(court, want) : schedule.courts.map((c) => findSlot(c.id, want)).find(Boolean);
-  if (!s) return;
+  if (!s) {
+    if (params.get('book')) el.innerHTML = `<div class="notice warn picked-note" role="status">Giờ ${esc(want)} bạn chọn không còn trong lịch của sân này. Chọn giờ khác bên dưới.</div>`;
+    return;
+  }
   const why = { booked: 'đã có người đặt', held: 'đang có người giữ', blocked: 'bị chủ sân chặn', past: 'đã qua', offered: 'đang giữ cho người đã đăng ký chờ' }[s.status];
   if (why) el.innerHTML = `<div class="notice warn picked-note" role="status">Giờ ${want} bạn chọn từ trang trước ${why}. ${['booked', 'held', 'offered'].includes(s.status) ? 'Bấm “Báo tôi khi trống” ở ô đó để được báo khi có chỗ, hoặc chọn giờ khác.' : 'Chọn giờ khác bên dưới.'}</div>`;
 }
@@ -275,11 +286,17 @@ function pick(courtId, start) {
 }
 
 /* ---------- Hộp xác nhận ---------- */
+// Chưa đăng nhập thì sang đăng nhập và quay lại đúng ô này; book=1 để trang sân mở luôn hộp xác nhận.
+function loginToBook() {
+  const p = new URLSearchParams({ id: venueId, date, slot: picked.start, court: picked.courtId, book: 1 });
+  location.href = `/login.html?next=${encodeURIComponent(`/venue.html?${p}`)}`;
+}
+
 function openConfirm() {
   const user = getUser();
-  if (!user) return redirectToLogin();
   const s = picked && findSlot(picked.courtId, picked.start);
   if (!s) return;
+  if (!user) return loginToBook();
   const court = courtById(picked.courtId);
   const restricted = reliability?.restricted;
   const needsApproval = venue.requiresApproval || restricted;
@@ -318,7 +335,7 @@ async function submitBooking() {
       setUrl();
       await reloadGrid(e.message);
     } else if (e instanceof ApiError && e.status === 401) {
-      redirectToLogin();
+      loginToBook();
     } else {
       $('confirm-dialog').showModal();
       $('dlg-error').textContent = e.message;
@@ -391,8 +408,15 @@ async function main() {
     renderGrid();
     paintBar();
     paintPickedNote();
+    $('picked-note').firstElementChild?.scrollIntoView?.({ block: 'center' }); // khách quay lại ô không còn trống: đưa lời báo vào màn hình
     wire();
     if (picked) document.querySelector('[data-pick][aria-pressed="true"]')?.scrollIntoView?.({ block: 'center' });
+    // Quay lại sau đăng nhập (book=1): ô đã chọn sẵn thì mở luôn hộp xác nhận; ô không còn trống thì chỉ báo (paintPickedNote).
+    if (params.get('book') && want) {
+      params.delete('book');
+      setUrl();
+      if (picked && isCustomer()) openConfirm();
+    }
   } catch (e) {
     $('venue-root').innerHTML = `<div class="card empty"><div class="art" data-icon="info"></div><p><b style="color:var(--text)">${e.status === 404 ? 'Không tìm thấy sân này' : 'Không tải được dữ liệu'}</b><br>${esc(e.message)}</p><a class="btn btn-lime" href="/venues.html">Xem danh sách sân</a></div>`;
     decorate();
