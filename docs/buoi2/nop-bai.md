@@ -33,11 +33,11 @@ Vì vậy **không viết là "chỉ dùng HTML/CSS"**. Phần HTML/CSS là các
 ## 2. Trang chủ
 
 - **File:** `public/index.html` + `public/css/app.css`, header/footer dựng bởi `public/js/ui/shell.js`, nội dung bởi `public/js/index-page.js`.
-- **Header:** logo "GGO" (`.brand`), menu `<nav class="nav">` với Trang chủ, Tìm sân, Pass sân, Ghép kèo, Giải đấu, nút Đăng nhập (`shell.js`, hằng `NAV`).
+- **Header:** logo "GGO" (`.brand`), menu `<nav class="nav">` với Trang chủ, Tìm sân và mục **Thêm** (Pass sân, Ghép kèo, Giải đấu, Nhờ báo giá), nút Đăng nhập (`shell.js`, hằng `NAV`).
 - **Footer:** `footer.site-footer` dựng bởi `shell.js`: logo GGO, khẩu hiệu "Thấy sân trống, đặt là đá." (`.footer-slogan`), một dòng mô tả, liên kết "Giới thiệu GGO" và chữ GGO cỡ lớn ở cuối (`.footer-wordmark`).
-- **Banner:** `section.match-hero` có ảnh (`hero-1920.jpg`, ảnh dọc riêng cho màn nhỏ bằng `<picture>`), tiêu đề `h1`, lời dẫn, form tìm sân (lời kêu gọi hành động) và nút "Xem tất cả giờ trống".
-- **Sân nổi bật:** khối "Sân còn trống" (`#venue-list`) và "Giờ trống gần nhất" (`#tonight-rows`).
-- **Liên kết tới trang danh sách:** form `action="/venues.html"` và liên kết "Xem tất cả giờ trống".
+- **Banner:** `section.match-hero` có ảnh (`hero-1920.jpg`, ảnh dọc riêng cho màn nhỏ bằng `<picture>`), tiêu đề `h1` "Đặt sân bóng mini", lời dẫn, form tìm sân (ngày, giờ, loại sân, khu vực; lời kêu gọi hành động) và cột "Tối nay còn trống" với liên kết "Xem thêm".
+- **Sân nổi bật:** băng thẻ "Sân còn trống" (`#venue-list`) kèm giờ trống bấm được, và cột "Tối nay còn trống" (`#tonight-rows`).
+- **Liên kết tới trang danh sách:** form `action="/venues.html"` và liên kết "Xem tất cả sân".
 - **Liên kết tới trang giới thiệu:** có, liên kết "Tìm hiểu về GGO →" ở cuối trang chủ và liên kết "Giới thiệu GGO" ở footer (xem mục 5).
 
 ![Trang chủ 1366](screens/trang-chu-1366.png)
@@ -107,8 +107,8 @@ Trong mã (`public/css/app.css`):
 
 | Phần tử | Ảnh | Thay đổi đo được |
 | --- | --- | --- |
-| Liên kết menu (hover) | ![](screens/hover-lien-ket-menu.png) | Chữ "Pass sân" đổi từ `#c9c6b9` sang `#f6f4ee`, `transition: color 0.18s` |
-| Liên kết menu (focus bằng Tab) | ![](screens/focus-lien-ket-menu.png) | Có vòng `outline` lime 2 px bo tròn quanh chữ "Pass sân", nhìn rõ trên nền header tối: tương phản **15,41:1** (trước khi sửa là `#15150f` trên `#0d0e0b`, **1,06:1**). Gạch lime dưới "Tìm sân" (ảnh "Bình thường") là dấu "trang đang mở", không phải dấu focus |
+| Liên kết menu (hover) | ![](screens/hover-lien-ket-menu.png) | Chữ "Trang chủ" đổi từ `#c9c6b9` sang `#f6f4ee`, `transition: color 0.18s` |
+| Liên kết menu (focus bằng Tab) | ![](screens/focus-lien-ket-menu.png) | Có vòng `outline` lime 2 px bo tròn quanh chữ "Trang chủ", nhìn rõ trên nền header tối: tương phản **15,41:1** (trước khi sửa là `#15150f` trên `#0d0e0b`, **1,06:1**). Gạch lime dưới "Tìm sân" (ảnh "Bình thường") là dấu "trang đang mở", không phải dấu focus |
 | Nút mở menu ở 390 px (focus bằng Tab) | ![](screens/focus-nut-menu.png) | Vòng lime 2 px quanh nút 44×44 px, tương phản **15,41:1** với header tối (trước: 1,06:1) |
 | Nút xem chi tiết: tên sân trong thẻ (hover) | ![](screens/hover-xem-chi-tiet.png) | Gạch chân 2 px đổi từ trong suốt sang `#15150f`, `transition: text-decoration-color 0.18s`; kích thước giữ nguyên 332,7×24,2 px. Viền thẻ chứa nó đổi như thẻ sân. Trước khi sửa: tên sân không đổi gì (`transition: all 0s`) |
 | Nút Đặt sân (hover) | ![](screens/hover-nut-dat-san.png) | Nền lime `#d9f23d` nhạt sang `#e6f77a`, `transition: background, border-color 0.18s` |
@@ -132,18 +132,18 @@ Một ghi nhận khác, không phải lỗi: `docs/TASKS.md` mục T6 ghi "Đã 
 
 ### 8.2 Lỗi giao diện ở 1366 / 768 / 390 px
 
-Đo ngày 03/11 trên bản dữ liệu giả chạy ở máy (`npm run prototype`, cổng 4100), bằng Playwright trên Chrome, cho 3 trang (trang chủ, danh sách sân, chi tiết sân `venue.html?id=1`) ở 3 khổ 1366 / 768 / 390 px. Sau lần đo đầu, lỗi 1, 2 và 5 đã được sửa bằng CSS (`public/css/app.css`) và đo lại; lỗi 3 được xử lý bằng trang giới thiệu (mục 5); lỗi 4 giữ nguyên vì cố ý theo thiết kế.
+Đo lại ngày 04/11 từ `main` (sau đợt cải thiện trải nghiệm, mục 8.3) trên bản dữ liệu giả chạy ở máy (`npm run prototype`, cổng 4100), bằng Playwright trên Chrome, cho 3 trang (trang chủ, danh sách sân, chi tiết sân `venue.html?id=1`) ở 3 khổ 1366 / 768 / 390 px. Sau lần đo đầu, lỗi 1, 2 và 5 đã được sửa bằng CSS (`public/css/app.css`) và đo lại; lỗi 3 được xử lý bằng trang giới thiệu (mục 5); lỗi 4 giữ nguyên vì cố ý theo thiết kế.
 
 **Đạt (không có lỗi):**
 
 | Tiêu chí của đề | Kết quả đo |
 | --- | --- |
-| Không tràn ngang | `scrollWidth` bằng `innerWidth` ở cả 9 trường hợp (3 trang × 3 khổ). Phần tử duy nhất vượt mép phải là dải chữ chạy `.ticker-track` ở trang chủ, nằm trong vùng `overflow` bị cắt (cố ý), không tạo thanh cuộn ngang |
-| Ảnh không méo | 9 ảnh ở trang chủ, 40 ở danh sách, 1 ở chi tiết: tỉ lệ hiển thị khớp tỉ lệ gốc hoặc dùng `object-fit` đúng |
+| Không tràn ngang | `scrollWidth` bằng `innerWidth` ở cả 9 trường hợp (3 trang × 3 khổ). Ở 768 và 390 px, các thẻ của băng "Sân còn trống" ở trang chủ vượt mép phải nhưng nằm trong khung cuộn ngang riêng (cố ý), không tạo thanh cuộn ngang cho cả trang |
+| Ảnh không méo | 9 ảnh ở trang chủ, 40 ở danh sách, 1 ở chi tiết (cả 50 ảnh đều có `alt`, `width`, `height`, tải được): tỉ lệ hiển thị khớp tỉ lệ gốc hoặc dùng `object-fit` đúng |
 | Danh sách đổi số cột | Danh sách sân: 3 cột ở 1366, 2 cột ở 768, 1 cột ở 390 |
-| Menu không chồng lấn | Header cao 60 px ở cả 3 khổ, không có cặp phần tử nào chồng lên nhau. 1366: menu ngang 5 mục + nút Đăng nhập; 768 và 390: gọn vào nút menu (ảnh `trang-chu-390-menu.png`), mỗi mục cao 47 px |
+| Menu không chồng lấn | Header cao 60 px ở cả 3 khổ, không có cặp phần tử nào chồng lên nhau. 1366: menu ngang (Trang chủ, Tìm sân, Thêm) + nút Đăng nhập; 768 và 390: gọn vào nút menu (ảnh `trang-chu-390-menu.png`), mỗi mục cao 47 px (6 mục: Trang chủ, Tìm sân, rồi Pass sân, Ghép kèo, Giải đấu, Nhờ báo giá dưới nhãn "Thêm") |
 | Banner không mất nội dung | Ảnh nền, tiêu đề và nút "Tìm sân trống" nằm trọn trong khung ở cả 3 khổ |
-| Liên kết trỏ tới trang thật | Trang chủ 25, danh sách 257, chi tiết 9 liên kết nội bộ: tất cả trả 200, không có liên kết chết |
+| Liên kết trỏ tới trang thật | Trang chủ 25, danh sách 259, chi tiết 11 liên kết nội bộ khác nhau: tất cả trả 200, không có liên kết chết |
 
 **Lỗi và điểm chưa đạt:**
 
@@ -153,11 +153,68 @@ Một ghi nhận khác, không phải lỗi: `docs/TASKS.md` mục T6 ghi "Đã 
 | 2 | Tên sân (đóng vai trò liên kết xem chi tiết) **không có hiệu ứng hover riêng**; chỉ thẻ chứa nó đổi viền | Danh sách sân, mọi khổ | **Đã xử lý.** `.venue-card .title` có gạch chân 2 px trong suốt, `.venue-card .title:hover` đổi màu gạch chân sang mực, `transition: text-decoration-color var(--dur)` (`public/css/app.css` dòng 989–1001). Không đổi cỡ chữ hay độ đậm | Trước: màu và gạch chân không đổi, `transition: all 0s`. Sau: gạch chân từ trong suốt sang `#15150f`, `transition: text-decoration-color 0.18s`; kích thước trước/sau hover giữ nguyên 332,7×24,2 px, vị trí không đổi; ảnh `hover-xem-chi-tiet.png` |
 | 3 | Trang chủ **chưa có liên kết tới trang giới thiệu** | Trang chủ | **Đã xử lý.** Thêm trang `public/about.html` (mục 5), liên kết "Giới thiệu GGO" ở footer mọi trang (`public/js/ui/shell.js`) và liên kết "Tìm hiểu về GGO →" ở cuối trang chủ (`public/index.html`). Không đặt vào menu trên cùng vì ở khổ 900 px menu sẽ bị tràn | Trước: không có trang giới thiệu trong `public/`. Sau: trang có và trả 200, đã thêm vào `public/sitemap.xml`; hai liên kết trên đều trỏ tới `about.html` |
 | 5 | **Vòng focus gần như không thấy trên nền tối**: quy tắc chung `:focus-visible { outline: 2px solid var(--text) }` dùng màu `#15150f` trên nền header `#0d0e0b` | Header và menu điện thoại, mọi khổ (liên kết menu, logo, nút Đăng nhập, nút mở menu, mục trong menu, nút khung tìm kiếm trang chủ) | **Đã xử lý.** Vòng focus dùng biến `--focus`: mực trên nền sáng, lime `#d9f23d` trên các vùng nền tối (dòng 135–161). Khung tìm kiếm trang chủ (nền trắng nằm trong ảnh tối) trả lại mực; nút trong khung đó vẽ vòng vào trong nút (`outline-offset: -4px`) vì khung cắt phần vẽ ra ngoài. Nút công cụ demo nổi vẽ vòng lime sát nút (dòng 463–467). Khi kiểm còn phát hiện và sửa thêm hai lỗi cùng nhóm: menu điện thoại đóng vẫn nhận phím Tab dù đã mờ hẳn (nay `visibility: hidden` khi đóng, dòng 401), và header dính che phần tử đang focus khi Tab ngược (`scroll-padding-top` ở dòng 98) | Đo bằng ảnh chụp thật ở mỗi lần Tab, lấy màu nền ngay quanh vòng (3 trang, 390 và 1366, Tab xuôi và ngược, trước 363 mẫu, sau 355 mẫu có vòng): tương phản vòng với nền **trước: 1,06:1** ở header (135 mẫu dưới 3:1); **sau: 15,41:1** trên nền tối, 14,59:1 (vòng mực vào trong nút lime), 16,66–18,16:1 trên nền sáng (liên kết, thẻ, nút Đặt sân). Còn 5 mẫu bị đánh dấu là nút công cụ demo (chỉ có trên dữ liệu giả): vòng sát nút đen nên tương phản đo với chính nút là 15,41:1, không đo với nền trang. Ảnh `focus-lien-ket-menu.png`, `focus-nut-menu.png` |
-| 4 | Ở 768 và 390, các mục "Giờ chót" và "Sân còn trống" của trang chủ là **băng cuộn ngang** (có chữ "Vuốt ngang để xem thêm"), nên ảnh chỉ thấy 1–2 thẻ | Trang chủ, 768 / 390 | Cố ý theo thiết kế; nêu rõ khi nộp để người chấm không hiểu là thiếu nội dung | Ở 1366 hiện đủ 3 thẻ trên một hàng |
+| 4 | Ở 768 và 390, mục "Sân còn trống" của trang chủ là **băng cuộn ngang** (có chữ "Vuốt ngang để xem thêm"), nên ảnh chỉ thấy 1–2 thẻ | Trang chủ, 768 / 390 | Cố ý theo thiết kế; nêu rõ khi nộp để người chấm không hiểu là thiếu nội dung | Ở 1366 hiện đủ 3 thẻ trên một hàng |
+| 6 | Ba chip chọn ngày ở trang chi tiết sân cao **41 px** ở 390 px (mức khuyên dùng: 44 px); phát hiện khi đo lại sau đợt cải thiện | Chi tiết sân, 390 px | **Chưa xử lý.** Ghi nhận để sửa tiếp, không ảnh hưởng chức năng | 41 px, chưa đạt 44 px |
 
 **Ghi chú cho người xem ảnh:**
 - Ảnh chụp bản dữ liệu giả nên có thêm thanh "vai trò demo" ở góc dưới và nút giả lập trong menu; bản thật không có các phần này.
 - Trang chi tiết dùng breadcrumb "Trang chủ / Tìm sân / Tên sân" làm liên kết quay lại, không có nút "← Quay lại" riêng. Nút "Đặt sân" nằm ở thanh cố định cuối màn hình và chỉ bật khi đã chọn một giờ trống.
+
+### 8.3 Cải thiện trải nghiệm đặt sân
+
+**Vấn đề.** Khi cả luồng đã chạy được, nhóm đi thử một lượt từ trang chủ tới lúc có đơn (tìm sân, chọn giờ, đăng nhập, xác nhận, trang đơn) và thấy năm chỗ vướng:
+
+- Ở bản cũ, trang chủ dài; chữ lớn nhất là câu hỏi "Tối nay đá ở đâu?" thay vì nói thẳng việc đặt sân; giờ còn trống nằm sau nhiều màn cuộn.
+- Trang kết quả tìm sân: giờ trống đầu tiên nằm ngoài màn đầu ở 390 px (126% chiều cao màn hình) và sát mép dưới ở 1366 px (99%).
+- Bấm **Đặt sân** khi chưa đăng nhập thì phải đăng nhập rồi tự tìm lại sân, giờ và bấm lần nữa.
+- Ở bản cũ, nhãn "Đặt là chốt" và trạng thái "đã có sân" khi chưa chuyển khoản dễ hiểu nhầm là đã giữ chỗ xong.
+- Ở bản cũ, header hiện chữ "Đang tải…" trong lúc chờ, và các mục phụ (Pass sân, Ghép kèo, Giải đấu) nằm ngang hàng với mục chính.
+
+**Cách sửa** (đã có trên `main`, bản mẫu đã đưa lên ggo-datsan.pages.dev):
+
+- **Trang chủ:** chữ lớn nhất là "Đặt sân bóng mini"; giờ còn trống nằm ngay màn đầu; bỏ dải chữ chạy và khối giờ chót trùng lặp.
+- **Menu:** mục **Thêm** gom Pass sân, Ghép kèo, Giải đấu và Nhờ báo giá; header không còn hiện "Đang tải…".
+- **Kết quả tìm sân:** hiện luôn các giờ trống trên thẻ; bộ lọc thu gọn thành một dòng tóm tắt (bấm "Đổi" để mở). Thanh đặt sân ghi tên sân, giờ và giá.
+- **Đăng nhập:** nhập số điện thoại hoặc email; trang nói rõ đang đặt sân nào, giờ nào; đăng nhập xong tự quay lại hộp xác nhận. Đăng ký còn 3 ô.
+- **Giữ sân 15 phút** trong lúc chờ chuyển khoản, nhãn "Đang giữ sân · chuyển khoản trước HH:mm". Hộp xác nhận nói hạn chuyển khoản trước, chính sách hủy sau.
+- **Lịch ngoài thời hạn đặt** hiện "Ngoài thời hạn đặt" thay vì để trống.
+
+**Số đo.** Do một kịch bản tự động (`e2e/ux-measure.mjs`) đo trên bản dữ liệu mẫu ở máy, mỗi bản một lần, nên chỉ dùng để so trước và sau, không phải tốc độ trên mạng thật.
+
+*Bảng 8.3. Đo trước và sau cải thiện (trước: commit `a8085ce`; sau: `main`)*
+
+| Chỉ số | 390 px | 1366 px |
+| --- | --- | --- |
+| Số lần bấm cho tới khi có đơn (kèm số ô phải nhập) | 6 + 2 ô → 5 + 2 ô | 6 + 2 ô → 5 + 2 ô |
+| Giờ trống đầu tiên ở trang kết quả, tính theo chiều cao màn hình (trên 100% là phải cuộn) | 126% → 72% | 99% → 68% |
+| Chiều dài trang chủ | 4731 → 3730 px | 3779 → 2983 px |
+| Header và logo hiện ra sau | 284 → 64 ms | 109 → 44 ms |
+
+Ở trang sân, 390 × 844 px: hàng giờ đầu tiên trước đây nằm ở y 750–816 và bị thanh đặt sân (y 763) che một phần; nay ở y 624–690, không bị che. Ở 1366 px không đổi (y 489–553).
+
+**Ảnh trước và sau.** Ảnh chụp cùng một kịch bản cho cả hai bản (trước từ commit `a8085ce`, sau từ `main`), chỉ lấy màn hình đầu của mỗi bước. Kịch bản bấm vào giờ đầu tiên của sân đầu tiên trong kết quả nên hai bên có thể rơi vào hai sân khác nhau; so bố cục và chữ, không so tên sân. Ở bản trước, sau khi đăng nhập trang không tự mở hộp xác nhận nên kịch bản phải quay lại sân và bấm Đặt sân lần nữa; ảnh "Hộp xác nhận" của bản trước chụp sau bước đó.
+
+*Khổ 390 px, màn hình đầu của từng bước.*
+
+| Bước | Trước | Sau |
+| --- | --- | --- |
+| Tìm sân | ![Tìm sân, trước, 390 px](screens/ux-truoc-1-tim-san-390.png) | ![Tìm sân, sau, 390 px](screens/ux-sau-1-tim-san-390.png) |
+| Trang sân | ![Trang sân, trước, 390 px](screens/ux-truoc-2-trang-san-390.png) | ![Trang sân, sau, 390 px](screens/ux-sau-2-trang-san-390.png) |
+| Đăng nhập | ![Đăng nhập, trước, 390 px](screens/ux-truoc-3-dang-nhap-390.png) | ![Đăng nhập, sau, 390 px](screens/ux-sau-3-dang-nhap-390.png) |
+| Hộp xác nhận | ![Hộp xác nhận, trước, 390 px](screens/ux-truoc-4-xac-nhan-390.png) | ![Hộp xác nhận, sau, 390 px](screens/ux-sau-4-xac-nhan-390.png) |
+| Trang đơn | ![Trang đơn, trước, 390 px](screens/ux-truoc-5-trang-don-390.png) | ![Trang đơn, sau, 390 px](screens/ux-sau-5-trang-don-390.png) |
+
+*Khổ 1366 px, màn hình đầu của từng bước.*
+
+| Bước | Trước | Sau |
+| --- | --- | --- |
+| Tìm sân | ![Tìm sân, trước, 1366 px](screens/ux-truoc-1-tim-san-1366.png) | ![Tìm sân, sau, 1366 px](screens/ux-sau-1-tim-san-1366.png) |
+| Trang sân | ![Trang sân, trước, 1366 px](screens/ux-truoc-2-trang-san-1366.png) | ![Trang sân, sau, 1366 px](screens/ux-sau-2-trang-san-1366.png) |
+| Đăng nhập | ![Đăng nhập, trước, 1366 px](screens/ux-truoc-3-dang-nhap-1366.png) | ![Đăng nhập, sau, 1366 px](screens/ux-sau-3-dang-nhap-1366.png) |
+| Hộp xác nhận | ![Hộp xác nhận, trước, 1366 px](screens/ux-truoc-4-xac-nhan-1366.png) | ![Hộp xác nhận, sau, 1366 px](screens/ux-sau-4-xac-nhan-1366.png) |
+| Trang đơn | ![Trang đơn, trước, 1366 px](screens/ux-truoc-5-trang-don-1366.png) | ![Trang đơn, sau, 1366 px](screens/ux-sau-5-trang-don-1366.png) |
+
+**Giới hạn của kết quả.** Các số trên đến từ kịch bản đo tự động. Ngoài ra nhóm cho một tác tử "đọc mù" (chỉ nhìn chuỗi ảnh, chưa đọc mã) nhận xét luồng. Câu trả lời: "Nhìn cả chuỗi thì hiểu đây là web tìm sân bóng, chọn sân và giờ, đăng nhập, xác nhận rồi chuyển khoản để giữ sân. Luồng nhìn chung theo thứ tự hợp lý; vướng nhất là ý nghĩa trạng thái "đã có sân" khi chưa chuyển khoản, và việc phân biệt chọn giờ/đặt xong/giữ chỗ chính thức." Sau đó nhãn được đổi thành "Đang giữ sân · chuyển khoản trước HH:mm" và "Xác nhận ngay" để sửa đúng chỗ đó. **Chưa thử với người thật.** Phiếu `docs/ux-test.md` là biểu mẫu để nhóm mời 5 người thử trước và sau; khi có kết quả thì mới có thể nói người dùng thấy dễ hơn.
 
 ## 9. Báo cáo sử dụng AI
 
@@ -278,7 +335,7 @@ Trang `public/about.html` đã làm theo đề xuất dựa trên `docs/PRD.md`.
 | 5 | Giới thiệu | Có, chờ thông tin liên hệ | `public/about.html`; chỉ còn email và số điện thoại để chủ dự án điền (hai ô giữ chỗ) |
 | 6 | Responsive | Có | ảnh 4 trang × 3 khổ trong `screens/` (trang chủ, danh sách, chi tiết, giới thiệu); không tràn ngang, ảnh không méo, danh sách 3/2/1 cột |
 | 7 | Hover/focus | Có | 7 ảnh trước/sau (4 hover, 3 focus); hover tên sân và vòng focus trên nền tối đã sửa (mục 8.2, lỗi 2 và 5) |
-| 8 | Báo cáo kiểm thử | Có | 8.1: 4 lỗi đã xử lý có bằng chứng; 8.2: đo 3 trang × 3 khổ, lỗi 1, 2, 3, 5 đã xử lý có số đo trước → sau, lỗi 4 cố ý theo thiết kế |
+| 8 | Báo cáo kiểm thử | Có | 8.1: 4 lỗi đã xử lý có bằng chứng; 8.2: đo 3 trang × 3 khổ, lỗi 1, 2, 3, 5 đã xử lý có số đo trước → sau, lỗi 4 cố ý theo thiết kế; 8.3: cải thiện trải nghiệm đặt sân, số đo tự động trước → sau, chưa thử với người thật |
 | 9 | Báo cáo AI | Có | 2 ví dụ + 1 ví dụ ngoài phạm vi |
 | 10 | README | Có | mục "Phạm vi Buổi 2": cách xem, cách kiểm responsive, hạn chế; mục "Cấu trúc" còn viết cho cả dự án |
 | 11 | Bảng phân công | Khung trống | chờ chủ dự án |
