@@ -1,37 +1,86 @@
-# Phiếu thử UX: tìm và đặt sân GGO
+# Phiếu thử nhanh UX GGO
 
-**Mục tiêu:** Quan sát người dùng mới trên điện thoại (390×844) và desktop (1366×900), từ trang chủ tới xem lại đơn. Không hướng dẫn cách dùng trước khi quan sát.
+## Cách thử
 
-## Chuẩn bị
+- Mời **5 người chưa từng xem website**. Dùng điện thoại hoặc máy tính của họ, tại `https://ggo-datsan.pages.dev`; không cần server ở máy. Ghi thiết bị, khổ màn hình và ngày.
+- Làm **lượt Trước trước khi bản mới được deploy**; nếu đã deploy thì không gọi là lượt Trước. Làm lượt Sau sau khi bản mới lên web. Tốt nhất cùng 5 người ở cả hai lượt; họ có thể nhớ luồng từ lần đầu.
+- Mỗi lượt giao hai nhiệm vụ dưới đây. Không chỉ nút, không trợ giúp; cho người thử tự nói khi xong hoặc muốn dừng. Bấm giờ từ lúc giao nhiệm vụ tới lúc xong/bỏ. Đếm số lần bấm (không tính cuộn). Ghi vướng mắc và câu nói nguyên văn.
+- **Tuyệt đối không chuyển khoản thật.** Không ghi tên, số điện thoại, email hay thông tin cá nhân vào phiếu.
 
-- Mở prototype tại `http://127.0.0.1:4110`, đặt lại dữ liệu demo trước mỗi người tham gia.
-- Thử trên một thiết bị tại một thời điểm; không dùng tài khoản/thông tin thật. Đăng nhập demo: `khach1@datsan.local`, mật khẩu `Matkhau@123`.
-- Ghi lại kích thước, thời gian, thiết bị, người điều phối và đồng ý ghi hình/ghi chú. Không ghi dữ liệu cá nhân.
-- Câu giao nhiệm vụ: “Bạn muốn tìm một sân bóng đá mini còn trống tối nay và đặt sân. Hãy làm như bình thường; khi thấy mình đã đặt được, hãy nói.” Không chỉ vị trí nút hoặc diễn giải nhãn.
+### Tài khoản thử
 
-## Quan sát mỗi màn (5 giây)
+Dùng tài khoản demo khách hàng có sẵn nếu truy cập được; nếu không, đăng ký bằng số điện thoại giả theo quy ước nhóm (không dùng số thật của bất kỳ ai). Dùng cùng cách đăng nhập ở lượt Trước và Sau. Không ghi thông tin đăng nhập vào phiếu.
 
-Ngay sau khi màn hình hiển thị, không trợ giúp trong 5 giây. Hỏi: **“Bạn nghĩ bước tiếp theo là gì? Bạn sẽ bấm/điền gì?”** Ghi nguyên văn câu trả lời, thời gian tới khi xác định đúng hành động, và mức tự tin 1–5. Không chấm hiểu đúng dựa vào việc họ đã hoàn tất thao tác sau đó.
+### Nhiệm vụ (đọc nguyên văn)
 
-| Màn | Câu trả lời / hành động dự kiến | Hiểu đúng? | Thời gian | Tự tin (1–5) | Bối rối / trích dẫn |
-|---|---|---|---:|---:|---|
-| Trang chủ | Tìm sân hoặc chọn giờ | | | | |
-| Kết quả tìm sân | Chọn giờ trống | | | | |
-| Chi tiết sân | Chọn giờ rồi đặt | | | | |
-| Đăng nhập bắt buộc | Đăng nhập để tiếp tục | | | | |
-| Xác nhận | Kiểm tra thông tin rồi xác nhận | | | | |
-| Đơn / chuyển khoản | Nhận biết đơn đã tạo, xem thông tin thanh toán | | | | |
-| Lịch đặt của tôi | Mở lại đơn vừa đặt | | | | |
+1. “Tìm một sân 7 người ở Quận 7 còn trống vào tối thứ Sáu gần nhất và đặt sân.”
+2. “Tìm lại đơn bạn vừa đặt. Cho tôi biết tổng tiền và hạn chuyển khoản nếu trang có hiển thị. Đừng chuyển tiền.”
 
-## Ghi số liệu và kết thúc
+Nếu không có giờ phù hợp, ghi đúng lúc người thử dừng và lý do; đừng đổi nhiệm vụ giữa chừng.
 
-- Lượt bấm từ vào trang chủ tới lúc đơn được tạo; tách riêng bước trước đăng nhập và sau đăng nhập. Không tính thao tác cuộn.
-- Số ô phải điền (không tính lựa chọn giờ/ngày); ghi rõ nếu bỏ trống được.
-- Có nhận ra đăng nhập là yêu cầu để đặt không? Có hiểu cần chọn lại giờ sau khi đăng nhập không?
-- Đo lỗi/đường vòng, giờ tìm sân, màn thoát/bỏ cuộc. Không sửa hoặc gợi ý trong lần đo.
-- Sau khi tạo đơn, yêu cầu tìm lại đơn trong “Lịch đặt của tôi”; ghi thời gian và thành công/thất bại.
-- Hỏi sau cùng: “Điều gì khó hiểu nhất?”, “Bạn có ngại điều gì khi chuyển khoản trực tiếp cho chủ sân?”
+## Lượt Trước — làm trước khi bản mới deploy
 
-## Lưu ý diễn giải
+| Người | Nhiệm vụ | Thời gian | Số lần bấm | Chỗ khựng | Câu nói nguyên văn | Xong / bỏ |
+|---|---|---:|---:|---|---|---|
+| 1 | 1 | | | | | |
+| 1 | 2 | | | | | |
+| 2 | 1 | | | | | |
+| 2 | 2 | | | | | |
+| 3 | 1 | | | | | |
+| 3 | 2 | | | | | |
+| 4 | 1 | | | | | |
+| 4 | 2 | | | | | |
+| 5 | 1 | | | | | |
+| 5 | 2 | | | | | |
 
-Ảnh chụp, số chiều dài trang và vị trí ô giờ là quan sát bố cục chứ không phải bằng chứng người dùng hiểu luồng. Kịch bản tự động không thể thay câu trả lời 5 giây của người thật; điền bảng cho từng người và tổng hợp mẫu nhỏ một cách định tính. Prototype chỉ dùng dữ liệu/tài khoản demo.
+## Lượt Sau — làm sau khi bản mới deploy
+
+| Người | Nhiệm vụ | Thời gian | Số lần bấm | Chỗ khựng | Câu nói nguyên văn | Xong / bỏ |
+|---|---|---:|---:|---|---|---|
+| 1 | 1 | | | | | |
+| 1 | 2 | | | | | |
+| 2 | 1 | | | | | |
+| 2 | 2 | | | | | |
+| 3 | 1 | | | | | |
+| 3 | 2 | | | | | |
+| 4 | 1 | | | | | |
+| 4 | 2 | | | | | |
+| 5 | 1 | | | | | |
+| 5 | 2 | | | | | |
+
+## So sánh nhanh
+
+| Nhiệm vụ | Trước: thời gian / xong (trên 5) | Sau: thời gian / xong (trên 5) | Khác biệt thấy rõ |
+|---|---|---|---|
+| 1. Tìm và đặt | | | |
+| 2. Tìm lại đơn | | | |
+
+## Hỏi nhanh sau mỗi nhiệm vụ: nhìn 5 giây
+
+Ở đầu mỗi màn dưới đây, đợi 5 giây rồi hỏi: **“Bạn nghĩ bước tiếp theo là gì? Bạn sẽ bấm gì?”** Không gợi ý. Điền lời người thử vào ô trống; không coi hoàn tất nhiệm vụ là bằng chứng họ đã hiểu màn trước.
+
+### Trước
+
+| Màn | Hành động đúng (người ghi phiếu điền sẵn) | P1 | P2 | P3 | P4 | P5 |
+|---|---|---|---|---|---|---|
+| Trang chủ | Nhập ngày/giờ/khu vực nếu cần, bấm tìm sân | | | | | |
+| Kết quả | Chọn giờ còn trống ở sân phù hợp | | | | | |
+| Chi tiết sân | Chọn giờ, rồi bấm Đặt sân | | | | | |
+| Đăng nhập | Đăng nhập hoặc đăng ký để tiếp tục | | | | | |
+| Xác nhận | Kiểm tra sân/giờ/giá, rồi xác nhận | | | | | |
+| Đơn / thanh toán | Đọc trạng thái, tổng tiền và hướng dẫn thanh toán | | | | | |
+| Lịch đặt | Mở đơn vừa tạo để xem chi tiết | | | | | |
+
+### Sau
+
+| Màn | Hành động đúng (người ghi phiếu điền sẵn) | P1 | P2 | P3 | P4 | P5 |
+|---|---|---|---|---|---|---|
+| Trang chủ | Nhập ngày/giờ/khu vực nếu cần, bấm tìm sân | | | | | |
+| Kết quả | Chọn giờ còn trống ở sân phù hợp | | | | | |
+| Chi tiết sân | Chọn giờ, rồi bấm Đặt sân | | | | | |
+| Đăng nhập | Đăng nhập hoặc đăng ký để tiếp tục | | | | | |
+| Xác nhận | Kiểm tra sân/giờ/giá, rồi xác nhận | | | | | |
+| Đơn / thanh toán | Đọc trạng thái, tổng tiền và hướng dẫn thanh toán | | | | | |
+| Lịch đặt | Mở đơn vừa tạo để xem chi tiết | | | | | |
+
+Ghi ngắn gọn đúng điều người thử nói; nếu chưa biết thì ghi “chưa biết”. Thử 5 người giúp tìm vướng mắc, không đủ để kết luận cho mọi người dùng.
