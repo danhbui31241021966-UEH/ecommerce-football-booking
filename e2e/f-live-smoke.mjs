@@ -16,7 +16,8 @@ async function candidates() {
   const nowMs = VN(meta.now);
   const out = [];
   const venues = (await api(p, 'a=>a.venues({})')).venues.slice(0, 12);
-  for (let d = 1; d <= (meta.bookingWindowDays || 3); d++) {
+  // Cửa sổ đặt là hôm nay + (bookingWindowDays − 1) ngày; lịch vẫn trả ô của ngày ngoài cửa sổ nhưng không đặt được.
+  for (let d = 1; d < (meta.bookingWindowDays || 3); d++) {
     const date = dayPlus(meta.now.slice(0, 10), d);
     for (const v of venues) {
       const sc = await p.evaluate(async ([id, dt]) => (await import('/js/api.js')).api.schedule(id, dt), [v.id, date]);

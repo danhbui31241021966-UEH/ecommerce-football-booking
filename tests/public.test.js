@@ -118,26 +118,30 @@ test('GET /api/venues?date=: availableSlots đủ trường, tôn trọng from v
 test('GET /api/venues/:id/schedule: trạng thái ô theo đặt/chặn/đã qua/ghép kèo/đang giữ cho người chờ', async () => {
   const user = await h.makeUser();
   const other = await h.makeUser();
-  const venue = (await h.db.one('SELECT owner_id FROM venues WHERE id = 1')).ownerId;
+  // Cụm sân riêng của test: dữ liệu mẫu (đơn nền, giải mẫu) xếp ô theo giờ chạy nên không được dựa vào ô nào của sân mẫu còn trống.
+  const owner = await h.makeUser({ role: 'owner' });
+  const { venueId, courtIds: [c1, c2] } = await h.makeVenueWithCourt({ ownerId: owner.id, courts: 2, lastMinutePercent: 20 });
+  await h.db.query("UPDATE venues SET peak_end = '22:00' WHERE id = ?", [venueId]); // như sân mẫu: cao điểm 17–22h
+  const venue = owner.id;
   const now = h.clock.now();
   const ins = async (start, status, userId) =>
     (await h.db.query(
       `INSERT INTO bookings (code, user_id, venue_id, court_id, start_at, end_at, status, price, base_price, rules_snapshot, policy_snapshot, created_at, updated_at)
-       VALUES (?, ?, 1, 1, ?, ?, ?, 300000, 300000, '', '', ?, ?)`,
-      [`Z${Math.random().toString(36).slice(2, 9)}`, userId, `${day} ${start}:00`, `${day} ${String(Number(start.slice(0, 2)) + 1).padStart(2, '0')}:00:00`, status, now, now],
+       VALUES (?, ?, ?, ?, ?, ?, ?, 300000, 300000, '', '', ?, ?)`,
+      [`Z${Math.random().toString(36).slice(2, 9)}`, userId, venueId, c1, `${day} ${start}:00`, `${day} ${String(Number(start.slice(0, 2)) + 1).padStart(2, '0')}:00:00`, status, now, now],
     )).insertId;
   const { claimForBooking } = require('../src/services/bookingState');
   const { withTransaction } = require('../src/db');
   for (const [start, status, uid] of [['08:00', 'confirmed', other.id], ['09:00', 'pending', other.id], ['10:00', 'confirmed', user.id]]) {
     const id = await ins(start, status, uid);
-    await withTransaction((tx) => claimForBooking(tx, { id, courtId: 1, startAt: `${day} ${start}:00` }));
+    await withTransaction((tx) => claimForBooking(tx, { id, courtId: c1, startAt: `${day} ${start}:00` }));
   }
-  const blk = await h.db.query('INSERT INTO blocks (court_id, start_at, end_at, reason, created_by, created_at) VALUES (1, ?, ?, ?, ?, ?)', [`${day} 11:00:00`, `${day} 12:00:00`, 'Bảo trì', venue, now]);
-  await h.db.query("INSERT INTO slot_claims (court_id, start_at, kind, block_id) VALUES (1, ?, 'block', ?)", [`${day} 11:00:00`, blk.insertId]);
-  await h.db.query("INSERT INTO waitlist (user_id, court_id, start_at, status, offer_expires_at, created_at) VALUES (?, 1, ?, 'offered', ?, ?)", [user.id, `${day} 13:00:00`, addDays(day, 1) + ' 00:00:00', now]);
-  await h.db.query('UPDATE courts SET team_mode_enabled = 1, team_mode_from = ?, team_mode_to = ? WHERE id = 2', ['18:00', '21:00']);
+  const blk = await h.db.query('INSERT INTO blocks (court_id, start_at, end_at, reason, created_by, created_at) VALUES (?, ?, ?, ?, ?, ?)', [c1, `${day} 11:00:00`, `${day} 12:00:00`, 'Bảo trì', venue, now]);
+  await h.db.query("INSERT INTO slot_claims (court_id, start_at, kind, block_id) VALUES (?, ?, 'block', ?)", [c1, `${day} 11:00:00`, blk.insertId]);
+  await h.db.query("INSERT INTO waitlist (user_id, court_id, start_at, status, offer_expires_at, created_at) VALUES (?, ?, ?, 'offered', ?, ?)", [user.id, c1, `${day} 13:00:00`, addDays(day, 1) + ' 00:00:00', now]);
+  await h.db.query('UPDATE courts SET team_mode_enabled = 1, team_mode_from = ?, team_mode_to = ? WHERE id = ?', ['18:00', '21:00', c2]);
 
-  const asGuest = (await guest.get(`/api/venues/1/schedule?date=${day}`)).body;
+  const asGuest = (await guest.get(`/api/venues/${venueId}/schedule?date=${day}`)).body;
   assert.equal(asGuest.date, day);
   assert.equal(asGuest.slotMinutes, 60);
   const slots = Object.fromEntries(asGuest.courts[0].slots.map((s) => [s.start, s]));
@@ -156,7 +160,7 @@ test('GET /api/venues/:id/schedule: trạng thái ô theo đặt/chặn/đã qua
   const a = app.agent();
   const email = (await h.db.one('SELECT email FROM users WHERE id = ?', [user.id])).email;
   await a.post('/api/auth/login', { email, password: 'Matkhau@123' });
-  const mine = Object.fromEntries((await a.get(`/api/venues/1/schedule?date=${day}`)).body.courts[0].slots.map((s) => [s.start, s]));
+  const mine = Object.fromEntries((await a.get(`/api/venues/${venueId}/schedule?date=${day}`)).body.courts[0].slots.map((s) => [s.start, s]));
   assert.equal(mine['10:00'].mine, true);
   assert.equal(mine['13:00'].offeredToYou, true);
   assert.ok(mine['13:00'].offerExpiresAt);
@@ -164,14 +168,14 @@ test('GET /api/venues/:id/schedule: trạng thái ô theo đặt/chặn/đã qua
 
   // Ô đã qua theo đồng hồ server (tua đồng hồ bằng cách đặt "bây giờ" là 20:30 ngày đó).
   h.setNow(`${day} 20:30`);
-  const late = Object.fromEntries((await guest.get(`/api/venues/1/schedule?date=${day}`)).body.courts[0].slots.map((s) => [s.start, s]));
+  const late = Object.fromEntries((await guest.get(`/api/venues/${venueId}/schedule?date=${day}`)).body.courts[0].slots.map((s) => [s.start, s]));
   assert.equal(late['20:00'].status, 'past');
   assert.equal(late['21:00'].status, 'available');
   assert.equal(late['21:00'].discountPercent, 20, 'R6: còn trong 3 giờ tới thì giảm giá giờ chót của sân 1 (20%)');
   assert.equal(late['21:00'].price, 360000, 'giá cao điểm 450.000 giảm 20%');
   assert.equal(late['22:00'].discountPercent, 20);
   h.clock.setOffsetMinutes(0);
-  assert.equal((await guest.get('/api/venues/1/schedule')).status, 400);
+  assert.equal((await guest.get(`/api/venues/${venueId}/schedule`)).status, 400);
 });
 
 test('GET /api/venues/slots: tìm theo giờ trong [at-30, at+60], gần giờ chọn nhất lên trước', async () => {
