@@ -62,7 +62,7 @@ router.get('/:id', async (req, res) => {
 
 router.get('/:id/schedule', async (req, res) => {
   const v = await venueOr404(req.params.id);
-  res.json(await scheduleOf(v, checkDate(req.query.date), req.user));
+  res.json(await scheduleOf(v, checkDate(req.query.date), req.user, { enforceBookingWindow: true }));
 });
 
 module.exports = router;

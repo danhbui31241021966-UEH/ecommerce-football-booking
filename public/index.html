@@ -25,7 +25,7 @@
   <div id="app-header"></div>
 
   <main>
-    <!-- HERO: ảnh + tìm kiếm (trái), cột giờ trống gần nhất (phải) -->
+    <!-- HERO: ảnh + tìm kiếm (trái), cột giờ trống quanh giờ đang chọn (phải) -->
     <section class="match-hero">
       <div class="hero-main">
         <picture>
@@ -33,9 +33,9 @@
           <img src="/img/photos/hero-1920.jpg" srcset="/img/photos/hero-800.jpg 800w, /img/photos/hero-1920.jpg 1920w" sizes="(min-width: 960px) 67vw, 100vw"
              width="1920" height="1280" alt="Cầu thủ áo xanh vàng đứng trên sân cỏ nhân tạo có lưới bao, đèn pha sáng về đêm" fetchpriority="high">
         </picture>
-        <p class="eyebrow">Đặt sân bóng mini ở TP.HCM</p>
-        <h1 class="display"><span id="hero-when">Tối nay</span><br>đá ở đâu?</h1>
-        <p class="lead">Xem sân còn trống, chọn giờ, đặt luôn. Không cần gọi điện.</p>
+        <p class="eyebrow">TP.HCM · Sân 5 và sân 7 người</p>
+        <h1 class="display">Đặt sân<br>bóng mini</h1>
+        <p class="lead">Chọn giờ, xem sân còn trống, đặt luôn. Không cần gọi điện.</p>
         <form class="search-panel" id="search" action="/venues.html" method="get">
           <label class="cell"><span>Ngày</span><select name="date" id="f-date"></select></label>
           <label class="cell"><span>Giờ</span><select name="at" id="f-at"></select></label>
@@ -46,8 +46,9 @@
         </form>
       </div>
       <aside class="tonight" aria-labelledby="tonight-title">
-        <div class="tonight-head"><h2 class="h2" id="tonight-title">Giờ trống quanh 19:00</h2><span id="tonight-meta">Đang tải…</span></div>
+        <div class="tonight-head"><h2 class="h2" id="tonight-title"><span id="hero-when">Tối nay</span> còn trống</h2><span id="tonight-meta">Đang tải…</span></div>
         <div id="tonight-rows"></div>
+        <p class="tonight-note" id="tonight-note" hidden>Nhãn giảm giá: giờ sắp đá mà còn trống, giá đã giảm sẵn.</p>
         <a class="link-more" id="tonight-more" href="/venues.html">Xem thêm <span aria-hidden="true">→</span></a>
       </aside>
     </section>
@@ -61,18 +62,6 @@
         </div>
         <p class="swipe-hint">Vuốt ngang để xem thêm →</p>
         <div class="swipe" id="venue-list"></div>
-      </div>
-    </section>
-
-    <!-- GIỜ CHÓT -->
-    <section class="band-dark" id="gio-chot">
-      <div class="container">
-        <div class="rule-head">
-          <h2 class="h1">Giờ chót,<br>giá nhẹ hơn</h2>
-          <p>Giờ nào sắp đá trong vài tiếng tới mà vẫn trống thì sân giảm giá. Giá bạn thấy đã là giá sau giảm.</p>
-        </div>
-        <p class="swipe-hint">Vuốt ngang để xem thêm →</p>
-        <div class="swipe" id="fixtures"></div>
       </div>
     </section>
 
@@ -96,15 +85,12 @@
       </div>
     </section>
 
-    <!-- DẢI CHANH: ba con số -->
-    <section class="stats" aria-label="Vì sao đặt ở GGO">
-      <div class="stats-photo"><img src="/img/photos/stats-1400.jpg" width="1400" height="933" loading="lazy" alt="Hai đội xếp hàng ngang cạnh lưới sân bóng mini dưới đèn pha buổi tối"></div>
-      <ul class="stats-list">
-        <li><b>0đ</b><span>phí đặt sân</span></li>
-        <li><b>24h</b><span>hủy miễn phí, trước giờ đá 24 tiếng</span></li>
-        <li><b>QR</b><span>chuyển khoản thẳng cho chủ sân</span></li>
-      </ul>
-    </section>
+    <!-- BA ĐIỀU CẦN BIẾT TRƯỚC KHI ĐẶT -->
+    <ul class="container home-facts" aria-label="Vì sao đặt ở GGO">
+      <li><b>0đ</b><span>phí đặt sân</span></li>
+      <li><b>24h</b><span>hủy miễn phí trước giờ đá</span></li>
+      <li><b>QR</b><span>chuyển khoản thẳng cho chủ sân</span></li>
+    </ul>
 
     <p class="container home-about"><a class="link-more" href="/about.html">Tìm hiểu về GGO <span aria-hidden="true">→</span></a></p>
   </main>

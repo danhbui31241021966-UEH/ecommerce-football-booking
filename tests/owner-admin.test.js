@@ -1,6 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const h = require('./helpers');
+const { addDays } = require('../src/lib/time');
 test.after(() => h.closeAll());
 
 async function setup() {
@@ -21,6 +22,19 @@ async function login(app, user) {
   assert.equal(response.status, 200, response.text);
   return agent;
 }
+
+test('chủ sân vẫn xem được lịch xa ngoài cửa sổ đặt', async () => {
+  const ctx = await setup();
+  try {
+    const owner = await login(ctx.app, ctx.ownerA);
+    const far = addDays(h.clock.today(), 30);
+    const response = await owner.get(`/api/owner/venues/${ctx.venue.venueId}/schedule?date=${far}`);
+    assert.equal(response.status, 200);
+    assert.equal(response.body.date, far);
+  } finally {
+    await ctx.app.close();
+  }
+});
 
 test('chủ sân B không xóa được lịch chặn của chủ sân A, lịch chặn vẫn còn', async () => {
   const ctx = await setup();
