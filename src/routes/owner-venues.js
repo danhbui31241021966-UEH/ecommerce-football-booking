@@ -5,6 +5,7 @@ const { badRequest, forbidden, notFound } = require('../utils/errors');
 const { isDate, isHm, addDays } = require('../lib/time');
 const { loadVenue } = require('../services/venueStore');
 const { toVenueDetail } = require('../services/venueDto');
+const { venueLeagues } = require('../services/leagueOps');
 const { scheduleOf } = require('../services/schedule');
 const clock = require('../clock');
 
@@ -34,7 +35,7 @@ async function owned(id, ownerId) {
 async function detail(id) {
   const venue = await loadVenue(id, { activeOnly: false });
   return {
-    ...toVenueDetail(venue),
+    ...toVenueDetail(venue, await venueLeagues(venue.id)),
     isActive: venue.isActive,
     bankBin: venue.bank.bin,
     bankAccount: venue.bank.account,

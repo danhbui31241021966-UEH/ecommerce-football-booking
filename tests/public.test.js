@@ -109,7 +109,9 @@ test('GET /api/venues?date=: availableSlots đủ trường, tôn trọng from v
     assert.equal(s.match, null);
     assert.ok(s.start >= '18:00');
   }
-  assert.equal(v1.availableSlots.find((s) => s.start === '19:00' && s.courtId === 1).price, 450000, 'giờ cao điểm dùng peakPrice');
+  // Ô 19:00 của sân con 1 ngày mai có thể đang được giải demo giữ, nên lấy ô 19:00 còn trống bất kỳ.
+  const peak = v1.availableSlots.find((s) => s.start === '19:00' && s.courtId === 1) || v1.availableSlots.find((s) => s.start === '19:00');
+  assert.equal(peak.price, (await h.db.one('SELECT peak_price FROM courts WHERE id = ?', [peak.courtId])).peakPrice, 'giờ cao điểm dùng peakPrice');
   assert.equal((await guest.get('/api/venues?date=2026-13-45')).status, 400);
 });
 

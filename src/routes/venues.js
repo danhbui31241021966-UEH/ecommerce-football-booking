@@ -4,6 +4,7 @@ const { badRequest, notFound } = require('../utils/errors');
 const { isDate, isHm, hmToMin } = require('../lib/time');
 const { loadVenues, loadVenue } = require('../services/venueStore');
 const { scheduleOf } = require('../services/schedule');
+const { venueLeagues } = require('../services/leagueOps');
 const { toVenue, toVenueDetail, venueMatches, availableForVenues } = require('../services/venueDto');
 
 const router = express.Router();
@@ -55,7 +56,8 @@ const venueOr404 = async (id) => {
 };
 
 router.get('/:id', async (req, res) => {
-  res.json(toVenueDetail(await venueOr404(req.params.id)));
+  const v = await venueOr404(req.params.id);
+  res.json(toVenueDetail(v, await venueLeagues(v.id)));
 });
 
 router.get('/:id/schedule', async (req, res) => {

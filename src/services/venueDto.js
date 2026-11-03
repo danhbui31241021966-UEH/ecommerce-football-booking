@@ -41,7 +41,7 @@ const courtOut = (c) => ({
   teamMode: c.teamModeEnabled ? { from: c.teamModeFrom, to: c.teamModeTo } : null,
 });
 
-function toVenueDetail(v) {
+function toVenueDetail(v, leagues = []) {
   return {
     ...toVenue(v),
     description: v.description,
@@ -50,7 +50,7 @@ function toVenueDetail(v) {
     peakEnd: v.peakEnd,
     cancelPolicy: CANCEL_POLICY_TEXT,
     mapsUrl: v.mapsUrl,
-    leagues: [], // R18: nối khi có bảng giải
+    leagues, // giải đã công bố chưa kết thúc của sân (R18)
     ...(v.dataSource ? { dataSource: v.dataSource } : {}),
     courts: activeCourts(v).map(courtOut),
   };

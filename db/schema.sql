@@ -18,6 +18,10 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS sessions;
+DROP TABLE IF EXISTS league_events;
+DROP TABLE IF EXISTS league_matches;
+DROP TABLE IF EXISTS league_teams;
+DROP TABLE IF EXISTS leagues;
 DROP TABLE IF EXISTS offers;
 DROP TABLE IF EXISTS requests;
 DROP TABLE IF EXISTS match_refunds;
@@ -397,7 +401,82 @@ CREATE TABLE offers (
   INDEX idx_offer_valid (status, valid_until)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+-- Giải phủi tại một sân, vòng tròn một lượt (R18). Trạng thái giải (draft/published/ongoing/finished) và bảng xếp hạng KHÔNG lưu:
+-- suy ra từ published_at, từ kết quả và từ giờ giữ của các trận.
+-- Giờ đá của một trận khi đã công bố = một dòng `blocks` (league_id, league_match_id) + dòng `slot_claims` của nó, nên ô đó
+-- có đúng một chủ ở lớp chống trùng PRIMARY KEY (court_id, start_at) như mọi chỗ khác. league_matches.block_id là FK tới blocks
+-- (RESTRICT): không ai xóa được một block đang giữ giờ giải ở tầng DB, chỉ đi qua trả giờ của giải. Bảng blocks không đổi
+-- (league_id/league_match_id vẫn là cột thường, không FK, để tránh vòng tham chiếu blocks <-> league_matches).
+-- Trước khi công bố start_at/court_id chỉ là giờ dự kiến (block_id NULL, không giữ ô).
+CREATE TABLE leagues (
+  id           INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  venue_id     INT UNSIGNED NOT NULL,
+  name         VARCHAR(80) NOT NULL,
+  field_type   ENUM('5','7') NOT NULL,
+  team_count   TINYINT UNSIGNED NOT NULL,
+  rules        TEXT NOT NULL,
+  link         VARCHAR(300) NOT NULL DEFAULT '',
+  published_at DATETIME NULL,
+  created_at   DATETIME NOT NULL,
+  CONSTRAINT fk_league_venue FOREIGN KEY (venue_id) REFERENCES venues(id),
+  CONSTRAINT ck_league_teams CHECK (team_count BETWEEN 4 AND 8),
+  INDEX idx_league_venue (venue_id, published_at),
+  INDEX idx_league_published (published_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Đội không có tài khoản. Tên đội không trùng trong một giải (không phân biệt hoa/thường, có phân biệt dấu).
+CREATE TABLE league_teams (
+  id            INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  league_id     INT UNSIGNED NOT NULL,
+  name          VARCHAR(40) COLLATE utf8mb4_0900_as_ci NOT NULL,
+  contact_name  VARCHAR(60) NOT NULL DEFAULT '',
+  contact_phone VARCHAR(20) NOT NULL DEFAULT '',
+  fee_paid      TINYINT(1) NOT NULL DEFAULT 0,
+  withdrawn_at  DATETIME NULL,
+  created_at    DATETIME NOT NULL,
+  CONSTRAINT fk_lteam_league FOREIGN KEY (league_id) REFERENCES leagues(id),
+  UNIQUE KEY uq_lteam_name (league_id, name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+CREATE TABLE league_matches (
+  id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  league_id  INT UNSIGNED NOT NULL,
+  round_no   TINYINT UNSIGNED NOT NULL,
+  home_id    INT UNSIGNED NOT NULL,
+  away_id    INT UNSIGNED NOT NULL,
+  court_id   INT UNSIGNED NULL,
+  start_at   DATETIME NULL,
+  block_id   INT UNSIGNED NULL,                    -- có = giờ đang được giữ
+  home_score TINYINT UNSIGNED NULL,
+  away_score TINYINT UNSIGNED NULL,
+  forfeit_by INT UNSIGNED NULL,                    -- đội rút: xử thua 0-3
+  CONSTRAINT fk_lmatch_league FOREIGN KEY (league_id) REFERENCES leagues(id),
+  CONSTRAINT fk_lmatch_home FOREIGN KEY (home_id) REFERENCES league_teams(id),
+  CONSTRAINT fk_lmatch_away FOREIGN KEY (away_id) REFERENCES league_teams(id),
+  CONSTRAINT fk_lmatch_forfeit FOREIGN KEY (forfeit_by) REFERENCES league_teams(id),
+  CONSTRAINT fk_lmatch_court FOREIGN KEY (court_id) REFERENCES courts(id),
+  CONSTRAINT fk_lmatch_block FOREIGN KEY (block_id) REFERENCES blocks(id),
+  CONSTRAINT ck_lmatch_score CHECK ((home_score IS NULL) = (away_score IS NULL)),
+  UNIQUE KEY uq_lmatch_block (block_id),           -- một block giữ giờ của đúng một trận
+  INDEX idx_lmatch_league (league_id),
+  INDEX idx_lmatch_start (court_id, start_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+-- Lịch sử nhập/sửa tỉ số, hoãn trận, xử thua: ai, lúc nào, từ, thành, lý do. Chỉ chủ sân thấy.
+CREATE TABLE league_events (
+  id        INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  match_id  INT UNSIGNED NOT NULL,
+  kind      ENUM('score','reschedule','forfeit') NOT NULL,
+  at        DATETIME NOT NULL,
+  by_name   VARCHAR(100) NOT NULL,
+  from_text VARCHAR(100) NULL,
+  to_text   VARCHAR(100) NOT NULL,
+  note      VARCHAR(500) NOT NULL DEFAULT '',
+  CONSTRAINT fk_levent_match FOREIGN KEY (match_id) REFERENCES league_matches(id),
+  INDEX idx_levent_match (match_id, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 -- Chưa có bảng (cố ý, sẽ thêm bằng migration riêng khi làm tính năng):
--- leagues/league_teams/league_matches (giải), bank_transactions (SePay).
+-- bank_transactions (SePay).
 -- Chúng tham chiếu bookings/blocks/courts có sẵn: bookings.offer_id/match_id/transfer_from_booking_id và
 -- blocks.league_id/league_match_id đã có cột để nối.

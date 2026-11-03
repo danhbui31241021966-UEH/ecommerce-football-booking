@@ -8,6 +8,7 @@ const { seedPhoneBookings } = require('./phoneBookings');
 const { seedMatches } = require('./matches');
 const { seedTransfers } = require('./transfers');
 const { seedRequests } = require('./requests');
+const { seedLeagues } = require('./leagues');
 
 const SEEDERS = [
   { name: 'core', run: seedCore },
@@ -16,6 +17,7 @@ const SEEDERS = [
   { name: 'phoneBookings', run: seedPhoneBookings }, // sau chặn giờ: chọn ô theo dữ liệu đã dựng
   { name: 'matches', run: seedMatches }, // kèo mẫu của R13/R15, giờ cố định theo ngày của mẫu
   { name: 'transfers', run: seedTransfers }, // sau lịch mẫu và waitlist để đăng pass theo dữ liệu mock
+  { name: 'leagues', run: seedLeagues }, // giải mẫu của R18: giữ giờ bằng chặn giờ nên chạy sau mọi seeder lịch
   { name: 'requests', run: seedRequests }, // nhu cầu/chào giá mẫu của R14, chọn ô trống thật lúc dựng
 ];
 

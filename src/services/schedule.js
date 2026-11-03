@@ -16,12 +16,13 @@ async function loadOccupancy(courtIds, date, conn = db) {
     `SELECT sc.court_id, sc.start_at, sc.kind, b.status AS booking_status, b.user_id AS booking_user_id,
             b.match_id, mt.status AS match_status, mt.host_paid_at AS match_host_paid_at, mt.closes_at AS match_closes_at,
             b.price AS booking_price, t.id AS transfer_id, t.ask_price AS transfer_ask_price,
-            t.status AS transfer_status, bl.reason AS block_reason, bl.league_id AS block_league_id
+            t.status AS transfer_status, bl.reason AS block_reason, bl.league_id AS block_league_id, lg.name AS block_league_name
        FROM slot_claims sc
        LEFT JOIN bookings b ON b.id = sc.booking_id
        LEFT JOIN matches mt ON mt.id = b.match_id
        LEFT JOIN transfers t ON t.booking_id = b.id AND t.status = 'open'
        LEFT JOIN blocks bl ON bl.id = sc.block_id
+       LEFT JOIN leagues lg ON lg.id = bl.league_id
       WHERE sc.court_id IN (?) AND sc.start_at >= ? AND sc.start_at < ?`,
     [courtIds, from, to],
   );
@@ -72,6 +73,7 @@ function slotInfo(venue, court, date, start, occ, viewer, nowMs = clock.nowMs())
     }
     if (claim?.kind === 'booking' && claim.bookingUserId === viewer.id) slot.mine = true;
   }
+  if (claim?.kind === 'block' && claim.blockLeagueId != null) slot.league = { id: claim.blockLeagueId, name: claim.blockLeagueName || '' }; // giờ giữ cho giải (R18)
   const teamMode = teamModeAt(court, start);
   if (claim?.kind === 'booking' && claim.matchId != null) {
     // Ô đang giữ cho một trận (R13): nhận đội thứ hai khi chủ sân đã xác nhận phần đội mở, còn hạn, và người xem không phải đội mở.

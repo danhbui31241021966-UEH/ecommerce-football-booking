@@ -30,7 +30,7 @@ test('seed: 34 sân thật + 6 sân demo, 18 tài khoản, id như mock', async 
 });
 
 test('seed nạp block demo và claim tương ứng theo mock', async () => {
-  const rows = await h.db.query("SELECT b.id,b.court_id,b.start_at,b.end_at,b.reason,sc.kind FROM blocks b JOIN slot_claims sc ON sc.block_id=b.id ORDER BY b.id");
+  const rows = await h.db.query("SELECT b.id,b.court_id,b.start_at,b.end_at,b.reason,sc.kind FROM blocks b JOIN slot_claims sc ON sc.block_id=b.id WHERE b.league_id IS NULL ORDER BY b.id");
   assert.equal(new Set(rows.map((r) => r.id)).size, mock('bookings').blocks.length);
   assert.ok(rows.every((r) => r.kind === 'block'));
 });

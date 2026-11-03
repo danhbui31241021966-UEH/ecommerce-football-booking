@@ -1,7 +1,7 @@
 const express = require('express');
 const { db, withTransaction } = require('../db');
 const { requireRole } = require('../middleware/auth');
-const { badRequest, forbidden, notFound } = require('../utils/errors');
+const { badRequest, conflict, forbidden, notFound } = require('../utils/errors');
 const { isDate, isHm } = require('../lib/time');
 const { loadVenue } = require('../services/venueStore');
 const { claimBlockSlots } = require('../services/slotClaims');
@@ -62,7 +62,11 @@ router.delete('/blocks/:id', async (req, res) => {
   if (!block) throw notFound('Không tìm thấy lịch chặn');
   if (block.ownerId !== req.user.id) throw forbidden('Lịch chặn này không thuộc sân của bạn');
 
-  // Khi làm giải đấu (R18): trả 409 nếu block giữ giờ giải.
+  // Giờ đang giữ cho giải chỉ trả được bằng hoãn trận, rút đội hoặc xóa giải (R18).
+  if (block.leagueId) {
+    const league = await db.one('SELECT name FROM leagues WHERE id = ?', [block.leagueId]);
+    throw conflict(`Giờ này đang giữ cho giải "${league?.name || ''}". Hoãn trận hoặc xóa giải ở mục Giải đấu để trả giờ.`);
+  }
   await withTransaction(async (tx) => {
     const freed = await tx.query('SELECT court_id, start_at FROM slot_claims WHERE block_id = ? ORDER BY start_at', [block.id]);
     await tx.query('DELETE FROM blocks WHERE id = ?', [block.id]);
