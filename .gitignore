@@ -3,3 +3,9 @@ node_modules/
 .DS_Store
 *.log
 e2e/out/
+functions/_lib/backend.generated.js
+.dev.vars
+.wrangler/
+/.demo-state.json
+/.demo-state.lock
+/.demo-logs/

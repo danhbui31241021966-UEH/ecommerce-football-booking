@@ -3256,3 +3256,27 @@ i.slot-league { min-height: 0; padding: 0; }
 .home-leagues .rule-head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: var(--sp-3); }
 .home-leagues .rule-head .h2 { margin: 0; }
 .home-leagues[hidden] { display: none; }
+
+/* ---------- Thông báo tạm nghỉ (BE tắt hoặc tunnel chết) ---------- */
+.maintenance {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: grid;
+  place-items: center;
+  padding: var(--sp-6);
+  background: var(--bg);
+}
+.maintenance-box {
+  display: grid;
+  gap: var(--sp-4);
+  justify-items: start;
+  max-width: 420px;
+  padding: var(--sp-8);
+  border: 1px solid var(--text);
+  border-radius: var(--r-md);
+}
+.maintenance-box h1 {
+  font-size: var(--fs-xl, 1.5rem);
+  letter-spacing: -0.02em;
+}

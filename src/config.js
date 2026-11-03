@@ -14,8 +14,8 @@ const isProduction = process.env.NODE_ENV === 'production';
 module.exports = {
   isProduction,
   port: Number(process.env.PORT || 3000),
-  // Máy cá nhân chỉ mở cho localhost; khi deploy cần lắng nghe mọi interface.
-  host: process.env.HOST || (isProduction ? '0.0.0.0' : '127.0.0.1'),
+  // Luôn nghe ở localhost (kể cả production): ra mạng chỉ qua tunnel cloudflared tới cổng này. productionCheck từ chối HOST khác loopback.
+  host: process.env.HOST || '127.0.0.1',
   db: {
     host: process.env.DB_HOST || '127.0.0.1',
     port: Number(process.env.DB_PORT || 3306),
@@ -25,6 +25,10 @@ module.exports = {
   },
   sessionSecret: required('SESSION_SECRET'),
   // Khóa API SePay (R17); đọc lúc gọi để đổi/đặt trong test. Không đặt thì webhook từ chối mọi yêu cầu.
+  // Bí mật chung với Pages Function (header X-SN-Proxy-Secret); đọc lúc gọi như sepayApiKey.
+  get proxySecret() {
+    return process.env.PROXY_SECRET || '';
+  },
   get sepayApiKey() {
     return process.env.SEPAY_API_KEY || '';
   },

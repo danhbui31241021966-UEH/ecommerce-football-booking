@@ -36,6 +36,20 @@ let csrfToken = null;
 let mockModule = null;
 const loadMock = () => (mockModule ??= import('./api-mock.js'));
 
+function showMaintenance() {
+  const mount = () => {
+    if (document.getElementById('maintenance')) return;
+    const el = document.createElement('div');
+    el.id = 'maintenance';
+    el.className = 'maintenance';
+    el.setAttribute('role', 'alert');
+    el.innerHTML = '<div class="maintenance-box"><h1>Hệ thống đang tạm nghỉ</h1><p>Mời bạn quay lại sau ít phút.</p><button type="button" class="btn btn-lime" onclick="location.reload()">Tải lại trang</button></div>';
+    document.body.append(el);
+  };
+  if (document.body) mount();
+  else document.addEventListener('DOMContentLoaded', mount, { once: true });
+}
+
 async function getCsrf() {
   if (!csrfToken) csrfToken = (await transport('GET', '/api/auth/csrf')).csrfToken;
   return csrfToken;
@@ -57,6 +71,11 @@ async function transport(method, path, { query, body } = {}, token) {
     },
     body: body !== undefined ? JSON.stringify(body) : undefined,
   });
+  // Function của Cloudflare Pages báo BE tắt hoặc tunnel chết bằng 503 kèm X-SN-Down: hiện thông báo cố định thay vì lỗi thô.
+  if (res.status === 503 && res.headers.get('x-sn-down')) {
+    showMaintenance();
+    throw new ApiError(503, 'Hệ thống đang tạm nghỉ');
+  }
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new ApiError(res.status, data.error || `Lỗi ${res.status}`);
   return data;

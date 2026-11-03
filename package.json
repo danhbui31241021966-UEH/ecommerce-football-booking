@@ -10,6 +10,10 @@
     "prototype": "node scripts/prototype-server.js",
     "db:init": "node scripts/db-init.js",
     "db:seed": "node scripts/db-seed.js",
+    "demo:setup": "node scripts/demo-setup.cjs",
+    "demo:up": "node scripts/demo-up.cjs",
+    "demo:down": "node scripts/demo-down.cjs",
+    "demo:seed": "node scripts/demo-seed.cjs",
     "test": "node scripts/test.js",
     "e2e": "node e2e/run.mjs",
     "e2e:all": "node e2e/run-all.mjs"

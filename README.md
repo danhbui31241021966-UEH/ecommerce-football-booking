@@ -104,5 +104,55 @@ email/SMS/Zalo, social login, đa môn.
 ## Triển khai (deploy)
 
 Cần một nền tảng chạy Node.js và một MySQL 8. Đặt các biến môi trường như `.env.example`, thêm `NODE_ENV=production`
-(server lắng nghe `0.0.0.0`, cookie `secure` nên bắt buộc HTTPS), chạy `npm run db:init` một lần để tạo bảng
+(server chỉ lắng nghe `127.0.0.1`, ra mạng qua tunnel và Pages Function, xem mục dưới; cookie `secure` nên bắt buộc HTTPS), chạy `npm run db:init` một lần để tạo bảng
 (hoặc `npm run db:seed` nếu muốn dữ liệu demo), sau đó `npm start`.
+
+## Chạy demo Pages qua BE trên máy Mac
+
+Web vẫn chạy trên Cloudflare Pages; Express/MySQL chạy local. Quick Tunnel `trycloudflare.com` chỉ là địa chỉ tạm, đổi sau mỗi lần bật tunnel; không cần domain hay tunnel trả phí.
+
+### Cài cloudflared
+
+Đã cài binary chính thức Cloudflare tại `~/.local/bin/cloudflared` trên macOS Apple Silicon. Phiên bản `2026.10.7`, lấy từ GitHub Release `cloudflare/cloudflared` (`cloudflared-darwin-arm64.tgz`); SHA-256 đã đối chiếu với digest của GitHub Release: `3586ccf397e98e5f437e60e7c307ca6ac463e110580503af8bb8e6f9ebf831bd`. Không cần Homebrew hoặc `sudo`.
+
+### Chuẩn bị và bật/tắt
+
+1. Copy `.env.example` thành `.env` nếu chưa có; `DB_USER` phải là `fb_app` (không dùng root), và database trong `DB_NAME` phải được tạo/schema hóa trước. Mật khẩu MySQL root không thuộc cấu hình app; file local là `~/.local/mysql-root.secret` (quyền `600`). `~/.local/mysql.cnf` được giữ nguyên; nó không còn đăng nhập root passwordless được sau khi đổi mật khẩu.
+2. Chạy **một lần** `npm run demo:setup`. Lệnh chỉ tạo `PROXY_SECRET` và `SEPAY_API_KEY` nếu thiếu hoặc còn bắt đầu bằng `change_me`; giữ nguyên giá trị thật đã có, không in secret ra, và chỉ sửa `.env` của worktree đang chạy. `SESSION_SECRET` hiện có phải tối thiểu 32 ký tự và không phải placeholder; `DB_PASSWORD` không được bắt đầu bằng `change_me` (được phép để trống theo cấu hình server).
+3. Đặt Pages secret cho **Preview** một lần, phải cùng giá trị với `PROXY_SECRET` trong `.env`. Trên Wrangler 4.111, lệnh `--env preview` đã được xác nhận và báo rõ môi trường; secret chỉ có hiệu lực sau lần deploy tiếp theo. Chạy tại root worktree; giá trị đi qua stdin, không vào history/command line:
+
+   ```bash
+   PROXY_SECRET="$(node -e 'const d=require("dotenv"); process.stdout.write(d.parse(require("fs").readFileSync(".env","utf8")).PROXY_SECRET)')" && printf %s "$PROXY_SECRET" | npx --no-install wrangler pages secret put PROXY_SECRET --project-name sannhanh --env preview
+   ```
+
+   Cần đăng nhập Wrangler và project `sannhanh` đã tồn tại. Production secret do Pine đặt, không chạy trong demo. Lệnh production có `--env production` tường minh; không bỏ cờ vì Wrangler mặc định vào production:
+
+   ```bash
+   PROXY_SECRET="$(node -e 'const d=require("dotenv"); process.stdout.write(d.parse(require("fs").readFileSync(".env","utf8")).PROXY_SECRET)')" && printf %s "$PROXY_SECRET" | npx --no-install wrangler pages secret put PROXY_SECRET --project-name sannhanh --env production
+   ```
+4. Bật một branch preview tường minh (branch `main` bị chặn):
+
+   ```bash
+   npm run demo:up -- --branch tunnel-test
+   ```
+
+   Production chỉ do Pine chạy sau khi đã cấu hình production `PROXY_SECRET`:
+
+   ```bash
+   npm run demo:up -- --branch main --production
+   ```
+
+   `--production` chỉ hợp lệ cùng `--branch main`; thiếu cờ thì `main` bị từ chối, còn branch preview đi với cờ này cũng bị từ chối. Lệnh production chưa được chạy trong lần chuẩn bị này.
+
+   Lệnh bật MySQL bằng `~/.local/mysql.cnf` nếu chưa chạy, chạy Express với `NODE_ENV=production`, `HOST=127.0.0.1`, cổng cố định `3000`, tạo quick tunnel, kiểm tra `GET /api/venues` bằng header `X-SN-Proxy-Secret` (retry có giới hạn 60 giây; nếu macOS giữ NXDOMAIN thì kiểm tra qua DNS công khai 1.1.1.1 và cùng hostname/SNI), rồi deploy Pages với URL tunnel làm backend, sau đó kiểm tra `/api/venues` qua Pages Preview cũng trả 200 (giúp phát hiện thiếu/sai Preview `PROXY_SECRET`). Nếu cổng `3000` đã có listener thì dừng với lỗi rõ ràng, không chọn cổng khác và không đụng listener đó. Không có branch mặc định; `demo:up` chỉ đi vào production nếu có `--branch main --production` tường minh. Lệnh production ở trên thuộc Pine; không chạy nó khi chỉ muốn Preview.
+5. Tắt demo bằng `npm run demo:down`. Lệnh chỉ gửi signal tới PID Express/cloudflared mà demo ghi trong `.demo-state.json`, sau khi so khớp PID, thời điểm start và command; không dùng `pkill`. **MySQL vẫn để chạy**, kể cả khi `demo:up` vừa khởi động nó. PID/log được lưu ở `.demo-state.json` và `.demo-logs/`, đã gitignore. Chạy `demo:up` lần nữa khi cùng branch và tiến trình còn khỏe sẽ không sinh process thứ hai.
+
+### Nạp lại dữ liệu demo
+
+`npm run demo:seed -- --yes` sẽ xóa toàn bộ dữ liệu hiện tại trong database `DB_NAME` rồi nạp lại dữ liệu demo. Đây là thao tác hủy dữ liệu, bắt buộc cờ `--yes`; không chạy nếu cần giữ dữ liệu hiện có. Lệnh dùng tài khoản `DB_USER` trong `.env`, từ chối dùng root, và không chạy tự động khi bật server.
+
+`SEPAY_API_KEY` được sinh ngẫu nhiên để không dùng placeholder. Khi/ nếu cấu hình webhook SePay, lấy giá trị từ `.env` và dán vào phần cấu hình webhook bên SePay; chưa có webhook nào được cài bởi các lệnh demo. Việc gắn webhook thuộc Pine/chủ dự án.
+
+### Phạm vi bảo mật và kiểm thử
+
+Production BE chỉ chấp nhận request có `X-SN-Proxy-Secret` đúng; thiếu/sai key trả `404 Not Found`. Không chia sẻ secret qua log/chat hoặc truyền qua command line. `demo:up` gửi header cả khi kiểm endpoint local lẫn qua tunnel. Các kiểm thử tích hợp phải dùng code đã ghép `src/productionCheck.js` và `src/middleware/proxy.js`; code cũ trước khi ghép không có cổng proxy này và không được đưa ra tunnel công khai.

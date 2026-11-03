@@ -9,14 +9,20 @@ const { loadUser } = require('./middleware/auth');
 const { csrfProtection } = require('./middleware/csrf');
 const { errorHandler, apiNotFound } = require('./middleware/error');
 const { sweepDue } = require('./middleware/sweep');
+const { proxyGate } = require('./middleware/proxy');
 
 /**
  * @param {{ production?: boolean }} [opts] production mặc định theo NODE_ENV; chỉ test truyền vào để dựng cả hai chế độ.
  * Ở production KHÔNG gắn router dev (không phải gắn rồi chặn): /api/dev/* khi đó là 404 như mọi đường dẫn lạ.
  */
-function createApp({ production = config.isProduction } = {}) {
+function createApp({ production = config.isProduction, proxySecret = null } = {}) {
   const app = express();
-  if (production) app.set('trust proxy', 1);
+  if (production) {
+    app.set('trust proxy', 1);
+    app.disable('x-powered-by'); // cổng proxy 404 chạy trước helmet: đừng lộ "Express" cho người gõ thẳng vào link tunnel
+  }
+  // Cổng proxy bật ở tiến trình production thật (config.isProduction: thiếu PROXY_SECRET thì chặn hết) hoặc khi test truyền proxySecret.
+  if (production && (config.isProduction || proxySecret)) app.use(proxyGate(() => proxySecret || config.proxySecret));
 
   app.use(
     helmet({

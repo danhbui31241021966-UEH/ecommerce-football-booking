@@ -1,4 +1,14 @@
 const config = require('./config');
+
+// Production: dừng ngay (trước khi nạp app/DB) nếu cấu hình còn yếu.
+if (config.isProduction) {
+  const bad = require('./productionCheck').problems(process.env);
+  if (bad.length) {
+    console.error(`Không khởi động production vì cấu hình chưa an toàn:\n${bad.map((b) => `  - ${b}`).join('\n')}`);
+    process.exit(1);
+  }
+}
+
 const { createApp } = require('./app');
 const { pool } = require('./db');
 const { sweep } = require('./services/bookingOps');
