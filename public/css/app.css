@@ -3400,3 +3400,10 @@ body:has(.booking-bar) { scroll-padding-bottom: 104px; }
   .hero-main { padding-top: 72px; }
   .hero-main .display { margin-top: var(--sp-5); }
 }
+/* Mục tài khoản (Đăng ký / Đăng xuất) tách khỏi nhóm "Thêm" để không bị đọc như một mục của nhóm đó. */
+.mobile-nav .mobile-account {
+  margin-top: var(--sp-3);
+  border-top: 1px solid rgb(255 255 255 / 0.12);
+  border-radius: 0;
+  padding-top: 16px;
+}

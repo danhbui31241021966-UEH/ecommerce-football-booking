@@ -156,7 +156,7 @@ const headerHtml = (role, user, unread, ghost) => `
 const mobileNavHtml = (role, loggedIn) => {
   const switchHtml = roleSwitchHtml(role);
   return `<nav class="mobile-nav" aria-label="Điều hướng (mobile)">${mobileLinksHtml(role)}
-        ${loggedIn ? '<button type="button" class="mobile-logout" data-logout>Đăng xuất</button>' : '<a href="/register.html">Đăng ký</a>'}
+        ${loggedIn ? '<button type="button" class="mobile-logout mobile-account" data-logout>Đăng xuất</button>' : '<a class="mobile-account" href="/register.html">Đăng ký</a>'}
         ${api.proto ? (role === 'owner' ? `<details class="mobile-role demo-group"><summary>Demo (chỉ dùng khi thuyết trình)</summary><span>Xem với vai trò</span>${switchHtml}${protoToolsHtml}</details>` : `<div class="mobile-role"><span>Xem với vai trò</span>${switchHtml}${protoToolsHtml}</div>`) : ''}
       </nav>`;
 };
