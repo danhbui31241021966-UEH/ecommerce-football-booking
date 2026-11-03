@@ -124,7 +124,12 @@ async function createBooking(user, body = {}, opts = {}) {
   const slot = slotInfo(venue, court, date, start, occ, user);
   if (slot.status === 'past') throw badRequest('Giờ này đã qua giờ bắt đầu');
   if (slot.status === 'blocked') throw conflict('Giờ này chủ sân đang chặn');
-  if (slot.status === 'booked' || slot.status === 'held') throw conflict('Giờ này vừa có người khác đặt, bạn chọn giờ khác nhé');
+  if (slot.status === 'booked' || slot.status === 'held') {
+    // Cùng khóa gửi đồng thời: bên kia có thể đã ghi xong sau lần kiểm khóa ở trên, nên ô "đã đặt" chính là lịch của khóa này.
+    const dup = key && (await db.one(`${BOOKING_SELECT} WHERE b.user_id = ? AND b.idempotency_key = ?`, [user.id, key]));
+    if (dup) return { booking: toBooking(dup), created: false };
+    throw conflict('Giờ này vừa có người khác đặt, bạn chọn giờ khác nhé');
+  }
   if (slot.status === 'offered' && !slot.offeredToYou) throw conflict('Giờ này đang giữ cho người đã đăng ký chờ');
   if (slot.teamMode) throw conflict('Giờ này chỉ nhận ghép kèo: hãy mở kèo hoặc vào một kèo có sẵn');
 
@@ -166,12 +171,14 @@ async function createBooking(user, body = {}, opts = {}) {
     });
     return { booking: toBooking(await findBooking(id)), created: true };
   } catch (err) {
-    if (isDuplicate(err)) {
+    // claimForBooking đổi lỗi trùng ô thành 409 ngay trong giao dịch, nên bấm lặp đồng thời có thể tới đây dưới dạng 409.
+    if (isDuplicate(err) || err.status === 409) {
       // Cùng khóa gửi đồng thời: bên đến sau bị chặn tới khi bên trước commit, rồi nhận lỗi trùng (khóa idem hoặc ô
       // tùy index nào bị kiểm trước). Nếu lịch của chính khóa này đã có thì đó là bấm lặp, trả lại lịch đó.
       const dup = key && (await db.one(`${BOOKING_SELECT} WHERE b.user_id = ? AND b.idempotency_key = ?`, [user.id, key]));
       if (dup) return { booking: toBooking(dup), created: false };
       // Ô vừa bị người khác lấy giữa lúc kiểm và lúc ghi (uq_booking_slot; trùng chặn giờ được claimForBooking đổi thành 409).
+      if (err.status === 409) throw err;
       throw conflict(TAKEN);
     }
     throw err;
