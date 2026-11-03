@@ -100,7 +100,6 @@ function render() {
             ${cancelInfo}
           </dl>
           ${refundNote()}
-          ${canCancel() ? `<div class="row"><button type="button" class="btn btn-danger" id="open-cancel">Hủy đặt sân</button></div>` : ''}
         </div>
       </div>
       ${hasQr ? qrHtml(b.paymentQr) : ''}
@@ -111,6 +110,7 @@ function render() {
           <h2 class="h3">Chính sách hủy</h2>
           ${policyHtml()}
           ${b.rulesSnapshot ? `<h2 class="h3" style="margin-top:var(--sp-4)">Nội quy sân</h2><p class="muted" style="font-size:var(--fs-sm)">${esc(b.rulesSnapshot)}</p>` : ''}
+          <div class="row"><button type="button" class="btn btn-danger" id="open-cancel">Hủy đặt sân</button></div>
         </div>` : ''}
         <div class="card card-pad">
           <h2 class="h3" style="margin-bottom:var(--sp-2)">Lịch sử trạng thái</h2>

@@ -310,12 +310,17 @@ function openConfirm() {
   $('dlg-total').textContent = money(s.price);
   $('dlg-approval').hidden = !needsApproval;
   $('dlg-auto').hidden = needsApproval;
+  const payMin = meta.payHoldMinutes;
   if (needsApproval) {
-    $('dlg-approval').textContent = restricted && !venue.requiresApproval
+    // Hạn chuyển khoản chỉ có khi sân có VietQR; sân chưa có QR thì khách chuyển theo cách chủ sân nhắn.
+    const payTail = venue.vietQr ? ` Sau khi chủ sân đồng ý, bạn có ${payMin} phút để chuyển khoản.` : '';
+    $('dlg-approval').textContent = (restricted && !venue.requiresApproval
       ? `Lịch đặt này phải chờ chủ sân đồng ý, vì bạn đã bùng sân hoặc hủy sát giờ ${reliability.violations} lần trong ${reliability.windowDays} ngày qua. Chủ sân có ${meta.holdMinutes} phút để trả lời, quá hạn thì giờ tự mở lại.`
-      : `Sân này cần chủ sân đồng ý. Sau khi đặt, bạn chờ tối đa ${meta.holdMinutes} phút; quá hạn mà chưa được đồng ý thì giờ tự mở lại. Bạn chưa cần chuyển khoản lúc này.`;
+      : `Sân này cần chủ sân đồng ý: chủ sân có ${meta.holdMinutes} phút để trả lời, quá hạn thì giờ tự mở lại.`) + ` Bạn chưa cần chuyển khoản lúc này.${payTail}`;
   } else {
-    $('dlg-auto').textContent = 'Sân đặt là chốt: đặt xong là giữ được sân và bạn nhận mã QR để chuyển khoản.';
+    $('dlg-auto').textContent = venue.vietQr
+      ? `Sân đặt là chốt: đặt xong là giữ được sân và bạn nhận mã QR. Hãy chuyển khoản trong ${payMin} phút, quá giờ đơn tự hết hạn và giờ này mở lại cho người khác.`
+      : 'Sân đặt là chốt: đặt xong là giữ được sân. Sân này chưa có mã QR, bạn nhắn chủ sân để biết cách chuyển khoản.';
   }
   $('dlg-policy').innerHTML = policyStepsHtml(`${date} ${s.start}:00`, meta.now);
   $('dlg-error').hidden = true;
