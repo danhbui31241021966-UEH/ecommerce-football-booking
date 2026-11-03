@@ -3,34 +3,46 @@
 import { icon, brandMark } from './icons.js';
 import { api } from '/js/api.js';
 
+// main: luôn hiện trên thanh. more: gom vào mục "Thêm" (trên điện thoại hiện thẳng dưới nhãn "Thêm", không cần bấm thêm).
+const MORE = (requestHref) => [
+  { href: '/transfers.html', label: 'Pass sân' },
+  { href: '/matches.html', label: 'Ghép kèo' },
+  { href: '/leagues.html', label: 'Giải đấu', also: ['/league.html'] },
+  { href: requestHref, label: 'Nhờ báo giá', also: ['/request.html', '/request-new.html', '/requests.html'] },
+];
 const NAV = {
-  guest: [
-    { href: '/', label: 'Trang chủ' },
-    { href: '/venues.html', label: 'Tìm sân' },
-    { href: '/transfers.html', label: 'Pass sân' },
-    { href: '/matches.html', label: 'Ghép kèo' },
-    { href: '/leagues.html', label: 'Giải đấu', also: ['/league.html'] },
-  ],
-  customer: [
-    { href: '/', label: 'Trang chủ' },
-    { href: '/venues.html', label: 'Tìm sân' },
-    { href: '/transfers.html', label: 'Pass sân' },
-    { href: '/matches.html', label: 'Ghép kèo' },
-    { href: '/leagues.html', label: 'Giải đấu', also: ['/league.html'] },
-    { href: '/requests.html', label: 'Nhờ báo giá' },
-    { href: '/my-bookings.html', label: 'Lịch đặt của tôi' },
-  ],
-  owner: [
-    { href: '/owner.html', label: 'Hôm nay' },
-    { href: '/owner-schedule.html', label: 'Lịch sân', also: ['/owner-bookings.html', '/owner-leagues.html', '/owner-league.html'] },
-    { href: '/owner-requests.html', label: 'Khách nhờ báo giá' },
-    { href: '/owner-settings.html', label: 'Cài đặt sân' },
-  ],
-  admin: [
-    { href: '/admin.html', label: 'Tài khoản' },
-    { href: '/admin-bookings.html', label: 'Lịch đặt' },
-    { href: '/admin-logs.html', label: 'Nhật ký' },
-  ],
+  guest: {
+    main: [
+      { href: '/', label: 'Trang chủ' },
+      { href: '/venues.html', label: 'Tìm sân' },
+    ],
+    more: MORE('/request-new.html'),
+  },
+  customer: {
+    main: [
+      { href: '/', label: 'Trang chủ' },
+      { href: '/venues.html', label: 'Tìm sân' },
+      { href: '/my-bookings.html', label: 'Lịch đặt của tôi' },
+    ],
+    more: MORE('/requests.html'),
+  },
+  owner: {
+    main: [
+      { href: '/owner.html', label: 'Hôm nay' },
+      { href: '/owner-schedule.html', label: 'Lịch sân', also: ['/owner-bookings.html', '/owner-leagues.html', '/owner-league.html'] },
+      { href: '/owner-requests.html', label: 'Khách nhờ báo giá' },
+      { href: '/owner-settings.html', label: 'Cài đặt sân' },
+    ],
+    more: [],
+  },
+  admin: {
+    main: [
+      { href: '/admin.html', label: 'Tài khoản' },
+      { href: '/admin-bookings.html', label: 'Lịch đặt' },
+      { href: '/admin-logs.html', label: 'Nhật ký' },
+    ],
+    more: [],
+  },
 };
 
 const ROLE_LABEL = { guest: 'Khách', customer: 'Khách hàng', owner: 'Chủ sân', admin: 'Admin' };
@@ -78,73 +90,186 @@ document.addEventListener('click', async (e) => {
   }
 });
 
-export async function mountShell() {
+// Vai trò lần trước, để vẽ header ngay khi trang mở (trước khi biết phiên đăng nhập). Chỉ là gợi ý vẽ sớm: vai trò thật luôn lấy từ api.me.
+const ROLE_HINT = 'ggo.role';
+const hintRole = () => {
   try {
-    currentUser = (await api.me()).user;
+    const r = localStorage.getItem(ROLE_HINT);
+    return NAV[r] ? r : 'guest';
   } catch {
-    currentUser = null;
+    return 'guest';
   }
-  const role = getRole();
-  const links = NAV[role]
-    .map((l) => `<a href="${l.href}" ${isCurrent(l.href, l.also) ? 'aria-current="page"' : ''}>${l.label}</a>`)
-    .join('');
-  let unread = 0;
-  if (currentUser) {
-    try {
-      unread = (await api.notifications()).unread;
-    } catch {
-      unread = 0;
-    }
+};
+const saveHint = (role) => {
+  try {
+    localStorage.setItem(ROLE_HINT, role);
+  } catch {
+    /* chế độ riêng tư: bỏ qua */
   }
-  const proto = !!api.proto;
+};
 
-  // Công tắc vai trò chỉ để demo prototype: nút tròn ở góc (≥1280px), trong menu (<900px), trong footer (900–1279px).
-  const roleSwitch = `<div class="role-switch" role="group" aria-label="Xem với vai trò">${Object.entries(ROLE_LABEL)
+const linkHtml = (l) => `<a href="${l.href}" ${isCurrent(l.href, l.also) ? 'aria-current="page"' : ''}>${l.label}</a>`;
+const moreIsCurrent = (role) => NAV[role].more.some((l) => isCurrent(l.href, l.also));
+
+function navHtml(role) {
+  const { main, more } = NAV[role];
+  const mainLinks = main.map(linkHtml).join('');
+  if (!more.length) return mainLinks;
+  return `${mainLinks}<div class="nav-more"><button type="button" class="nav-more-btn" aria-expanded="false" aria-controls="nav-more-panel"${moreIsCurrent(role) ? ' data-current' : ''}>Thêm${icon('chevronDown', 16)}</button><div class="nav-more-panel" id="nav-more-panel" hidden>${more.map(linkHtml).join('')}</div></div>`;
+}
+
+function mobileLinksHtml(role) {
+  const { main, more } = NAV[role];
+  return main.map(linkHtml).join('') + (more.length ? `<p class="mobile-nav-label">Thêm</p>${more.map(linkHtml).join('')}` : '');
+}
+
+const actionsHtml = (user, role, unread, ghost) => {
+  if (!user) return '<a class="btn btn-lime btn-sm" href="/login.html">Đăng nhập</a>';
+  if (ghost) return '<span class="avatar avatar-ghost" aria-hidden="true"></span>'; // đoán là đã đăng nhập, chờ api.me cho tên thật
+  return `<a class="icon-btn" href="/notifications.html" aria-label="Thông báo${unread ? `: ${unread} chưa đọc` : ''}">${icon('bell')}${unread ? `<span class="dot">${unread}</span>` : ''}</a>
+    <details class="user-menu"><summary class="avatar" aria-label="Tài khoản ${esc(user.fullName)}" title="${esc(user.fullName)}">${esc(initialsOf(user.fullName))}</summary>
+      <div class="user-menu-panel"><b>${esc(user.fullName)}</b><span>${esc(user.email)} · ${ROLE_LABEL[role]}</span>
+        <button type="button" data-logout>Đăng xuất</button></div></details>`;
+};
+
+// Công tắc vai trò chỉ để demo prototype: nút tròn ở góc (≥1280px), trong menu (<900px), trong footer (900–1279px).
+const roleSwitchHtml = (role) =>
+  `<div class="role-switch" role="group" aria-label="Xem với vai trò">${Object.entries(ROLE_LABEL)
     .map(([k, v]) => `<button type="button" data-role="${k}" aria-pressed="${k === role}">${v}</button>`)
     .join('')}</div>`;
-  const protoTools = `<div class="proto-tools">
+const protoToolsHtml = `<div class="proto-tools">
       <button type="button" data-proto="reset">Đặt lại dữ liệu demo</button>
       <button type="button" data-proto="clock">Tua đồng hồ +15 phút</button>
       <button type="button" data-proto="holder">Giả lập: người giữ giờ hủy</button>
       <button type="button" data-proto="bank">Giả lập: ngân hàng báo có tiền ngay</button>
     </div>`;
 
-  const header = document.getElementById('app-header');
-  if (header) {
-    header.outerHTML = `
+const headerHtml = (role, user, unread, ghost) => `
       <header class="site-header">
         <div class="container">
           <a class="brand" href="${role === 'owner' ? '/owner.html' : role === 'admin' ? '/admin.html' : '/'}">${brandMark}<span>GGO</span></a>
-          <nav class="nav" aria-label="Điều hướng chính">${links}</nav>
-          <div class="header-actions">
-            ${
-              !currentUser
-                ? `<a class="btn btn-lime btn-sm" href="/login.html">Đăng nhập</a>`
-                : `<a class="icon-btn" href="/notifications.html" aria-label="Thông báo${unread ? `: ${unread} chưa đọc` : ''}">${icon('bell')}${
-                    unread ? `<span class="dot">${unread}</span>` : ''
-                  }</a>
-                   <details class="user-menu"><summary class="avatar" aria-label="Tài khoản ${esc(currentUser.fullName)}" title="${esc(currentUser.fullName)}">${esc(initialsOf(currentUser.fullName))}</summary>
-                     <div class="user-menu-panel"><b>${esc(currentUser.fullName)}</b><span>${esc(currentUser.email)} · ${ROLE_LABEL[role]}</span>
-                       <button type="button" data-logout>Đăng xuất</button></div></details>`
-            }
-            <button class="icon-btn menu-btn" type="button" aria-label="Mở menu" aria-expanded="false">${icon('menu')}</button>
-          </div>
+          <nav class="nav" aria-label="Điều hướng chính">${navHtml(role)}</nav>
+          <div class="header-actions">${actionsHtml(user, role, unread, ghost)}<button class="icon-btn menu-btn" type="button" aria-label="Mở menu" aria-expanded="false">${icon('menu')}</button></div>
         </div>
-      </header>
-      <nav class="mobile-nav" aria-label="Điều hướng (mobile)">${links}
-        ${currentUser ? '<button type="button" class="mobile-logout" data-logout>Đăng xuất</button>' : '<a href="/register.html">Đăng ký</a>'}
-        ${proto ? (role === 'owner' ? `<details class="mobile-role demo-group"><summary>Demo (chỉ dùng khi thuyết trình)</summary><span>Xem với vai trò</span>${roleSwitch}${protoTools}</details>` : `<div class="mobile-role"><span>Xem với vai trò</span>${roleSwitch}${protoTools}</div>`) : ''}
-      </nav>
-      ${proto ? `<details class="role-dock"><summary aria-label="Công cụ demo: đang xem với vai trò ${ROLE_LABEL[role]}" title="Công cụ demo: ${ROLE_LABEL[role]}">${icon('users', 18)}${role === 'owner' ? '<span class="dock-label">Demo</span>' : ''}</summary><div class="role-dock-panel">${roleSwitch}${protoTools}</div></details>` : ''}`;
+      </header>`;
 
-    const menuBtn = document.querySelector('.menu-btn');
-    const mobileNav = document.querySelector('.mobile-nav');
-    menuBtn.addEventListener('click', () => {
-      const open = mobileNav.classList.toggle('open');
-      menuBtn.setAttribute('aria-expanded', String(open));
-      menuBtn.innerHTML = icon(open ? 'close' : 'menu');
-    });
+const mobileNavHtml = (role, loggedIn) => {
+  const switchHtml = roleSwitchHtml(role);
+  return `<nav class="mobile-nav" aria-label="Điều hướng (mobile)">${mobileLinksHtml(role)}
+        ${loggedIn ? '<button type="button" class="mobile-logout" data-logout>Đăng xuất</button>' : '<a href="/register.html">Đăng ký</a>'}
+        ${api.proto ? (role === 'owner' ? `<details class="mobile-role demo-group"><summary>Demo (chỉ dùng khi thuyết trình)</summary><span>Xem với vai trò</span>${switchHtml}${protoToolsHtml}</details>` : `<div class="mobile-role"><span>Xem với vai trò</span>${switchHtml}${protoToolsHtml}</div>`) : ''}
+      </nav>`;
+};
+
+const dockHtml = (role) =>
+  api.proto
+    ? `<details class="role-dock"><summary aria-label="Công cụ demo: đang xem với vai trò ${ROLE_LABEL[role]}" title="Công cụ demo: ${ROLE_LABEL[role]}">${icon('users', 18)}${role === 'owner' ? '<span class="dock-label">Demo</span>' : ''}</summary><div class="role-dock-panel">${roleSwitchHtml(role)}${protoToolsHtml}</div></details>`
+    : '';
+
+function closeMore() {
+  const btn = document.querySelector('.nav-more-btn');
+  if (!btn || btn.getAttribute('aria-expanded') !== 'true') return false;
+  btn.setAttribute('aria-expanded', 'false');
+  document.getElementById('nav-more-panel').hidden = true;
+  return true;
+}
+
+function closeMobile() {
+  const nav = document.querySelector('.mobile-nav');
+  const btn = document.querySelector('.menu-btn');
+  if (!nav?.classList.contains('open')) return false;
+  nav.classList.remove('open');
+  btn.setAttribute('aria-expanded', 'false');
+  btn.setAttribute('aria-label', 'Mở menu');
+  btn.innerHTML = icon('menu');
+  return true;
+}
+
+// Gắn sự kiện cho nút menu điện thoại và mục "Thêm". Gọi lại sau mỗi lần vẽ lại header.
+function wireHeader() {
+  const menuBtn = document.querySelector('.menu-btn');
+  const mobileNav = document.querySelector('.mobile-nav');
+  menuBtn?.addEventListener('click', () => {
+    const open = mobileNav.classList.toggle('open');
+    menuBtn.setAttribute('aria-expanded', String(open));
+    menuBtn.setAttribute('aria-label', open ? 'Đóng menu' : 'Mở menu');
+    menuBtn.innerHTML = icon(open ? 'close' : 'menu');
+  });
+  const moreBtn = document.querySelector('.nav-more-btn');
+  moreBtn?.addEventListener('click', () => {
+    const open = moreBtn.getAttribute('aria-expanded') !== 'true';
+    moreBtn.setAttribute('aria-expanded', String(open));
+    document.getElementById('nav-more-panel').hidden = !open;
+  });
+}
+
+let globalKeysBound = false;
+function bindGlobalKeys() {
+  if (globalKeysBound) return;
+  globalKeysBound = true;
+  // Escape đóng mục đang mở và trả tiêu điểm về nút đã mở nó; bấm ra ngoài hoặc Tab ra khỏi "Thêm" cũng đóng.
+  document.addEventListener('keydown', (e) => {
+    if (e.key !== 'Escape') return;
+    if (closeMore()) document.querySelector('.nav-more-btn')?.focus();
+    else if (closeMobile()) document.querySelector('.menu-btn')?.focus();
+  });
+  document.addEventListener('click', (e) => {
+    if (!e.target.closest('.nav-more')) closeMore();
+  });
+  document.addEventListener('focusin', (e) => {
+    if (!e.target.closest('.nav-more')) closeMore();
+  });
+}
+
+export async function mountShell() {
+  // Vẽ header ngay, không chờ phiên đăng nhập: logo và nút chính hiện cùng lúc với trang. Khi api.me trả lời thì chỉnh lại cho đúng.
+  const guessed = hintRole();
+  const header = document.getElementById('app-header');
+  if (header) {
+    header.outerHTML = headerHtml(guessed, guessed === 'guest' ? null : {}, 0, true) + mobileNavHtml(guessed, guessed !== 'guest') + dockHtml(guessed);
+    wireHeader();
+    bindGlobalKeys();
   }
+
+  try {
+    currentUser = (await api.me()).user;
+  } catch {
+    currentUser = null;
+  }
+  const role = getRole();
+  saveHint(role);
+
+  if (header) {
+    if (role !== guessed) {
+      const wasOpen = document.querySelector('.mobile-nav')?.classList.contains('open');
+      const olds = ['.site-header', '.mobile-nav', '.role-dock'].map((q) => document.querySelector(q)).filter(Boolean);
+      olds[0].insertAdjacentHTML('beforebegin', headerHtml(role, currentUser, 0, false) + mobileNavHtml(role, !!currentUser) + dockHtml(role));
+      olds.forEach((el) => el.remove());
+      wireHeader();
+      if (wasOpen) document.querySelector('.menu-btn')?.click();
+    } else {
+      // Khách vãng lai đã được vẽ đúng từ đầu; người đã đăng nhập thì thay ô giữ chỗ bằng chuông và tên thật.
+      if (currentUser) {
+        const box = document.querySelector('.header-actions');
+        const menuBtn = box.querySelector('.menu-btn');
+        [...box.children].forEach((c) => c !== menuBtn && c.remove());
+        menuBtn.insertAdjacentHTML('beforebegin', actionsHtml(currentUser, role, 0, false));
+      }
+    }
+    if (currentUser) {
+      // Số thông báo chưa đọc đến sau, không chặn việc vẽ header.
+      api
+        .notifications()
+        .then(({ unread }) => {
+          const bell = document.querySelector('.header-actions > .icon-btn[href="/notifications.html"]');
+          if (bell && unread) bell.outerHTML = actionsHtml(currentUser, role, unread, false).match(/<a class="icon-btn"[\s\S]*?<\/a>/)[0];
+        })
+        .catch(() => {});
+    }
+  }
+  const proto = !!api.proto;
+  const roleSwitch = roleSwitchHtml(role);
+  const protoTools = protoToolsHtml;
 
   const footer = document.getElementById('app-footer');
   if (footer) {

@@ -16,8 +16,11 @@ const cardNames = () => p.locator('.lg-pubcard .lc-name').allTextContents().then
 await p.goto(U + '/'); await p.evaluate(async () => { await (await import('/js/api.js')).api.proto.resetDemo(); });
 let ALL;
 
+// Từ 900px Pass sân / Ghép kèo / Giải đấu / Nhờ báo giá nằm trong mục "Thêm": mở ra trước khi tìm link.
+const openMore = async () => { if (W >= 1024 && (await p.locator('.nav-more-btn').getAttribute('aria-expanded')) !== 'true') await p.click('.nav-more-btn'); };
 const openMenuTo = async (label) => {
   if (W < 1024) { await p.click('.menu-btn'); }
+  else if (await p.locator(`.nav-more-panel a:has-text("${label}")`).count()) await openMore();
   const link = p.locator(`nav a:has-text("${label}"):visible`).first();
   await link.waitFor(); await link.click();
 };
@@ -29,21 +32,42 @@ await step(p, 'lgpub', '01-menu-guest-and-customer', async () => {
   let order = await navOrder();
   must(order.indexOf('Giải đấu') === order.indexOf('Ghép kèo') + 1 && order.indexOf('Giải đấu') > 0, 'khách: Giải đấu phải ngay sau Ghép kèo: ' + order);
   if (W < 1024) await snap('menu-open', p, false); else await snap('menu-open', p, false);
+  await openMore();
   await p.locator('nav a:has-text("Giải đấu"):visible').first().click();
   await p.waitForURL(/\/leagues(\.html)?(?=[?#]|$)/); await p.waitForSelector('.lg-pubcard');
   must(!/login/.test(p.url()), 'khách bị đẩy sang đăng nhập');
   must(await p.locator('h1:has-text("Giải đấu")').count() === 1, 'thiếu h1');
   if (W < 1024) await p.click('.menu-btn'); // menu điện thoại đóng thì ẩn hẳn khỏi Tab và trình đọc màn hình: mở ra mới đọc được
+  else await openMore();
   must(await p.locator('nav a[aria-current=page]:visible').first().innerText().then((t) => t.trim() === 'Giải đấu').catch(() => false), 'mục Giải đấu chưa được đánh dấu đang xem');
   if (W < 1024) await p.click('.menu-btn');
   await loginAs(p, 'khach1@datsan.local'); await p.goto(U + '/');
   await p.waitForSelector('nav.nav a', { state: 'attached' }); if (W < 1024) await p.click('.menu-btn');
   order = await navOrder();
   must(order.indexOf('Giải đấu') === order.indexOf('Ghép kèo') + 1, 'khách hàng: Giải đấu phải ngay sau Ghép kèo: ' + order);
+  await openMore();
   await p.locator('nav a:has-text("Giải đấu"):visible').first().click(); await p.waitForURL(/\/leagues(\.html)?(?=[?#]|$)/);
   await p.evaluate(async () => { await (await import('/js/api.js')).api.logout().catch(() => {}); });
   return 'menu: ' + order.join(' | ');
 }, { shot: false });
+
+await step(p, 'lgpub', '01b-more-menu-keyboard', async () => {
+  await p.goto(U + '/'); await p.waitForSelector('.menu-btn', { state: 'attached' });
+  const isOpen = (sel) => p.locator(sel).getAttribute('aria-expanded').then((v) => v === 'true');
+  if (W >= 1024) {
+    await p.locator('.nav-more-btn').focus(); await p.keyboard.press('Enter');
+    must(await isOpen('.nav-more-btn') && await p.locator('.nav-more-panel a:visible').count() === 4, 'Enter không mở mục Thêm (4 link)');
+    await p.keyboard.press('Escape');
+    must(!(await isOpen('.nav-more-btn')) && await p.evaluate(() => document.activeElement?.classList.contains('nav-more-btn')), 'Escape phải đóng Thêm và trả tiêu điểm về nút');
+    await p.keyboard.press('Enter'); await p.keyboard.press('Tab'); await p.keyboard.press('Tab'); await p.keyboard.press('Tab'); await p.keyboard.press('Tab'); await p.keyboard.press('Tab');
+    must(!(await isOpen('.nav-more-btn')), 'Tab ra khỏi Thêm phải đóng');
+    return 'Thêm: Enter mở, Escape đóng + trả tiêu điểm, Tab ra thì đóng';
+  }
+  await p.click('.menu-btn'); must(await isOpen('.menu-btn'), 'nút menu không mở');
+  await p.keyboard.press('Escape');
+  must(!(await isOpen('.menu-btn')) && await p.evaluate(() => document.activeElement?.classList.contains('menu-btn')), 'Escape phải đóng menu và trả tiêu điểm về nút');
+  return 'menu điện thoại: Escape đóng + trả tiêu điểm';
+});
 
 await step(p, 'lgpub', '02-list-matches-api-and-hides-drafts', async () => {
   // giải nháp của chủ sân 1: không được lộ ở API, trang danh sách, trang chủ
