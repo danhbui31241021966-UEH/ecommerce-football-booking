@@ -20,11 +20,13 @@ const venueLink = (w) => `/venue.html?id=${w.venueId}&date=${w.startAt.slice(0, 
 
 function bookingCard(b) {
   const pending = b.status === 'pending';
+  const awaitingPay = b.status === 'confirmed' && b.paymentStatus === 'unpaid' && !!b.expiresAt;
   return `<article class="card booking-item">
     <div class="top"><div><div class="when">${timeOf(b.startAt)}–${timeOf(b.endAt)} · ${dayLabel(b.startAt.slice(0, 10))}</div>
       <div class="where">${esc(b.venueName)} · ${esc(b.courtName)} (sân ${b.fieldType}) · <b class="num">${money(b.price)}</b></div></div>
       <div class="badges">${statusBadge(b.status)}${['pending', 'confirmed'].includes(b.status) ? paymentBadge(b.paymentStatus) : ''}${['open', 'claimed'].includes(b.transfer?.status) ? '<span class="badge badge-transferred">Đang pass</span>' : ''}${b.acquiredByTransfer ? '<span class="badge badge-pending">Nhận pass</span>' : ''}</div></div>
     ${pending ? `<span class="countdown" data-cd="${esc(b.expiresAt)}"></span>` : ''}
+    ${awaitingPay ? `<span class="countdown" data-cd="${esc(b.expiresAt)}" data-pay-by="${esc(b.expiresAt.slice(11, 16))}"></span>` : ''}
     <div class="actions"><a class="btn btn-sm${b.status === 'confirmed' && b.paymentStatus === 'unpaid' ? ' btn-lime' : ''}" href="/booking.html?id=${b.id}">${b.status === 'confirmed' && b.paymentStatus === 'unpaid' ? 'Xem mã QR chuyển khoản' : 'Xem chi tiết'}</a><span class="muted num" style="font-size:var(--fs-sm)">Mã ${esc(b.code)}</span></div>
   </article>`;
 }
@@ -96,8 +98,10 @@ function render() {
   decorate();
   document.querySelectorAll('[data-cd]').forEach((el) => {
     const pre = el.dataset.pre || '';
-    const pending = !el.dataset.pre;
-    stops.push(countdown(el, secondsLeft(el.dataset.cd, meta.now), (n) => (n > 0 ? (pending ? `Chờ chủ sân đồng ý · còn ${mmss(n)}` : `${pre}${mmss(n)}`) : 'Đã hết hạn'), load));
+    const payBy = el.dataset.payBy; // hạn chuyển khoản của đơn đã có sân (R3); không có thì là đơn chờ chủ sân đồng ý hoặc lượt giữ cho người chờ
+    const pending = !el.dataset.pre && !payBy;
+    const label = (n) => (payBy ? `Chuyển khoản trước ${payBy} · còn ${mmss(n)}` : pending ? `Chờ chủ sân đồng ý · còn ${mmss(n)}` : `${pre}${mmss(n)}`);
+    stops.push(countdown(el, secondsLeft(el.dataset.cd, meta.now), (n) => (n > 0 ? label(n) : 'Đã hết hạn'), load));
   });
 }
 

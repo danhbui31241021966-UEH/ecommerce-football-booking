@@ -69,7 +69,7 @@ async function seedRequests(tx) {
            customer_note, rules_snapshot, policy_snapshot, created_at, updated_at)
          VALUES (?, ?, ?, ?, ?, ?, ?, 'web', ?, ?, ?, 0, ?, '', ?, ?, ?, ?)`,
         [`T${Math.random().toString(16).slice(2, 18).padEnd(16, '0')}`, s.userId, chosen.venue.id, chosen.court.id, chosen.startAt, chosen.endAt, pending ? 'pending' : 'confirmed',
-          pending ? msToVn(nowMs + RULES.holdMinutes * 60000) : null, chosen.price, chosen.listed, chosen.id, chosen.venue.rules, CANCEL_POLICY_TEXT, at, at],
+          pending ? msToVn(nowMs + RULES.holdMinutes * 60000) : chosen.venue.bank?.bin && chosen.venue.bank?.account ? msToVn(Math.min(nowMs + 8 * 60000, vnToMs(chosen.startAt))) : null, chosen.price, chosen.listed, chosen.id, chosen.venue.rules, CANCEL_POLICY_TEXT, at, at],
       );
       await tx.query('UPDATE bookings SET code = ? WHERE id = ?', [bookingCode(b.insertId), b.insertId]);
       await tx.query("INSERT INTO slot_claims (court_id, start_at, kind, booking_id) VALUES (?, ?, 'booking', ?)", [chosen.court.id, chosen.startAt, b.insertId]);

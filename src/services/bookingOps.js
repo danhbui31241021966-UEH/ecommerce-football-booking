@@ -6,7 +6,7 @@ const clock = require('../clock');
 const { db, withTransaction } = require('../db');
 const { vnToMs } = require('../lib/time');
 const { badRequest, conflict, forbidden, notFound } = require('../utils/errors');
-const { setStatus } = require('./bookingState');
+const { setStatus, payByFor } = require('./bookingState');
 const { notify, addHistory, money } = require('./notify');
 const { offerSlot } = require('./waitlist');
 const { reliabilityOf } = require('./reliability');
@@ -94,9 +94,12 @@ async function approveBooking(user, id) {
     const b = await lock(tx, id);
     if (b.status !== 'pending') throw conflict('Chỉ đồng ý được lịch đặt đang chờ chủ sân đồng ý');
     if (b.expiresAt && vnToMs(b.expiresAt) <= clock.nowMs()) throw conflict('Lịch đặt đã quá hạn giữ chỗ');
-    await setStatus(tx, id, 'confirmed', { expires_at: null });
+    // Hạn chuyển khoản tính từ lúc duyệt, không phải lúc đặt (R3).
+    const v = await tx.one('SELECT bank_bin, bank_account FROM venues WHERE id = ?', [b.venueId]);
+    const payBy = payByFor({ source: b.source, startAt: b.startAt, hasQr: !!(v.bankBin && v.bankAccount) });
+    await setStatus(tx, id, 'confirmed', { expires_at: payBy });
     await addHistory(tx, id, 'approve', { from: 'pending', to: 'confirmed', actor: actorOf(user) });
-    await notify(tx, b.userId, `Chủ sân đã đồng ý lịch đặt ${b.code}. Hãy chuyển khoản bằng mã QR.`, { bookingId: id, link: link(id) });
+    await notify(tx, b.userId, `Chủ sân đã đồng ý lịch đặt ${b.code}. Hãy chuyển khoản bằng mã QR${payBy ? ` trước ${payBy.slice(11, 16)}, quá giờ đơn tự hết hạn` : ''}.`, { bookingId: id, link: link(id) });
   });
 }
 
@@ -117,10 +120,13 @@ async function rejectBooking(user, id, reason) {
 
 /** Ghi nhận đã nhận tiền của một lịch (booking đã bị khóa). Chủ sân bấm tay (via 'owner') hoặc ngân hàng báo về (via 'bank', actor = null). */
 async function applyPaid(tx, b, { actor = null, via = 'owner', note = '' } = {}) {
+  if (b.status === 'expired' && b.paymentStatus === 'unpaid' && b.matchId == null) {
+    throw conflict('Lịch đặt đã hết hạn giữ chỗ nên không ghi nhận tiền được. Nếu khách đã chuyển khoản, hãy chuyển lại cho khách');
+  }
   if (b.status !== 'confirmed' && b.status !== 'completed') throw conflict('Chỉ ghi nhận được cho lịch đặt đã có sân');
   if (b.paymentStatus === 'paid') throw conflict('Lịch đặt đã được ghi nhận chuyển khoản');
   const now = clock.now();
-  await tx.query('UPDATE bookings SET payment_status = \'paid\', paid_at = ?, paid_via = ?, updated_at = ? WHERE id = ?', [now, via, now, b.id]);
+  await tx.query('UPDATE bookings SET payment_status = \'paid\', paid_at = ?, paid_via = ?, expires_at = NULL, updated_at = ? WHERE id = ?', [now, via, now, b.id]);
   await addHistory(tx, b.id, via === 'bank' ? 'bank_paid' : 'paid', { actor: via === 'bank' ? { id: null, role: 'bank' } : actor, note: typeof note === 'string' ? note : '' });
   await notify(
     tx,
@@ -174,14 +180,29 @@ async function markAttendance(user, id, result) {
 
 /* ---------- Hết hạn theo thời gian ---------- */
 
-/** R3: lịch chờ duyệt quá hạn giữ chỗ thì hết hạn, nhả ô, mời người chờ. Bỏ qua nếu lịch đã đổi trạng thái. */
+/**
+ * R3: `expires_at` là hạn của bước đang chờ. Lịch chờ duyệt quá hạn thì hết hạn vì chủ sân chưa đồng ý; lịch đã có sân mà chưa
+ * chuyển khoản quá hạn thì hết hạn vì khách chưa chuyển (báo cả chủ sân, không tính vào độ tin cậy R10). Cả hai nhả ô, mời người chờ.
+ * Bỏ qua nếu lịch đã đổi trạng thái (đã trả tiền thì expires_at đã được xóa).
+ */
 async function expireBooking(id) {
   await withTransaction(async (tx) => {
     const b = await lock(tx, id);
-    if (b.status !== 'pending' || !b.expiresAt || vnToMs(b.expiresAt) > clock.nowMs()) return;
+    const waitingApproval = b.status === 'pending';
+    const waitingPayment = b.status === 'confirmed' && b.paymentStatus === 'unpaid';
+    if ((!waitingApproval && !waitingPayment) || !b.expiresAt || vnToMs(b.expiresAt) > clock.nowMs()) return;
     await setStatus(tx, id, 'expired');
-    await addHistory(tx, id, 'expire', { from: 'pending', to: 'expired', note: 'Quá hạn giữ chỗ chưa được đồng ý', at: b.expiresAt });
-    await notify(tx, b.userId, `Lịch đặt ${b.code} đã quá hạn vì chủ sân chưa kịp đồng ý.`, { bookingId: id, link: link(id) });
+    await addHistory(tx, id, 'expire', {
+      from: b.status, to: 'expired', at: b.expiresAt,
+      note: waitingApproval ? 'Quá hạn giữ chỗ chưa được đồng ý' : 'Quá hạn giữ chỗ chưa chuyển khoản',
+    });
+    if (waitingApproval) {
+      await notify(tx, b.userId, `Lịch đặt ${b.code} đã quá hạn vì chủ sân chưa kịp đồng ý.`, { bookingId: id, link: link(id) });
+    } else {
+      const ctx = await context(tx, b);
+      await notify(tx, b.userId, `Lịch đặt ${b.code} đã hết hạn giữ chỗ vì chưa nhận được chuyển khoản. Giờ này đã mở lại cho người khác.`, { bookingId: id, link: link(id) });
+      await notify(tx, ctx.ownerId, `Lịch đặt ${b.code} của ${ctx.customerName} đã hết hạn giữ chỗ vì khách chưa chuyển khoản. Giờ này đã mở lại.`, { bookingId: id, link: `/owner-bookings.html?id=${id}` });
+    }
     await offerSlot(tx, b.courtId, b.startAt);
   });
 }
@@ -204,7 +225,7 @@ function sweep() {
   if (running) return running;
   running = (async () => {
     const now = clock.now();
-    for (const r of await db.query("SELECT id FROM bookings WHERE status = 'pending' AND expires_at IS NOT NULL AND expires_at <= ? ORDER BY id", [now])) {
+    for (const r of await db.query("SELECT id FROM bookings WHERE status IN ('pending', 'confirmed') AND expires_at IS NOT NULL AND expires_at <= ? ORDER BY id", [now])) {
       await expireBooking(r.id);
     }
     await db.query('DELETE FROM waitlist WHERE start_at <= ?', [now]);

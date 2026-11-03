@@ -4,9 +4,21 @@
 const { isDuplicate } = require('../db');
 const clock = require('../clock');
 const { conflict } = require('../utils/errors');
+const { RULES } = require('../rules');
+const { msToVn, vnToMs } = require('../lib/time');
 
 const HOLDING = ['pending', 'confirmed', 'matching']; // R4: các trạng thái đang giữ ô
 const isHolding = (status) => HOLDING.includes(status);
+
+/**
+ * R3: hạn chuyển khoản của đơn vừa thành `confirmed` (tự xác nhận lúc đặt, hoặc chủ sân duyệt): payHoldMinutes kể từ bây giờ,
+ * không vượt giờ đá. Trả null (không hạn) với lịch chủ sân tự thêm qua điện thoại và sân chưa có tài khoản VietQR, vì khách
+ * không có cách chuyển khoản trên web.
+ */
+function payByFor({ source, startAt, hasQr }) {
+  if (source === 'phone' || !hasQr) return null;
+  return msToVn(Math.min(clock.nowMs() + RULES.payHoldMinutes * 60000, vnToMs(startAt)));
+}
 
 const TAKEN = 'Giờ này vừa có người khác đặt, bạn chọn giờ khác nhé';
 
@@ -53,4 +65,4 @@ async function findClaimDrift(conn) {
   return { missing, stale };
 }
 
-module.exports = { HOLDING, isHolding, claimForBooking, setStatus, findClaimDrift, TAKEN };
+module.exports = { payByFor, HOLDING, isHolding, claimForBooking, setStatus, findClaimDrift, TAKEN };

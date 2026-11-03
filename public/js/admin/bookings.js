@@ -4,7 +4,7 @@ import { shortTs, money, vnToMs, STATUS_LABEL, PAYMENT_LABEL, REFUND_LABEL } fro
 import { showDialog, noteField } from '/js/admin/dialog.js';
 
 const $=s=>document.querySelector(s), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const actionLabel={create:'Khách đặt sân',approve:'Chủ sân đồng ý',reject:'Chủ sân từ chối',cancel:'Hủy đặt sân',paid:'Ghi nhận đã chuyển khoản',refund:'Ghi nhận đã trả lại tiền',attendance:'Ghi nhận đã đá hoặc bùng',expire:'Quá hạn, chủ sân chưa trả lời'};
+const actionLabel={create:'Khách đặt sân',approve:'Chủ sân đồng ý',reject:'Chủ sân từ chối',cancel:'Hủy đặt sân',paid:'Ghi nhận đã chuyển khoản',refund:'Ghi nhận đã trả lại tiền',attendance:'Ghi nhận đã đá hoặc bùng',expire:'Quá hạn giữ chỗ'};
 // Lịch đặt đã pass: đổi chủ và trả lại tiền là hai việc riêng, trả lại cho đội cũ = giá pass.
 const matchRefund=b=>b.match?.refunds?.length?b.match.refunds.map(r=>`Trả lại ${r.part==='host'?'đội mở kèo':'đội vào kèo'} ${money(r.amount)} · ${r.status==='done'?'Đã trả lại':'Chưa trả lại'}`).join(' · '):'Chưa có tiền trả lại nào';
 const transferRefund=b=>`Trả lại đội pass ${money(b.refundAmount||0)} · ${b.refundStatus==='done'?'Đã trả lại':'Chưa trả lại'}`;

@@ -99,7 +99,7 @@ async function seedBookings(tx) {
     const price = basePriceOf(venue, court, start);
     const b = {
       userId: tpl.userId, courtId: court.id, startAt: `${date} ${start}:00`, endAt: slotEndAt(venue, date, start), status: tpl.status,
-      expiresAt: tpl.status === 'pending' ? inMin(tpl.expiresInMin ?? RULES.holdMinutes) : null, price, paid: !!tpl.paid,
+      expiresAt: tpl.status === 'pending' ? inMin(tpl.expiresInMin ?? RULES.holdMinutes) : tpl.status === 'confirmed' && !tpl.paid && tpl.expiresInMin != null ? inMin(tpl.expiresInMin) : null, price, paid: !!tpl.paid,
       refundStatus: tpl.refundStatus || 'none', refundPercent: tpl.refundPercent ?? 0, refundAmount: 0,
       cancelledBy: tpl.cancelledBy || null, cancelReason: tpl.cancelReason || null, lateCancel: !!tpl.lateCancel,
       cancelledAt: null, note: tpl.note || '', createdAt: ago(tpl.createdMinAgo),
@@ -140,12 +140,16 @@ async function seedBookings(tx) {
           while (taken.has(`${venue.id}|${ci}|${date} ${start}`)) ci = (ci + 1) % cfg.customerIds.length;
           taken.add(`${venue.id}|${ci}|${date} ${start}`);
           const pending = rand01(`st|${key}`) < pendingShare;
+          const paid = !pending && rand01(`pay|${key}`) < cfg.paidShare;
+          // R3: đơn đã có sân mà chưa trả tiền (sân có VietQR) chỉ đang giữ ô trong hạn chuyển khoản, không tồn tại lâu.
+          const awaitingPay = !pending && !paid && !!(venue.bank?.bin && venue.bank?.account);
           const holdLeft = 2 + Math.floor(rand01(`hold|${key}`) * (RULES.holdMinutes - 1));
-          const createdMin = pending ? RULES.holdMinutes - holdLeft : 40 + Math.floor(rand01(`new|${key}`) * 4000);
+          const createdMin = pending || awaitingPay ? RULES.holdMinutes - holdLeft : 40 + Math.floor(rand01(`new|${key}`) * 4000);
+          const startMs = vnToMs(`${date} ${start}:00`);
           await insert({
             userId: cfg.customerIds[ci], courtId: court.id, startAt: `${date} ${start}:00`, endAt: slotEndAt(venue, date, start),
-            status: pending ? 'pending' : 'confirmed', expiresAt: pending ? inMin(holdLeft) : null, price: basePriceOf(venue, court, start),
-            paid: !pending && rand01(`pay|${key}`) < cfg.paidShare, refundStatus: 'none', refundPercent: 0, refundAmount: 0,
+            status: pending ? 'pending' : 'confirmed', expiresAt: pending ? inMin(holdLeft) : awaitingPay ? msToVn(Math.min(t + holdLeft * 60000, startMs)) : null, price: basePriceOf(venue, court, start),
+            paid, refundStatus: 'none', refundPercent: 0, refundAmount: 0,
             cancelledBy: null, cancelReason: null, lateCancel: false, cancelledAt: null, note: '', createdAt: ago(createdMin),
           }, venue);
           count.crowd += 1;
