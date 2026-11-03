@@ -63,13 +63,17 @@ function fillSearch(meta, districts) {
     for (const [k, v] of new FormData(e.target)) if (v) params.set(k, v);
     location.href = `/venues.html?${params}`;
   });
+  return choice;
 }
 
-function renderTonight(rows, date, today, total) {
-  $('tonight-meta').textContent = `${relativeDayLabel(date, today)} · ${total} giờ còn trống`;
+function renderTonight(rows, date, today, at) {
+  $('tonight-title').textContent = `Giờ trống quanh ${at}`;
+  $('tonight-meta').textContent = relativeDayLabel(date, today);
   $('tonight-more').href = `/venues.html?date=${date}`;
-  // Giữ chỗ cho tối đa 2 dòng Ghép kèo để không bị đẩy ra ngoài danh sách bởi các giờ đặt thường sớm hơn.
-  const shown = [...rows.filter((s) => !isTeam(s)).slice(0, 6), ...rows.filter(isTeam).slice(0, 2)].sort((a, b) => a.start.localeCompare(b.start) || a.venue.id - b.venue.id || isTeam(a) - isTeam(b));
+  // Lấy các giờ gần giờ ô tìm đang chọn (không phải giờ sớm nhất trong ngày: khuya thì đó là 00:00, 01:00).
+  // Giữ chỗ cho tối đa 2 dòng Ghép kèo để không bị đẩy ra ngoài danh sách bởi các giờ đặt thường.
+  const near = (list, n) => [...list].sort((a, b) => Math.abs(hmToMin(a.start) - hmToMin(at)) - Math.abs(hmToMin(b.start) - hmToMin(at)) || a.start.localeCompare(b.start)).slice(0, n);
+  const shown = [...near(rows.filter((s) => !isTeam(s)), 5), ...near(rows.filter(isTeam), 1)].sort((a, b) => a.start.localeCompare(b.start) || a.venue.id - b.venue.id || isTeam(a) - isTeam(b));
   $('tonight-rows').innerHTML = shown.length
     ? shown
         .map(
@@ -77,11 +81,6 @@ function renderTonight(rows, date, today, total) {
         )
         .join('')
     : '<p class="muted" style="padding:var(--sp-4) 0">Hôm nay đã hết giờ trống.</p>';
-  const items = shown.filter((_, i) => i < 6).map((s) => `${s.start} ${esc(shortName(s.venue.name))} · ${esc(s.courtName)} · ${moneyShort(s.price)}${s.discountPercent ? ` · -${s.discountPercent}%` : ''}`);
-  if (items.length) {
-    $('ticker-track').innerHTML = items.map((t) => `<span>${t}</span>`).join('') + items.map((t) => `<span aria-hidden="true">${t}</span>`).join('');
-    $('ticker').hidden = false;
-  }
 }
 
 function renderFixtures(todayRows, today) {
@@ -90,7 +89,8 @@ function renderFixtures(todayRows, today) {
   const picks = [];
   for (const s of sale) if (!seen.has(s.venue.id) && picks.length < 3) (seen.add(s.venue.id), picks.push(s));
   for (const s of sale) if (picks.length < 3 && !picks.includes(s)) picks.push(s);
-  $('fixtures-empty').hidden = picks.length > 0;
+  // Chưa có giờ giảm giá thì cả khối "Giờ chót" ẩn đi: một dải đen trống chen giữa các sân và các lối vào khác không giúp ai đặt sân.
+  $('gio-chot').hidden = picks.length === 0;
   $('fixtures').hidden = picks.length === 0;
   $('fixtures').innerHTML = picks
     .map(
@@ -105,7 +105,7 @@ function renderFixtures(todayRows, today) {
     .join('');
 }
 
-function renderVenues(venues, date) {
+function renderVenues(venues, date, today, at) {
   const plain = (v) => v.availableSlots.filter((s) => !isTeam(s));
   const top = venues.filter((v) => plain(v).length).sort((a, b) => plain(b).length - plain(a).length).slice(0, 3);
   $('venue-list').innerHTML = top
@@ -113,9 +113,10 @@ function renderVenues(venues, date) {
       const byStart = new Map();
       for (const s of v.availableSlots) if (!isTeam(s) && better(s, byStart.get(s.start))) byStart.set(s.start, s);
       const slots = [...byStart.values()].sort((a, b) => a.start.localeCompare(b.start));
-      // Ưu tiên giờ sắp tới nhưng chừa chỗ cho giờ giảm giá nếu có
-      const pills = slots.slice(0, 2);
-      const sale = slots.find((s) => s.discountPercent && !pills.includes(s));
+      // Hai giờ gần giờ ô tìm đang chọn (không phải giờ sớm nhất: khuya là 00:00). Hôm nay thì chừa chỗ cho giờ chót giảm giá nếu có.
+      const dist = (s) => Math.abs(hmToMin(s.start) - hmToMin(at));
+      const pills = [...slots].sort((a, b) => dist(a) - dist(b) || a.start.localeCompare(b.start)).slice(0, 2);
+      const sale = date === today ? slots.find((s) => s.discountPercent && !pills.includes(s)) : null;
       if (sale) pills[1] = sale;
       pills.sort((a, b) => a.start.localeCompare(b.start));
       const more = slots.length - pills.length;
@@ -207,7 +208,7 @@ async function main() {
   decorate();
   try {
     const [meta, districts] = await Promise.all([api.meta(), api.districts()]);
-    fillSearch(meta, districts);
+    const choice = fillSearch(meta, districts);
     const today = dateOf(meta.now);
     const first = await api.venues({ date: today });
     const todayRows = flatten(first.venues);
@@ -222,9 +223,9 @@ async function main() {
       listVenues = r.venues;
       rows = flatten(r.venues);
     }
-    renderTonight(rows, listDate, today, rows.length);
+    renderTonight(rows, listDate, today, $('f-at').value || choice.at);
     renderFixtures(todayRows, today);
-    renderVenues(listVenues, listDate);
+    renderVenues(listVenues, listDate, today, $('f-at').value || choice.at);
     decorate();
   } catch (e) {
     toast(e.message || 'Không tải được dữ liệu', { error: true });
