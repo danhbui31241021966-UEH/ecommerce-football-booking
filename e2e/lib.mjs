@@ -33,6 +33,8 @@ export async function loginAs(p, email) {
   await p.fill('input[name=email]', email);
   await p.fill('input[name=password]', 'Matkhau@123');
   await Promise.all([p.waitForURL((u) => !u.pathname.includes('login')), p.click('button[type=submit]')]);
+  // Chờ trang đích tải xong dữ liệu: nếu bước sau đăng xuất ngay, các request còn dở của trang trả 401 trên BE thật.
+  await p.waitForLoadState('networkidle');
 }
 export const api = (p, expr) => p.evaluate(`(async()=>{const {api}=await import('/js/api.js');return await (${expr})(api)})()`);
 

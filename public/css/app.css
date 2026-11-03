@@ -233,6 +233,13 @@ p {
 }
 
 /* ---------- Header ---------- */
+/* Chỗ giữ sẵn cho header trong lúc shell.js chờ phiên đăng nhập: cùng chiều cao, nền và viền với .site-header để nội dung bên dưới không bị đẩy xuống. */
+#app-header {
+  height: var(--header-h);
+  background: var(--pitch-950);
+  border-bottom: 1px solid rgb(246 244 238 / 0.14);
+  box-sizing: border-box;
+}
 .site-header {
   position: sticky;
   top: 0;

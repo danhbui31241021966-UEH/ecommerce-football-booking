@@ -11,7 +11,7 @@ async function ctx(hm, extra = {}) {
   await c.clock.install({ time: new Date(`${day()}T${hm}:00+07:00`) });
   const p = await c.newPage();
   const errs = []; p.on('console', (m) => { if (m.type() === 'error') errs.push(m.text()); }); p.on('pageerror', (e) => errs.push(e.message));
-  await p.addInitScript(() => { window.__cls = 0; new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput && e.startTime > 2000) window.__cls += e.value; }).observe({ type: 'layout-shift', buffered: true }); });
+  await p.addInitScript(() => { window.__cls = 0; window.__clsAll = 0; new PerformanceObserver((l) => { for (const e of l.getEntries()) if (!e.hadRecentInput) { window.__clsAll += e.value; if (e.startTime > 2000) window.__cls += e.value; } }).observe({ type: 'layout-shift', buffered: true }); });
   return { c, p, errs };
 }
 // 1. câu chào theo giờ demo
@@ -34,7 +34,8 @@ for (const [hm, word, tomorrow] of [['09:00', 'Hôm nay', false], ['14:59', 'Hô
     ok(a && a2 && a !== a2 && a2 !== a3, 'ảnh đổi sau ~7 giây', `${a?.split('/').pop()} → ${a2?.split('/').pop()} → ${a3?.split('/').pop()}`);
     const after = await box();
     ok(JSON.stringify(before) === JSON.stringify(after), 'khung hero không đổi kích thước', `${before} vs ${after}`);
-    ok((await p.evaluate(() => window.__cls)) < 0.02, 'CLS từ giây thứ 2 (sau khi trang dựng xong; lúc nạp có lệch 60px do header dựng, có sẵn từ trước)', String(await p.evaluate(() => window.__cls)));
+    ok((await p.evaluate(() => window.__cls)) < 0.02, 'CLS từ giây thứ 2 (sau khi trang dựng xong)', String(await p.evaluate(() => window.__cls)));
+    ok((await p.evaluate(() => window.__clsAll)) < 0.1, 'CLS toàn bộ lúc tải (không bỏ qua 2 giây đầu)', String(await p.evaluate(() => window.__clsAll)));
     const imgs = await p.evaluate(() => [...document.querySelectorAll('.hero-main img')].map((i) => ({ src: i.currentSrc, alt: i.alt, on: i.classList.contains('is-on'), hidden: i.getAttribute('aria-hidden') })));
     ok(imgs.length === 6, 'đủ 6 ảnh vào vòng đổi', String(imgs.length));
     ok(imgs.every((i) => i.alt.length > 20), 'mọi ảnh có alt');
