@@ -95,6 +95,7 @@
 html {
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  scroll-padding-top: calc(var(--header-h) + var(--sp-2)); /* header dính không che phần tử đang focus */
 }
 body {
   margin: 0;
@@ -132,8 +133,31 @@ p {
   text-wrap: pretty;
 }
 :focus-visible {
-  outline: 2px solid var(--text);
+  outline: 2px solid var(--focus);
   outline-offset: 2px;
+}
+/* Màu vòng focus theo nền ngay cạnh: mực trên nền sáng, lime trên vùng tối (đều ≥ 3:1). Vùng sáng đặt trong vùng tối thì trả lại mực. */
+:root {
+  --focus: var(--text);
+}
+.site-header,
+.mobile-nav,
+.site-footer,
+.hero-main,
+.band-dark,
+.ticker,
+.lg-hero,
+.toast,
+.role-dock-panel,
+.auth-visual {
+  --focus: var(--lime-400);
+}
+.search-panel {
+  --focus: var(--text);
+}
+/* nút nằm sát mép khung tìm kiếm (overflow: hidden) nên vòng focus vẽ vào trong nút, không bị cắt */
+.search-panel .btn:focus-visible {
+  outline-offset: -4px;
 }
 ::selection {
   background: var(--lime-400);
@@ -373,9 +397,13 @@ p {
   transform: translateY(-8px);
   opacity: 0;
   pointer-events: none;
-  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease);
+  /* đóng thì ẩn hẳn (sau khi mờ xong) để Tab không rơi vào link vô hình */
+  visibility: hidden;
+  transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease), visibility 0s linear var(--dur);
 }
 .mobile-nav.open {
+  visibility: visible;
+  transition-delay: 0s;
   transform: none;
   opacity: 1;
   pointer-events: auto;
@@ -431,6 +459,11 @@ p {
   .footer-role {
     display: block;
   }
+}
+/* Nút công cụ demo nổi trên mọi nền: vòng focus lime sát nút đen (đối chiếu với chính nút) */
+.role-dock summary:focus-visible {
+  outline: 2px solid var(--lime-400);
+  outline-offset: 0;
 }
 .role-dock {
   position: fixed;
@@ -959,7 +992,12 @@ body:has(.booking-bar) .role-dock {
   text-transform: uppercase;
   line-height: 1.1;
   font-size: var(--fs-xl);
-  text-decoration: none;
+  text-decoration: underline 2px transparent;
+  text-underline-offset: 4px;
+  transition: text-decoration-color var(--dur) var(--ease);
+}
+.venue-card .title:hover {
+  text-decoration-color: var(--text);
 }
 [data-icon] {
   display: inline-flex;
@@ -1385,8 +1423,18 @@ body:has(.booking-bar) .role-dock {
   appearance: none;
   width: 100%;
 }
+@media (max-width: 639.98px) {
+  /* vùng bấm của select phủ lên cả ô (nhãn + giá trị) mà không đổi kích thước ô */
+  .search-panel .cell select {
+    margin: -12px -14px -10px;
+    padding: 12px 14px 10px;
+    width: calc(100% + 28px);
+    min-height: 44px;
+    position: relative;
+  }
+}
 .search-panel .cell:focus-within {
-  outline: 2px solid var(--text);
+  outline: 2px solid var(--focus);
   outline-offset: -2px;
 }
 .search-panel .btn {
@@ -3279,4 +3327,65 @@ i.slot-league { min-height: 0; padding: 0; }
 .maintenance-box h1 {
   font-size: var(--fs-xl, 1.5rem);
   letter-spacing: -0.02em;
+}
+
+/* Điện thoại: nút và chip cao tối thiểu 44px */
+@media (max-width: 639.98px) {
+  .btn-sm,
+  .chip,
+  .segmented button,
+  .slot .wait-btn,
+  .role-switch button,
+  .proto-tools button {
+    min-height: 44px;
+  }
+  .menu-btn {
+    width: 44px;
+    height: 44px;
+  }
+}
+
+/* ---------- Trang giới thiệu (about.html) ---------- */
+.about-hero { padding: var(--sp-6) 0 var(--sp-8); border-bottom: 1px solid var(--text); }
+.about-hero-in { display: grid; gap: var(--sp-6); align-items: center; }
+.about-hero-text { display: grid; gap: var(--sp-4); align-content: start; }
+.about-hero .lead { max-width: 60ch; font-size: var(--fs-lg); color: var(--text-2); }
+.about-photo { margin: 0; display: grid; gap: var(--sp-2); }
+.about-photo img { width: 100%; height: auto; aspect-ratio: 3 / 2; object-fit: cover; border: 1px solid var(--line-strong); border-radius: var(--r-lg); background: var(--pitch-950); }
+.about-photo figcaption { font-size: var(--fs-sm); color: var(--muted); }
+.about-sec { padding: var(--sp-8) 0; }
+.about-sec-line { border-block: 1px solid var(--line); }
+.about-cols { display: grid; gap: var(--sp-5); }
+.about-body { display: grid; gap: var(--sp-3); max-width: 64ch; }
+.about-who { display: grid; gap: var(--sp-4); margin-top: var(--sp-5); }
+.about-card { display: grid; gap: var(--sp-3); align-content: start; padding: var(--sp-5); border: 1px solid var(--line-strong); border-radius: var(--r-lg); background: var(--surface); }
+.about-card p { color: var(--text-2); }
+.about-card .link-more { justify-self: start; }
+.about-dark { background: var(--pitch-950); color: var(--on-dark); --focus: var(--lime-400); }
+.about-dark .h1 { color: var(--on-dark); }
+.about-feat { display: grid; gap: 0; margin: var(--sp-5) 0 0; padding: 0; list-style: none; border-top: 1px solid rgb(246 244 238 / 0.35); }
+.about-feat li { display: grid; gap: var(--sp-2); align-content: start; padding: var(--sp-4) 0; border-bottom: 1px solid rgb(246 244 238 / 0.2); }
+.about-feat .h3 { color: var(--lime-400); }
+.about-feat p { color: var(--on-dark-muted); }
+.about-feat a { color: var(--on-dark); text-underline-offset: 3px; }
+.about-photo-wide { max-width: 880px; }
+.about-contact { display: grid; gap: var(--sp-3); margin: var(--sp-2) 0 0; }
+.about-contact > div { display: grid; gap: var(--sp-1); }
+.about-contact dt { font-size: var(--fs-sm); font-weight: 700; color: var(--muted); }
+.about-contact dd { margin: 0; }
+.about-ph { padding: var(--sp-3) var(--sp-4); border: 2px dashed var(--text); border-radius: var(--r-lg); background: var(--surface); font-weight: 600; overflow-wrap: anywhere; }
+.home-about { margin-top: var(--sp-6); }
+.site-footer .footer-link { color: var(--on-dark); text-underline-offset: 3px; }
+@media (min-width: 768px) {
+  .about-who { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .about-feat { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--sp-8); }
+}
+@media (min-width: 900px) {
+  .about-hero { padding: var(--sp-10) 0; }
+  .about-hero-in { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--sp-10); }
+  .about-cols { grid-template-columns: minmax(0, 5fr) minmax(0, 7fr); gap: var(--sp-8); align-items: start; }
+  .about-sec { padding: var(--sp-12) 0; }
+}
+@media (min-width: 1100px) {
+  .about-feat { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }

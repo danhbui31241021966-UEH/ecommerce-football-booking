@@ -33,7 +33,9 @@ await step(p, 'lgpub', '01-menu-guest-and-customer', async () => {
   await p.waitForURL(/\/leagues(\.html)?(?=[?#]|$)/); await p.waitForSelector('.lg-pubcard');
   must(!/login/.test(p.url()), 'khách bị đẩy sang đăng nhập');
   must(await p.locator('h1:has-text("Giải đấu")').count() === 1, 'thiếu h1');
+  if (W < 1024) await p.click('.menu-btn'); // menu điện thoại đóng thì ẩn hẳn khỏi Tab và trình đọc màn hình: mở ra mới đọc được
   must(await p.locator('nav a[aria-current=page]:visible').first().innerText().then((t) => t.trim() === 'Giải đấu').catch(() => false), 'mục Giải đấu chưa được đánh dấu đang xem');
+  if (W < 1024) await p.click('.menu-btn');
   await loginAs(p, 'khach1@datsan.local'); await p.goto(U + '/');
   await p.waitForSelector('nav.nav a', { state: 'attached' }); if (W < 1024) await p.click('.menu-btn');
   order = await navOrder();

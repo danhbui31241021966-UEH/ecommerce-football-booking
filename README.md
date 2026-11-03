@@ -6,6 +6,32 @@ Khách tìm sân, xem giá và lịch trống, đặt **1 sân con + 1 slot cố
 Chủ sân quản lý sân, slot, giá, chặn lịch đặt ngoài web, duyệt booking, ghi nhận thanh toán/hoàn tiền.
 Admin cấp tài khoản chủ sân và chỉ can thiệp booking khi có tranh chấp/sự cố.
 
+## Phạm vi Buổi 2 (HTML & CSS)
+
+Phần nộp Buổi 2 là giao diện: `public/index.html` (trang chủ), `public/venues.html` (danh sách sân), `public/venue.html`
+(chi tiết sân) và `public/about.html` (giới thiệu), dùng chung `public/css/app.css`. Các trang dùng JavaScript để dựng
+danh sách từ dữ liệu giả `public/mock/*.json`; bản này không cần backend hay CSDL.
+
+### Danh sách trang
+
+Trang chủ, Tìm sân, Chi tiết sân, Giới thiệu (cùng các trang khác của dự án như đăng nhập, đặt sân…, không thuộc yêu cầu Buổi 2).
+
+### Cách xem
+
+Chạy `npm install` rồi `npm run prototype`, mở http://localhost:4100. Hoặc mở bản đã deploy: https://sannhanh.pages.dev.
+
+### Cách kiểm responsive
+
+Mở trang bằng Chrome, bật DevTools (F12) → chế độ thiết bị, chọn rộng 1366, 768 và 390 px. Kiểm: không tràn ngang,
+ảnh không méo, danh sách đổi số cột (3/2/1), menu không chồng lấn, nút đủ lớn để bấm (từ 44 px trên điện thoại).
+
+### Hạn chế hiện tại
+
+- Bản Buổi 2 dùng dữ liệu giả: đặt sân, hủy sân… chỉ lưu trong `localStorage` của trình duyệt, không lưu lên máy chủ.
+- Giao diện cần bật JavaScript; tắt JavaScript thì trang không hiện danh sách sân.
+- Phần Express + MySQL trong `src/` là phần mở rộng ngoài phạm vi Buổi 2 (xem các mục bên dưới).
+- Thông tin liên hệ trên trang giới thiệu chưa điền.
+
 ## Công nghệ
 
 | Lớp | Công nghệ |

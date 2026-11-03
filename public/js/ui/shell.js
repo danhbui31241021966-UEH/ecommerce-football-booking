@@ -160,6 +160,7 @@ export async function mountShell() {
             <p>SânNhanh không giữ tiền của bạn: tiền đi thẳng tới chủ sân.</p>
           </div>
           <div>
+            <p><a class="footer-link" href="/about.html">Giới thiệu SânNhanh</a></p>
             <p>Đồ án môn Phát triển ứng dụng TMĐT – Nhóm 8</p>
           </div>
           ${proto ? `<div class="footer-role"><span>Xem với vai trò</span>${roleSwitch}${protoTools}</div>` : ''}

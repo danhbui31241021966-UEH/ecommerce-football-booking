@@ -64,7 +64,8 @@ if (dev) {
     if (code !== 0) fail(`wrangler thoát với mã ${code}`);
     const urls = out.match(/https:\/\/[a-z0-9.-]+\.pages\.dev/g) || [];
     const alias = (out.match(/alias URL:\s*(https:\/\/\S+)/i) || [])[1];
-    const url = alias || urls[urls.length - 1];
+    // Deploy production không in alias URL, chỉ in URL theo mã bản deploy; địa chỉ production là cố định.
+    const url = flag('production') ? `https://${PROJECT}.pages.dev` : alias || urls[urls.length - 1];
     if (!url) fail('không đọc được URL từ kết quả wrangler');
     console.log(url);
   });

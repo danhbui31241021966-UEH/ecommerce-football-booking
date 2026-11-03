@@ -4,7 +4,7 @@ const B=process.env.U||'http://127.0.0.1:4100';
 const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome' });
 const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
 const errs=[]; p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
-const pub=['index','venues','transfers','matches','leagues'];
+const pub=['index','venues','transfers','matches','leagues','about'];
 const noindex=['owner-leagues','owner-league','transfer','match','match-new','requests','request-new','request','login','register','booking','my-bookings','notifications','styleguide','owner','owner-bookings','owner-requests','owner-schedule','owner-settings','admin','admin-bookings','admin-logs'];
 const all=fs.readdirSync('public').filter(f=>f.endsWith('.html')).map(f=>f.slice(0,-5));
 let fail=0; const bad=(m)=>{fail++;console.log('FAIL',m)};

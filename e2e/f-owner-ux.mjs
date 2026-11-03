@@ -25,7 +25,9 @@ await step(p, 'ownux', '01-menu-has-four-items-and-demo-group', async () => {
   await reset(); await loginAs(p, OWNER); await gotoToday();
   const links = await p.locator('.site-header .nav a').allInnerTexts();
   must(JSON.stringify(links) === JSON.stringify(['Hôm nay', 'Lịch sân', 'Khách nhờ báo giá', 'Cài đặt sân']), 'menu: ' + links);
+  if (NARROW) await p.click('.menu-btn'); // menu đóng thì ẩn hẳn: mở ra mới đọc được
   const mob = await p.locator('.mobile-nav a').allInnerTexts(); must(JSON.stringify(mob) === JSON.stringify(links), 'menu điện thoại: ' + mob);
+  if (NARROW) await p.click('.menu-btn');
   must(await p.locator('.mobile-nav details.demo-group > summary').count() === 1, 'thiếu mục Demo');
   must(!(await p.locator('.mobile-nav > button[data-proto], .mobile-nav > .proto-tools').count()), 'công cụ demo còn nằm lẫn trong menu');
   const cur = await p.locator('.site-header .nav a[aria-current=page]').allInnerTexts(); must(cur.join() === 'Hôm nay', 'mục đang mở: ' + cur);
