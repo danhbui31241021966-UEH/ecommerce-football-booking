@@ -41,11 +41,12 @@ async function passwordHash(pw = 'Matkhau@123') {
 }
 
 let seq = 0;
-async function makeUser({ role = 'customer', email, fullName = 'Người thử', phone = '0900000000', isActive = 1 } = {}) {
+async function makeUser({ role = 'customer', email, fullName = 'Người thử', phone, isActive = 1 } = {}) {
   seq += 1;
+  const uniquePhone = phone || `099${String(seq).padStart(7, '0')}`;
   const r = await db.query(
     'INSERT INTO users (full_name, email, phone, password_hash, role, is_active, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)',
-    [fullName, email || `u${seq}-${Date.now()}@test.local`, phone, await passwordHash(), role, isActive, clock.now()],
+    [fullName, email || `u${seq}-${Date.now()}@test.local`, uniquePhone, await passwordHash(), role, isActive, clock.now()],
   );
   return { id: r.insertId, role };
 }

@@ -673,7 +673,7 @@ function tick() {
 /* ---------- Xác thực ---------- */
 
 const sessionUser = () => (S.sessionUserId ? userOf(S.sessionUserId) || null : null);
-const userOut = (u) => ({ id: u.id, fullName: u.fullName, email: u.email, phone: u.phone, role: u.role });
+const userOut = (u) => ({ id: u.id, fullName: u.fullName, email: u.email ?? null, phone: u.phone, role: u.role });
 
 function need(ctx, ...roles) {
   if (!ctx.user) fail(401, 'Vui lòng đăng nhập');
@@ -2403,26 +2403,47 @@ route('GET', '/api/venues/:id/schedule', (c) => {
   return scheduleOf(v, checkDate(c.query.date), c.user);
 });
 
+const normalizeAuthPhone = (value) => {
+  let phone = String(value || '').trim().replace(/[\s.]/g, '');
+  if (/^\+84\d{9}$/.test(phone)) phone = `0${phone.slice(3)}`;
+  else if (/^84\d{9}$/.test(phone)) phone = `0${phone.slice(2)}`;
+  req(/^0\d{9}$/.test(phone), 'Số điện thoại phải là số Việt Nam gồm 10 chữ số, bắt đầu bằng 0 hoặc +84');
+  return phone;
+};
+const storedAuthPhone = (value) => {
+  try { return normalizeAuthPhone(value); } catch { return null; }
+};
 route('GET', '/api/auth/csrf', () => ({ csrfToken: S.csrf }));
 route('GET', '/api/auth/me', (c) => ({ user: c.user ? userOut(c.user) : null }));
 route('POST', '/api/auth/register', (c) => {
-  const { fullName = '', email = '', phone = '', password = '' } = c.body || {};
+  const { fullName = '', email: rawEmail = '', phone: rawPhone = '', password = '' } = c.body || {};
+  const email = String(rawEmail ?? '').trim().toLowerCase() || null;
+  const phone = normalizeAuthPhone(rawPhone);
   req(String(fullName).trim().length >= 2, 'Vui lòng nhập họ tên');
-  req(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), 'Email không hợp lệ');
-  req(/^0\d{9}$/.test(String(phone).replace(/\s/g, '')), 'Số điện thoại gồm 10 chữ số, bắt đầu bằng 0');
+  req(!email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), 'Email không hợp lệ');
   req(String(password).length >= 8, 'Mật khẩu cần ít nhất 8 ký tự');
-  if (S.users.some((u) => u.email.toLowerCase() === email.toLowerCase())) fail(409, 'Email này đã được đăng ký');
-  const u = { id: nextId('user'), fullName: String(fullName).trim(), email: email.trim(), phone: String(phone).replace(/\s/g, ''), role: 'customer', isActive: true, password, createdAt: now() };
+  if (email && S.users.some((u) => u.email?.toLowerCase() === email)) fail(409, 'Email này đã được đăng ký');
+  if (S.users.some((u) => storedAuthPhone(u.phone) === phone)) fail(409, 'Số điện thoại này đã được đăng ký');
+  const u = { id: nextId('user'), fullName: String(fullName).trim(), email, phone, role: 'customer', isActive: true, password, createdAt: now() };
   S.users.push(u);
   S.sessionUserId = u.id;
   save();
   return { user: userOut(u) };
 });
 route('POST', '/api/auth/login', (c) => {
-  const { email = '', password = '' } = c.body || {};
-  req(email && password, 'Vui lòng nhập email và mật khẩu');
-  const u = S.users.find((x) => x.email.toLowerCase() === String(email).toLowerCase() && x.password === password);
-  if (!u) fail(401, 'Email hoặc mật khẩu không đúng');
+  const identifier = String(c.body?.identifier ?? c.body?.email ?? '').trim();
+  const password = String(c.body?.password || '');
+  req(identifier && password, 'Vui lòng nhập số điện thoại hoặc email và mật khẩu');
+  let u;
+  if (identifier.includes('@')) {
+    u = S.users.find((x) => x.email?.toLowerCase() === identifier.toLowerCase() && x.password === password);
+  } else {
+    const phone = normalizeAuthPhone(identifier);
+    const matches = S.users.filter((x) => storedAuthPhone(x.phone) === phone);
+    if (matches.length > 1) fail(409, 'Số điện thoại này đang gắn với nhiều tài khoản; hãy đăng nhập bằng email');
+    u = matches[0]?.password === password ? matches[0] : null;
+  }
+  if (!u) fail(401, 'Số điện thoại/email hoặc mật khẩu không đúng');
   if (!u.isActive) fail(403, 'Tài khoản đã bị khóa, vui lòng liên hệ quản trị viên');
   S.sessionUserId = u.id;
   save();
@@ -3247,17 +3268,18 @@ const adminAction = (fn) => (c) => {
 };
 route('GET', '/api/admin/users', (c) => {
   need(c, 'admin');
-  return S.users.filter((u) => !c.query.role || u.role === c.query.role).map((u) => ({ id: u.id, fullName: u.fullName, email: u.email, phone: u.phone, role: u.role, isActive: u.isActive, createdAt: u.createdAt }));
+  return S.users.filter((u) => !c.query.role || u.role === c.query.role).map((u) => ({ id: u.id, fullName: u.fullName, email: u.email ?? null, phone: u.phone, role: u.role, isActive: u.isActive, createdAt: u.createdAt }));
 });
 route('POST', '/api/admin/owners', (c) => {
   need(c, 'admin');
-  const { fullName = '', email = '', phone = '', password = '' } = c.body || {};
+  const { fullName = '', email = '', phone: rawPhone = '', password = '' } = c.body || {};
+  const phone = normalizeAuthPhone(rawPhone);
   req(String(fullName).trim().length >= 2, 'Vui lòng nhập họ tên');
   req(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), 'Email không hợp lệ');
-  req(/^0\d{9}$/.test(String(phone).replace(/\s/g, '')), 'Số điện thoại gồm 10 chữ số, bắt đầu bằng 0');
   req(String(password).length >= 8, 'Mật khẩu cần ít nhất 8 ký tự');
-  if (S.users.some((u) => u.email.toLowerCase() === email.toLowerCase())) fail(409, 'Email này đã được đăng ký');
-  const u = { id: nextId('user'), fullName: String(fullName).trim(), email: email.trim(), phone: String(phone).replace(/\s/g, ''), role: 'owner', isActive: true, password, createdAt: now() };
+  if (S.users.some((u) => u.email?.toLowerCase() === email.toLowerCase())) fail(409, 'Email này đã được đăng ký');
+  if (S.users.some((u) => storedAuthPhone(u.phone) === phone)) fail(409, 'Số điện thoại này đã được đăng ký');
+  const u = { id: nextId('user'), fullName: String(fullName).trim(), email: email.trim(), phone, role: 'owner', isActive: true, password, createdAt: now() };
   S.users.push(u);
   save();
   return { id: u.id };

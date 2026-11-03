@@ -113,11 +113,13 @@ export const api = {
 
   // Tài khoản
   me: () => get('/api/auth/me'),
+  /** body: { fullName, phone, password, email? }; customer email is optional. */
   register: async (body) => {
     const r = await post('/api/auth/register', body);
     csrfToken = null;
     return r;
   },
+  /** body: { identifier, password }; identifier accepts a phone or email (legacy email key remains accepted by the server). */
   login: async (body) => {
     const r = await post('/api/auth/login', body);
     csrfToken = null;

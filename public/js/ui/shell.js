@@ -124,7 +124,7 @@ export async function mountShell() {
                     unread ? `<span class="dot">${unread}</span>` : ''
                   }</a>
                    <details class="user-menu"><summary class="avatar" aria-label="Tài khoản ${esc(currentUser.fullName)}" title="${esc(currentUser.fullName)}">${esc(initialsOf(currentUser.fullName))}</summary>
-                     <div class="user-menu-panel"><b>${esc(currentUser.fullName)}</b><span>${esc(currentUser.email)} · ${ROLE_LABEL[role]}</span>
+                     <div class="user-menu-panel"><b>${esc(currentUser.fullName)}</b><span>${esc(currentUser.email || currentUser.phone)} · ${ROLE_LABEL[role]}</span>
                        <button type="button" data-logout>Đăng xuất</button></div></details>`
             }
             <button class="icon-btn menu-btn" type="button" aria-label="Mở menu" aria-expanded="false">${icon('menu')}</button>

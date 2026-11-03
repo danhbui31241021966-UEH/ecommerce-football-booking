@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Đăng nhập – GGO</title>
-  <meta name="description" content="Đăng nhập GGO để đặt sân bóng mini, xem lịch đặt của tôi, pass sân và ghép kèo.">
+  <meta name="description" content="Đăng nhập GGO để đặt sân bóng mini.">
   <meta name="robots" content="noindex,follow">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="GGO">
@@ -28,22 +28,20 @@
       <p class="display">Vào sân<br>nhanh hơn</p>
     </div>
     <section class="auth-panel" aria-labelledby="auth-title">
-      <p class="eyebrow">Khách hàng · Chủ sân · Admin</p>
       <h1 class="h1" id="auth-title">Đăng nhập</h1>
+      <p id="booking-context" class="auth-booking-context" hidden></p>
       <form id="auth-form" data-mode="login" novalidate>
         <p class="form-error" id="form-error" role="alert" hidden></p>
-        <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" autocomplete="email" required></div>
+        <div class="field"><label for="identifier">Số điện thoại hoặc email</label><input class="input" id="identifier" name="identifier" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" required></div>
         <div class="field"><label for="password">Mật khẩu</label><input class="input" id="password" name="password" type="password" autocomplete="current-password" required></div>
         <button class="btn btn-dark btn-lg btn-block" type="submit">Đăng nhập</button>
       </form>
-      <p class="auth-alt">Chưa có tài khoản? <a href="/register.html" id="alt-link">Đăng ký khách hàng</a>. Tài khoản chủ sân do quản trị viên cấp.</p>
-      <div class="demo-accounts" id="demo-accounts" hidden>
-        <p class="label">Tài khoản demo (mật khẩu <code>Matkhau@123</code>)</p>
-        <div>
-          <button type="button" data-email="khach1@datsan.local">Khách hàng</button>
-          <button type="button" data-email="chusan1@datsan.local">Chủ sân</button>
-          <button type="button" data-email="admin@datsan.local">Admin</button>
-        </div>
+      <p class="auth-alt">Khách mới? <a href="/register.html" id="alt-link">Tạo tài khoản</a>. Tài khoản chủ sân do admin cấp.</p>
+      <div class="demo-accounts" id="demo-accounts" role="group" aria-label="Đăng nhập nhanh bằng tài khoản demo" hidden>
+        <span>Demo · MK <code>Matkhau@123</code></span>
+        <button type="button" data-identifier="khach1@datsan.local">Khách hàng</button>
+        <button type="button" data-identifier="chusan1@datsan.local">Chủ sân</button>
+        <button type="button" data-identifier="admin@datsan.local">Admin</button>
       </div>
     </section>
   </main>

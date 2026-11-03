@@ -22,8 +22,10 @@ function email(value) {
 }
 
 function phone(value, field = 'Số điện thoại') {
-  const s = str(value, field, { max: 15 }).replace(/[\s.]/g, '');
-  if (!PHONE_RE.test(s)) throw badRequest(`${field} phải gồm 10 chữ số, bắt đầu bằng 0`);
+  let s = str(value, field, { max: 30 }).replace(/[\s.]/g, '');
+  if (/^\+84\d{9}$/.test(s)) s = `0${s.slice(3)}`;
+  else if (/^84\d{9}$/.test(s)) s = `0${s.slice(2)}`;
+  if (!PHONE_RE.test(s)) throw badRequest(`${field} phải là số Việt Nam gồm 10 chữ số, bắt đầu bằng 0 hoặc +84`);
   return s;
 }
 
