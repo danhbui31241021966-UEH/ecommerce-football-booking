@@ -16,7 +16,7 @@ Nhóm nói rõ phạm vi để tránh hiểu nhầm. Sản phẩm thực tế c�
 - header, footer và danh sách sân được dựng bằng JavaScript từ dữ liệu mẫu;
 - repo có thêm phần backend (Express + MySQL).
 
-Hai phần này **ngoài phạm vi Buổi 2** và không được chấm ở báo cáo này. Bản xem trên web chạy bằng dữ liệu mẫu, không cần backend.
+Hai phần này **ngoài phạm vi Buổi 2** và không được chấm ở báo cáo này. Bản live trên Cloudflare Pages (`https://ggo-datsan.pages.dev`) chạy dữ liệu mẫu trong `mock/`, không kết nối backend. Bản chạy ở máy bằng `npm run prototype` cũng dùng dữ liệu mẫu; chạy `npm start` mới bật Express với API và dữ liệu MySQL. Express không phục vụ nguyên thư mục repo: `src/static-site.js` giới hạn các trang HTML ở gốc, các thư mục tĩnh được cho phép và một số tệp gốc.
 
 ## 1.2. Nội dung triển khai các trang HTML
 
@@ -25,8 +25,8 @@ Hai phần này **ngoài phạm vi Buổi 2** và không được chấm ở bá
 | Trang | Tên file | Nội dung chính |
 | --- | --- | --- |
 | Trang chủ | `index.html` | Header, banner có ô tìm sân theo ngày/giờ/quận, khối "Giờ trống gần nhất", "Sân còn trống", liên kết sang trang danh sách và trang giới thiệu |
-| Danh sách sản phẩm (sân) | `venues.html` | 40 sân dạng thẻ: ảnh, tên, quận, loại sân, khoảng giá, giờ còn trống; chip lọc ngày, giờ, quận, loại sân |
-| Chi tiết sản phẩm (sân) | `venue.html` | Ảnh sân, tên, giá từng giờ, mô tả, tiện ích, loại sân, giờ mở cửa, chính sách hủy, lưới giờ trống, nút **Đặt sân**, breadcrumb quay lại danh sách |
+| Danh sách sản phẩm (sân) | `products.html` | 40 sân dạng thẻ: ảnh, tên, quận, loại sân, khoảng giá, giờ còn trống; chip lọc ngày, giờ, quận, loại sân |
+| Chi tiết sản phẩm (sân) | `product-detail.html` | Ảnh sân, tên, giá từng giờ, mô tả, tiện ích, loại sân, giờ mở cửa, chính sách hủy, lưới giờ trống, nút **Đặt sân**, breadcrumb quay lại danh sách |
 | Giới thiệu cửa hàng | `about.html` | GGO làm gì, dành cho ai, 6 điểm nổi bật, ảnh minh họa, thông tin liên hệ |
 
 *Nguồn: Nhóm tác giả*
@@ -39,7 +39,7 @@ Quy ước ánh xạ theo đề: "sản phẩm" là **sân bóng**, "nút mua" l
 
 | Thành phần | Mã nguồn | Dùng ở đâu |
 | --- | --- | --- |
-| Header (logo, menu, nút Đăng nhập) | `<header class="site-header">` trong `public/js/ui/shell.js` | Mọi trang |
+| Header (logo, menu, nút Đăng nhập) | `<header class="site-header">` trong `js/ui/shell.js` | Mọi trang |
 | Menu điện thoại | `<nav class="mobile-nav">`, nút `.menu-btn` | Mọi trang, dưới 900 px |
 | Footer (logo GGO, khẩu hiệu, liên kết Giới thiệu, chữ GGO cỡ lớn là ảnh SVG) | `<footer class="site-footer">` trong `shell.js` | Mọi trang |
 | Nút | `.btn`, `.btn-lime`, `.btn-primary`, `.btn-sm`, `.btn-lg` | Mọi trang |
@@ -51,11 +51,11 @@ Quy ước ánh xạ theo đề: "sản phẩm" là **sân bóng**, "nút mua" l
 
 ## 1.4. Tổ chức mã nguồn CSS và hình ảnh
 
-- Một file CSS dùng chung cho mọi trang khách: `public/css/app.css`. Hai file riêng `owner.css` và `admin.css` chỉ dùng cho khu chủ sân và quản trị (ngoài 4 trang của Buổi 2).
-- Ảnh nằm trong `public/img/`:
+- Một file CSS dùng chung cho mọi trang khách: `css/app.css`. Hai file riêng `owner.css` và `admin.css` chỉ dùng cho khu chủ sân và quản trị (ngoài 4 trang của Buổi 2).
+- Ảnh nằm trong `images/`:
   - `photos/` là ảnh banner và ảnh minh họa, mỗi ảnh có 2 cỡ (800 và 1600 px) để trình duyệt chọn theo màn hình;
   - `venues/` là ảnh từng sân.
-- Font chữ Archivo đặt trong `public/fonts/`, tải trước bằng `<link rel="preload">` để chữ không bị nháy.
+- Font chữ Archivo đặt trong `fonts/`, tải trước bằng `<link rel="preload">` để chữ không bị nháy.
 
 ## 1.5. Phân công công việc cho các thành viên
 
@@ -129,37 +129,37 @@ Buổi 1 đã chốt khách hàng là ai, họ cần gì và web có những ch�
 
 ## 2.1. Cấu trúc thư mục
 
-Phần giao diện nằm trong thư mục `public/`. Các thư mục khác (`src/`, `db/`, `tests/`) là backend, ngoài phạm vi Buổi 2.
+Các trang HTML và tài nguyên giao diện nằm ở thư mục gốc. `src/`, `db/` và `tests/` phục vụ ứng dụng Express/MySQL, vượt phạm vi giao diện Buổi 2. Khi chạy Express hoặc deploy Pages, không phục vụ nguyên thư mục repo: danh sách tệp tĩnh được giới hạn trong `src/static-site.js` (các trang HTML gốc, `css/`, `fonts/`, `images/`, `js/`, `mock/` và một số tệp gốc).
 
 ```
 ecommerce-football-booking/
-├── public/
-│   ├── index.html          Trang chủ
-│   ├── venues.html         Danh sách sân
-│   ├── venue.html          Chi tiết sân
-│   ├── about.html          Giới thiệu
-│   ├── css/app.css         CSS dùng chung
-│   ├── img/photos/         Ảnh banner, ảnh minh họa
-│   ├── img/venues/         Ảnh từng sân
-│   ├── fonts/              Font Archivo
-│   ├── js/                 Dựng header/footer và danh sách sân
-│   └── mock/               Dữ liệu mẫu (40 sân)
-├── docs/buoi2/             Báo cáo và ảnh chụp
-├── e2e/                    Kiểm thử tự động trên trình duyệt
-└── README.md
+├── index.html, products.html, product-detail.html, about.html, …  30 trang HTML
+├── css/                    CSS giao diện
+├── images/                 Ảnh, logo, favicon và biểu tượng
+├── fonts/                  Font Archivo
+├── js/                     ES modules phía trình duyệt
+├── mock/                   Dữ liệu mẫu
+├── functions/              Cloudflare Pages Functions
+├── src/                    Ứng dụng Express, API và nghiệp vụ
+├── db/                     Schema MySQL
+├── scripts/                Server prototype, DB và công cụ dự án
+├── tests/                  Kiểm thử backend
+├── e2e/                    Kiểm thử trình duyệt
+├── docs/buoi2/             Báo cáo, hồ sơ và ảnh chụp
+└── robots.txt, sitemap.xml, favicon.ico
 ```
 
 ## 2.2. Quy ước đặt tên file và class CSS
 
-- **Tên file:** chữ thường, không dấu, nối bằng gạch ngang: `venue.html`, `my-bookings.html`, `hero-13907438-1600.jpg`. Ảnh có kèm cỡ ở cuối tên (`-800`, `-1600`).
+- **Tên file:** chữ thường, không dấu, nối bằng gạch ngang: `product-detail.html`, `my-bookings.html`, `hero-13907438-1600.jpg`. Ảnh có kèm cỡ ở cuối tên (`-800`, `-1600`).
 - **Class CSS:** tên khối rồi đến phần tử bên trong, ví dụ `.venue-card`, `.venue-card .media`, `.venue-card .title`. Class trạng thái viết rõ nghĩa: `.open` (menu mở), `.card-hover` (thẻ có hiệu ứng hover).
 - **Biến CSS:** đặt theo nhóm: màu `--pitch-950`, `--lime-400`; chữ `--fs-xl`; khoảng cách `--sp-4`; thời gian chuyển động `--dur`.
 
 ## 2.3. Liên kết CSS và hình ảnh
 
-Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc website**, ví dụ `<link rel="stylesheet" href="/css/app.css">` và `src="/img/photos/stats-1400.jpg"`. Nhóm chọn cách này vì trang nằm ở đâu thì đường dẫn vẫn đúng.
+Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc website**, ví dụ `<link rel="stylesheet" href="/css/app.css">` và `src="/images/photos/stats-1400.jpg"`. Nhóm chọn cách này vì trang nằm ở đâu thì đường dẫn vẫn đúng.
 
-Đổi lại, phải mở web qua máy chủ: chạy `npm run prototype` rồi mở http://localhost:4100, hoặc mở bản trên mạng https://ggo-datsan.pages.dev. Nhấp đúp file `index.html` để mở trực tiếp thì CSS và ảnh không tải được. README có ghi điều này.
+Đổi lại, phải mở web qua máy chủ: chạy `npm run prototype` rồi mở http://localhost:4100, hoặc mở bản trên mạng https://ggo-datsan.pages.dev. Hai cách này dùng dữ liệu mẫu. `npm start` chạy bản Express/API với MySQL (cần cấu hình cơ sở dữ liệu). Nhấp đúp file `index.html` để mở trực tiếp thì CSS và ảnh không tải được. Khi chạy Express hoặc deploy Pages, chỉ danh sách tệp tĩnh cho phép trong `src/static-site.js` được phục vụ, không phải toàn bộ gốc repo. README có ghi điều này.
 
 ## 2.4. Trả lời câu hỏi kiểm tra kiến thức
 
@@ -173,7 +173,7 @@ Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc w
 
 **Câu 2. Đường dẫn `images/product-1.jpg` có ý nghĩa gì?**
 
-Đây là đường dẫn **tương đối**: tìm file `product-1.jpg` trong thư mục `images` nằm **cùng cấp với file HTML đang mở**. Nếu file HTML nằm trong thư mục con, đường dẫn này sẽ trỏ sai chỗ. Khi đó phải viết `../images/product-1.jpg`, hoặc dùng đường dẫn từ gốc như nhóm đang làm (`/img/...`).
+Đây là đường dẫn **tương đối**: tìm file `product-1.jpg` trong thư mục `images` nằm **cùng cấp với file HTML đang mở**. Nếu file HTML nằm trong thư mục con, đường dẫn này sẽ trỏ sai chỗ. Khi đó phải viết `../images/product-1.jpg`, hoặc dùng đường dẫn từ gốc như nhóm đang làm (`/images/...`).
 
 **Câu 3. Nếu một thành viên đổi tên file ảnh nhưng không cập nhật HTML, lỗi gì có thể xảy ra?**
 
@@ -205,9 +205,9 @@ Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc w
 | Chữ `--text` | `#15150f` | Chữ chính, vòng focus trên nền sáng |
 | Font | Archivo (một font cho cả tiêu đề và nội dung) | Tiêu đề in hoa, đậm, hẹp; nội dung thường |
 
-*Nguồn: `public/css/app.css`*
+*Nguồn: `css/app.css`*
 
-**Logo.** Chữ GGO viết bằng Archivo hẹp, đậm 850, đã chuyển thành nét (ảnh SVG `public/img/logo-ggo-dark.svg` và `logo-ggo-light.svg`, không phụ thuộc font); lòng chữ O tô lime `#d9f23d`. Header và footer chỉ dùng chữ GGO này. Ô lime có chữ G (`public/img/favicon.svg`, kèm PNG 16/32 và `apple-touch-icon.png`) dùng làm favicon, cùng file `public/favicon.ico` (16 và 32 px) cho trình duyệt tự gọi `/favicon.ico`; mọi link icon có `?v=2` để trình duyệt bỏ icon cũ trong cache; ảnh chia sẻ của các trang tĩnh là `public/img/og-ggo.png`.
+**Logo.** Chữ GGO viết bằng Archivo hẹp, đậm 850, đã chuyển thành nét (ảnh SVG `images/logo-ggo-dark.svg` và `logo-ggo-light.svg`, không phụ thuộc font); lòng chữ O tô lime `#d9f23d`. Header và footer chỉ dùng chữ GGO này. Ô lime có chữ G (`images/favicon.svg`, kèm PNG 16/32 và `apple-touch-icon.png`) dùng làm favicon, cùng file `favicon.ico` (16 và 32 px) cho trình duyệt tự gọi `/favicon.ico`; mọi link icon có `?v=2` để trình duyệt bỏ icon cũ trong cache; ảnh chia sẻ của các trang tĩnh là `images/og-ggo.png`.
 
 ## 3.3. Điều hướng giữa 4 trang
 
@@ -238,12 +238,12 @@ Người dùng sẽ khó biết đâu là nút bấm, đâu là chữ thường,
 
 ## 4.1. Header và menu
 
-Header dùng thẻ semantic `<header>` chứa logo, `<nav>` chứa menu và nút Đăng nhập (`public/js/ui/shell.js`):
+Header dùng thẻ semantic `<header>` chứa logo, `<nav>` chứa menu và nút Đăng nhập (`js/ui/shell.js`):
 
 ```
 <header class="site-header">
   <div class="container">
-    <a class="brand" href="/"><img class="brand-word" src="/img/logo-ggo-dark.svg" alt="GGO" width="56" height="24"></a>
+    <a class="brand" href="/"><img class="brand-word" src="/images/logo-ggo-dark.svg" alt="GGO" width="56" height="24"></a>
     <nav class="nav" aria-label="Điều hướng chính">…các liên kết…</nav>
     <div class="header-actions">
       <a class="btn btn-lime btn-sm" href="/login.html">Đăng nhập</a>
@@ -253,7 +253,7 @@ Header dùng thẻ semantic `<header>` chứa logo, `<nav>` chứa menu và nút
 </header>
 ```
 
-Bố cục header dùng Flexbox (`public/css/app.css`):
+Bố cục header dùng Flexbox (`css/app.css`):
 
 ```
 .site-header { position: sticky; top: 0; height: var(--header-h); background: var(--pitch-950); }
@@ -295,7 +295,7 @@ Dùng `@media` để đổi cách hiện menu theo độ rộng màn hình. GGO 
 
 ## 5.1. Xây dựng trang danh sách sân
 
-- Trang `venues.html` hiển thị **40 sân** (dữ liệu mẫu `public/mock/venues.json`), nhiều hơn mức tối thiểu 8.
+- Trang `products.html` hiển thị **40 sân** (dữ liệu mẫu `mock/venues.json`), nhiều hơn mức tối thiểu 8.
 - Mỗi thẻ có cùng cấu trúc: ảnh, nhãn ưu đãi, tên sân, quận, loại sân, khoảng giá, các giờ còn trống. Bấm tên sân hoặc một ô giờ thì mở trang chi tiết.
 - Lưới thẻ dùng CSS Grid:
 
@@ -345,7 +345,7 @@ Tên sân ở GGO khá dài (ví dụ "SÂN BANH MINI 20 CỘNG HÒA GARDENS") n
 
 ## 6.1. Trang chi tiết sân
 
-- Trang `venue.html` có:
+- Trang `product-detail.html` có:
   - ảnh sân, có khai báo `width`/`height` và `alt`;
   - tên sân, giá ("từ … / giờ" và giá từng ô giờ);
   - mô tả;
@@ -539,7 +539,7 @@ Kiểm theo thứ tự:
 
 *Bảng 8.1. Màu vòng focus và độ tương phản theo từng nền*
 
-| Vùng | Vòng focus | Nền ngay quanh vòng | Tương phản | Căn cứ trong `public/css/app.css` |
+| Vùng | Vòng focus | Nền ngay quanh vòng | Tương phản | Căn cứ trong `css/app.css` |
 | --- | --- | --- | --- | --- |
 | Header, menu điện thoại, footer, banner, hộp demo | lime `#d9f23d` | `#0d0e0b` | 15,41:1 | `.site-header, .mobile-nav, … { --focus: var(--lime-400); }` (dòng 143–151) |
 | Phần còn lại của trang: liên kết, thẻ, nút Đặt sân | mực `#15150f` | `#f6f4ee` (nền trang) hoặc `#fffefa` (thẻ) | 16,66:1 hoặc 18,16:1 | `:root { --focus: var(--text); }` (dòng 140–142) |
@@ -595,8 +595,8 @@ Ngoài kiểm bằng mắt, nhóm có bộ kiểm thử tự động trên trìn
 
 | ID | Nhóm | Thao tác | Kết quả mong đợi | Kết quả |
 | --- | --- | --- | --- | --- |
-| TC01 | Liên kết | Bấm từng mục menu: Trang chủ, Tìm sân | Mở đúng `index.html`, `venues.html` | Đạt |
-| TC02 | Liên kết | Ở danh sách, bấm tên một sân | Mở `venue.html` đúng sân | Đạt |
+| TC01 | Liên kết | Bấm từng mục menu: Trang chủ, Tìm sân | Mở đúng `index.html`, `products.html` | Đạt |
+| TC02 | Liên kết | Ở danh sách, bấm tên một sân | Mở `product-detail.html` đúng sân | Đạt |
 | TC03 | Liên kết | Ở chi tiết, bấm "Tìm sân" trên breadcrumb | Về danh sách sân | Đạt |
 | TC04 | Liên kết | Bấm "Tìm hiểu về GGO →" và "Giới thiệu GGO" ở footer | Mở `about.html` | Đạt |
 | TC05 | Liên kết | Kiểm mọi liên kết nội bộ trên 4 trang | Không có liên kết chết | Đạt: trang chủ 25, danh sách 257, chi tiết 9, giới thiệu 10 liên kết đều trả 200 |
@@ -622,7 +622,7 @@ Nhóm làm web với sự hỗ trợ **lớn** của AI (viết mã, viết ki�
 
 | Nội dung | Vấn đề 1 – Trang nhảy khi tải | Vấn đề 2 – Chờ cứng trong kiểm thử |
 | --- | --- | --- |
-| File | `public/css/app.css`, `public/index.html` | `e2e/f-stake.mjs` |
+| File | `css/app.css`, `index.html` | `e2e/f-stake.mjs` |
 | Vấn đề | Header dựng xong sau khi trang tải, đẩy nội dung xuống 60 px | Đề xuất chờ cố định bằng `waitForTimeout(...)` rồi mới đọc kết quả |
 | Mức độ | Cao (người dùng thấy rõ) | Trung bình (kiểm thử chập chờn) |
 | Đề xuất AI | Giữ sẵn chỗ cho header đúng chiều cao, nền và viền như header thật | Chờ một khoảng thời gian cố định |
@@ -653,28 +653,23 @@ Nhóm làm web với sự hỗ trợ **lớn** của AI (viết mã, viết ki�
 
 - **Link repository:** **[ĐIỀN]**
 - **Web xem trực tiếp:** https://ggo-datsan.pages.dev (bản dữ liệu mẫu, không cần backend).
-- `README.md` có mục **"Phạm vi Buổi 2 (HTML & CSS)"**:
-  - giới thiệu và danh sách trang;
-  - công nghệ;
-  - cách mở web (`npm run prototype` rồi mở http://localhost:4100);
-  - cách kiểm responsive (DevTools ở 1366 / 768 / 390 px);
-  - hạn chế hiện tại: dữ liệu mẫu lưu trong trình duyệt, cần bật JavaScript, phần backend là mở rộng ngoài phạm vi Buổi 2.
+- `README.md` gộp giới thiệu và phạm vi dự án, cấu trúc gốc mới, danh sách các trang, công nghệ, cách chạy prototype dùng mock và bản Express/MySQL, liên kết tài liệu Buổi 1, kết quả responsive, cùng bảng phân công để nhóm tự điền. README ghi rõ Pages dùng dữ liệu mock, `npm start` chạy API thật với MySQL, và Express chỉ phục vụ danh sách tệp cho phép.
 - Ảnh chụp minh chứng nằm trong `docs/buoi2/screens/`.
 
 # X. Câu hỏi kiến thức
 
 ## 10.1. Giải thích mã nguồn
 
-**Đoạn HTML:** thẻ sân trong trang danh sách (rút gọn từ `public/js/venues.js`):
+**Đoạn HTML:** thẻ sân trong trang danh sách (rút gọn từ `js/venues.js`):
 
 ```
 <article class="card card-hover venue-card">
   <div class="media">
-    <img src="/img/venues/…jpg" width="900" height="450" loading="lazy" alt="Tên sân">
+    <img src="/images/venues/…jpg" width="900" height="450" loading="lazy" alt="Tên sân">
     <div class="tags"><span class="tag-sale">-20% giờ chót</span></div>
   </div>
   <div class="body">
-    <a class="title" href="/venue.html?id=…">Tên sân</a>
+    <a class="title" href="/product-detail.html?id=…">Tên sân</a>
     <div class="meta"><span>Tân Bình</span><span>Sân 5</span></div>
     <div><span class="price">300.000đ</span> <span class="muted">– 450.000đ / giờ</span></div>
     <div class="slot-pills"><a class="slot-pill" href="…">18:00 · 360k</a> …</div>
@@ -710,7 +705,7 @@ Nhóm làm web với sự hỗ trợ **lớn** của AI (viết mã, viết ki�
 .product-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 ```
 
-Trong GGO, lưới thẻ sân ở trang danh sách là `.card-grid` (`public/css/app.css`, dòng 2380–2394, dùng ở `venues.html`):
+Trong GGO, lưới thẻ sân ở trang danh sách là `.card-grid` (`css/app.css`, dòng 2380–2394, dùng ở `products.html`):
 
 ```
 .card-grid { display: grid; gap: var(--sp-4); grid-template-columns: 1fr; }

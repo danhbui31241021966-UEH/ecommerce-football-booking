@@ -1,7 +1,7 @@
 # Hồ sơ nộp bài tập nhóm Buổi 2 – HTML & CSS (GGO, Nhóm 8)
 
 Tài liệu này đi theo đúng thứ tự 12 mục của bảng "Sản phẩm cuối cùng cần nộp" trong `docs/buoi2/de-bai.md`.
-Quy ước ánh xạ sang GGO: "sản phẩm" là **sân bóng**, trang danh sách là `venues.html`, trang chi tiết là `venue.html`, "nút mua" là nút **Đặt sân**.
+Quy ước ánh xạ sang GGO: "sản phẩm" là **sân bóng**, trang danh sách là `products.html`, trang chi tiết là `product-detail.html`, "nút mua" là nút **Đặt sân**.
 
 Ký hiệu: **[ĐIỀN]** = chủ dự án hoặc thành viên tự điền. Ảnh nằm trong `docs/buoi2/screens/`.
 
@@ -11,14 +11,14 @@ Ký hiệu: **[ĐIỀN]** = chủ dự án hoặc thành viên tự điền. Ả
 
 | Phần | Có trong repo | Thuộc phạm vi đề Buổi 2? |
 | --- | --- | --- |
-| Trang HTML: `public/*.html` | Có (nhiều trang, trong đó 4 trang cần cho đề: `index.html`, `venues.html`, `venue.html` và `about.html`) | Có |
-| CSS: `public/css/app.css` (dùng chung), `owner.css`, `admin.css` | Có | Có |
-| Grid, Flexbox, `@media`, `:hover`, `:focus-visible`, `transition` | Có trong `public/css/app.css` | Có |
-| JavaScript (ES modules, không framework) trong `public/js/` | Có. Header, footer, danh sách sân và lưới giờ **do JS dựng** từ dữ liệu, không phải HTML tĩnh | Không (đề chưa yêu cầu) |
-| Dữ liệu giả `public/mock/*.json` + `public/js/api-mock.js` | Có. Bản triển khai trên Cloudflare Pages chạy bằng dữ liệu giả này, **không cần backend** (`public/js/mode.js`: `SERVED_BY_API = false`) | Không |
-| Backend Express + MySQL trong `src/`, `db/`, `tests/` | Có, chạy riêng bằng `npm start` | Không, vượt phạm vi |
+| Trang HTML: `*.html` | Có (nhiều trang, trong đó 4 trang cần cho đề: `index.html`, `products.html`, `product-detail.html` và `about.html`) | Có |
+| CSS: `css/app.css` (dùng chung), `owner.css`, `admin.css` | Có | Có |
+| Grid, Flexbox, `@media`, `:hover`, `:focus-visible`, `transition` | Có trong `css/app.css` | Có |
+| JavaScript (ES modules, không framework) trong `js/` | Có. Header, footer, danh sách sân và lưới giờ **do JS dựng** từ dữ liệu, không phải HTML tĩnh | Không (đề chưa yêu cầu) |
+| Dữ liệu giả `mock/*.json` + `js/api-mock.js` | Có. Bản triển khai trên Cloudflare Pages chạy bằng dữ liệu giả này, **không cần backend** (`js/mode.js`: `SERVED_BY_API = false`) | Không |
+| Backend Express + MySQL trong `src/`, `db/`, `tests/` | Có, chạy bằng `npm start`; Express phục vụ API thật và chỉ danh sách tệp tĩnh cho phép theo `src/static-site.js`, không phục vụ toàn repo | Không, vượt phạm vi |
 
-Vì vậy **không viết là "chỉ dùng HTML/CSS"**. Phần HTML/CSS là các trang `public/*.html` và `public/css/`; các trang đó cần JS để hiện danh sách sân.
+Vì vậy **không viết là "chỉ dùng HTML/CSS"**. Phần HTML/CSS là các trang `.html` ở gốc và `css/`; các trang đó cần JS để hiện danh sách sân. Bản live trên Cloudflare Pages và `npm run prototype` dùng dữ liệu mẫu; chỉ `npm start` chạy Express/API với MySQL.
 
 ---
 
@@ -32,47 +32,47 @@ Vì vậy **không viết là "chỉ dùng HTML/CSS"**. Phần HTML/CSS là các
 
 ## 2. Trang chủ
 
-- **File:** `public/index.html` + `public/css/app.css`, header/footer dựng bởi `public/js/ui/shell.js`, nội dung bởi `public/js/index-page.js`.
-- **Logo:** Chữ GGO viết bằng Archivo hẹp, đậm 850, đã chuyển thành nét (ảnh SVG `public/img/logo-ggo-dark.svg` và `logo-ggo-light.svg`, không phụ thuộc font); lòng chữ O tô lime `#d9f23d`. Header và footer chỉ dùng chữ GGO này. Ô lime có chữ G (`public/img/favicon.svg`, kèm PNG 16/32 và `apple-touch-icon.png`) dùng làm favicon, cùng file `public/favicon.ico` (16 và 32 px) cho trình duyệt tự gọi `/favicon.ico`; mọi link icon có `?v=2` để trình duyệt bỏ icon cũ trong cache; ảnh chia sẻ của các trang tĩnh là `public/img/og-ggo.png`.
+- **File:** `index.html` + `css/app.css`, header/footer dựng bởi `js/ui/shell.js`, nội dung bởi `js/index-page.js`.
+- **Logo:** Chữ GGO viết bằng Archivo hẹp, đậm 850, đã chuyển thành nét (ảnh SVG `images/logo-ggo-dark.svg` và `logo-ggo-light.svg`, không phụ thuộc font); lòng chữ O tô lime `#d9f23d`. Header và footer chỉ dùng chữ GGO này. Ô lime có chữ G (`images/favicon.svg`, kèm PNG 16/32 và `apple-touch-icon.png`) dùng làm favicon, cùng file `favicon.ico` (16 và 32 px) cho trình duyệt tự gọi `/favicon.ico`; mọi link icon có `?v=2` để trình duyệt bỏ icon cũ trong cache; ảnh chia sẻ của các trang tĩnh là `images/og-ggo.png`.
 - **Header:** logo "GGO" (`.brand`, ảnh SVG), menu `<nav class="nav">` với Trang chủ, Tìm sân và mục **Thêm** (Pass sân, Ghép kèo, Giải đấu, Nhờ báo giá), nút Đăng nhập (`shell.js`, hằng `NAV`).
 - **Footer:** `footer.site-footer` dựng bởi `shell.js`: logo GGO, khẩu hiệu "Thấy sân trống, đặt là đá." (`.footer-slogan`), một dòng mô tả, liên kết "Giới thiệu GGO" và chữ GGO cỡ lớn ở cuối (`.footer-wordmark`, là ảnh SVG `logo-ggo-dark.svg`, không phải chữ vẽ bằng CSS).
 - **Banner:** `section.match-hero` có ảnh (`hero-1920.jpg`, ảnh dọc riêng cho màn nhỏ bằng `<picture>`), tiêu đề `h1` "Đặt sân bóng mini", lời dẫn, form tìm sân (ngày, giờ, loại sân, khu vực; lời kêu gọi hành động) và cột "Tối nay còn trống" với liên kết "Xem thêm".
 - **Sân nổi bật:** băng thẻ "Sân còn trống" (`#venue-list`) kèm giờ trống bấm được, và cột "Tối nay còn trống" (`#tonight-rows`).
-- **Liên kết tới trang danh sách:** form `action="/venues.html"` và liên kết "Xem tất cả sân".
+- **Liên kết tới trang danh sách:** form `action="/products.html"` và liên kết "Xem tất cả sân".
 - **Liên kết tới trang giới thiệu:** có, liên kết "Tìm hiểu về GGO →" ở cuối trang chủ và liên kết "Giới thiệu GGO" ở footer (xem mục 5).
 
 ![Trang chủ 1366](screens/trang-chu-1366.png)
 
 ## 3. Trang danh sách sản phẩm (sân)
 
-- **File:** `public/venues.html`, thẻ sân dựng bởi `public/js/venues.js` (hàm tạo `<article class="card card-hover venue-card">`).
-- **Số lượng:** dữ liệu mẫu có **40 sân** (`public/mock/venues.json`), nhiều hơn mức tối thiểu 8. Số sân hiện ra thực tế phụ thuộc bộ lọc ngày/giờ/quận đang chọn.
+- **File:** `products.html`, thẻ sân dựng bởi `js/venues.js` (hàm tạo `<article class="card card-hover venue-card">`).
+- **Số lượng:** dữ liệu mẫu có **40 sân** (`mock/venues.json`), nhiều hơn mức tối thiểu 8. Số sân hiện ra thực tế phụ thuộc bộ lọc ngày/giờ/quận đang chọn.
 - **Mỗi thẻ có:** ảnh, tên, giá, giờ trống; bấm vào mở trang chi tiết.
-- **Bố cục:** `.card-grid` dùng CSS Grid, 1 cột (dưới 720 px), 2 cột (từ 720 px), 3 cột (từ 1100 px) (`public/css/app.css`, quanh dòng 2480).
+- **Bố cục:** `.card-grid` dùng CSS Grid, 1 cột (dưới 720 px), 2 cột (từ 720 px), 3 cột (từ 1100 px) (`css/app.css`, quanh dòng 2480).
 - **Danh mục:** có chip lọc ngày, giờ, quận, loại sân (không bắt buộc theo đề).
 
 ![Danh sách sân 1366](screens/danh-sach-san-1366.png)
 
 ## 4. Trang chi tiết sản phẩm (sân)
 
-- **File:** `public/venue.html`, nội dung dựng bởi `public/js/venue.js`.
+- **File:** `product-detail.html`, nội dung dựng bởi `js/venue.js`.
 - **Có:** ảnh sân (`width`/`height` khai báo, có `alt`), tên, giá (giá từ…/giờ và giá từng ô), mô tả (`venue.description`), thuộc tính: tiện ích (`venue.amenities`), loại sân 5 hoặc 7 người, giờ mở cửa, chính sách hủy, link Google Maps.
 - **Nút mua:** nút **Đặt sân** (`#bar-book`, hộp xác nhận `#confirm-dialog`). Trong bản dữ liệu giả, nút này tạo đơn giả, không thanh toán thật.
-- **Quay lại danh sách:** có, là breadcrumb "Trang chủ / Tìm sân / tên sân" (`public/js/venue.js` dòng 85), liên kết "Tìm sân" trỏ về `/venues.html`.
+- **Quay lại danh sách:** có, là breadcrumb "Trang chủ / Tìm sân / tên sân" (`js/venue.js` dòng 85), liên kết "Tìm sân" trỏ về `/products.html`.
 
 ![Chi tiết sân 1366](screens/chi-tiet-san-1366.png)
 
 ## 5. Trang giới thiệu
 
-- **Có.** File `public/about.html` (script `public/js/about.js` chỉ dựng header và footer chung), dùng chung `public/css/app.css` (khối "Trang giới thiệu" ở cuối file). HTML semantic: `header`, `main`, các `section` có `h2`, `figure`/`figcaption`, `dl` cho thông tin liên hệ. Có title, description, og và canonical riêng, và nằm trong `public/sitemap.xml`.
+- **Có.** File `about.html` (script `js/about.js` chỉ dựng header và footer chung), dùng chung `css/app.css` (khối "Trang giới thiệu" ở cuối file). HTML semantic: `header`, `main`, các `section` có `h2`, `figure`/`figcaption`, `dl` cho thông tin liên hệ. Có title, description, og và canonical riêng, và nằm trong `sitemap.xml`.
 - **Nội dung trên trang** (căn cứ `docs/PRD.md` mục 1 và 2, chỉ nêu tính năng đã có trên giao diện):
   - **Tiêu đề trang (`h1`):** khẩu hiệu "Thấy sân trống, đặt là đá.", cùng khẩu hiệu ở footer.
   - **Kinh doanh gì:** website đặt sân bóng đá mini 5 và 7 người ở TP.HCM; khách xem giờ trống, giá thật và đặt sân trên web, không cần gọi điện.
   - **Khách hàng là ai:** hai thẻ "Đội đá phủi và nhóm bạn" và "Chủ sân mini".
   - **Điểm nổi bật** (6 mục): tìm theo giờ trước, chọn sân sau; giá thật và giờ chót giảm giá; "Báo tôi khi trống" (danh sách chờ); chuyển khoản VietQR thẳng cho chủ sân, web không giữ tiền; ba cách khác để có sân (Pass sân, Ghép kèo, Nhờ báo giá); Giải đấu phủi.
-  - **Ảnh minh họa:** hai ảnh có sẵn trong `public/img/photos/` (`hero-13907438-1600.jpg`, `stats-1400.jpg`), có `alt` mô tả đúng nội dung, có `width`/`height`, hiển thị theo tỉ lệ 3:2 bằng `object-fit: cover` (không méo), chú thích "Ảnh minh họa, không phải ảnh của một sân cụ thể".
+  - **Ảnh minh họa:** hai ảnh có sẵn trong `images/photos/` (`hero-13907438-1600.jpg`, `stats-1400.jpg`), có `alt` mô tả đúng nội dung, có `width`/`height`, hiển thị theo tỉ lệ 3:2 bằng `object-fit: cover` (không méo), chú thích "Ảnh minh họa, không phải ảnh của một sân cụ thể".
   - **Liên hệ:** "Đồ án môn Phát triển ứng dụng TMĐT – Nhóm 8", kèm hai ô giữ chỗ viền nét đứt cho email và điện thoại. Trong HTML có chú thích `CHỦ DỰ ÁN ĐIỀN` ngay trên hai ô này. **Không có email, số điện thoại, địa chỉ hay tên người nào được bịa.**
-- **Liên kết tới trang:** (1) trang chủ có liên kết "Tìm hiểu về GGO →" ở cuối nội dung (`public/index.html`), thấy được cả ở 390 px mà không cần mở menu; (2) footer của mọi trang có liên kết "Giới thiệu GGO" (`public/js/ui/shell.js`). Không thêm vào menu chính vì menu khách hàng đã có 7 mục, thêm nữa sẽ sát mép ở khổ 900 px.
+- **Liên kết tới trang:** (1) trang chủ có liên kết "Tìm hiểu về GGO →" ở cuối nội dung (`index.html`), thấy được cả ở 390 px mà không cần mở menu; (2) footer của mọi trang có liên kết "Giới thiệu GGO" (`js/ui/shell.js`). Không thêm vào menu chính vì menu khách hàng đã có 7 mục, thêm nữa sẽ sát mép ở khổ 900 px.
 
 ![Trang giới thiệu 1366](screens/about-1366.png)
 
@@ -87,7 +87,7 @@ Vì vậy **không viết là "chỉ dùng HTML/CSS"**. Phần HTML/CSS là các
 
 Menu trên điện thoại (đã mở): ![](screens/trang-chu-390-menu.png)
 
-Cơ chế responsive trong mã: `<meta name="viewport" content="width=device-width, initial-scale=1">` ở các trang; `@media` trong `public/css/app.css` (ví dụ `min-width: 720px`, `min-width: 900px`, `min-width: 1100px`, `max-width: 560px`); `.card-grid` đổi 1/2/3 cột; ảnh banner có bản dọc riêng cho màn dưới 640 px.
+Cơ chế responsive trong mã: `<meta name="viewport" content="width=device-width, initial-scale=1">` ở các trang; `@media` trong `css/app.css` (ví dụ `min-width: 720px`, `min-width: 900px`, `min-width: 1100px`, `max-width: 560px`); `.card-grid` đổi 1/2/3 cột; ảnh banner có bản dọc riêng cho màn dưới 640 px.
 
 Trang giới thiệu đo bằng Playwright trên Chrome ở ba khổ: `scrollWidth` bằng `innerWidth` (1366, 768, 390); không có phần tử nào vượt mép; 2 ảnh hiển thị đúng tỉ lệ 3:2 (tỉ lệ gốc 1,50); cột đổi 3 → 2 → 1 ở khối "Điểm nổi bật" và 2 → 1 ở khối "Dành cho ai"; 10 liên kết nội bộ trên trang đều trả 200; console không lỗi.
 
@@ -95,7 +95,7 @@ Danh sách lỗi giao diện ở ba khổ (tràn ngang, ảnh méo, menu chồng
 
 ## 7. Hiệu ứng giao diện (hover và focus)
 
-Trong mã (`public/css/app.css`):
+Trong mã (`css/app.css`):
 
 - **Focus bàn phím chung:** `:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }` (dòng 135–138). Biến `--focus` là mực `#15150f` trên nền sáng và lime `#d9f23d` trên vùng nền tối (header, menu điện thoại, footer, ảnh nền trang chủ, dải đen, giải đấu, hộp thông báo, bảng công cụ demo): dòng 139–161. Dùng `outline` nên không làm xê dịch bố cục.
 - **Liên kết menu:** `.nav a:hover` đổi màu, `transition: color` (dòng 307–319).
@@ -124,7 +124,7 @@ Chỉ ghi những lỗi có bằng chứng trong repo (commit, file e2e, `docs/T
 
 | # | Lỗi | Ở đâu | Cách xử lý | Kết quả / bằng chứng |
 | --- | --- | --- | --- | --- |
-| 1 | Trang bị **nhảy bố cục khi tải** (CLS): trong lúc `shell.js` chờ thông tin đăng nhập, ô `#app-header` rỗng, khi header thật hiện ra thì nội dung bị đẩy xuống 60 px | `public/index.html` (`#app-header`), `public/css/app.css` | Commit `3854c05`: chỗ giữ sẵn `#app-header` có đúng chiều cao `var(--header-h)`, nền và viền như header thật | Flow `e2e/f-home.mjs` kiểm hai chỉ số: CLS sau giây thứ 2 < 0.02 và **CLS toàn bộ lúc tải < 0.1** (kiểm thứ hai do commit này thêm vào; trước đó flow bỏ qua 2 giây đầu và ghi chú có lệch 60 px có sẵn). Kết quả chạy `f-home` trên bản dữ liệu giả ngày 03/11: CLS toàn bộ lúc tải **0** ở 390 và **0,0072** ở 1280; CLS từ giây thứ 2 là **0** ở cả hai khổ (cả bốn số đều đạt ngưỡng). Số liệu nằm ở `e2e/out/out-f-home-390.txt` và `out-f-home-1280.txt`; thư mục `e2e/out/` không đưa lên repo, muốn có lại thì chạy `npm run e2e -- f-home 390` |
+| 1 | Trang bị **nhảy bố cục khi tải** (CLS): trong lúc `shell.js` chờ thông tin đăng nhập, ô `#app-header` rỗng, khi header thật hiện ra thì nội dung bị đẩy xuống 60 px | `index.html` (`#app-header`), `css/app.css` | Commit `3854c05`: chỗ giữ sẵn `#app-header` có đúng chiều cao `var(--header-h)`, nền và viền như header thật | Flow `e2e/f-home.mjs` kiểm hai chỉ số: CLS sau giây thứ 2 < 0.02 và **CLS toàn bộ lúc tải < 0.1** (kiểm thứ hai do commit này thêm vào; trước đó flow bỏ qua 2 giây đầu và ghi chú có lệch 60 px có sẵn). Kết quả chạy `f-home` trên bản dữ liệu giả ngày 03/11: CLS toàn bộ lúc tải **0** ở 390 và **0,0072** ở 1280; CLS từ giây thứ 2 là **0** ở cả hai khổ (cả bốn số đều đạt ngưỡng). Số liệu nằm ở `e2e/out/out-f-home-390.txt` và `out-f-home-1280.txt`; thư mục `e2e/out/` không đưa lên repo, muốn có lại thì chạy `npm run e2e -- f-home 390` |
 | 2 | Flow e2e `waitForURL` bằng regex quá rộng có thể khớp nhầm **trang anh em**: `/match` cũng khớp `/matches`, `/match-new`; `/league` khớp `/leagues`, `/owner-league` | `e2e/f-match.mjs`, `f-leagues-public.mjs`, `f-league.mjs`, `f12.mjs`, `f345.mjs`, `f-request.mjs`, `f-live-smoke.mjs` | Regex được neo đuôi bằng `(?=[?#]|$)` và cho phép đuôi `.html` hoặc không, ví dụ `/\/match(\.html)?(?=[?#]|$)/`; riêng chỗ chuyển sang trận mở có thể là `match` hoặc `match-new` thì viết `/\/match(-new)?(\.html)?(?=[?#]|$)/` (`e2e/f-request.mjs` dòng 133) | Các flow dùng dạng neo này (mọi file ở cột "Ở đâu"). **Giới hạn bằng chứng:** các file e2e vào repo lần đầu ở commit `711bc04` đã ở dạng neo, nên repo không có commit "trước/sau" của việc neo này; chỉ thấy commit `c66ed84` nới thêm dạng `(\.html)?` cho `owner-league` và `league`. Lý do khớp nhầm suy ra từ hình dạng regex, chưa có lần chạy lỗi nào được ghi lại trong repo |
 | 3 | Đăng nhập xong flow đăng xuất ngay thì các request còn dở của trang đích trả 401 khi chạy với backend thật | `e2e/lib.mjs`, hàm `loginAs` | Commit `3854c05`: thêm `waitForLoadState('networkidle')` sau đăng nhập, kèm ghi chú nêu lý do | Ghi chú trong mã; không có số đo riêng |
 | 4 | Câu chào trang chủ theo giờ giả lập không kiểm được trên chế độ thật (backend dùng giờ thật, không đổi được bằng giả đồng hồ trình duyệt) | `e2e/f-home.mjs` | Commit `7dea1e7`: ở chế độ thật chỉ kiểm câu chào theo giờ thật của backend; các giờ giả lập chỉ chạy trên dữ liệu giả | Chú thích đầu khối trong `e2e/f-home.mjs`; thêm smoke `e2e/f-live-smoke.mjs` |
@@ -133,7 +133,7 @@ Một ghi nhận khác, không phải lỗi: `docs/TASKS.md` mục T6 ghi "Đã 
 
 ### 8.2 Lỗi giao diện ở 1366 / 768 / 390 px
 
-Đo lại ngày 04/11 từ `main` (sau đợt cải thiện trải nghiệm, mục 8.3) trên bản dữ liệu giả chạy ở máy (`npm run prototype`, cổng 4100), bằng Playwright trên Chrome, cho 3 trang (trang chủ, danh sách sân, chi tiết sân `venue.html?id=1`) ở 3 khổ 1366 / 768 / 390 px. Sau lần đo đầu, lỗi 1, 2 và 5 đã được sửa bằng CSS (`public/css/app.css`) và đo lại; lỗi 3 được xử lý bằng trang giới thiệu (mục 5); lỗi 4 giữ nguyên vì cố ý theo thiết kế.
+Đo lại ngày 04/11 từ `main` (sau đợt cải thiện trải nghiệm, mục 8.3) trên bản dữ liệu giả chạy ở máy (`npm run prototype`, cổng 4100), bằng Playwright trên Chrome, cho 3 trang (trang chủ, danh sách sân, chi tiết sân `product-detail.html?id=1`) ở 3 khổ 1366 / 768 / 390 px. Sau lần đo đầu, lỗi 1, 2 và 5 đã được sửa bằng CSS (`css/app.css`) và đo lại; lỗi 3 được xử lý bằng trang giới thiệu (mục 5); lỗi 4 giữ nguyên vì cố ý theo thiết kế.
 
 **Đạt (không có lỗi):**
 
@@ -150,9 +150,9 @@ Một ghi nhận khác, không phải lỗi: `docs/TASKS.md` mục T6 ghi "Đã 
 
 | # | Lỗi | Trang / khổ | Cách xử lý | Kết quả (số đo trước → sau) |
 | --- | --- | --- | --- | --- |
-| 1 | Một số nút **nhỏ hơn 44 px** (mức thường khuyên cho vùng bấm trên điện thoại) | 390 px: nút Đăng nhập, chip lọc ở danh sách, nút "Báo tôi khi trống", nút mở menu | **Đã xử lý.** Khối `@media (max-width: 639.98px)` ở cuối `public/css/app.css` (dòng 3338–3351) đặt `min-height: 44px` cho `.btn-sm`, `.chip`, `.segmented button`, `.slot .wait-btn`, `.role-switch button`, `.proto-tools button` và nút menu 44×44 px; ô chọn ở khung tìm kiếm trang chủ được kéo phủ cả ô để vùng bấm cao 48 px mà ô giữ nguyên kích thước (dòng 1426–1435) | Đăng nhập 91×34 → 91×44 px; chip lọc 36 → 44 px; "Báo tôi khi trống" 114×33 → 114×44 px; nút menu 40×40 → 44×44 px. Rà thêm cả 3 trang ở 390: "Muốn đăng ký đội?" 34 → 44; nút chọn sân (Sân 1 · 5…) và "Tất cả / Sân 5 / Sân 7" 36 → 44; 4 ô chọn ở trang chủ 26 → 48 px; nút chọn vai trò và nút giả lập (chỉ có trên dữ liệu giả) 39 → 44. Sau khi sửa không còn nút hay ô chọn nào dưới 44 px trên 3 trang; không tràn ngang ở 9 trường hợp |
-| 2 | Tên sân (đóng vai trò liên kết xem chi tiết) **không có hiệu ứng hover riêng**; chỉ thẻ chứa nó đổi viền | Danh sách sân, mọi khổ | **Đã xử lý.** `.venue-card .title` có gạch chân 2 px trong suốt, `.venue-card .title:hover` đổi màu gạch chân sang mực, `transition: text-decoration-color var(--dur)` (`public/css/app.css` dòng 989–1001). Không đổi cỡ chữ hay độ đậm | Trước: màu và gạch chân không đổi, `transition: all 0s`. Sau: gạch chân từ trong suốt sang `#15150f`, `transition: text-decoration-color 0.18s`; kích thước trước/sau hover giữ nguyên 332,7×24,2 px, vị trí không đổi; ảnh `hover-xem-chi-tiet.png` |
-| 3 | Trang chủ **chưa có liên kết tới trang giới thiệu** | Trang chủ | **Đã xử lý.** Thêm trang `public/about.html` (mục 5), liên kết "Giới thiệu GGO" ở footer mọi trang (`public/js/ui/shell.js`) và liên kết "Tìm hiểu về GGO →" ở cuối trang chủ (`public/index.html`). Không đặt vào menu trên cùng vì ở khổ 900 px menu sẽ bị tràn | Trước: không có trang giới thiệu trong `public/`. Sau: trang có và trả 200, đã thêm vào `public/sitemap.xml`; hai liên kết trên đều trỏ tới `about.html` |
+| 1 | Một số nút **nhỏ hơn 44 px** (mức thường khuyên cho vùng bấm trên điện thoại) | 390 px: nút Đăng nhập, chip lọc ở danh sách, nút "Báo tôi khi trống", nút mở menu | **Đã xử lý.** Khối `@media (max-width: 639.98px)` ở cuối `css/app.css` (dòng 3338–3351) đặt `min-height: 44px` cho `.btn-sm`, `.chip`, `.segmented button`, `.slot .wait-btn`, `.role-switch button`, `.proto-tools button` và nút menu 44×44 px; ô chọn ở khung tìm kiếm trang chủ được kéo phủ cả ô để vùng bấm cao 48 px mà ô giữ nguyên kích thước (dòng 1426–1435) | Đăng nhập 91×34 → 91×44 px; chip lọc 36 → 44 px; "Báo tôi khi trống" 114×33 → 114×44 px; nút menu 40×40 → 44×44 px. Rà thêm cả 3 trang ở 390: "Muốn đăng ký đội?" 34 → 44; nút chọn sân (Sân 1 · 5…) và "Tất cả / Sân 5 / Sân 7" 36 → 44; 4 ô chọn ở trang chủ 26 → 48 px; nút chọn vai trò và nút giả lập (chỉ có trên dữ liệu giả) 39 → 44. Sau khi sửa không còn nút hay ô chọn nào dưới 44 px trên 3 trang; không tràn ngang ở 9 trường hợp |
+| 2 | Tên sân (đóng vai trò liên kết xem chi tiết) **không có hiệu ứng hover riêng**; chỉ thẻ chứa nó đổi viền | Danh sách sân, mọi khổ | **Đã xử lý.** `.venue-card .title` có gạch chân 2 px trong suốt, `.venue-card .title:hover` đổi màu gạch chân sang mực, `transition: text-decoration-color var(--dur)` (`css/app.css` dòng 989–1001). Không đổi cỡ chữ hay độ đậm | Trước: màu và gạch chân không đổi, `transition: all 0s`. Sau: gạch chân từ trong suốt sang `#15150f`, `transition: text-decoration-color 0.18s`; kích thước trước/sau hover giữ nguyên 332,7×24,2 px, vị trí không đổi; ảnh `hover-xem-chi-tiet.png` |
+| 3 | Trang chủ **chưa có liên kết tới trang giới thiệu** | Trang chủ | **Đã xử lý.** Thêm trang `about.html` (mục 5), liên kết "Giới thiệu GGO" ở footer mọi trang (`js/ui/shell.js`) và liên kết "Tìm hiểu về GGO →" ở cuối trang chủ (`index.html`). Không đặt vào menu trên cùng vì ở khổ 900 px menu sẽ bị tràn | Trước: không có trang giới thiệu trong ``. Sau: trang có và trả 200, đã thêm vào `sitemap.xml`; hai liên kết trên đều trỏ tới `about.html` |
 | 5 | **Vòng focus gần như không thấy trên nền tối**: quy tắc chung `:focus-visible { outline: 2px solid var(--text) }` dùng màu `#15150f` trên nền header `#0d0e0b` | Header và menu điện thoại, mọi khổ (liên kết menu, logo, nút Đăng nhập, nút mở menu, mục trong menu, nút khung tìm kiếm trang chủ) | **Đã xử lý.** Vòng focus dùng biến `--focus`: mực trên nền sáng, lime `#d9f23d` trên các vùng nền tối (dòng 135–161). Khung tìm kiếm trang chủ (nền trắng nằm trong ảnh tối) trả lại mực; nút trong khung đó vẽ vòng vào trong nút (`outline-offset: -4px`) vì khung cắt phần vẽ ra ngoài. Nút công cụ demo nổi vẽ vòng lime sát nút (dòng 463–467). Khi kiểm còn phát hiện và sửa thêm hai lỗi cùng nhóm: menu điện thoại đóng vẫn nhận phím Tab dù đã mờ hẳn (nay `visibility: hidden` khi đóng, dòng 401), và header dính che phần tử đang focus khi Tab ngược (`scroll-padding-top` ở dòng 98) | Đo bằng ảnh chụp thật ở mỗi lần Tab, lấy màu nền ngay quanh vòng (3 trang, 390 và 1366, Tab xuôi và ngược, trước 363 mẫu, sau 355 mẫu có vòng): tương phản vòng với nền **trước: 1,06:1** ở header (135 mẫu dưới 3:1); **sau: 15,41:1** trên nền tối, 14,59:1 (vòng mực vào trong nút lime), 16,66–18,16:1 trên nền sáng (liên kết, thẻ, nút Đặt sân). Còn 5 mẫu bị đánh dấu là nút công cụ demo (chỉ có trên dữ liệu giả): vòng sát nút đen nên tương phản đo với chính nút là 15,41:1, không đo với nền trang. Ảnh `focus-lien-ket-menu.png`, `focus-nut-menu.png` |
 | 4 | Ở 768 và 390, mục "Sân còn trống" của trang chủ là **băng cuộn ngang** (có chữ "Vuốt ngang để xem thêm"), nên ảnh chỉ thấy 1–2 thẻ | Trang chủ, 768 / 390 | Cố ý theo thiết kế; nêu rõ khi nộp để người chấm không hiểu là thiếu nội dung | Ở 1366 hiện đủ 3 thẻ trên một hàng |
 | 6 | Ba chip chọn ngày ở trang chi tiết sân cao **41 px** ở 390 px, thấp hơn mức 44 px (phát hiện khi đo lại sau đợt cải thiện) | Chi tiết sân, 390 px | **Đã xử lý** (commit `8838bcc`): chip cao tối thiểu 44 px ở 390 px | 41 px → 44 px |
@@ -232,7 +232,7 @@ Một ghi nhận khác, không phải lỗi: `docs/TASKS.md` mục T6 ghi "Đã 
 ### Ví dụ 9.2 – Đề xuất được **áp dụng**: chừa chỗ cho header để trang không nhảy khi tải
 
 - **Vấn đề AI đề xuất:** nội dung trang bị đẩy xuống 60 px khi header dựng xong; đề xuất giữ sẵn chỗ cho header và đo CLS ngay từ lần vẽ đầu tiên, thay vì bỏ qua 2 giây đầu như flow cũ.
-- **Vị trí mã:** `public/css/app.css` (khối `#app-header`, ngay trên khối `/* ---------- Header ---------- */`); `e2e/f-home.mjs` (đo `window.__clsAll`).
+- **Vị trí mã:** `css/app.css` (khối `#app-header`, ngay trên khối `/* ---------- Header ---------- */`); `e2e/f-home.mjs` (đo `window.__clsAll`).
 - **Đã kiểm trên trình duyệt thế nào:** flow `e2e/f-home.mjs` dùng `PerformanceObserver` loại `layout-shift` trong Chrome, hai chỉ số: CLS sau giây thứ 2 (< 0.02) và CLS toàn bộ lúc tải (< 0.1).
 - **Quyết định:** **áp dụng**, vì trước đó chính flow kiểm đã phải ghi chú "lúc nạp có lệch 60px do header dựng, có sẵn từ trước" (nội dung dòng bị xóa trong commit `3854c05`), tức lỗi có thật chứ không chỉ là lý thuyết.
 - **Thay đổi và kết quả:** commit `3854c05` (3 file, +12/−2). Chỗ giữ sẵn có cùng chiều cao, màu nền và viền với header. Kết quả chạy xem `e2e/out/out-f-home-390.txt`, `out-f-home-1280.txt`.
@@ -247,21 +247,7 @@ Một ghi nhận khác, không phải lỗi: `docs/TASKS.md` mục T6 ghi "Đã 
 
 ## 10. README
 
-`README.md` có mục **"Phạm vi Buổi 2 (HTML & CSS)"** ngay sau phần giới thiệu, gồm: các trang nộp (`index.html`, `venues.html`, `venue.html`, `about.html`), danh sách trang, **cách xem** (`npm run prototype` rồi mở http://localhost:4100, hoặc bản deploy https://ggo-datsan.pages.dev), **cách kiểm responsive** (DevTools ở 1366 / 768 / 390 px và các điểm cần kiểm) và **hạn chế hiện tại** (dữ liệu giả lưu trong trình duyệt, cần JavaScript, phần Express + MySQL là mở rộng ngoài phạm vi Buổi 2, thông tin liên hệ trang giới thiệu chưa điền).
-
-Đối chiếu với nội dung đề yêu cầu (bước 9C):
-
-| Nội dung đề yêu cầu | Trong README | Đánh giá |
-| --- | --- | --- |
-| Giới thiệu | Đầu file: đồ án, khách/chủ sân/admin làm gì | Có |
-| Cấu trúc thư mục | Mục "Cấu trúc" (viết cho cả dự án, chưa kể `e2e/`, `functions/`, `docs/`) | Một phần |
-| Danh sách trang | Mục "Phạm vi Buổi 2" → "Danh sách trang" | Có |
-| Công nghệ | Bảng "Công nghệ" | Có |
-| Cách mở/chạy | "Phạm vi Buổi 2" → "Cách xem" (bản dữ liệu giả, không cần CSDL); "Chạy trên máy" cho bản có backend | Có |
-| Cách kiểm responsive | "Phạm vi Buổi 2" → "Cách kiểm responsive" | Có |
-| Hạn chế hiện tại | "Phạm vi Buổi 2" → "Hạn chế hiện tại" | Có |
-
-Lưu ý: đề dặn không khẳng định có backend/CSDL/thanh toán theo phạm vi Buổi 2. README vẫn giữ các mục về backend vì đó là mã có thật trong repo, và ghi rõ đó là phần mở rộng ngoài phạm vi Buổi 2.
+README.md được gộp lại thành hướng dẫn tổng quan cho repo hiện tại. README có giới thiệu GGO, đủ các trang, công nghệ, cây thư mục mới ở gốc, link tới tài liệu Buổi 1, kết quả responsive từ báo cáo, và chỗ `[ĐIỀN]` cho nhóm tự bổ sung phân công. Hướng dẫn nêu rõ `npm run prototype` và Pages dùng dữ liệu mẫu; `npm start` chạy ứng dụng Express/API với MySQL; Express phục vụ danh sách tĩnh cho phép thay vì toàn bộ repo. README cũng nêu migration đường dẫn ảnh cần thiết khi có DB cũ.
 
 ## 11. Bảng phân công
 
@@ -303,7 +289,7 @@ Mỗi thành viên một khối (nhân bản khối dưới cho từng người)
 ### A. Danh sách việc
 
 1. **Link GitHub:** điền link repo Buổi 1 (mục 1); thêm remote và đẩy mã; kiểm giảng viên mở được repo.
-2. **Trang giới thiệu:** trang đã có (`public/about.html`, mục 5). Chỉ còn việc chủ dự án đọc lại nội dung và điền email, số điện thoại thật vào hai ô giữ chỗ ở phần "Liên hệ" (tìm chú thích `CHỦ DỰ ÁN ĐIỀN` trong file). Nếu không có thông tin để điền thì xóa hai ô đó, trang vẫn còn dòng "Đồ án môn Phát triển ứng dụng TMĐT – Nhóm 8".
+2. **Trang giới thiệu:** trang đã có (`about.html`, mục 5). Chỉ còn việc chủ dự án đọc lại nội dung và điền email, số điện thoại thật vào hai ô giữ chỗ ở phần "Liên hệ" (tìm chú thích `CHỦ DỰ ÁN ĐIỀN` trong file). Nếu không có thông tin để điền thì xóa hai ô đó, trang vẫn còn dòng "Đồ án môn Phát triển ứng dụng TMĐT – Nhóm 8".
 3. **Điền bảng phân công (mục 11) và 6 câu trả lời của từng thành viên (mục 12).** Phần này phải do từng người tự viết.
 4. **Câu hỏi kiểm tra ở từng bước (1–9):** đề không nói rõ có phải nộp không (mục 12 của đề chỉ ghi "6 câu"). Cần hỏi giảng viên hoặc tự quyết.
 5. **Định dạng nộp:** đề không quy định (Docs hay PDF).
@@ -313,14 +299,14 @@ Mỗi thành viên một khối (nhân bản khối dưới cho từng người)
 
 ### B. Nội dung trang giới thiệu (đã làm; chỉ còn thông tin liên hệ)
 
-Trang `public/about.html` đã làm theo đề xuất dựa trên `docs/PRD.md`. Đối chiếu với các ý đề yêu cầu:
+Trang `about.html` đã làm theo đề xuất dựa trên `docs/PRD.md`. Đối chiếu với các ý đề yêu cầu:
 
 | Ý đề yêu cầu | Trên trang | Trạng thái |
 | --- | --- | --- |
 | Kinh doanh gì | Mục "GGO làm gì" và đoạn mở đầu: website đặt sân bóng đá mini 5 và 7 người ở TP.HCM, không cần gọi điện (PRD mục 1) | Xong |
 | Khách hàng là ai | Mục "Dành cho ai": đội đá phủi và nhóm bạn; chủ sân mini (PRD mục 1 "Vấn đề", mục 2) | Xong |
 | Điểm nổi bật | Mục "Điểm nổi bật", 6 mục, chỉ gồm tính năng đã có trên giao diện | Xong |
-| Ảnh minh họa | 2 ảnh trong `public/img/photos/`, có `alt`, ghi chú là ảnh minh họa (PRD mục 10, câu 4 về ảnh tự vẽ hay ảnh thật vẫn còn mở) | Xong |
+| Ảnh minh họa | 2 ảnh trong `images/photos/`, có `alt`, ghi chú là ảnh minh họa (PRD mục 10, câu 4 về ảnh tự vẽ hay ảnh thật vẫn còn mở) | Xong |
 | Thông tin liên hệ | "Đồ án môn Phát triển ứng dụng TMĐT – Nhóm 8" và hai ô giữ chỗ email, điện thoại | **Chờ chủ dự án điền** email nhóm, số điện thoại (không có địa chỉ vì chưa có thật; không tự bịa) |
 
 ---
@@ -330,10 +316,10 @@ Trang `public/about.html` đã làm theo đề xuất dựa trên `docs/PRD.md`.
 | # | Mục | Trạng thái | Bằng chứng |
 | --- | --- | --- | --- |
 | 1 | GitHub | Thiếu | `git remote -v` rỗng |
-| 2 | Trang chủ | Có | `public/index.html`, `shell.js`; có liên kết tới trang giới thiệu (cuối trang và footer) |
-| 3 | Danh sách sân | Có | `public/venues.html`, `.card-grid`, 40 sân trong `public/mock/venues.json` |
-| 4 | Chi tiết sân | Có | `public/venue.html`, `public/js/venue.js` |
-| 5 | Giới thiệu | Có, chờ thông tin liên hệ | `public/about.html`; chỉ còn email và số điện thoại để chủ dự án điền (hai ô giữ chỗ) |
+| 2 | Trang chủ | Có | `index.html`, `shell.js`; có liên kết tới trang giới thiệu (cuối trang và footer) |
+| 3 | Danh sách sân | Có | `products.html`, `.card-grid`, 40 sân trong `mock/venues.json` |
+| 4 | Chi tiết sân | Có | `product-detail.html`, `js/venue.js` |
+| 5 | Giới thiệu | Có, chờ thông tin liên hệ | `about.html`; chỉ còn email và số điện thoại để chủ dự án điền (hai ô giữ chỗ) |
 | 6 | Responsive | Có | ảnh 4 trang × 3 khổ trong `screens/` (trang chủ, danh sách, chi tiết, giới thiệu); không tràn ngang, ảnh không méo, danh sách 3/2/1 cột |
 | 7 | Hover/focus | Có | 7 ảnh trước/sau (4 hover, 3 focus); hover tên sân và vòng focus trên nền tối đã sửa (mục 8.2, lỗi 2 và 5) |
 | 8 | Báo cáo kiểm thử | Có | 8.1: 4 lỗi đã xử lý có bằng chứng; 8.2: đo 3 trang × 3 khổ, lỗi 1, 2, 3, 5 đã xử lý có số đo trước → sau, lỗi 4 cố ý theo thiết kế; 8.3: cải thiện trải nghiệm đặt sân, số đo tự động trước → sau, chưa thử với người thật |
