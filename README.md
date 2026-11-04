@@ -67,14 +67,15 @@ ecommerce-football-booking/
 
 ## Phân công thành viên
 
-| Thành viên | Nhiệm vụ |
+| Thành viên | Vai trò |
 | --- | --- |
-| **[ĐIỀN]** | **[ĐIỀN]** |
-| **[ĐIỀN]** | **[ĐIỀN]** |
-| **[ĐIỀN]** | **[ĐIỀN]** |
-| **[ĐIỀN]** | **[ĐIỀN]** |
-| **[ĐIỀN]** | **[ĐIỀN]** |
-| **[ĐIỀN]** | **[ĐIỀN]** |
+| Danh | Leader |
+| Phong | UX/UI |
+| Hưng | Frontend |
+| Nam | Frontend |
+| Đạt | Backend |
+| Bằng | Backend |
+| Nghĩa | QA |
 
 ## Tài liệu
 
