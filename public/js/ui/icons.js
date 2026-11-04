@@ -27,5 +27,5 @@ export function icon(name, size = 20, extra = '') {
   return `<svg width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ${extra}>${paths[name] || ''}</svg>`;
 }
 
-// Logo: ô lime chữ G + chữ GGO, cả hai là SVG vẽ sẵn (không phụ thuộc font). Tên truy cập nằm ở ảnh chữ (alt="GGO"); ô G chỉ để trang trí.
-export const brandMark = '<img class="brand-mark" src="/img/mark-g.svg" alt="" width="28" height="28"><img class="brand-word" src="/img/logo-ggo-dark.svg" alt="GGO" width="56" height="24">';
+// Logo ở header và footer chỉ là chữ GGO vẽ sẵn bằng SVG (không phụ thuộc font), lòng chữ O tô lime. Ô G lime dùng cho favicon, apple-touch-icon và ảnh đại diện, không đặt cạnh chữ để khỏi đọc thành "G GGO".
+export const brandMark = '<img class="brand-word" src="/img/logo-ggo-dark.svg" alt="GGO" width="56" height="24">';
