@@ -147,7 +147,7 @@ const protoToolsHtml = `<div class="proto-tools">
 const headerHtml = (role, user, unread, ghost) => `
       <header class="site-header">
         <div class="container">
-          <a class="brand" href="${role === 'owner' ? '/owner.html' : role === 'admin' ? '/admin.html' : '/'}">${brandMark}<span>GGO</span></a>
+          <a class="brand" href="${role === 'owner' ? '/owner.html' : role === 'admin' ? '/admin.html' : '/'}">${brandMark}</a>
           <nav class="nav" aria-label="Điều hướng chính">${navHtml(role)}</nav>
           <div class="header-actions">${actionsHtml(user, role, unread, ghost)}<button class="icon-btn menu-btn" type="button" aria-label="Mở menu" aria-expanded="false">${icon('menu')}</button></div>
         </div>
@@ -277,7 +277,7 @@ export async function mountShell() {
       <footer class="site-footer">
         <div class="container">
           <div>
-            <a class="brand" href="/">${brandMark}<span>GGO</span></a>
+            <a class="brand" href="/">${brandMark}</a>
             <p class="footer-slogan">Thấy sân trống, đặt là đá.</p>
             <p class="footer-note">Đặt sân bóng mini 5 và 7 người ở TP.HCM, không cần gọi điện.</p>
           </div>
@@ -291,7 +291,7 @@ export async function mountShell() {
           </div>
           ${proto ? `<div class="footer-role"><span>Xem với vai trò</span>${roleSwitch}${protoTools}</div>` : ''}
         </div>
-        <p class="footer-wordmark" aria-hidden="true">GGO</p>
+        <p class="footer-wordmark" aria-hidden="true"><img src="/img/logo-ggo-dark.svg" alt="" width="1655" height="712"></p>
       </footer>`;
   }
 }

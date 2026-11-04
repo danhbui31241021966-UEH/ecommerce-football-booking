@@ -283,18 +283,15 @@ p {
   min-height: 44px;
   gap: var(--sp-2);
   text-decoration: none;
-  font-weight: 700;
-  font-size: 1.25rem;
-  letter-spacing: -0.03em;
-  color: var(--on-dark);
-}
-.brand b {
-  color: var(--on-dark-muted);
-  font-weight: 400;
 }
 .brand-mark {
-  width: 30px;
-  height: 30px;
+  width: 28px;
+  height: 28px;
+  flex: none;
+}
+.brand-word {
+  height: 24px;
+  width: auto;
   flex: none;
 }
 .nav {
@@ -628,21 +625,17 @@ body:has(.booking-bar) .role-dock {
 .site-footer p + p {
   margin-top: var(--sp-2);
 }
-/* Chữ thương hiệu GGO cỡ lớn ở cuối trang, canh giữa */
+/* Logo GGO cỡ lớn ở cuối trang, canh giữa; cùng ảnh chữ với logo ở đầu trang */
 .site-footer .footer-wordmark {
   margin: var(--sp-8) 0 0;
-  padding: 0.04em 0;
-  font-size: 22.5vw;
-  font-stretch: var(--stretch-cond);
-  font-weight: 850;
-  line-height: 0.82;
-  text-align: center;
-  text-transform: uppercase;
-  white-space: nowrap;
-  color: var(--on-dark);
-  /* clip cả hai trục: với line-height < 1 phần mực chữ tràn xuống dưới hộp và làm trang dài thêm một dải ngà dưới footer */
-  overflow: clip;
+  line-height: 0;
   user-select: none;
+}
+.site-footer .footer-wordmark img {
+  display: block;
+  width: 36vw;
+  height: auto;
+  margin: 0 auto;
 }
 
 /* ---------- Nút ---------- */
