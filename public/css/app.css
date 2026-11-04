@@ -2144,28 +2144,38 @@ body:has(.booking-bar) .toast-stack {
   }
 }
 
-/* Ba điều cần biết trước khi đặt: một hàng chữ nhỏ ở cuối trang */
+/* Ba điều cần biết trước khi đặt: một dải lime gọn ở cuối trang, tràn hết bề ngang như dải số cũ.
+   Nền tràn bằng box-shadow + clip-path để giữ ul trong .container (chữ thẳng lề với phần trên). */
 .home-facts {
   display: grid;
-  gap: var(--sp-3);
   margin-block: var(--sp-8) 0;
-  padding-block: var(--sp-5);
+  padding-block: var(--sp-2);
   list-style: none;
-  border-block: 1px solid var(--text);
+  background: var(--lime-400);
+  color: var(--pitch-950);
+  box-shadow: 0 0 0 100vmax var(--lime-400);
+  clip-path: inset(0 -100vmax);
 }
 .home-facts li {
   display: flex;
   align-items: baseline;
-  gap: var(--sp-3);
+  gap: var(--sp-4);
+  padding-block: var(--sp-3);
+  border-top: 1px solid var(--pitch-950);
+}
+.home-facts li:first-child {
+  border-top: 0;
 }
 .home-facts b {
-  min-width: 3.2ch;
+  flex: none;
+  width: 3.6ch;
   font-stretch: var(--stretch-cond);
-  font-size: var(--fs-2xl);
+  font-size: clamp(2.5rem, 11vw, 3rem);
   font-weight: 850;
   line-height: 1;
 }
 .home-facts span {
+  font-size: var(--fs-lg);
   font-weight: 600;
 }
 .tonight-head .h2 span {
@@ -2180,7 +2190,19 @@ body:has(.booking-bar) .toast-stack {
 @media (min-width: 900px) {
   .home-facts {
     grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: var(--sp-6);
+    padding-block: var(--sp-5);
+  }
+  .home-facts li {
+    padding: 0 var(--sp-6);
+    border-top: 0;
+    border-left: 1px solid var(--pitch-950);
+  }
+  .home-facts li:first-child {
+    padding-left: 0;
+    border-left: 0;
+  }
+  .home-facts b {
+    width: auto;
   }
 }
 

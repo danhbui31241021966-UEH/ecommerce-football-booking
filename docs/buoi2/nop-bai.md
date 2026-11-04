@@ -172,7 +172,7 @@ Một ghi nhận khác, không phải lỗi: `docs/TASKS.md` mục T6 ghi "Đã 
 
 **Cách sửa** (đã có trên `main`, bản mẫu đã đưa lên ggo-datsan.pages.dev):
 
-- **Trang chủ:** chữ lớn nhất là "Đặt sân bóng mini"; giờ còn trống nằm ngay màn đầu; bỏ dải chữ chạy và khối giờ chót trùng lặp.
+- **Trang chủ:** chữ lớn nhất là "Đặt sân bóng mini"; giờ còn trống nằm ngay màn đầu; bỏ dải chữ chạy và khối giờ chót trùng lặp. Ba điều cần biết (0đ phí đặt sân, hủy miễn phí 24h, QR chuyển thẳng cho chủ sân) gọn lại thành một dải nền lime ở cuối trang.
 - **Menu:** mục **Thêm** gom Pass sân, Ghép kèo, Giải đấu và Nhờ báo giá; header không còn hiện "Đang tải…".
 - **Kết quả tìm sân:** hiện luôn các giờ trống trên thẻ; bộ lọc thu gọn thành một dòng tóm tắt (bấm "Đổi" để mở). Thanh đặt sân ghi tên sân, giờ và giá.
 - **Đăng nhập:** nhập số điện thoại hoặc email; trang nói rõ đang đặt sân nào, giờ nào; đăng nhập xong tự quay lại hộp xác nhận. Đăng ký còn 3 ô.
@@ -187,7 +187,7 @@ Một ghi nhận khác, không phải lỗi: `docs/TASKS.md` mục T6 ghi "Đã 
 | --- | --- | --- |
 | Số lần bấm cho tới khi có đơn (kèm số ô phải nhập) | 6 + 2 ô → 5 + 2 ô | 6 + 2 ô → 5 + 2 ô |
 | Giờ trống đầu tiên ở trang kết quả, tính theo chiều cao màn hình (trên 100% là phải cuộn) | 126% → 72% | 99% → 68% |
-| Chiều dài trang chủ | 4731 → 3730 px | 3779 → 2983 px |
+| Chiều dài trang chủ | 4731 → 3787 px | 3779 → 2997 px |
 | Header và logo hiện ra sau | 284 → 64 ms | 109 → 44 ms |
 
 Ở trang sân, 390 × 844 px: hàng giờ đầu tiên trước đây nằm ở y 750–816 và bị thanh đặt sân (y 763) che một phần; nay ở y 627–693 (đo sau khi chip ngày cao thêm lên 44 px), không bị che vì thanh đặt sân vẫn ở y 763. Ở 1366 px không đổi (y 489–553).
