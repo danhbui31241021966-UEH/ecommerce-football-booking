@@ -71,6 +71,7 @@ ecommerce-football-booking/
 | --- | --- |
 | Danh | Leader |
 | Phong | UX/UI |
+| Phan Huy | UX/UI |
 | Hưng | Frontend |
 | Nam | Frontend |
 | Đạt | Backend |
