@@ -1,4 +1,4 @@
-// Nhu cầu nhờ báo giá mẫu (R14) từ public/mock/requests.json, cùng nguồn với prototype. Mỗi chào giá tự chọn ô trống đầu tiên trong
+// Nhu cầu nhờ báo giá mẫu (R14) từ mock/requests.json, cùng nguồn với prototype. Mỗi chào giá tự chọn ô trống đầu tiên trong
 // khung giờ (không bị giữ/chặn, không thuộc chế độ đủ hai đội) lúc dựng; giá bị chặn bởi giá niêm yết. Chạy sau các seeder lịch đặt/chặn giờ.
 const clock = require('../clock');
 const { CANCEL_POLICY_TEXT, RULES } = require('../rules');

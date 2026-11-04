@@ -127,7 +127,7 @@ await step(p, 'request', '09-search-shows-team-slots-with-label', async () => {
   must(team.length > 0, 'ô đủ hai đội không có trong kết quả tìm'); must(joinable.length > 0, 'trận đang chờ đội thứ hai không có trong kết quả tìm');
   const normal = v3.availableSlots.filter((s) => !s.teamMode && !s.match); must(normal.every((s) => s.price > 0), 'ô thường hỏng');
   const bk = await attempt(`a=>a.createBooking({courtId:${team[0].courtId},date:'${D1}',start:'${team[0].start}'})`); await loginAs(p, K2); const bk2 = await attempt(`a=>a.createBooking({courtId:${team[0].courtId},date:'${D1}',start:'${team[0].start}'})`); must(!bk2.ok && bk2.status === 409, 'ô hiện trong tìm kiếm nhưng vẫn đặt riêng được'); void bk;
-  await p.goto(`${U}/venues?date=${D1}&fieldType=7&district=${encodeURIComponent('Quận 7')}`); await p.waitForSelector('.slot-pills .slot-pill'); await p.waitForTimeout(400);
+  await p.goto(`${U}/products?date=${D1}&fieldType=7&district=${encodeURIComponent('Quận 7')}`); await p.waitForSelector('.slot-pills .slot-pill'); await p.waitForTimeout(400);
   const pills = p.locator('.slot-pill.team'); must((await pills.count()) > 0, 'không có ô Ghép trận trong danh sách sân'); const txt = await pills.first().innerText(); must(/Ghép kèo/.test(txt), 'ô thiếu chữ Ghép trận: ' + txt);
   await shot('09a-search'); const href = await pills.first().getAttribute('href'); must(/match(-new)?\.html/.test(href), 'ô Ghép trận dẫn sai: ' + href);
   await Promise.all([p.waitForURL(/\/match(-new)?(\.html)?(?=[?#]|$)/), pills.first().click()]); await p.waitForSelector('.crumb, h1'); await shot('09b-opened');

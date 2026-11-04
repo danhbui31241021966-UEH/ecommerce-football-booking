@@ -48,7 +48,7 @@ await step(p, 'league', '01-demo-league-visible-everywhere', async () => {
   // ô giải hiện trên lưới của khách và của chủ sân, kể cả ngày xa
   await loginAs(p, 'khach1@datsan.local');
   for (const m of left) { const c = await cellOf(m); must(c.status === 'blocked' && c.league?.name === L.name, 'lưới khách thiếu nhãn giải: ' + J(c)); }
-  await p.goto(`${U}/venue?id=1&date=${left[0].date}`);
+  await p.goto(`${U}/product-detail?id=1&date=${left[0].date}`);
   await p.waitForSelector('div.slot-league:visible', { timeout: 6000 }).catch(async (e) => { await p.screenshot({ path: 'e2e/out/dbg-fail.png' }); console.log(await p.url(), (await p.locator('#venue-root').innerText()).slice(-500)); throw e; });
   const txt = await p.locator('div.slot-league:visible').first().innerText();
   must(/Giải: /.test(txt), 'ô lưới khách không ghi "Giải: tên": ' + txt);
@@ -425,7 +425,7 @@ await step(p, 'league', '08-public-page-anonymous', async () => {
   // trang giải nháp không xem được công khai
   const d = await attempt(`a=>a.league(999)`); must(!d.ok && d.status === 404, 'giải không có phải 404');
   // venue detail link tới giải đang đá
-  await p.goto(`${U}/venue?id=1`);
+  await p.goto(`${U}/product-detail?id=1`);
   await p.waitForSelector('.venue-leagues a');
   const links = await p.locator('.venue-leagues a').evaluateAll((a) => a.map((x) => x.getAttribute('href')));
   must(links.some((h) => h.includes(`league.html?id=${LG.id}`)), 'trang sân thiếu link giải: ' + links);

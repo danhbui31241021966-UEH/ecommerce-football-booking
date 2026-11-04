@@ -64,7 +64,7 @@ await step(p, 'transfer', '07-waitlist-person-notified', async () => {
 await step(p, 'transfer', '08-transfers-list-and-grid-chip', async () => {
   await loginAs(p, 'khach3@datsan.local'); await p.goto(`${U}/transfers`); await p.waitForSelector('.transfer-item');
   must(await p.locator(`a[href="/transfer.html?id=${TR.id}"]`).count(), 'danh sách không có đăng nhượng');
-  await p.goto(`${U}/venue?id=1&date=${S.date}&slot=${S.start}&court=${S.courts[0]}`); await p.waitForSelector('.slot-transfer', { state: 'attached' }); return 'có chip ở lưới giờ'; });
+  await p.goto(`${U}/product-detail?id=1&date=${S.date}&slot=${S.start}&court=${S.courts[0]}`); await p.waitForSelector('.slot-transfer', { state: 'attached' }); return 'có chip ở lưới giờ'; });
 await step(p, 'transfer', '09-priority-blocks-non-waiter', async () => {
   const r = await attempt(`a=>a.claimTransfer(${TR.id})`); must(!r.ok && r.status === 409, 'người không chờ nhận được trong lúc ưu tiên'); await p.goto(`${U}/transfer?id=${TR.id}`); await p.waitForSelector('.notice');
   must(/ưu tiên/i.test(await body()), 'không giải thích ưu tiên'); must(await p.locator('#claim').count() === 0, 'vẫn có nút nhận'); return r.msg; });

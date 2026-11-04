@@ -73,7 +73,7 @@ CREATE TABLE venues (
   requires_approval     TINYINT(1) NOT NULL DEFAULT 0,      -- R3: 0 = đặt là chốt, 1 = chủ sân duyệt
   last_minute_percent   TINYINT UNSIGNED NOT NULL DEFAULT 0, -- R6: 0 = tắt
   maps_url              VARCHAR(1000) NOT NULL DEFAULT '',
-  image_url             VARCHAR(500) NOT NULL DEFAULT '/img/pitch-1.svg',
+  image_url             VARCHAR(500) NOT NULL DEFAULT '/images/pitch-1.svg',
   image_is_illustrative TINYINT(1) NOT NULL DEFAULT 1,
   image_credit          JSON NULL,                          -- { source, contributor, url } hoặc NULL
   data_source           JSON NULL,                          -- sân thật: { retrievedOn, sources[], estimated[], derived[] }; sân demo: NULL

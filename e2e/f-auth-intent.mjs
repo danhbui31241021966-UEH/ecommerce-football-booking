@@ -13,7 +13,7 @@ const dayVn = `${day.slice(8, 10)}/${day.slice(5, 7)}/${day.slice(0, 4)}`;
 const sc = await api(p, `a=>a.schedule(1,'${day}')`);
 const court1 = sc.courts.find((c) => c.name === 'Sân 1');
 const slotStart = court1.slots.find((s) => s.status === 'available').start;
-const next = `/venue?id=1&date=${day}&slot=${encodeURIComponent(slotStart)}&court=${court1.id}&book=1`;
+const next = `/product-detail?id=1&date=${day}&slot=${encodeURIComponent(slotStart)}&court=${court1.id}&book=1`;
 const nextQuery = `?next=${encodeURIComponent(next)}`;
 
 await step(p, 'auth-intent', 'demo-role-shortcuts', async () => {
@@ -59,8 +59,8 @@ await step(p, 'auth-intent', 'register-and-return-next', async () => {
   await p.fill('input[name=fullName]', 'Khách Đặt Sân Mới');
   await p.fill('input[name=phone]', phone);
   await p.fill('input[name=password]', 'Matkhau@123');
-  await Promise.all([p.waitForURL((u) => pathOf(u) === '/venue'), p.locator('button[type=submit]').click()]);
-  assert.equal(pathOf(new URL(p.url())), '/venue');
+  await Promise.all([p.waitForURL((u) => pathOf(u) === '/product-detail'), p.locator('button[type=submit]').click()]);
+  assert.equal(pathOf(new URL(p.url())), '/product-detail');
   assert.equal(new URL(p.url()).searchParams.get('book'), '1');
   const me = await api(p, 'a=>a.me()');
   assert.equal(me.user.email, null);
@@ -88,7 +88,7 @@ await step(p, 'auth-intent', 'duplicate-phone-and-login-phone', async () => {
   await p.goto(U + '/login' + nextQuery);
   await p.fill('input[name=identifier]', `+84 ${phone.slice(1)}`);
   await p.fill('input[name=password]', 'Matkhau@123');
-  await Promise.all([p.waitForURL((u) => pathOf(u) === '/venue'), p.locator('button[type=submit]').click()]);
+  await Promise.all([p.waitForURL((u) => pathOf(u) === '/product-detail'), p.locator('button[type=submit]').click()]);
   const logged = await api(p, 'a=>a.me()');
   assert.equal(logged.user.phone, phone);
   assert.equal(logged.user.email, null);
@@ -106,10 +106,10 @@ await step(p, 'auth-intent', 'admin-renders-null-email', async () => {
 });
 await step(p, 'auth-intent', 'missing-or-bad-context-hidden', async () => {
   await p.evaluate(async () => { const { api } = await import('/js/api.js'); await api.logout(); });
-  await p.goto(U + '/login?next=' + encodeURIComponent(`/venue?id=999999&date=${day}&slot=19%3A00&court=1&book=1`));
+  await p.goto(U + '/login?next=' + encodeURIComponent(`/product-detail?id=999999&date=${day}&slot=19%3A00&court=1&book=1`));
   await p.waitForTimeout(150);
   assert.equal(await p.locator('#booking-context').isHidden(), true);
-  await p.goto(U + '/register?next=' + encodeURIComponent(`/venue?id=1&date=${day}&slot=19%3A00&book=1`));
+  await p.goto(U + '/register?next=' + encodeURIComponent(`/product-detail?id=1&date=${day}&slot=19%3A00&book=1`));
   await p.waitForTimeout(150);
   assert.equal(await p.locator('#booking-context').isHidden(), true);
   return 'API 404 and missing court both keep context hidden';

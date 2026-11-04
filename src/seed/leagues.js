@@ -1,4 +1,4 @@
-// Giải phủi mẫu (R18) từ public/mock/bookings.json (league + moreLeagues), cùng nguồn với prototype. Chỉ ở sân demo (hư cấu),
+// Giải phủi mẫu (R18) từ mock/bookings.json (league + moreLeagues), cùng nguồn với prototype. Chỉ ở sân demo (hư cấu),
 // không có thông tin nào về sân thật. Trận đã đá có tỉ số và lịch sử; trận chưa đá chiếm ô trống gần nhất bằng chặn giờ (như khi công bố).
 const clock = require('../clock');
 const { msToVn, addDays, hmToMin } = require('../lib/time');

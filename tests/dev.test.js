@@ -88,10 +88,10 @@ test('thao tác dev vẫn phải qua CSRF như mọi thao tác ghi', async () =>
   }
 });
 
-test('bản tĩnh: public/js/mode.js mặc định là mock và api.js mặc định mock', () => {
+test('bản tĩnh: js/mode.js mặc định là mock và api.js mặc định mock', () => {
   const fs = require('fs');
   const path = require('path');
-  const mode = fs.readFileSync(path.join(__dirname, '..', 'public', 'js', 'mode.js'), 'utf8');
+  const mode = fs.readFileSync(path.join(__dirname, '..', 'js', 'mode.js'), 'utf8');
   assert.match(mode, /SERVED_BY_API = false/);
   assert.match(mode, /DEV_TOOLS = false/);
 });

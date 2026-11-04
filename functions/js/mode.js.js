@@ -1,4 +1,4 @@
-// Có BE thì bản tĩnh chạy chế độ thật, giống Express (src/app.js trả mode.js tương tự). Không có BE (nhánh mock) thì dùng file tĩnh public/js/mode.js.
+// Có BE thì bản tĩnh chạy chế độ thật, giống Express (src/app.js trả mode.js tương tự). Không có BE (nhánh mock) thì dùng file tĩnh js/mode.js.
 import { backendUrl } from '../_lib/config.js';
 
 export async function onRequest({ request, env }) {

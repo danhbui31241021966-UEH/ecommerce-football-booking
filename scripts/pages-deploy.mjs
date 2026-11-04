@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Deploy bản tĩnh (public/ + functions/) lên Cloudflare Pages, project "ggo-datsan".
+// Deploy bản tĩnh (đúng các file tĩnh ở gốc repo + functions/) lên Cloudflare Pages, project "ggo-datsan".
 //   node scripts/pages-deploy.mjs --branch <tên> [--backend https://xxx.trycloudflare.com]
 //   - có --backend: bản trỏ về BE đó (Function /api/* chuyển tới BE, /js/mode.js ra chế độ thật)
 //   - không có --backend: bản mock (dữ liệu giả, Function không chuyển gì)
@@ -15,9 +15,13 @@
 import { spawn } from 'node:child_process';
 import fs from 'node:fs';
 import path from 'node:path';
+import os from 'node:os';
+import { createRequire } from 'node:module';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+// Gốc repo có cả src/, db/, .env, tests/... nên không thể đưa cả gốc lên Pages: chép riêng các file tĩnh vào thư mục tạm rồi deploy thư mục đó.
+const { staticEntries, redirectsFile, notFoundPage } = createRequire(import.meta.url)('../src/static-site.js');
 const GENERATED = path.join(ROOT, 'functions/_lib/backend.generated.js');
 const DEV_VARS = path.join(ROOT, '.dev.vars');
 const PROJECT = 'ggo-datsan';
@@ -43,7 +47,11 @@ if (!dev) {
 }
 
 const writeBackend = (url) => fs.writeFileSync(GENERATED, `export default ${JSON.stringify(url)};\n`);
-const cleanup = () => { writeBackend(''); fs.rmSync(DEV_VARS, { force: true }); };
+const DIST = fs.mkdtempSync(path.join(os.tmpdir(), 'ggo-pages-'));
+const cleanup = () => { writeBackend(''); fs.rmSync(DEV_VARS, { force: true }); fs.rmSync(DIST, { recursive: true, force: true }); };
+for (const name of staticEntries(ROOT)) fs.cpSync(path.join(ROOT, name), path.join(DIST, name), { recursive: true });
+fs.writeFileSync(path.join(DIST, '_redirects'), redirectsFile());
+fs.writeFileSync(path.join(DIST, '404.html'), notFoundPage);
 process.on('exit', cleanup);
 for (const s of ['SIGINT', 'SIGTERM']) process.on(s, () => process.exit(130));
 
@@ -53,11 +61,11 @@ const wrangler = (a, opts = {}) => spawn('npx', ['--no-install', 'wrangler', ...
 if (dev) {
   if (backend && !process.env.PROXY_SECRET) fail('--dev cần PROXY_SECRET trong môi trường (trùng PROXY_SECRET của BE)');
   fs.writeFileSync(DEV_VARS, `PROXY_SECRET=${process.env.PROXY_SECRET || ''}\n`, { mode: 0o600 });
-  const child = wrangler(['pages', 'dev', 'public', '--compatibility-date', '2025-09-01', '--port', value('port') || '8788'], { stdio: 'inherit' });
+  const child = wrangler(['pages', 'dev', DIST, '--compatibility-date', '2025-09-01', '--port', value('port') || '8788'], { stdio: 'inherit' });
   process.on('exit', () => child.kill('SIGTERM'));
   child.on('exit', (code) => process.exit(code ?? 0));
 } else {
-  const child = wrangler(['pages', 'deploy', 'public', '--project-name', PROJECT, '--branch', branch, '--commit-dirty=true']);
+  const child = wrangler(['pages', 'deploy', DIST, '--project-name', PROJECT, '--branch', branch, '--commit-dirty=true']);
   let out = '';
   for (const s of [child.stdout, child.stderr]) s.on('data', (d) => { out += d; process.stderr.write(d); });
   child.on('exit', (code) => {

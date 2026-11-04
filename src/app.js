@@ -1,4 +1,3 @@
-const path = require('path');
 const express = require('express');
 const helmet = require('helmet');
 const session = require('express-session');
@@ -10,6 +9,7 @@ const { csrfProtection } = require('./middleware/csrf');
 const { errorHandler, apiNotFound } = require('./middleware/error');
 const { sweepDue } = require('./middleware/sweep');
 const { proxyGate } = require('./middleware/proxy');
+const { mountStatic } = require('./static-site');
 
 /**
  * @param {{ production?: boolean }} [opts] production mặc định theo NODE_ENV; chỉ test truyền vào để dựng cả hai chế độ.
@@ -80,13 +80,13 @@ function createApp({ production = config.isProduction, proxySecret = null } = {}
   );
   app.use('/api', api);
 
-  // FE do Express phục vụ thì chạy chế độ thật; bản tĩnh (Cloudflare, prototype 4100) dùng public/js/mode.js gốc = mock.
+  // FE do Express phục vụ thì chạy chế độ thật; bản tĩnh (Cloudflare, prototype 4100) dùng js/mode.js gốc = mock.
   const devTools = !production;
   app.get('/js/mode.js', (req, res) => {
     res.type('application/javascript').set('Cache-Control', 'no-store');
     res.send(`export const SERVED_BY_API = true;\nexport const DEV_TOOLS = ${devTools};\n`);
   });
-  app.use(express.static(path.join(__dirname, '..', 'public'), { extensions: ['html'] }));
+  mountStatic(app);
   app.use(errorHandler);
 
   // Đóng store (hẹn giờ dọn session) khi tắt server hoặc kết thúc test. Chờ store khởi tạo xong, nếu không hẹn giờ

@@ -575,7 +575,7 @@ test('dữ liệu demo: bốn nhu cầu mẫu, chào giá gắn đúng sân, tin
   assert.ok((await h.db.query("SELECT 1 FROM booking_history WHERE booking_id = ? AND action = 'offer_accept'", [b.id])).length);
   // API: khách 4 thấy tin của mình, chủ sân thấy tin phù hợp
   const k = app.agent();
-  assert.equal((await k.post('/api/auth/login', { email: (await h.db.one('SELECT email FROM users WHERE id = 4')).email, password: require('../public/mock/users.json').demoPassword })).status, 200);
+  assert.equal((await k.post('/api/auth/login', { email: (await h.db.one('SELECT email FROM users WHERE id = 4')).email, password: require('../mock/users.json').demoPassword })).status, 200);
   const mine = (await k.get('/api/requests/mine')).body;
   assert.equal(mine.length, 3);
 });

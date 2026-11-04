@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const h = require('./helpers');
 
-const mock = (n) => JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'mock', `${n}.json`), 'utf8'));
+const mock = (n) => JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'mock', `${n}.json`), 'utf8'));
 
 test.before(async () => {
   await h.loadDemo();

@@ -1,4 +1,4 @@
-// Dữ liệu nền của demo, lấy từ public/mock/*.json (cùng nguồn với prototype): tài khoản demo, 34 sân thật + 6 sân demo.
+// Dữ liệu nền của demo, lấy từ mock/*.json (cùng nguồn với prototype): tài khoản demo, 34 sân thật + 6 sân demo.
 // Không bịa gì thêm: số điện thoại để '' khi nguồn không có; tài khoản ngân hàng của sân là dữ liệu demo của mock.
 // ID giữ nguyên như mock (user, sân, sân con) để các luồng kiểm thử viết theo mock vẫn đúng id.
 const fs = require('fs');
@@ -7,7 +7,7 @@ const bcrypt = require('bcryptjs');
 const clock = require('../clock');
 const { msToVn } = require('../lib/time');
 
-const MOCK_DIR = path.join(__dirname, '..', '..', 'public', 'mock');
+const MOCK_DIR = path.join(__dirname, '..', '..', 'mock');
 const readMock = (name) => JSON.parse(fs.readFileSync(path.join(MOCK_DIR, `${name}.json`), 'utf8'));
 
 // Vai trò demo -> id user (users.json: demoLogins). Dùng cho route dev đăng nhập nhanh.

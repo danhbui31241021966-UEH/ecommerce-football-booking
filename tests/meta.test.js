@@ -6,8 +6,8 @@ const h = require('./helpers');
 
 test.after(() => h.closeAll());
 
-test('hằng số luật trong src/rules.js khớp public/mock/meta.json (chống lệch với prototype)', () => {
-  const mock = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'mock', 'meta.json'), 'utf8'));
+test('hằng số luật trong src/rules.js khớp mock/meta.json (chống lệch với prototype)', () => {
+  const mock = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'mock', 'meta.json'), 'utf8'));
   const { RULES, BANKS } = require('../src/rules');
   assert.deepEqual({ ...RULES, banks: BANKS }, mock);
 });

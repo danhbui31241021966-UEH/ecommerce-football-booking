@@ -73,9 +73,9 @@ function bool(value) {
 // Chỉ nhận ảnh nội bộ hoặc https để tránh javascript:/data: URL.
 function imageUrl(value) {
   const s = str(value, 'Ảnh', { max: 500, optional: true });
-  if (s === null) return '/img/pitch-1.svg';
-  if (!/^https:\/\/\S+$/.test(s) && !/^\/img\/[\w.-]+$/.test(s)) {
-    throw badRequest('Ảnh phải là đường dẫn https:// hoặc ảnh có sẵn trong /img/');
+  if (s === null) return '/images/pitch-1.svg';
+  if (!/^https:\/\/\S+$/.test(s) && !/^\/(images|img)\/[\w.-]+$/.test(s)) {
+    throw badRequest('Ảnh phải là đường dẫn https:// hoặc ảnh có sẵn trong /images/');
   }
   return s;
 }

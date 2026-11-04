@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Đặt sân bóng mini TP.HCM còn trống hôm nay – GGO</title>
+  <meta name="description" content="Xem sân bóng đá mini 5 và 7 người còn trống hôm nay ở TP.HCM, kèm giá thật và giá giờ chót. Chọn giờ muốn đá, đặt sân trong một phút, không cần gọi điện.">
+  <link rel="canonical" href="https://ggo-datsan.pages.dev/">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="GGO">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:title" content="Đặt sân bóng mini TP.HCM còn trống hôm nay – GGO">
+  <meta property="og:description" content="Xem sân bóng đá mini 5 và 7 người còn trống hôm nay ở TP.HCM, kèm giá thật và giá giờ chót. Chọn giờ muốn đá, đặt sân trong một phút, không cần gọi điện.">
+  <meta property="og:url" content="https://ggo-datsan.pages.dev/">
+  <meta property="og:image" content="https://ggo-datsan.pages.dev/img/og-ggo.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/images/favicon.svg?v=2" type="image/svg+xml">
+  <link rel="icon" href="/images/favicon-32.png?v=2" type="image/png" sizes="32x32">
+  <link rel="icon" href="/images/favicon-16.png?v=2" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png?v=2">
+  <link rel="preload" href="/fonts/Archivo-vietnamese.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/Archivo-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body class="page-home">
+  <div id="app-header"></div>
+
+  <main>
+    <!-- HERO: ảnh + tìm kiếm (trái), cột giờ trống quanh giờ đang chọn (phải) -->
+    <section class="match-hero">
+      <div class="hero-main">
+        <picture>
+          <source media="(max-width: 639px)" srcset="/images/photos/hero-portrait-760.jpg" width="760" height="1130">
+          <img src="/images/photos/hero-1920.jpg" srcset="/images/photos/hero-800.jpg 800w, /images/photos/hero-1920.jpg 1920w" sizes="(min-width: 960px) 67vw, 100vw"
+             width="1920" height="1280" alt="Cầu thủ áo xanh vàng đứng trên sân cỏ nhân tạo có lưới bao, đèn pha sáng về đêm" fetchpriority="high">
+        </picture>
+        <p class="eyebrow">TP.HCM · Sân 5 và sân 7 người</p>
+        <h1 class="display">Đặt sân<br>bóng mini</h1>
+        <p class="lead">Chọn giờ, xem sân còn trống, đặt luôn. Không cần gọi điện.</p>
+        <form class="search-panel" id="search" action="/products.html" method="get">
+          <label class="cell"><span>Ngày</span><select name="date" id="f-date"></select></label>
+          <label class="cell"><span>Giờ</span><select name="at" id="f-at"></select></label>
+          <label class="cell"><span>Loại sân</span>
+            <select name="fieldType"><option value="5">Sân 5</option><option value="7">Sân 7</option><option value="">Tất cả</option></select></label>
+          <label class="cell"><span>Khu vực</span><select name="district" id="f-district"><option value="">Tất cả quận</option></select></label>
+          <button class="btn btn-lime btn-lg" type="submit" data-icon="search">Tìm sân trống</button>
+        </form>
+      </div>
+      <aside class="tonight" aria-labelledby="tonight-title">
+        <div class="tonight-head"><h2 class="h2" id="tonight-title"><span id="hero-when">Tối nay</span> còn trống</h2><span id="tonight-meta">Đang tải…</span></div>
+        <div id="tonight-rows"></div>
+        <p class="tonight-note" id="tonight-note" hidden>Nhãn giảm giá: giờ sắp đá mà còn trống, giá đã giảm sẵn.</p>
+        <a class="link-more" id="tonight-more" href="/products.html">Xem thêm <span aria-hidden="true">→</span></a>
+      </aside>
+    </section>
+
+    <!-- SÂN CÒN TRỐNG -->
+    <section class="venues">
+      <div class="container">
+        <div class="rule-head">
+          <h2 class="h1">Sân<br>còn trống</h2>
+          <a class="link-more" href="/products.html">Xem tất cả sân <span aria-hidden="true">→</span></a>
+        </div>
+        <p class="swipe-hint">Vuốt ngang để xem thêm →</p>
+        <div class="swipe" id="venue-list"></div>
+      </div>
+    </section>
+
+    <!-- BA CÁCH KHÁC ĐỂ CÓ SÂN -->
+    <section class="home-tools" aria-labelledby="tools-title">
+      <div class="container">
+        <h2 class="h2" id="tools-title">Chưa tìm được sân?</h2>
+        <ul class="tool-list">
+          <li><a href="/transfers.html"><b>Pass sân</b><span>Nhận lại sân đội khác không đá được.</span><i>Xem sân pass <span aria-hidden="true">→</span></i></a></li>
+          <li><a href="/matches.html"><b>Ghép kèo</b><span>Thiếu người? Tìm đội đá cùng.</span><i>Xem kèo <span aria-hidden="true">→</span></i></a></li>
+          <li><a href="/request-new.html"><b>Nhờ sân báo giá</b><span>Nói giờ bạn cần, các sân báo giá cho bạn.</span><i>Nhờ báo giá <span aria-hidden="true">→</span></i></a></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- GIẢI ĐANG ĐÁ: ẩn khi chưa có giải nào -->
+    <section class="home-leagues" id="home-leagues" aria-labelledby="hl-title" hidden>
+      <div class="container">
+        <div class="rule-head"><h2 class="h2" id="hl-title">Giải đang đá</h2><a class="link-more" href="/leagues.html">Xem tất cả giải <span aria-hidden="true">→</span></a></div>
+        <ul class="plain-list lg-cards lg-pubgrid" id="hl-list"></ul>
+      </div>
+    </section>
+
+    <!-- BA ĐIỀU CẦN BIẾT TRƯỚC KHI ĐẶT -->
+    <ul class="container home-facts" aria-label="Vì sao đặt ở GGO">
+      <li><b>0đ</b><span>phí đặt sân</span></li>
+      <li><b>24h</b><span>hủy miễn phí trước giờ đá</span></li>
+      <li><b>QR</b><span>chuyển khoản thẳng cho chủ sân</span></li>
+    </ul>
+
+    <p class="container home-about"><a class="link-more" href="/about.html">Tìm hiểu về GGO <span aria-hidden="true">→</span></a></p>
+  </main>
+
+  <div id="app-footer"></div>
+
+  <script type="module" src="/js/index-page.js"></script>
+</body>
+</html>

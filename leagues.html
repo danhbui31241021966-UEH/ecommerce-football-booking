@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Giải bóng đá phủi ở TP.HCM: đang đá, sắp đá – GGO</title>
+  <meta name="description" content="Danh sách giải bóng đá phủi sân 5, sân 7 đá vòng tròn tại các sân ở TP.HCM. Xem giải đang đá, giải sắp đá, đội đầu bảng và cách nhắn chủ sân để đăng ký đội.">
+  <link rel="canonical" href="https://ggo-datsan.pages.dev/leagues.html">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="GGO">
+  <meta property="og:locale" content="vi_VN">
+  <meta property="og:title" content="Giải bóng đá phủi ở TP.HCM: đang đá, sắp đá – GGO">
+  <meta property="og:description" content="Danh sách giải bóng đá phủi sân 5, sân 7 đá vòng tròn tại các sân ở TP.HCM. Xem giải đang đá, giải sắp đá, đội đầu bảng và cách nhắn chủ sân để đăng ký đội.">
+  <meta property="og:url" content="https://ggo-datsan.pages.dev/leagues.html">
+  <meta property="og:image" content="https://ggo-datsan.pages.dev/img/og-ggo.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="/images/favicon.svg?v=2" type="image/svg+xml">
+  <link rel="icon" href="/images/favicon-32.png?v=2" type="image/png" sizes="32x32">
+  <link rel="icon" href="/images/favicon-16.png?v=2" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png?v=2">
+  <link rel="preload" href="/fonts/Archivo-vietnamese.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/css/app.css">
+</head>
+<body>
+  <div id="app-header"></div>
+  <main class="page">
+    <div class="container">
+      <div class="page-head">
+        <p class="crumb"><a href="/">Trang chủ</a> / Giải đấu</p>
+        <h1 class="h1">Giải đấu</h1>
+        <p class="sub" id="summary" aria-live="polite">Đang tải…</p>
+      </div>
+      <p class="lg-regnote">Web chưa cho đội tự đăng ký. Chủ sân là người thêm đội vào giải, nên muốn tham gia hãy nhắn hoặc gọi chủ sân.</p>
+      <form class="filter-bar lg-filter" id="filters" aria-label="Lọc giải">
+        <div class="filter-field"><label class="filter-label" for="f-district">Quận</label>
+          <select class="select" id="f-district"><option value="">Tất cả quận</option></select></div>
+      </form>
+      <div id="lg-root" aria-live="polite"></div>
+    </div>
+  </main>
+  <div id="app-footer"></div>
+  <script type="module" src="/js/leagues.js"></script>
+</body>
+</html>

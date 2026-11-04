@@ -1,0 +1,460 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Bộ giao diện – GGO</title>
+  <link rel="icon" href="/images/favicon.svg?v=2" type="image/svg+xml">
+  <link rel="icon" href="/images/favicon-32.png?v=2" type="image/png" sizes="32x32">
+  <link rel="icon" href="/images/favicon-16.png?v=2" type="image/png" sizes="16x16">
+  <link rel="apple-touch-icon" href="/images/apple-touch-icon.png?v=2">
+  <link rel="stylesheet" href="/css/app.css">
+  <style>
+    /* Chỉ dùng cho trang mẫu */
+    .sg-section { padding: 48px 0 8px; }
+    .sg-section > .container > .h1 { margin-bottom: 6px; }
+    .sg-section > .container > .lead { color: var(--muted); margin-bottom: 24px; max-width: 680px; }
+    .sg-grid { display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
+    @media (min-width: 900px) { .sg-grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } .sg-grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+    .swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+    .swatch { border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--line); background: var(--surface); font-size: 12px; }
+    .swatch div { height: 64px; }
+    .swatch p { padding: 8px 10px; }
+    .hero { padding: 72px 0 88px; }
+    .hero .container { position: relative; }
+    .hero .search-panel { position: relative; z-index: 1; }
+    .hero .lead { max-width: 560px; margin: 18px 0 32px; color: var(--on-dark); font-size: var(--fs-lg); }
+    .hero-stats { display: flex; gap: 28px; margin-top: 28px; color: var(--on-dark); font-size: var(--fs-sm); flex-wrap: wrap; }
+    .hero-stats b { display: block; font-family: var(--font-display); font-size: 1.8rem; color: var(--on-dark); }
+    .venue-card .media.pitch-bg { display: grid; place-items: end start; padding: 12px; }
+    .mobile-frame { max-width: 400px; border: 1px solid var(--line); border-radius: 28px; padding: 18px; background: var(--bg); }
+  </style>
+</head>
+<body>
+  <div id="app-header"></div>
+
+  <!-- HERO -->
+  <section class="hero hero-photo" style="min-height:0">
+    <img src="/images/photos/hero-800.jpg" alt="Sân bóng mini về đêm" width="800" height="533">
+    <div class="container">
+      <p class="eyebrow" style="color:var(--lime-400)">TP.HCM · Sân 5 &amp; 7 người</p>
+      <h1 class="display" style="margin-top:32px">Tối nay<br>đá ở đâu<span class="text-lime">?</span></h1>
+      <p class="lead">Chọn giờ muốn đá, xem ngay sân nào còn trống và giá thật. Đặt trong 1 phút – không app, không gọi điện.</p>
+      <form class="search-panel">
+        <label class="cell"><span>Ngày</span>
+          <select><option>Hôm nay, 29/10</option><option>Mai, 30/10</option><option>T7, 31/10</option></select>
+        </label>
+        <label class="cell"><span>Giờ muốn đá</span>
+          <select><option>19:00</option><option>18:00</option><option>20:00</option></select>
+        </label>
+        <label class="cell"><span>Loại sân</span>
+          <select><option>Sân 5</option><option>Sân 7</option><option>Tất cả</option></select>
+        </label>
+        <label class="cell"><span>Khu vực</span>
+          <select><option>Tất cả quận</option><option>Quận 7</option><option>Bình Thạnh</option></select>
+        </label>
+        <button class="btn btn-lime btn-lg" type="submit" data-icon="search">Tìm sân trống</button>
+      </form>
+      <div class="hero-stats">
+        <div><b>24</b>sân đang trống lúc 19:00</div>
+        <div><b>-20%</b>giảm giờ chót</div>
+        <div><b>0đ</b>phí đặt sân</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MÀU & CHỮ -->
+  <section class="sg-section">
+    <div class="container">
+      <h2 class="h1">Màu &amp; chữ</h2>
+      <p class="lead">Đen mực và trắng ngà làm nền; vàng chanh là màu nhấn duy nhất (nút chính của hero và nhãn giảm giá), luôn là nền với chữ mực. Xanh, vàng, tím chỉ là màu trạng thái ô giờ, luôn đi kèm chữ.</p>
+      <div class="swatches">
+        <div class="swatch"><div style="background:var(--pitch-950)"></div><p><b>Mực</b><br>#0d0e0b</p></div>
+        <div class="swatch"><div style="background:var(--bg)"></div><p><b>Trắng ngà</b><br>#f6f4ee</p></div>
+        <div class="swatch"><div style="background:var(--lime-400)"></div><p><b>Nhấn / giảm giá</b><br>#d9f23d</p></div>
+        <div class="swatch"><div style="background:var(--pitch-500)"></div><p><b>Ô trống</b><br>#1f8a57</p></div>
+        <div class="swatch"><div style="background:var(--warn-strong)"></div><p><b>Đang giữ</b><br>#f5a524</p></div>
+        <div class="swatch"><div style="background:var(--violet)"></div><p><b>Danh sách chờ</b><br>#5b3ae0</p></div>
+      </div>
+      <div class="card card-pad" style="margin-top:16px">
+        <p class="display" style="font-size:3rem">Đá tối nay</p>
+        <p class="h1" style="margin-top:8px">Tiêu đề trang – Archivo</p>
+        <p class="h3" style="margin-top:8px">Tiêu đề nhỏ</p>
+        <p style="margin-top:8px">Một họ chữ duy nhất, Archivo (variable wght + wdth): tiêu đề và số viết hoa dạng hẹp, chữ thường và nút ở độ rộng 100%.</p>
+        <p class="muted" style="margin-top:4px;font-size:var(--fs-sm)">Chữ phụ / ghi chú · Số dạng bảng: <span class="num">450.000đ · 19:00–20:00</span></p>
+      </div>
+    </div>
+  </section>
+
+  <!-- NÚT & CHỌN -->
+  <section class="sg-section">
+    <div class="container">
+      <h2 class="h1">Nút &amp; bộ chọn</h2>
+      <p class="lead">Mỗi màn chỉ có một nút vàng chanh hoặc xanh đậm cho hành động chính.</p>
+      <div class="sg-grid cols-2">
+        <div class="card card-pad stack">
+          <div class="row">
+            <button class="btn btn-lime">Đặt sân</button>
+            <button class="btn btn-primary">Xác nhận</button>
+            <button class="btn btn-dark">Xem lịch</button>
+            <button class="btn">Bỏ qua</button>
+            <button class="btn btn-ghost">Hủy</button>
+            <button class="btn btn-danger">Hủy đặt sân</button>
+          </div>
+          <div class="row">
+            <button class="btn btn-primary btn-sm">Nhỏ</button>
+            <button class="btn btn-primary">Thường</button>
+            <button class="btn btn-primary btn-lg">Lớn</button>
+            <button class="btn btn-primary" disabled>Đã khóa</button>
+          </div>
+        </div>
+        <div class="card card-pad stack">
+          <div class="chips" data-toggle-group>
+            <button class="chip" aria-pressed="true">Tối nay</button>
+            <button class="chip" aria-pressed="false">Sân 5</button>
+            <button class="chip" aria-pressed="false">Dưới 500k</button>
+            <button class="chip" aria-pressed="false">Đang giảm giá</button>
+            <button class="chip" aria-pressed="false">Tự xác nhận</button>
+            <button class="chip" aria-pressed="false">Quận 7</button>
+          </div>
+          <div class="day-chips" data-single-group>
+            <button class="day-chip" aria-pressed="true"><span class="dow">Hôm nay</span><span class="dnum">29</span><span class="dsub">Thứ 5</span></button>
+            <button class="day-chip" aria-pressed="false"><span class="dow">Mai</span><span class="dnum">30</span><span class="dsub">Thứ 6</span></button>
+            <button class="day-chip" aria-pressed="false"><span class="dow">T7</span><span class="dnum">31</span><span class="dsub">Thứ 7</span></button>
+          </div>
+          <div class="segmented" data-single-group>
+            <button aria-pressed="true">Sân 5</button>
+            <button aria-pressed="false">Sân 7</button>
+            <button aria-pressed="false">Tất cả</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- BADGE -->
+  <section class="sg-section">
+    <div class="container">
+      <h2 class="h1">Trạng thái &amp; nhãn</h2>
+      <p class="lead">Trạng thái luôn có chữ đi kèm màu, không bắt người dùng đoán bằng màu.</p>
+      <div class="card card-pad stack">
+        <div class="row">
+          <span class="badge badge-pending">Chờ xác nhận</span>
+          <span class="badge badge-confirmed">Đã có sân</span>
+          <span class="badge badge-rejected">Bị từ chối</span>
+          <span class="badge badge-cancelled">Đã hủy</span>
+          <span class="badge badge-expired">Hết hạn</span>
+          <span class="badge badge-completed">Đã đá</span>
+          <span class="badge badge-no_show">Bùng sân</span>
+        </div>
+        <div class="row">
+          <span class="badge badge-unpaid">Chưa chuyển khoản</span>
+          <span class="badge badge-paid">Đã chuyển khoản</span>
+          <span class="badge badge-offered">Đang giữ cho bạn</span>
+          <span class="tag-sale">-20%</span>
+          <span class="tag-peak" data-icon="flame">Giờ cao điểm</span>
+          <span class="tag-mode" data-icon="bolt">Tự xác nhận</span>
+          <span class="tag-mode approval" data-icon="hourglass">Chủ sân duyệt</span>
+          <span class="countdown">Chủ sân còn 12:48 để đồng ý</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THẺ SÂN -->
+  <section class="sg-section">
+    <div class="container">
+      <h2 class="h1">Thẻ sân</h2>
+      <p class="lead">Giờ trống hiện ngay trên thẻ – bấm một giờ là vào đặt luôn. Giờ đang giảm giá có viền cam.</p>
+      <div class="sg-grid cols-3">
+        <article class="card card-hover venue-card">
+          <div class="media"><img src="/images/photos/pexels-35246917.jpg" alt="Nhóm bạn đá bóng buổi tối" loading="lazy">
+            <div class="tags"><span class="tag-sale">-20% giờ chót</span></div>
+          </div>
+          <div class="body">
+            <div class="row" style="gap:8px"><span class="tag-mode" data-icon="bolt">Tự xác nhận</span></div>
+            <a class="title" href="#">Sân bóng Thành Phát</a>
+            <div class="meta"><span data-icon="pin">Quận 7</span><span>Sân 5 · Sân 7</span></div>
+            <div><span class="price">300.000đ</span> <span class="muted">– 550.000đ / giờ</span></div>
+            <p class="slot-row-label">Trống tối nay</p>
+            <div class="slot-pills">
+              <a class="slot-pill sale" href="#"><span class="t">18:00</span><span class="p">240k</span></a>
+              <a class="slot-pill" href="#"><span class="t">19:30</span><span class="p">450k</span></a>
+              <a class="slot-pill" href="#"><span class="t">21:00</span><span class="p">400k</span></a>
+              <a class="slot-pill more" href="#"><span class="t">+4</span><span class="p">giờ khác</span></a>
+            </div>
+          </div>
+        </article>
+        <article class="card card-hover venue-card">
+          <div class="media"><img src="/images/photos/venue2-900.jpg" alt="Sân sáng đèn giữa đêm" loading="lazy"></div>
+          <div class="body">
+            <div class="row" style="gap:8px"><span class="tag-mode approval" data-icon="hourglass">Chủ sân duyệt</span></div>
+            <a class="title" href="#">Sân cỏ nhân tạo Hoàng Gia</a>
+            <div class="meta"><span data-icon="pin">Bình Thạnh</span><span>Sân 5</span></div>
+            <div><span class="price">280.000đ</span> <span class="muted">– 420.000đ / giờ</span></div>
+            <p class="slot-row-label">Trống tối nay</p>
+            <div class="slot-pills">
+              <a class="slot-pill" href="#"><span class="t">20:00</span><span class="p">420k</span></a>
+              <a class="slot-pill" href="#"><span class="t">21:00</span><span class="p">380k</span></a>
+            </div>
+          </div>
+        </article>
+        <article class="card venue-card">
+          <div class="media"><img src="/images/photos/pexels-35246964.jpg" alt="Sân nhìn từ trên cao" loading="lazy"></div>
+          <div class="body">
+            <a class="title" href="#">Sân bóng Phú Mỹ Hưng</a>
+            <div class="meta"><span data-icon="pin">Quận 7</span><span>Sân 7</span></div>
+            <div class="empty" style="padding:20px 8px">
+              <p>Tối nay đã kín sân.</p>
+              <button class="btn btn-sm">Xem ngày mai</button>
+            </div>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- LƯỚI SLOT -->
+  <section class="sg-section">
+    <div class="container">
+      <h2 class="h1">Lưới chọn giờ</h2>
+      <p class="lead">Mobile: chia theo buổi. Desktop: mỗi cột một sân con. Bấm ô trống để chọn – thanh dưới cùng cập nhật giá.</p>
+      <div class="slot-legend" style="margin-bottom:16px">
+        <span><i class="slot slot-available"></i>Trống</span>
+        <span><i class="slot" aria-pressed="true"></i>Bạn chọn</span>
+        <span><i class="slot slot-held"></i>Đang giữ</span>
+        <span><i class="slot slot-booked"></i>Đã đặt</span>
+        <span><i class="slot slot-blocked"></i>Bị chặn</span>
+        <span><i class="slot slot-offered"></i>Giữ cho người đang chờ</span>
+        <span><i class="slot slot-for-you"></i>Giữ cho bạn</span>
+        <span><i class="slot slot-past"></i>Đã qua</span>
+      </div>
+      <div class="sg-grid cols-2" style="align-items:start">
+        <div class="mobile-frame">
+          <div class="day-chips" data-single-group style="margin-bottom:20px">
+            <button class="day-chip" aria-pressed="true"><span class="dow">Hôm nay</span><span class="dnum">29</span><span class="dsub">Thứ 5</span></button>
+            <button class="day-chip" aria-pressed="false"><span class="dow">Mai</span><span class="dnum">30</span><span class="dsub">Thứ 6</span></button>
+            <button class="day-chip" aria-pressed="false"><span class="dow">T7</span><span class="dnum">31</span><span class="dsub">Thứ 7</span></button>
+          </div>
+          <div class="slot-period">
+            <div class="slot-period-head"><h4>Chiều</h4><span class="muted" style="font-size:12px">14:00 – 17:00</span></div>
+            <div class="slot-period-grid">
+              <div class="slot slot-past"><span class="t">14:00</span><span class="s">Đã qua</span></div>
+              <button class="slot slot-available sale" data-pick="Sân 1 · 16:00" data-price="240000"><span class="corner tag-sale" style="padding:0 5px">-20%</span><span class="t">16:00</span><span class="s">240k</span></button>
+              <div class="slot slot-blocked"><span class="t">17:00</span><span class="s">Bị chặn</span></div>
+            </div>
+          </div>
+          <div class="slot-period">
+            <div class="slot-period-head"><h4>Tối</h4><span class="tag-peak" data-icon="flame">Cao điểm</span></div>
+            <div class="slot-period-grid">
+              <div class="slot slot-booked"><span class="t">18:00</span><span class="s">Đã đặt</span><button class="wait-btn" data-wait>Báo tôi khi trống</button></div>
+              <div class="slot slot-held"><span class="t">19:00</span><span class="s">Đang giữ</span><button class="wait-btn" data-wait>Báo tôi khi trống</button></div>
+              <button class="slot slot-for-you" data-pick="Sân 1 · 20:00" data-price="450000"><span class="t">20:00</span><span class="s">Giữ cho bạn · 08:12</span></button>
+              <div class="slot slot-offered"><span class="t">21:00</span><span class="s">Người chờ đang đặt</span></div>
+              <button class="slot slot-available" data-pick="Sân 1 · 22:00" data-price="400000"><span class="t">22:00</span><span class="s">400k</span></button>
+            </div>
+          </div>
+        </div>
+
+        <div class="slot-board">
+          <table>
+            <thead><tr><th></th><th>Sân 1<small>Sân 5</small></th><th>Sân 2<small>Sân 5</small></th><th>Sân 3<small>Sân 7</small></th></tr></thead>
+            <tbody>
+              <tr><td class="time">17:00</td>
+                <td><div class="slot slot-past"><span class="t">Đã qua</span></div></td>
+                <td><div class="slot slot-blocked"><span class="s">Bị chặn</span></div></td>
+                <td><div class="slot slot-past"><span class="t">Đã qua</span></div></td></tr>
+              <tr><td class="time">18:00</td>
+                <td><div class="slot slot-booked"><span class="s">Đã đặt</span></div></td>
+                <td><button class="slot slot-available sale" data-pick="Sân 2 · 18:00" data-price="240000"><span class="t">240k</span><span class="s">-20% giờ chót</span></button></td>
+                <td><div class="slot slot-held"><span class="s">Đang giữ</span></div></td></tr>
+              <tr><td class="time">19:00</td>
+                <td><button class="slot slot-available" data-pick="Sân 1 · 19:00" data-price="450000"><span class="t">450k</span><span class="s">Cao điểm</span></button></td>
+                <td><div class="slot slot-booked"><span class="s">Đã đặt</span></div></td>
+                <td><button class="slot slot-available" data-pick="Sân 3 · 19:00" data-price="650000"><span class="t">650k</span><span class="s">Cao điểm</span></button></td></tr>
+              <tr><td class="time">20:00</td>
+                <td><button class="slot slot-for-you" data-pick="Sân 1 · 20:00" data-price="450000"><span class="t">450k</span><span class="s">Giữ cho bạn</span></button></td>
+                <td><div class="slot slot-offered"><span class="s">Người chờ đang đặt</span></div></td>
+                <td><button class="slot slot-available" data-pick="Sân 3 · 20:00" data-price="650000"><span class="t">650k</span><span class="s">Cao điểm</span></button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- DIALOG, QR -->
+  <section class="sg-section">
+    <div class="container">
+      <h2 class="h1">Xác nhận đặt sân</h2>
+      <p class="lead">Chính sách hủy ghi bằng mốc giờ cụ thể. QR chuyển khoản thẳng vào tài khoản chủ sân, có nút sao chép từng dòng.</p>
+      <div class="sg-grid cols-2" style="align-items:start">
+        <div class="card card-pad stack">
+          <div class="row"><span class="h2">Lịch đặt #SN-24817</span><span class="badge badge-confirmed">Đã có sân</span></div>
+          <dl class="kv">
+            <div><dt>Sân</dt><dd>Thành Phát · Sân 1 (sân 5)</dd></div>
+            <div><dt>Thời gian</dt><dd class="num">19:00–20:00, Thứ 5 29/10</dd></div>
+            <div><dt>Giá gốc</dt><dd class="num">450.000đ</dd></div>
+            <div class="total"><dt>Tổng</dt><dd class="num">450.000đ</dd></div>
+          </dl>
+          <div class="policy">
+            <div class="step"><b>100%</b><span>nếu hủy trước <b>19:00 Thứ 4, 28/10</b></span></div>
+            <div class="step"><b>50%</b><span>nếu hủy trước <b>07:00 Thứ 5, 29/10</b></span></div>
+            <div class="step"><b>0%</b><span>nếu hủy sau đó</span></div>
+          </div>
+          <div class="row"><button class="btn btn-primary" id="open-dialog">Mở hộp xác nhận</button><button class="btn btn-danger">Hủy đặt sân</button></div>
+        </div>
+
+        <div class="qr-card">
+          <div class="row"><span class="h3">Chuyển khoản để giữ sân</span><span class="spacer"></span><span class="badge badge-pending">Chưa chuyển khoản</span></div>
+          <img class="qr" alt="Mã QR chuyển khoản 450.000đ"
+            src="https://img.vietqr.io/image/970436-0123456789-compact2.svg?amount=450000&addInfo=SN24817&accountName=NGUYEN%20VAN%20A">
+          <p class="amount num">450.000đ</p>
+          <div class="copy-row"><div><div class="k">Ngân hàng</div><div class="v">Vietcombank</div></div></div>
+          <div class="copy-row"><div><div class="k">Số tài khoản</div><div class="v">0123456789</div></div><button data-copy="0123456789">Sao chép</button></div>
+          <div class="copy-row"><div><div class="k">Chủ tài khoản</div><div class="v">NGUYEN VAN A</div></div></div>
+          <div class="copy-row"><div><div class="k">Nội dung</div><div class="v">SN24817</div></div><button data-copy="SN24817">Sao chép</button></div>
+          <p style="font-size:12px;color:var(--on-dark-muted)">Tiền vào thẳng tài khoản chủ sân. Chủ sân xác nhận đã nhận tiền trên GGO.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FORM, BẢNG, TAB -->
+  <section class="sg-section">
+    <div class="container">
+      <h2 class="h1">Form, bảng, tab</h2>
+      <p class="lead">Dùng cho trang chủ sân, admin và tài khoản.</p>
+      <div class="sg-grid cols-2" style="align-items:start">
+        <div class="card card-pad stack">
+          <div class="field"><label for="f1">Tên sân</label><input id="f1" class="input" value="Sân bóng Thành Phát"></div>
+          <div class="sg-grid cols-2">
+            <div class="field"><label for="f2">Ngân hàng</label><select id="f2" class="select"><option>Vietcombank</option><option>MB Bank</option></select></div>
+            <div class="field error"><label for="f3">Số tài khoản</label><input id="f3" class="input" value="01234"><span class="hint">Số tài khoản phải có 6–19 chữ số.</span></div>
+          </div>
+          <div class="field"><label for="f4">Giảm giá giờ chót</label><input id="f4" class="input" value="20"><span class="hint">% giảm cho giờ còn trống trong 3 giờ tới. 0 = tắt.</span></div>
+          <div class="notice warn" >Khách này có 2 lần bùng sân hoặc hủy sát giờ trong 60 ngày – lịch đặt này cần bạn đồng ý.</div>
+        </div>
+        <div class="stack">
+          <div class="tabs" role="tablist">
+            <button role="tab" aria-selected="true">Sắp tới<span class="count">2</span></button>
+            <button role="tab" aria-selected="false">Đã qua</button>
+            <button role="tab" aria-selected="false">Đang chờ giờ<span class="count">1</span></button>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr><th>Mã</th><th>Giờ</th><th>Khách</th><th>Trạng thái</th><th></th></tr></thead>
+              <tbody>
+                <tr><td class="num"><b>SN-24817</b></td><td class="num">19:00 29/10</td><td>Minh Trí</td><td><span class="badge badge-pending">Chờ chủ sân đồng ý</span></td><td><button class="btn btn-primary btn-sm">Duyệt</button></td></tr>
+                <tr><td class="num"><b>SN-24790</b></td><td class="num">18:00 29/10</td><td>Quốc Huy</td><td><span class="badge badge-confirmed">Đã có sân</span></td><td><button class="btn btn-sm">Đã thu tiền</button></td></tr>
+                <tr><td class="num"><b>SN-24702</b></td><td class="num">20:00 28/10</td><td>Gia Bảo</td><td><span class="badge badge-no_show">Bùng sân</span></td><td></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="card empty">
+            <div class="art" data-icon="calendar"></div>
+            <p><b style="color:var(--text)">Chưa có lịch đặt nào</b><br>Tìm một sân trống tối nay và đặt thử nhé.</p>
+            <a class="btn btn-lime" href="#">Tìm sân</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- THANH ĐẶT -->
+  <div class="booking-bar">
+    <div class="container">
+      <div class="summary">
+        <div class="what" id="bar-what">Chọn một giờ trống ở lưới phía trên</div>
+        <div class="total" id="bar-total">—</div>
+      </div>
+      <button class="btn btn-lime btn-lg" id="bar-book" disabled>Đặt sân</button>
+    </div>
+  </div>
+
+  <dialog class="modal" id="confirm-dialog">
+    <div class="modal-head"><span class="h2">Xác nhận đặt sân</span><span class="spacer"></span>
+      <button class="icon-btn" data-close aria-label="Đóng" data-icon="close"></button></div>
+    <div class="modal-body stack">
+      <dl class="kv">
+        <div><dt>Sân</dt><dd id="dlg-venue">Thành Phát · Sân 2 (sân 5)</dd></div>
+        <div><dt>Thời gian</dt><dd class="num" id="dlg-time">18:00–19:00, hôm nay</dd></div>
+        <div id="dlg-orig-row"><dt>Giá gốc</dt><dd class="num price-old">300.000đ</dd></div>
+        <div id="dlg-sale-row"><dt>Giảm giờ chót</dt><dd class="num" style="color:var(--sale-text)">-60.000đ</dd></div>
+        <div class="total"><dt>Tổng</dt><dd class="num" id="dlg-total">240.000đ</dd></div>
+      </dl>
+      <div class="notice">Sân này đặt là chốt: bạn nhận mã QR để chuyển khoản ngay sau khi đặt.</div>
+      <div class="field"><label for="note">Ghi chú cho chủ sân</label><textarea id="note" class="textarea" placeholder="VD: cần thêm bóng, áo bib"></textarea></div>
+    </div>
+    <div class="modal-foot"><button class="btn btn-ghost" data-close>Để sau</button><button class="btn btn-lime" id="do-book">Đặt sân · 240.000đ</button></div>
+  </dialog>
+
+  <div id="app-footer"></div>
+
+  <script type="module">
+    import { mountShell, toast } from '/js/ui/shell.js';
+    import { icon } from '/js/ui/icons.js';
+    mountShell({ unread: 3 });
+
+    // Gắn icon vào phần tử có data-icon (đặt trước chữ)
+    document.querySelectorAll('[data-icon]').forEach((el) => {
+      el.insertAdjacentHTML(el.childElementCount || el.textContent.trim() ? 'afterbegin' : 'beforeend', icon(el.dataset.icon, el.classList.contains('art') ? 32 : 16));
+    });
+
+    // Chip chọn nhiều / chọn một
+    document.querySelectorAll('[data-toggle-group] > *').forEach((b) =>
+      b.addEventListener('click', () => b.setAttribute('aria-pressed', String(b.getAttribute('aria-pressed') !== 'true'))));
+    document.querySelectorAll('[data-single-group]').forEach((g) =>
+      g.querySelectorAll(':scope > *').forEach((b) => b.addEventListener('click', () => {
+        g.querySelectorAll(':scope > *').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+        b.setAttribute('aria-pressed', 'true');
+      })));
+
+    // Chọn slot -> cập nhật thanh đặt
+    const money = (n) => `${Number(n).toLocaleString('vi-VN')}đ`;
+    document.querySelectorAll('[data-pick]').forEach((s) => s.addEventListener('click', () => {
+      document.querySelectorAll('[data-pick]').forEach((x) => x.setAttribute('aria-pressed', 'false'));
+      s.setAttribute('aria-pressed', 'true');
+      document.getElementById('bar-what').textContent = `Thành Phát · ${s.dataset.pick} · hôm nay`;
+      document.getElementById('bar-total').textContent = money(s.dataset.price);
+      document.getElementById('bar-book').disabled = false;
+    }));
+
+    const dlg = document.getElementById('confirm-dialog');
+    document.getElementById('open-dialog').addEventListener('click', () => dlg.showModal());
+    // Hộp xác nhận lấy dữ liệu từ ô đang chọn (mẫu: giảm giờ chót = 20% giá gốc)
+    let picked = null;
+    document.querySelectorAll('[data-pick]').forEach((s) => s.addEventListener('click', () => { picked = s; }));
+    document.getElementById('bar-book').addEventListener('click', () => {
+      if (picked) {
+        const [court, hour] = picked.dataset.pick.split(' · ');
+        const price = Number(picked.dataset.price);
+        const sale = picked.classList.contains('sale');
+        const end = String(Number(hour.slice(0, 2)) + 1).padStart(2, '0') + hour.slice(2);
+        document.getElementById('dlg-venue').textContent = `Thành Phát · ${court}`;
+        document.getElementById('dlg-time').textContent = `${hour}–${end}, hôm nay`;
+        document.getElementById('dlg-total').textContent = money(price);
+        document.getElementById('dlg-orig-row').hidden = !sale;
+        document.getElementById('dlg-sale-row').hidden = !sale;
+        if (sale) {
+          const orig = Math.round(price / 0.8);
+          document.querySelector('#dlg-orig-row dd').textContent = money(orig);
+          document.querySelector('#dlg-sale-row dd').textContent = `-${money(orig - price)}`;
+        }
+        document.getElementById('do-book').textContent = `Đặt sân · ${money(price)}`;
+      }
+      dlg.showModal();
+    });
+    dlg.querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => dlg.close()));
+    document.getElementById('do-book').addEventListener('click', () => { dlg.close(); toast('Đặt sân thành công – mã SN-24817'); });
+
+    document.querySelectorAll('[data-wait]').forEach((b) => b.addEventListener('click', () => toast('Đã thêm vào danh sách chờ – bạn đứng thứ 1')));
+    document.querySelectorAll('[data-copy]').forEach((b) => b.addEventListener('click', async () => {
+      await navigator.clipboard?.writeText(b.dataset.copy).catch(() => {});
+      toast(`Đã sao chép ${b.dataset.copy}`);
+    }));
+  </script>
+  <script type="module" src="/js/styleguide.js"></script>
+</body>
+</html>

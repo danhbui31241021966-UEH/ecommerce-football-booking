@@ -1,4 +1,4 @@
-// Kèo ghép mẫu (R13, R15) từ public/mock/matches.json → matches, cùng nguồn với prototype. Mỗi mẫu có `day` (so với hôm nay), giờ đá,
+// Kèo ghép mẫu (R13, R15) từ mock/matches.json → matches, cùng nguồn với prototype. Mỗi mẫu có `day` (so với hôm nay), giờ đá,
 // trạng thái (open / joined / confirmed) và, với `played`, bước kết quả. Ô đã có người giữ thì bỏ mẫu đó. Chạy sau các seeder lịch đặt.
 const clock = require('../clock');
 const { CANCEL_POLICY_TEXT, RULES } = require('../rules');

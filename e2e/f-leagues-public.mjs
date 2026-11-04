@@ -173,10 +173,10 @@ await step(p, 'lgpub', '05-no-number-invented-when-venue-has-none', async () => 
   must(pub.venuePhone === '' && !pub.link, 'dữ liệu thử chưa đúng: ' + J(pub));
   await p.goto(U + '/leagues'); await p.waitForSelector('.lg-pubcard');
   const a = p.locator(`.lg-pubcard[data-id="${l.id}"] a[data-contact]`);
-  must(await a.getAttribute('data-contact') === 'venue' && (await a.getAttribute('href')) === `/venue.html?id=${l.venueId}`, 'sân không số phải dẫn về trang sân: ' + await a.getAttribute('href'));
+  must(await a.getAttribute('data-contact') === 'venue' && (await a.getAttribute('href')) === `/product-detail.html?id=${l.venueId}`, 'sân không số phải dẫn về trang sân: ' + await a.getAttribute('href'));
   await loginAs(p, owner); await call(`a=>a.owner.updateVenue(${l.venueId}, { phone: ${J(l.venuePhone)} })`);
   await p.evaluate(async () => { await (await import('/js/api.js')).api.logout().catch(() => {}); });
-  return 'không có số/link → /venue.html?id=' + l.venueId;
+  return 'không có số/link → /product-detail.html?id=' + l.venueId;
 }, { shot: false });
 
 await step(p, 'lgpub', '06-home-strip-shows-and-hides', async () => {

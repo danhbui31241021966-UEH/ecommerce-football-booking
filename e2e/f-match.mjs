@@ -45,7 +45,7 @@ await step(p, 'match', '02-normal-booking-unaffected', async () => {
   return 'đủ hai đội: ' + r.msg + '; sân 8 và 17:00 vẫn đặt thường'; }, { shot: false });
 await step(p, 'match', '03-host-opens-match-ui', async () => {
   await loginAs(p, 'khach1@datsan.local');
-  await p.goto(`${U}/venue?id=3&date=${D}&court=${SL.m1[0]}`); await p.locator('a.slot-team:visible').first().waitFor();
+  await p.goto(`${U}/product-detail?id=3&date=${D}&court=${SL.m1[0]}`); await p.locator('a.slot-team:visible').first().waitFor();
   await p.locator(`a.slot-team[href*="court=${SL.m1[0]}"][href*="start=${SL.m1[1]}"]:visible`).first().click();
   await p.waitForSelector('#match-form'); await p.click('[data-stake="70"]'); await p.waitForSelector('#closes'); await p.screenshot({ path: `e2e/out/match-03a-open-form-${W}.png`, fullPage: true });
   await p.click('#match-form button[type=submit]'); await p.waitForURL(/\/match(\.html)?(?=[?#]|$)/); await p.waitForSelector('.qr-card, .qr');

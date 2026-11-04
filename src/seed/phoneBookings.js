@@ -1,4 +1,4 @@
-// Lịch điện thoại mẫu (R16) từ public/mock/bookings.json → phoneBookings, luôn có mặt dù mở demo giờ nào. Chạy SAU seeder chặn giờ
+// Lịch điện thoại mẫu (R16) từ mock/bookings.json → phoneBookings, luôn có mặt dù mở demo giờ nào. Chạy SAU seeder chặn giờ
 // vì chọn ô theo dữ liệu đã dựng: giờ ghi trong mẫu là giờ ưu tiên; ô đó đã qua, đã có lịch/chặn hoặc là giờ chỉ ghép kèo thì lấy ô trống
 // chưa bắt đầu gần giờ ưu tiên nhất (cùng cụm sân, trong ngày của mẫu); hết ô thì sang ngày kế tiếp. Kết quả tất định.
 const clock = require('../clock');

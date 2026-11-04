@@ -1,5 +1,5 @@
 // Luật đã chốt trong docs/PRD.md mục 4 (R1–R18) mà FE đọc qua GET /api/meta.
-// Là hằng số trong code, không đọc từ .env, để một máy không thể chạy sai luật. tests/meta.test.js so với public/mock/meta.json.
+// Là hằng số trong code, không đọc từ .env, để một máy không thể chạy sai luật. tests/meta.test.js so với mock/meta.json.
 const BANKS = [
   { bin: '970436', name: 'Vietcombank' },
   { bin: '970415', name: 'VietinBank' },

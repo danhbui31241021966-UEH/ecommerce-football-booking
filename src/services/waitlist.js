@@ -23,7 +23,7 @@ async function offerSlot(tx, courtId, startAt) {
   const date = startAt.slice(0, 10);
   const start = startAt.slice(11, 16);
   await notify(tx, next.userId, `Giờ ${start} ngày ${date.slice(8, 10)}/${date.slice(5, 7)} tại ${info.venueName} · ${info.courtName} đang giữ cho bạn đến ${until.slice(11, 16)}.`, {
-    link: `/venue.html?id=${info.venueId}&date=${date}&slot=${start}&court=${courtId}`,
+    link: `/product-detail.html?id=${info.venueId}&date=${date}&slot=${start}&court=${courtId}`,
   });
   return next.userId;
 }

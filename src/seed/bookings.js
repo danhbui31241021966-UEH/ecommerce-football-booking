@@ -1,4 +1,4 @@
-// Dữ liệu demo của đặt sân, dựng từ public/mock/bookings.json (cùng nguồn với prototype): lịch mẫu của các tài khoản demo,
+// Dữ liệu demo của đặt sân, dựng từ mock/bookings.json (cùng nguồn với prototype): lịch mẫu của các tài khoản demo,
 // "đám đông" khách nền ở các sân thật (tất định theo ngày), danh sách chờ và thông báo mẫu. Mốc thời gian tính từ đồng hồ
 // hệ thống tại lúc nạp. Bỏ qua phần của tính năng chưa có bảng: đăng pass (R12), ghép kèo (R13), báo giá (R14), lịch gọi điện (R16),
 // giải (R18); chặn giờ mẫu do phần chủ sân nạp.
@@ -180,7 +180,7 @@ async function seedBookings(tx) {
       if (k) link = users[n.userId]?.role === 'customer' ? `/booking.html?id=${k.id}` : `/owner-bookings.html?id=${k.id}`;
     } else if (n.slot) {
       const w = waitByKey[n.slot];
-      link = `/venue.html?id=${courts[w.courtId][0].id}&date=${addDays(today, w.day)}&slot=${w.start}`;
+      link = `/product-detail.html?id=${courts[w.courtId][0].id}&date=${addDays(today, w.day)}&slot=${w.start}`;
     }
     await tx.query('INSERT INTO notifications (user_id, booking_id, message, link, is_read, created_at) VALUES (?, ?, ?, ?, ?, ?)', [
       n.userId, bookingId, n.message, link, n.isRead ? 1 : 0, ago(n.minAgo),

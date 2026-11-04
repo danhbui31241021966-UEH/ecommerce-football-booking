@@ -73,7 +73,7 @@ await step(p, 'phone', '03-customer-sees-booked-and-cannot-double-book', async (
   await loginAs(p, 'khach1@datsan.local');
   must((await slotOf(D, 1, S1)).status === 'booked', 'khách thấy giờ chưa đặt');
   const r = await attempt(`a=>a.createBooking({courtId:1,date:'${D}',start:'${S1}'})`); must(!r.ok && r.status === 409, 'khách đặt trùng được: ' + JSON.stringify(r));
-  await p.goto(`${U}/venue?id=1&date=${D}`); await p.waitForSelector('#grid .slot', { state: 'attached' });
+  await p.goto(`${U}/product-detail?id=1&date=${D}`); await p.waitForSelector('#grid .slot', { state: 'attached' });
   must(await p.locator('#grid .slot-booked').count() > 0 && (await p.locator(`#grid [data-pick][data-start="${S1}"][data-court="1"]`).count()) === 0, 'ô đã đặt vẫn bấm được trên trang sân');
   const mine = (await attempt('a=>a.myBookings()')).r; must(!mine.some((x) => x.code === B1.code), 'lịch điện thoại lọt vào Lịch đặt của khách');
   const bk = await attempt(`a=>a.booking(${B1.id})`); must(!bk.ok && [403, 404].includes(bk.status), 'khách xem được lịch của người khác');

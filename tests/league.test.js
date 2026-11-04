@@ -604,7 +604,7 @@ test('dữ liệu demo: ba giải mẫu ở sân demo, trạng thái và bảng 
   assert.ok(detail.matches.filter((m) => !m.score).every((m) => m.held && m.status === 'scheduled'));
   const owner = app.agent();
   const ownerRow = await h.db.one('SELECT email FROM users WHERE id = (SELECT owner_id FROM venues WHERE id = 1)');
-  assert.equal((await owner.post('/api/auth/login', { email: ownerRow.email, password: require('../public/mock/users.json').demoPassword })).status, 200);
+  assert.equal((await owner.post('/api/auth/login', { email: ownerRow.email, password: require('../mock/users.json').demoPassword })).status, 200);
   const staff = (await owner.get(`/api/owner/leagues/${tp.id}`)).body;
   assert.ok(staff.matches.some((m) => m.history.some((e) => e.note === 'Nhập nhầm bàn thắng, đã xem lại biên bản')));
   assert.equal(staff.teams.find((t) => t.name === 'Hẻm 62').feePaid, true);

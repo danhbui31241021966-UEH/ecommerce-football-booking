@@ -2,7 +2,7 @@ import { start, step, save, loginAs, api, U, W, logs, anchor, pickCourt, pickAny
 const { b, p } = await start();
 const toast = async () => { await p.waitForSelector('.toast', { timeout: 4000 }); return (await p.locator('.toast').last().innerText()).replace(/\n/g,' '); };
 const today = async () => (await api(p, 'a=>a.meta()')).now.slice(0, 10);
-const openSlot = async (venueId, date, start, court) => { await p.goto(`${U}/venue?id=${venueId}&date=${date}&slot=${start}&court=${court}`); await p.locator('#grid .slot:visible').first().waitFor(); };
+const openSlot = async (venueId, date, start, court) => { await p.goto(`${U}/product-detail?id=${venueId}&date=${date}&slot=${start}&court=${court}`); await p.locator('#grid .slot:visible').first().waitFor(); };
 const bookUI = async (venueId, date, start, court) => { await openSlot(venueId, date, start, court); await p.locator('[data-pick][aria-pressed=true]:visible').first().waitFor(); await p.click('#bar-book'); await p.waitForSelector('#confirm-dialog[open]'); await p.click('#do-book'); await p.waitForURL(/\/booking(\.html)?(?=[?#]|$)/); await p.waitForSelector('.booking-code'); return (await p.locator('.booking-code').innerText()).trim(); };
 const NOW0 = await anchor(p, process.argv[3] || '08:00');
 const D = NOW0.slice(0, 10);

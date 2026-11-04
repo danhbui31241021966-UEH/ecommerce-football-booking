@@ -47,7 +47,7 @@ try {
   const desired = times.find(t => t >= '18:00') || times[0];
   if (desired) await timeSelect.selectOption(desired);
   await page.locator('#search button[type=submit]').click();
-  await page.waitForURL(/venues/);
+  await page.waitForURL(/products/);
   await page.locator('.venue-card').first().waitFor();
   const resultsMetrics = await page.evaluate(() => {
     const slot = document.querySelector('.venue-card .slot-pill:not(.more)');
@@ -57,7 +57,7 @@ try {
   let slot = page.locator('.venue-card .slot-pill:not(.more)').first();
   if (!await slot.count()) throw new Error('Không tìm được giờ trống trên kết quả');
   await slot.click();
-  await page.waitForURL(/venue/);
+  await page.waitForURL(/product-detail/);
   await page.locator('#grid').waitFor();
   const firstSlotMetrics = await page.evaluate(() => {
     const slot = [...document.querySelectorAll('.slot-mobile [data-pick], .slot-desktop [data-pick]')].find(e => e.getClientRects().length);

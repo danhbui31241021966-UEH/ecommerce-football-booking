@@ -33,7 +33,7 @@ async function candidates() {
 }
 
 async function bookUI(slot) {
-  await p.goto(`${U}/venue?id=${slot.venue}&date=${slot.date}&slot=${slot.start}&court=${slot.court}`);
+  await p.goto(`${U}/product-detail?id=${slot.venue}&date=${slot.date}&slot=${slot.start}&court=${slot.court}`);
   await p.locator('[data-pick][aria-pressed=true]:visible').first().waitFor({ timeout: 15000 });
   await p.click('#bar-book'); await p.waitForSelector('#confirm-dialog[open]'); await p.click('#do-book');
   await p.waitForURL(/\/booking(\.html)?(?=[?#]|$)/, { timeout: 15000 }); await p.waitForSelector('.booking-code');
