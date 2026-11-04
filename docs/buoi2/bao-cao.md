@@ -207,7 +207,7 @@ Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc w
 
 *Nguồn: `public/css/app.css`*
 
-**Logo.** Chữ GGO viết bằng Archivo hẹp, đậm 850, đã chuyển thành nét (ảnh SVG `public/img/logo-ggo-dark.svg` và `logo-ggo-light.svg`, không phụ thuộc font); lòng chữ O tô lime `#d9f23d`. Header và footer chỉ dùng chữ GGO này. Ô lime có chữ G (`public/img/favicon.svg`, kèm PNG 16/32 và `apple-touch-icon.png`) dùng làm favicon; ảnh chia sẻ của các trang tĩnh là `public/img/og-ggo.png`.
+**Logo.** Chữ GGO viết bằng Archivo hẹp, đậm 850, đã chuyển thành nét (ảnh SVG `public/img/logo-ggo-dark.svg` và `logo-ggo-light.svg`, không phụ thuộc font); lòng chữ O tô lime `#d9f23d`. Header và footer chỉ dùng chữ GGO này. Ô lime có chữ G (`public/img/favicon.svg`, kèm PNG 16/32 và `apple-touch-icon.png`) dùng làm favicon, cùng file `public/favicon.ico` (16 và 32 px) cho trình duyệt tự gọi `/favicon.ico`; mọi link icon có `?v=2` để trình duyệt bỏ icon cũ trong cache; ảnh chia sẻ của các trang tĩnh là `public/img/og-ggo.png`.
 
 ## 3.3. Điều hướng giữa 4 trang
 
@@ -442,7 +442,7 @@ Nhóm đo bằng Playwright trên Chrome, chạy bản dữ liệu mẫu ở má
 | 1 | Một số nút **nhỏ hơn 44 px**, khó bấm trên điện thoại | 390 px: nút Đăng nhập, chip lọc, nút "Báo tôi khi trống", nút mở menu | Thêm khối `@media (max-width: 639.98px)` đặt `min-height: 44px` cho nút nhỏ, chip, nút chọn; nút menu 44×44 px | Đăng nhập 34 → 44 px; chip 36 → 44 px; "Báo tôi khi trống" 33 → 44 px; nút menu 40 → 44 px; ô chọn ở trang chủ 26 → 48 px. Không còn nút nào dưới 44 px |
 | 2 | Tên sân (liên kết xem chi tiết) **không có hiệu ứng hover riêng** | Danh sách sân, mọi khổ | Gạch chân 2 px trong suốt, hover thì đổi sang màu chữ, có `transition` | Gạch chân hiện khi hover, kích thước tên giữ nguyên, không xê dịch |
 | 3 | **Chưa có trang giới thiệu** và chưa có liên kết tới nó | Trang chủ | Thêm `about.html`, liên kết ở cuối trang chủ và ở footer mọi trang | Trang trả 200, không tràn ngang ở 3 khổ |
-| 4 | **Vòng focus gần như không thấy trên nền tối**: viền màu `#15150f` trên header `#0d0e0b` | Header, menu điện thoại, mọi khổ | Vòng focus dùng biến `--focus`: màu chữ trên nền sáng, lime trên nền tối | Độ tương phản 1,06:1 → 15,41:1 |
+| 4 | **Vòng focus gần như không thấy trên nền tối**: viền màu `#15150f` trên header `#0d0e0b` | Header, menu điện thoại, mọi khổ | Vòng focus dùng biến `--focus`: màu chữ trên nền sáng, lime trên nền tối | Độ tương phản vòng focus trên header: 1,06:1 → 15,41:1 (lime trên `#0d0e0b`) |
 | 5 | Menu điện thoại đã đóng **vẫn nhận phím Tab** | 768 / 390 px | Thêm `visibility: hidden` khi menu đóng | Tab không còn rơi vào liên kết ẩn |
 | 6 | Mục "Sân còn trống" ở trang chủ là **băng cuộn ngang** | Trang chủ, 768 / 390 px | Giữ nguyên vì cố ý theo thiết kế, có chữ "Vuốt ngang để xem thêm" | Không tạo cuộn ngang cho cả trang |
 | 7 | Ba chip chọn ngày ở trang chi tiết sân cao **41 px** ở 390 px, thấp hơn mức 44 px (phát hiện khi đo lại sau đợt cải thiện) | Chi tiết sân, 390 px | **Đã xử lý** (commit `8838bcc`): chip cao tối thiểu 44 px ở 390 px | 41 px → 44 px |
@@ -537,11 +537,22 @@ Kiểm theo thứ tự:
 - **Thẻ sân:** `.card-hover:hover` đổi màu viền. Tên sân trong thẻ hiện gạch chân khi hover.
 - Người dùng bật chế độ giảm chuyển động trong máy (`prefers-reduced-motion`) thì các hiệu ứng được tắt.
 
+*Bảng 8.1. Màu vòng focus và độ tương phản theo từng nền*
+
+| Vùng | Vòng focus | Nền ngay quanh vòng | Tương phản | Căn cứ trong `public/css/app.css` |
+| --- | --- | --- | --- | --- |
+| Header, menu điện thoại, footer, banner, hộp demo | lime `#d9f23d` | `#0d0e0b` | 15,41:1 | `.site-header, .mobile-nav, … { --focus: var(--lime-400); }` (dòng 143–151) |
+| Phần còn lại của trang: liên kết, thẻ, nút Đặt sân | mực `#15150f` | `#f6f4ee` (nền trang) hoặc `#fffefa` (thẻ) | 16,66:1 hoặc 18,16:1 | `:root { --focus: var(--text); }` (dòng 140–142) |
+| Nút lime trong khung tìm kiếm trang chủ | mực `#15150f`, vẽ vào trong nút | lime `#d9f23d` | 14,59:1 | `.search-panel { --focus: var(--text); }` và `.search-panel .btn:focus-visible { outline-offset: -4px; }` (dòng 153–159) |
+| Trước khi sửa, ở header | mực `#15150f` | `#0d0e0b` | 1,06:1 | quy tắc chung dùng `var(--text)` cho mọi nền |
+
+Các số 15,41:1 và 14,59:1 đều đúng: chúng nói về hai cặp màu khác nhau (lime trên nền đen và mực trên nền lime). Cả hai đều vượt mức tối thiểu 3:1.
+
 Mỗi ảnh dưới đây đặt hai trạng thái cạnh nhau: "Bình thường" và "Hover" hoặc "Focus (Tab)". Vị trí và kích thước phần tử được đo trước và sau: không phần tử nào bị xê dịch.
 
 ![Hình 8.1: Hover liên kết menu: chữ "Trang chủ" sáng lên](screens/hover-lien-ket-menu.png)
 
-![Hình 8.2: Focus liên kết menu bằng phím Tab: vòng lime rõ trên nền tối (tương phản 15,41:1)](screens/focus-lien-ket-menu.png)
+![Hình 8.2: Focus liên kết menu bằng phím Tab: vòng lime #d9f23d trên nền header #0d0e0b, tương phản 15,41:1](screens/focus-lien-ket-menu.png)
 
 ![Hình 8.3: Focus nút mở menu ở 390 px](screens/focus-nut-menu.png)
 
@@ -564,7 +575,7 @@ Mỗi ảnh dưới đây đặt hai trạng thái cạnh nhau: "Bình thường
 
 **Câu 2. Vì sao không nên loại bỏ hoàn toàn đường viền focus mà không có phương án thay thế?**
 
-Người dùng bàn phím sẽ không biết mình đang đứng ở liên kết hay nút nào, bấm Enter mà không biết sẽ mở cái gì. Như vậy web không dùng được với bàn phím, vi phạm nguyên tắc dễ tiếp cận. Nếu thấy viền mặc định xấu, hãy thay bằng kiểu khác đủ rõ chứ không xóa. GGO từng gặp trường hợp viền có nhưng gần như vô hình: màu đen trên header đen, tương phản 1,06:1. Nhóm đã sửa thành lime trên nền tối (15,41:1).
+Người dùng bàn phím sẽ không biết mình đang đứng ở liên kết hay nút nào, bấm Enter mà không biết sẽ mở cái gì. Như vậy web không dùng được với bàn phím, vi phạm nguyên tắc dễ tiếp cận. Nếu thấy viền mặc định xấu, hãy thay bằng kiểu khác đủ rõ chứ không xóa. GGO từng gặp trường hợp viền có nhưng gần như vô hình: màu đen trên header đen, tương phản 1,06:1. Nhóm đã sửa thành lime `#d9f23d` trên nền tối `#0d0e0b` (15,41:1; các cặp màu khác xem Bảng 8.1).
 
 **Câu 3. Nếu hiệu ứng hover làm thẻ sản phẩm che mất thẻ bên cạnh, nhóm sẽ xử lý ra sao?**
 
@@ -599,7 +610,7 @@ Ngoài kiểm bằng mắt, nhóm có bộ kiểm thử tự động trên trìn
 | TC13 | Responsive | Đếm cột danh sách | 3 / 2 / 1 cột | Đạt |
 | TC14 | Responsive | Đo vùng bấm ở 390 px | ≥ 44 px | Đạt sau khi sửa (Bảng 7.2) |
 | TC15 | Hover/focus | Di chuột lên menu, nút, thẻ, tên sân | Có thay đổi rõ, không xê dịch | Đạt (Hình 8.1–8.6) |
-| TC16 | Hover/focus | Bấm Tab qua toàn trang | Thấy rõ vòng focus trên mọi nền | Đạt sau khi sửa: tương phản ≥ 14,59:1 |
+| TC16 | Hover/focus | Bấm Tab qua toàn trang | Thấy rõ vòng focus trên mọi nền | Đạt sau khi sửa: thấp nhất 14,59:1 (mực trên nút lime), 15,41:1 (lime trên nền tối), 16,66–18,16:1 (mực trên nền sáng); xem Bảng 8.1 |
 
 *Nguồn: Nhóm tác giả*
 
@@ -693,16 +704,28 @@ Nhóm làm web với sự hỗ trợ **lớn** của AI (viết mã, viết ki�
 
 ## 10.2. Dự đoán kết quả khi đổi `repeat(4, 1fr)` thành `repeat(2, 1fr)`
 
+Đề cho đoạn mã sau (trích nguyên văn):
+
 ```
 .product-list { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
 ```
 
-Đổi `repeat(4, 1fr)` thành `repeat(2, 1fr)` thì:
-- lưới từ **4 cột** còn **2 cột**;
-- mỗi thẻ rộng gần **gấp đôi**, vì `1fr` là một phần bằng nhau của chiều rộng còn lại sau khi trừ khoảng cách. Với 2 cột thì chỉ trừ 1 khoảng 16 px thay vì 3;
-- số hàng tăng gấp đôi: 8 sản phẩm từ 2 hàng thành 4 hàng, nên trang dài hơn;
-- ảnh trong thẻ to hơn; nếu ảnh có tỉ lệ cố định thì thẻ cũng cao hơn;
-- `gap: 16px` giữ nguyên.
+Trong GGO, lưới thẻ sân ở trang danh sách là `.card-grid` (`public/css/app.css`, dòng 2380–2394, dùng ở `venues.html`):
+
+```
+.card-grid { display: grid; gap: var(--sp-4); grid-template-columns: 1fr; }
+@media (min-width: 720px)  { .card-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1100px) { .card-grid { grid-template-columns: repeat(3, 1fr); } }
+```
+
+(`--sp-4` là 16 px, nên `gap` giống ví dụ của đề.) Ví dụ tương ứng ở GGO là đổi `repeat(3, 1fr)` ở khổ từ 1100 px thành `repeat(2, 1fr)`. Kết quả:
+- lưới từ **3 cột** còn **2 cột**;
+- mỗi thẻ rộng hơn: ở 1366 px, vùng nội dung rộng khoảng 1132 px; ba cột mỗi thẻ khoảng 366 px, hai cột mỗi thẻ khoảng 558 px (1132 trừ một khoảng 16 px, chia đôi). Khi 3 cột, hai khoảng 16 px bị trừ, nên 1fr nhỏ hơn;
+- số hàng tăng: với 40 sân của dữ liệu mẫu khi chưa lọc, từ 14 hàng (40 ÷ 3, làm tròn lên) thành 20 hàng (40 ÷ 2), trang dài hơn;
+- ảnh trong thẻ to hơn; ảnh có `aspect-ratio` cố định nên thẻ cũng cao hơn;
+- `gap: var(--sp-4)` (16 px) giữ nguyên.
+
+Với ví dụ của đề (`repeat(4, 1fr)` → `repeat(2, 1fr)`) lập luận giống hệt: 4 cột còn 2 cột, mỗi thẻ gần gấp đôi chiều rộng, số hàng gấp đôi (8 sản phẩm từ 2 hàng thành 4 hàng).
 
 Lý do: `repeat(n, 1fr)` quyết định số cột, còn các thẻ tự xếp lần lượt vào ô trống, hết hàng thì xuống hàng mới. Ở GGO, chính thuộc tính này đổi theo `@media`: 1 cột trên điện thoại, 2 cột từ 720 px, 3 cột từ 1100 px.
 
@@ -770,7 +793,7 @@ Ví dụ thực tế ở GGO: khi đo ở 768 và 390 px, các thẻ của băng
 - **Đề xuất của AI:** khi viết CSS, AI dùng một kiểu vòng focus cho toàn web: `:focus-visible { outline: 2px solid var(--text); }`, màu `#15150f`.
 - **Cách kiểm:** bấm Tab qua từng trang ở 390 và 1366 px, chụp ảnh mỗi lần Tab và đo độ tương phản giữa vòng focus với nền ngay quanh nó.
 - **Kết quả thực tế:** trên nền sáng thì rõ. Nhưng trên header tối `#0d0e0b`, độ tương phản chỉ **1,06:1**, gần như vô hình (mức tối thiểu nên đạt là 3:1). Khi kiểm, nhóm còn phát hiện menu điện thoại đã đóng vẫn nhận phím Tab.
-- **Cách điều chỉnh:** đổi màu vòng focus theo nền bằng biến `--focus` (lime `#d9f23d` trên nền tối), thêm `visibility: hidden` cho menu đóng. Đo lại được **15,41:1**.
+- **Cách điều chỉnh:** đổi màu vòng focus theo nền bằng biến `--focus` (lime `#d9f23d` trên nền tối), thêm `visibility: hidden` cho menu đóng. Đo lại được **15,41:1** (lime `#d9f23d` trên `#0d0e0b`; các nền khác xem Bảng 8.1).
 - **Rút ra:** đề xuất của AI đúng cú pháp và trông hợp lý khi đọc mã, nhưng chỉ kiểm trên trình duyệt, đúng thao tác và đúng nền màu mới thấy lỗi. Nhóm không chấp nhận một đề xuất chỉ vì nó "chạy được"; phải có số đo trước và sau.
 
 # XI. Phụ lục

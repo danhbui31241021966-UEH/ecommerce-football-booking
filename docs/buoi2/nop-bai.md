@@ -33,7 +33,7 @@ Vì vậy **không viết là "chỉ dùng HTML/CSS"**. Phần HTML/CSS là các
 ## 2. Trang chủ
 
 - **File:** `public/index.html` + `public/css/app.css`, header/footer dựng bởi `public/js/ui/shell.js`, nội dung bởi `public/js/index-page.js`.
-- **Logo:** Chữ GGO viết bằng Archivo hẹp, đậm 850, đã chuyển thành nét (ảnh SVG `public/img/logo-ggo-dark.svg` và `logo-ggo-light.svg`, không phụ thuộc font); lòng chữ O tô lime `#d9f23d`. Header và footer chỉ dùng chữ GGO này. Ô lime có chữ G (`public/img/favicon.svg`, kèm PNG 16/32 và `apple-touch-icon.png`) dùng làm favicon; ảnh chia sẻ của các trang tĩnh là `public/img/og-ggo.png`.
+- **Logo:** Chữ GGO viết bằng Archivo hẹp, đậm 850, đã chuyển thành nét (ảnh SVG `public/img/logo-ggo-dark.svg` và `logo-ggo-light.svg`, không phụ thuộc font); lòng chữ O tô lime `#d9f23d`. Header và footer chỉ dùng chữ GGO này. Ô lime có chữ G (`public/img/favicon.svg`, kèm PNG 16/32 và `apple-touch-icon.png`) dùng làm favicon, cùng file `public/favicon.ico` (16 và 32 px) cho trình duyệt tự gọi `/favicon.ico`; mọi link icon có `?v=2` để trình duyệt bỏ icon cũ trong cache; ảnh chia sẻ của các trang tĩnh là `public/img/og-ggo.png`.
 - **Header:** logo "GGO" (`.brand`, ảnh SVG), menu `<nav class="nav">` với Trang chủ, Tìm sân và mục **Thêm** (Pass sân, Ghép kèo, Giải đấu, Nhờ báo giá), nút Đăng nhập (`shell.js`, hằng `NAV`).
 - **Footer:** `footer.site-footer` dựng bởi `shell.js`: logo GGO, khẩu hiệu "Thấy sân trống, đặt là đá." (`.footer-slogan`), một dòng mô tả, liên kết "Giới thiệu GGO" và chữ GGO cỡ lớn ở cuối (`.footer-wordmark`, là ảnh SVG `logo-ggo-dark.svg`, không phải chữ vẽ bằng CSS).
 - **Banner:** `section.match-hero` có ảnh (`hero-1920.jpg`, ảnh dọc riêng cho màn nhỏ bằng `<picture>`), tiêu đề `h1` "Đặt sân bóng mini", lời dẫn, form tìm sân (ngày, giờ, loại sân, khu vực; lời kêu gọi hành động) và cột "Tối nay còn trống" với liên kết "Xem thêm".
@@ -109,8 +109,8 @@ Trong mã (`public/css/app.css`):
 | Phần tử | Ảnh | Thay đổi đo được |
 | --- | --- | --- |
 | Liên kết menu (hover) | ![](screens/hover-lien-ket-menu.png) | Chữ "Trang chủ" đổi từ `#c9c6b9` sang `#f6f4ee`, `transition: color 0.18s` |
-| Liên kết menu (focus bằng Tab) | ![](screens/focus-lien-ket-menu.png) | Có vòng `outline` lime 2 px bo tròn quanh chữ "Trang chủ", nhìn rõ trên nền header tối: tương phản **15,41:1** (trước khi sửa là `#15150f` trên `#0d0e0b`, **1,06:1**). Gạch lime dưới "Tìm sân" (ảnh "Bình thường") là dấu "trang đang mở", không phải dấu focus |
-| Nút mở menu ở 390 px (focus bằng Tab) | ![](screens/focus-nut-menu.png) | Vòng lime 2 px quanh nút 44×44 px, tương phản **15,41:1** với header tối (trước: 1,06:1) |
+| Liên kết menu (focus bằng Tab) | ![](screens/focus-lien-ket-menu.png) | Có vòng `outline` lime 2 px bo tròn quanh chữ "Trang chủ", nhìn rõ trên nền header tối: tương phản **15,41:1** (lime `#d9f23d` trên `#0d0e0b`; trước khi sửa là `#15150f` trên `#0d0e0b`, **1,06:1**). Gạch lime dưới "Tìm sân" (ảnh "Bình thường") là dấu "trang đang mở", không phải dấu focus |
+| Nút mở menu ở 390 px (focus bằng Tab) | ![](screens/focus-nut-menu.png) | Vòng lime 2 px quanh nút 44×44 px, tương phản **15,41:1** (lime `#d9f23d` trên header `#0d0e0b`; trước: 1,06:1) |
 | Nút xem chi tiết: tên sân trong thẻ (hover) | ![](screens/hover-xem-chi-tiet.png) | Gạch chân 2 px đổi từ trong suốt sang `#15150f`, `transition: text-decoration-color 0.18s`; kích thước giữ nguyên 332,7×24,2 px. Viền thẻ chứa nó đổi như thẻ sân. Trước khi sửa: tên sân không đổi gì (`transition: all 0s`) |
 | Nút Đặt sân (hover) | ![](screens/hover-nut-dat-san.png) | Nền lime `#d9f23d` nhạt sang `#e6f77a`, `transition: background, border-color 0.18s` |
 | Thẻ sân (hover) | ![](screens/hover-the-san.png) | Viền đổi từ `#dedacd` sang `#15150f`, `transition: border-color 0.18s`, kích thước giữ nguyên 661×367 px |
