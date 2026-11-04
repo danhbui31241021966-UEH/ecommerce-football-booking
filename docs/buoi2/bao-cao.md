@@ -41,7 +41,7 @@ Quy ước ánh xạ theo đề: "sản phẩm" là **sân bóng**, "nút mua" l
 | --- | --- | --- |
 | Header (logo, menu, nút Đăng nhập) | `<header class="site-header">` trong `public/js/ui/shell.js` | Mọi trang |
 | Menu điện thoại | `<nav class="mobile-nav">`, nút `.menu-btn` | Mọi trang, dưới 900 px |
-| Footer (logo GGO, khẩu hiệu, liên kết Giới thiệu, chữ GGO cỡ lớn) | `<footer class="site-footer">` trong `shell.js` | Mọi trang |
+| Footer (logo GGO, khẩu hiệu, liên kết Giới thiệu, chữ GGO cỡ lớn là ảnh SVG) | `<footer class="site-footer">` trong `shell.js` | Mọi trang |
 | Nút | `.btn`, `.btn-lime`, `.btn-primary`, `.btn-sm`, `.btn-lg` | Mọi trang |
 | Thẻ sân | `.card.card-hover.venue-card` | Trang chủ, danh sách sân |
 | Chip lọc, ô giờ | `.chip`, `.slot-pill` | Trang chủ, danh sách, chi tiết |
@@ -207,6 +207,8 @@ Các trang liên kết CSS và ảnh bằng đường dẫn **tính từ gốc w
 
 *Nguồn: `public/css/app.css`*
 
+**Logo.** Chữ GGO viết bằng Archivo hẹp, đậm 850, đã chuyển thành nét (ảnh SVG `public/img/logo-ggo-dark.svg` và `logo-ggo-light.svg`, không phụ thuộc font); lòng chữ O tô lime `#d9f23d`. Header và footer chỉ dùng chữ GGO này. Ô lime có chữ G (`public/img/favicon.svg`, kèm PNG 16/32 và `apple-touch-icon.png`) dùng làm favicon; ảnh chia sẻ của các trang tĩnh là `public/img/og-ggo.png`.
+
 ## 3.3. Điều hướng giữa 4 trang
 
 - Menu trên header có **Trang chủ** và **Tìm sân** (đi tới danh sách sân), cùng mục **Thêm** gom Pass sân, Ghép kèo, Giải đấu và Nhờ báo giá (trên điện thoại hiện thẳng dưới nhãn "Thêm").
@@ -241,7 +243,7 @@ Header dùng thẻ semantic `<header>` chứa logo, `<nav>` chứa menu và nút
 ```
 <header class="site-header">
   <div class="container">
-    <a class="brand" href="/">…dấu logo…<span>GGO</span></a>
+    <a class="brand" href="/"><img class="brand-word" src="/img/logo-ggo-dark.svg" alt="GGO" width="56" height="24"></a>
     <nav class="nav" aria-label="Điều hướng chính">…các liên kết…</nav>
     <div class="header-actions">
       <a class="btn btn-lime btn-sm" href="/login.html">Đăng nhập</a>
@@ -474,8 +476,8 @@ Nhóm đo bằng Playwright trên Chrome, chạy bản dữ liệu mẫu ở má
 | --- | --- | --- |
 | Số lần bấm cho tới khi có đơn (kèm số ô phải nhập) | 6 + 2 ô → 5 + 2 ô | 6 + 2 ô → 5 + 2 ô |
 | Giờ trống đầu tiên ở trang kết quả, tính theo chiều cao màn hình (trên 100% là phải cuộn) | 126% → 72% | 99% → 68% |
-| Chiều dài trang chủ | 4731 → 3787 px | 3779 → 2997 px |
-| Header và logo hiện ra sau | 284 → 64 ms | 109 → 44 ms |
+| Chiều dài trang chủ | 4731 → 3768 px | 3779 → 2932 px |
+| Header và logo hiện ra sau | 284 → 59 ms | 109 → 57 ms |
 
 Ở trang sân, 390 × 844 px: hàng giờ đầu tiên trước đây nằm ở y 750–816 và bị thanh đặt sân (y 763) che một phần; nay ở y 627–693 (đo sau khi chip ngày cao thêm lên 44 px), không bị che vì thanh đặt sân vẫn ở y 763. Ở 1366 px không đổi (y 489–553).
 

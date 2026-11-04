@@ -33,8 +33,9 @@ Vì vậy **không viết là "chỉ dùng HTML/CSS"**. Phần HTML/CSS là các
 ## 2. Trang chủ
 
 - **File:** `public/index.html` + `public/css/app.css`, header/footer dựng bởi `public/js/ui/shell.js`, nội dung bởi `public/js/index-page.js`.
-- **Header:** logo "GGO" (`.brand`), menu `<nav class="nav">` với Trang chủ, Tìm sân và mục **Thêm** (Pass sân, Ghép kèo, Giải đấu, Nhờ báo giá), nút Đăng nhập (`shell.js`, hằng `NAV`).
-- **Footer:** `footer.site-footer` dựng bởi `shell.js`: logo GGO, khẩu hiệu "Thấy sân trống, đặt là đá." (`.footer-slogan`), một dòng mô tả, liên kết "Giới thiệu GGO" và chữ GGO cỡ lớn ở cuối (`.footer-wordmark`).
+- **Logo:** Chữ GGO viết bằng Archivo hẹp, đậm 850, đã chuyển thành nét (ảnh SVG `public/img/logo-ggo-dark.svg` và `logo-ggo-light.svg`, không phụ thuộc font); lòng chữ O tô lime `#d9f23d`. Header và footer chỉ dùng chữ GGO này. Ô lime có chữ G (`public/img/favicon.svg`, kèm PNG 16/32 và `apple-touch-icon.png`) dùng làm favicon; ảnh chia sẻ của các trang tĩnh là `public/img/og-ggo.png`.
+- **Header:** logo "GGO" (`.brand`, ảnh SVG), menu `<nav class="nav">` với Trang chủ, Tìm sân và mục **Thêm** (Pass sân, Ghép kèo, Giải đấu, Nhờ báo giá), nút Đăng nhập (`shell.js`, hằng `NAV`).
+- **Footer:** `footer.site-footer` dựng bởi `shell.js`: logo GGO, khẩu hiệu "Thấy sân trống, đặt là đá." (`.footer-slogan`), một dòng mô tả, liên kết "Giới thiệu GGO" và chữ GGO cỡ lớn ở cuối (`.footer-wordmark`, là ảnh SVG `logo-ggo-dark.svg`, không phải chữ vẽ bằng CSS).
 - **Banner:** `section.match-hero` có ảnh (`hero-1920.jpg`, ảnh dọc riêng cho màn nhỏ bằng `<picture>`), tiêu đề `h1` "Đặt sân bóng mini", lời dẫn, form tìm sân (ngày, giờ, loại sân, khu vực; lời kêu gọi hành động) và cột "Tối nay còn trống" với liên kết "Xem thêm".
 - **Sân nổi bật:** băng thẻ "Sân còn trống" (`#venue-list`) kèm giờ trống bấm được, và cột "Tối nay còn trống" (`#tonight-rows`).
 - **Liên kết tới trang danh sách:** form `action="/venues.html"` và liên kết "Xem tất cả sân".
@@ -187,8 +188,8 @@ Một ghi nhận khác, không phải lỗi: `docs/TASKS.md` mục T6 ghi "Đã 
 | --- | --- | --- |
 | Số lần bấm cho tới khi có đơn (kèm số ô phải nhập) | 6 + 2 ô → 5 + 2 ô | 6 + 2 ô → 5 + 2 ô |
 | Giờ trống đầu tiên ở trang kết quả, tính theo chiều cao màn hình (trên 100% là phải cuộn) | 126% → 72% | 99% → 68% |
-| Chiều dài trang chủ | 4731 → 3787 px | 3779 → 2997 px |
-| Header và logo hiện ra sau | 284 → 64 ms | 109 → 44 ms |
+| Chiều dài trang chủ | 4731 → 3768 px | 3779 → 2932 px |
+| Header và logo hiện ra sau | 284 → 59 ms | 109 → 57 ms |
 
 Ở trang sân, 390 × 844 px: hàng giờ đầu tiên trước đây nằm ở y 750–816 và bị thanh đặt sân (y 763) che một phần; nay ở y 627–693 (đo sau khi chip ngày cao thêm lên 44 px), không bị che vì thanh đặt sân vẫn ở y 763. Ở 1366 px không đổi (y 489–553).
 
