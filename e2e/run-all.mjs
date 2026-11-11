@@ -3,7 +3,7 @@ import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import { fileURLToPath } from 'node:url';
 const dir = fileURLToPath(new URL('.', import.meta.url));
-const flows = ['f-auth-intent', 'f12', 'f345', 'f-transfer', 'f-match', 'f-request', 'f-stake', 'f-phone', 'f-owner-ux', 'f-league', 'f-leagues-public', 'f-home', 'f-live-smoke', 'adm-refund', 'seo', 'f-autopay'];
+const flows = ['f-auth-intent', 'f12', 'f345', 'f-transfer', 'f-match', 'f-request', 'f-stake', 'f-phone', 'f-owner-ux', 'f-league', 'f-leagues-public', 'f-home', 'f-live-smoke', 'adm-refund', 'seo', 'f-autopay', 'b3-search'];
 const anchor = process.argv[2];
 fs.mkdirSync('e2e/out', { recursive: true });
 const lines = [];
