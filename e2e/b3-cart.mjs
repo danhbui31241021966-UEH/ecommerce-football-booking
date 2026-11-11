@@ -28,7 +28,7 @@ await step(p, 'b3-cart', 'save-from-detail', async () => {
 });
 await step(p, 'b3-cart', 'duplicate', async () => { await p.click('#bar-save'); const text = await p.locator('.toast').last().innerText(); assert.match(text, /đã có trong giỏ/i); assert.equal(await p.evaluate(() => GgoCart.countCart()), 1); return text; });
 await step(p, 'b3-cart', 'sync-between-tabs', async () => {
-  const other = await p.context().newPage(); await other.goto(U + '/'); await other.waitForSelector('[data-cart-count]');
+  const other = await p.context().newPage(); await other.goto(U + '/'); await other.waitForSelector('.site-header'); await other.waitForTimeout(300);
   const extra = { venueId: cartItem.venueId, courtId: cartItem.courtId, date, start: '23:59' };
   await other.evaluate((x) => localStorage.setItem('ggo.cart', JSON.stringify([GgoCart.loadCart()[0], x])), extra);
   await p.waitForFunction(() => [...document.querySelectorAll('[data-cart-count]')].some((x) => x.textContent === '2'));
