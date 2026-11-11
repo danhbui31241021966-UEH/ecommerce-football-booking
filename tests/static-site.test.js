@@ -22,7 +22,7 @@ test('gốc repo chỉ phục vụ file tĩnh của trang, không lộ mã ngu�
 
 test('trang chính và tài nguyên tĩnh trả 200', async () => {
   await withServer(async (base) => {
-    for (const p of ['/', '/index.html', '/products', '/products.html', '/product-detail', '/product-detail.html?id=1', '/about', '/css/app.css', '/js/api.js', '/images/favicon.svg', '/fonts/fonts.css', '/mock/venues.json', '/robots.txt', '/sitemap.xml', '/favicon.ico']) {
+    for (const p of ['/', '/index.html', '/products', '/products.html', '/product-detail', '/product-detail.html?id=1', '/cart', '/cart.html', '/about', '/css/app.css', '/js/api.js', '/images/favicon.svg', '/fonts/fonts.css', '/mock/venues.json', '/robots.txt', '/sitemap.xml', '/favicon.ico']) {
       assert.equal((await get(base, p)).status, 200, `${p} phải là 200`);
     }
   });
@@ -42,6 +42,6 @@ test('link cũ chuyển hướng 301 sang link mới và giữ query', async () 
 test('danh sách tĩnh không chứa thư mục không phải trang, và _redirects khớp bảng chuyển hướng', () => {
   const names = staticEntries();
   for (const bad of ['src', 'db', 'tests', 'e2e', 'docs', 'scripts', 'node_modules', 'functions', 'data', '.env', 'package.json', 'README.md']) assert.ok(!names.includes(bad), bad);
-  for (const must of ['index.html', 'products.html', 'product-detail.html', 'about.html', 'css', 'images']) assert.ok(names.includes(must), must);
+  for (const must of ['index.html', 'products.html', 'product-detail.html', 'cart.html', 'about.html', 'css', 'images']) assert.ok(names.includes(must), must);
   assert.equal(redirectsFile().trim().split('\n').length, REDIRECTS.length);
 });

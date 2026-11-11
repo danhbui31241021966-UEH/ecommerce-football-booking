@@ -21,10 +21,10 @@ const goMenu = async (label) => {
   await click(`${NARROW ? '.mobile-nav' : '.site-header .nav'} a:has-text("${label}")`);
 };
 
-await step(p, 'ownux', '01-menu-has-four-items-and-demo-group', async () => {
+await step(p, 'ownux', '01-menu-has-five-items-and-demo-group', async () => {
   await reset(); await loginAs(p, OWNER); await gotoToday();
   const links = await p.locator('.site-header .nav a').allInnerTexts();
-  must(JSON.stringify(links) === JSON.stringify(['Hôm nay', 'Lịch sân', 'Khách nhờ báo giá', 'Cài đặt sân']), 'menu: ' + links);
+  must(JSON.stringify(links) === JSON.stringify(['Hôm nay', 'Lịch sân', 'Khách nhờ báo giá', 'Cài đặt sân', 'Giờ đã lưu 0']), 'menu: ' + links);
   if (NARROW) await p.click('.menu-btn'); // menu đóng thì ẩn hẳn: mở ra mới đọc được
   const mob = await p.locator('.mobile-nav a').allInnerTexts(); must(JSON.stringify(mob) === JSON.stringify(links), 'menu điện thoại: ' + mob);
   if (NARROW) await p.click('.menu-btn');

@@ -5,7 +5,7 @@ const b = await chromium.launch({ executablePath: process.env.CHROME_PATH || '/A
 const p = await b.newPage({ viewport: { width: 1280, height: 900 } });
 const errs=[]; p.on('console',m=>{if(m.type()==='error')errs.push(m.text())});
 const pub=['index','products','transfers','matches','leagues','about'];
-const noindex=['owner-leagues','owner-league','transfer','match','match-new','requests','request-new','request','login','register','booking','my-bookings','notifications','styleguide','owner','owner-bookings','owner-requests','owner-schedule','owner-settings','admin','admin-bookings','admin-logs'];
+const noindex=['owner-leagues','owner-league','transfer','match','match-new','requests','request-new','request','login','register','booking','my-bookings','notifications','styleguide','owner','owner-bookings','owner-requests','owner-schedule','owner-settings','admin','admin-bookings','admin-logs','cart'];
 const all=fs.readdirSync('.').filter(f=>f.endsWith('.html')).map(f=>f.slice(0,-5));
 let fail=0; const bad=(m)=>{fail++;console.log('FAIL',m)};
 for(const n of all) if(!pub.includes(n)&&n!=='product-detail'&&n!=='league'&&!noindex.includes(n)) bad('unclassified page '+n);

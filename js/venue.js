@@ -1,5 +1,6 @@
 // Màn 3 + 4: chi tiết sân, lưới giờ, thanh đặt và hộp xác nhận. ?id=&date=&slot=HH:mm&court=
 import { api, ApiError } from '/js/api.js';
+import '/js/cart.js';
 import { getUser, mountShell, toast } from '/js/ui/shell.js';
 import { $, countdown, decorate, esc, isCustomer, modeTag, policyStepsHtml, redirectToLogin } from '/js/ui/page.js';
 import { addDays, cancelDeadlines, dateOf, dayLabel, hmToMin, mmss, money, moneyShort, relativeDayLabel, secondsLeft, weekdayOf } from '/js/ui/format.js';
@@ -245,23 +246,27 @@ function paintBar() {
   bar.hidden = false;
   const s = picked && findSlot(picked.courtId, picked.start);
   const btn = $('bar-book');
+  const saveBtn = $('bar-save');
   const user = getUser();
   if (user && !isCustomer()) {
     $('bar-what').textContent = 'Chỉ tài khoản khách mới đặt được sân';
     $('bar-total').textContent = '';
     btn.disabled = true;
+    saveBtn.disabled = true;
     return;
   }
   if (!s) {
     $('bar-what').textContent = 'Chọn một giờ trống ở lưới phía trên';
     $('bar-total').textContent = '';
     btn.disabled = true;
+    saveBtn.disabled = true;
     return;
   }
   const court = courtById(picked.courtId);
   $('bar-what').innerHTML = `<b>${esc(venue.name)}</b>${esc(court.name)} · ${s.start}–${s.end} · ${esc(relativeDayLabel(date, today))}`;
   $('bar-total').textContent = money(s.price);
   btn.disabled = false;
+  saveBtn.disabled = false;
 }
 
 function paintPickedNote() {
@@ -390,6 +395,11 @@ function wire() {
     if (p) return pick(Number(p.dataset.court), p.dataset.start);
   });
   $('bar-book').addEventListener('click', openConfirm);
+  $('bar-save').addEventListener('click', () => {
+    if (!picked) return;
+    const added = GgoCart.addCart({ venueId, courtId: picked.courtId, date, start: picked.start });
+    toast(added ? 'Đã lưu giờ vào giỏ.' : 'Giờ này đã có trong giỏ.', { error: !added });
+  });
   $('do-book').addEventListener('click', submitBooking);
   $('confirm-dialog').querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => $('confirm-dialog').close()));
 }
