@@ -91,16 +91,16 @@ ecommerce-football-booking/
 
 ## Phân công thành viên
 
-| Thành viên | Vai trò |
-| --- | --- |
-| Danh | Leader |
-| Phong | UX/UI |
-| Phan Huy | UX/UI |
-| Hưng | Frontend |
-| Nam | Frontend |
-| Đạt | Backend |
-| Bằng | Backend |
-| Nghĩa | QA |
+| STT | Họ và tên | Vai trò | Nhiệm vụ Buổi 3 |
+| --- | --- | --- | --- |
+| 1 | Bùi Công Danh | Leader | Lập kế hoạch, thống nhất cấu trúc dữ liệu và quy ước đặt tên, rà soát và tích hợp các nhánh, hoàn thiện README |
+| 2 | Trương Thanh Phong | UX/UI | Thiết kế ô tìm kiếm, sắp xếp và bố cục trang Giỏ sân |
+| 3 | Phan Nhật Huy | UX/UI | Nội dung và trạng thái giao diện (giỏ trống, thêm trùng, giờ đã có người đặt), ảnh minh chứng responsive |
+| 4 | Lê Viết Chí Hưng | Frontend | Tìm theo tên và sắp xếp giá trên `products.html`, kết hợp với bộ lọc |
+| 5 | Lê Hoàng Nam | Frontend | Trang chi tiết đọc `URLSearchParams`, nút "Thêm vào giỏ sân", badge trên menu |
+| 6 | Nguyễn Thành Đạt | Backend | `saveCart`/`loadCart` với `localStorage`; trang giỏ lấy lại lịch và giá |
+| 7 | Trần Hữu Tuấn Bằng | Backend | Dữ liệu sân dùng chung, tìm theo tên ở API |
+| 8 | Chu Đình Nghĩa | QA | Bảng kiểm thử, kiểm thử tự động ở 390/1366 px, nhật ký lỗi |
 
 ## Tài liệu
 
