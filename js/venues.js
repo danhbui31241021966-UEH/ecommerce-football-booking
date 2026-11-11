@@ -169,6 +169,7 @@ function wire() {
   let searchTimer;
   $('f-name').addEventListener('input', () => {
     state.q = $('f-name').value.trim();
+    paintSummary();
     clearTimeout(searchTimer);
     searchTimer = setTimeout(load, 300);
   });
