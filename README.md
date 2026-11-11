@@ -121,7 +121,7 @@ Seed dữ liệu demo cung cấp tài khoản mẫu; mật khẩu chung là `Mat
 - Tìm kiếm và sắp xếp ban đầu nằm trong bộ lọc đang thu gọn nên người dùng không thấy; chuyển hai điều khiển ra ngoài.
 - Bố cục điều khiển bị chật ở màn 390 px; xếp dọc và cho ô sắp xếp dùng toàn chiều rộng trên điện thoại.
 - Sort giá làm sân hết giờ xen vào thứ tự sân còn giờ; tách hai nhóm rồi sort giá riêng trong mỗi nhóm.
-- Test sau F5 phụ thuộc vào text của `<option>` thay vì `value`; sửa assertion theo giá trị option (`asc`/`desc`).
+- Test sau F5 lấy `value` của option quận, nhưng option này không khai báo thuộc tính đó; chuyển test sang chọn theo nội dung text của option rồi kiểm tra giá trị bộ lọc đã khôi phục.
 - Giỏ hàng dùng chữ dễ hiểu nhầm là đặt chỗ hoặc cộng số lượng; đổi nội dung thành “Giờ đã lưu”, mỗi dòng một slot và nói rõ giá/tình trạng có thể đổi, giỏ không giữ giờ.
 
 ## Repository GitHub
