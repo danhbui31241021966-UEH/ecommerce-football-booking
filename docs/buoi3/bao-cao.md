@@ -21,7 +21,18 @@ Nhóm kế thừa GGO từ Buổi 1–2, không dựng lại website. Đề dùn
 
 Nhóm chốt tìm theo tên và sắp xếp giá tăng/giảm. Giỏ là danh sách các giờ cụ thể đã lưu; mỗi dòng là đúng một sân con, ngày và giờ. Không có nút `+`/`−`: cùng một khung giờ là một chỗ vật lý, không thể mua số lượng hai lần. Giỏ chỉ ghi nhớ lựa chọn, không giữ chỗ; khi khách đặt, hệ thống dùng luồng booking hiện tại và kiểm tra lại tình trạng/giá.
 
-README giữ bảng phân công vai trò của nhóm như đã có, không gán công việc cá nhân mới trong báo cáo này.
+README giữ bảng phân công vai trò hiện có; báo cáo chép lại nguyên văn, không gán công việc cá nhân mới.
+
+| Thành viên | Vai trò |
+|---|---|
+| Danh | Leader |
+| Phong | UX/UI |
+| Phan Huy | UX/UI |
+| Hưng | Frontend |
+| Nam | Frontend |
+| Đạt | Backend |
+| Bằng | Backend |
+| Nghĩa | QA |
 
 ## II. Bước 2 – Dữ liệu và trang danh sách sân
 
@@ -133,6 +144,4 @@ Nhóm làm việc trên repo chung, tính năng được tách commit có nội 
 
 ## Phụ lục: nguồn minh chứng
 
-- Tìm/sort: `e2e/b3-search.mjs`; ảnh `screens/search-sort-390.png`, `screens/search-sort-1280.png`; kiểm thử chạy trực tiếp ở prototype cổng 4123.
-- Giỏ: `e2e/b3-cart.mjs`, `tests/cart.test.js`; kết quả JSON `e2e/out/results-b3-cart-390.json`, `...-1280.json`, `...-1366.json`; ảnh `screens/cart-*.png`, `screens/cart-empty-*.png`, `screens/cart-detail-*.png`.
-- Code/data: `products.html`, `js/venues.js`, `js/cart.js`, `js/cart-page.js`, `js/venue.js`, `js/api.js`, `mock/venues.json`.
+- Mã minh chứng: E2E `e2e/b3-search.mjs`, `e2e/b3-cart.mjs`; unit `tests/cart.test.js`; ảnh `docs/buoi3/screens/` và kết quả giỏ `e2e/out/results-b3-cart-*.json`; code `js/venues.js`, `js/cart.js`, `js/cart-page.js`, `js/venue.js`.
