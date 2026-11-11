@@ -114,13 +114,55 @@ Nhóm duy trì mã nguồn chung và ghi nhận thay đổi theo từng phần c
 
 ## Câu hỏi kiểm tra kiến thức
 
-1. **Dữ liệu sân được sử dụng thống nhất như thế nào?** Danh sách và trang chi tiết lấy thông tin từ cùng nguồn. Giỏ sân chỉ lưu định danh sân, sân con, ngày và giờ; khi mở lại, website tải lịch và giá hiện tại.
-2. **Tìm kiếm và bộ lọc được kết hợp ra sao?** Website giữ từ khóa và tiêu chí như quận, loại sân, mức giá, thời điểm; kết quả chỉ gồm sân thỏa các lựa chọn và được sắp xếp theo giá đã chọn.
-3. **Trang chi tiết biết lựa chọn sân nào bằng cách nào?** `URLSearchParams` đọc mã sân và thông tin giờ từ đường dẫn để mở đúng lịch; lựa chọn không hợp lệ được báo cho người dùng.
-4. **Điều gì xảy ra khi thêm lại cùng một giờ?** Giờ được nhận diện theo sân, sân con, ngày và thời điểm bắt đầu; lựa chọn trùng không tạo thêm dòng.
-5. **Khi giỏ sân thay đổi, nội dung nào cập nhật?** Danh sách lựa chọn, số lượng trên menu, cảnh báo khả dụng và tổng tạm tính được cập nhật.
-6. **Vì sao sử dụng `localStorage`?** Cách lưu này giữ lựa chọn trên trình duyệt khi chuyển trang hoặc tải lại; nó không giữ chỗ và không thay thế dữ liệu lịch chính thức.
-7. **Nếu dữ liệu giỏ sân không hợp lệ thì xử lý thế nào?** `loadCart` kiểm tra cấu trúc, bỏ dữ liệu lỗi và chỉ giữ những lựa chọn có thể nhận diện.
-8. **Vì sao không có nút tăng hoặc giảm số lượng?** Mỗi sân con và khung giờ là một chỗ cụ thể; muốn chọn giờ khác, khách thêm một lựa chọn riêng.
-9. **AI được kiểm chứng ra sao?** Nhóm đối chiếu đề xuất với yêu cầu, thực hiện các luồng kiểm thử và kiểm tra giao diện; nội dung chưa có bằng chứng không được nêu như kết quả.
-10. **Giỏ sân có đảm bảo giờ được đặt không?** Không. Đây chỉ là danh sách tham khảo; website kiểm tra lại tình trạng khi khách tiếp tục đặt.
+1. **Dữ liệu sân được sử dụng thống nhất như thế nào?** GGO dùng cùng nguồn thông tin sân và lịch khi người dùng tìm kiếm, mở chi tiết và xem giỏ sân. Trên trang danh sách, website lấy các sân theo điều kiện đang chọn; khi mở chi tiết, website lấy lại sân và lịch của ngày tương ứng. Khi thêm giờ, giỏ chỉ lưu mã sân, mã sân con, ngày và giờ bắt đầu, không sao chép giá hay trạng thái còn chỗ.
+
+   Ví dụ, khách lưu giờ 20:00 ở Sân 1 rồi sang giỏ sân, trang giỏ tải lại lịch và giá hiện tại của sân đó. Nếu giờ đã bị đặt trong lúc khách rời trang, giỏ hiển thị cảnh báo và không cộng giờ ấy vào tổng. Cách làm này tránh xem dữ liệu cũ là xác nhận còn chỗ; giỏ sân chỉ ghi nhớ lựa chọn, không thay thế bước đặt sân.
+
+2. **Tìm kiếm, lọc và sắp xếp được kết hợp như thế nào?** Khi mở danh sách, GGO đọc từ khóa, ngày, giờ, quận, loại sân, mức giá và lựa chọn giờ chót từ đường dẫn bằng `URLSearchParams`. Từ khóa, ngày, quận, loại sân và mức giá được gửi cùng yêu cầu lấy danh sách; giờ cụ thể và giờ chót tiếp tục được áp dụng khi chọn các khung giờ hiển thị. Cuối cùng, giá được sắp tăng hoặc giảm trong từng nhóm sân còn giờ và sân không còn giờ.
+
+   Chẳng hạn, khách chọn một quận, nhập tên sân rồi chọn giá tăng; khi tải lại, các lựa chọn vẫn hiện và thứ tự giá được giữ. Việc ghi trạng thái vào đường dẫn giúp khôi phục hoặc chia sẻ cùng một lựa chọn, còn tách hai nhóm giờ giúp sân không còn chỗ không chen vào giữa các sân có thể đặt.
+
+3. **Trang chi tiết biết cần hiển thị sân và giờ nào bằng cách nào?** Khi người dùng mở trang, `URLSearchParams` đọc mã sân và các thông tin ngày, giờ, sân con từ đường dẫn. Trang lấy thông tin sân và lịch; nếu đường dẫn có một giờ cụ thể, trang chỉ chọn sẵn giờ đó khi giờ vẫn đặt được. Ngày ngoài thời hạn đặt được đưa về ngày hợp lệ; mã sân không tồn tại dẫn tới thông báo không tìm thấy sân.
+
+   Ví dụ, từ trang danh sách khách mở Sân 1 lúc 20:00 thì trang chi tiết hiển thị đúng sân và ngày đã chọn. Nếu người khác vừa đặt giờ đó, trang không tiếp tục coi giờ là khả dụng mà báo tình trạng và yêu cầu chọn giờ khác. Cách kiểm tra này giữ cho thao tác đặt gắn với đúng lựa chọn và hạn chế gửi yêu cầu cho giờ đã thay đổi.
+
+4. **Điều gì xảy ra khi thêm lại cùng một giờ vào giỏ sân?** GGO so sánh bốn thông tin: sân, sân con, ngày và giờ bắt đầu. Nếu đã có một dòng trùng đủ bốn thông tin, thao tác thêm trả về kết quả không thành công; trang chi tiết hiện thông báo “Giờ này đã có trong giỏ sân.” Nếu khác ngày hoặc sân con, đó là một lựa chọn riêng.
+
+   Ví dụ, thêm Sân 1 lúc 20:00 vào cùng ngày lần đầu sẽ tạo một dòng; bấm “Thêm vào giỏ sân” lần nữa cho đúng giờ ấy chỉ hiện thông báo trùng, không tăng số lượng. Điều này phù hợp với quy tắc một sân con trong một khung giờ chỉ là một chỗ, tránh tạo cảm giác khách có thể giữ hoặc mua lặp cùng chỗ.
+
+   ```js
+   const rows = read();
+   if (rows.some((r) => same(r, item))) return false;
+   saveCart([...rows, { venueId: Number(item.venueId), courtId: Number(item.courtId), date: item.date, start: item.start }]);
+   return true;
+   ```
+
+5. **Khi giỏ sân thay đổi, phần nào được cập nhật và tính tiền ra sao?** Sau khi thêm hoặc xóa, badge trên menu được đồng bộ trong trang hiện tại và các thẻ trình duyệt khác. Khi mở giỏ sân, website đọc lại danh sách đã lưu, lấy mới sân và lịch cho từng dòng, rồi kiểm tra trạng thái của sân con và giờ. Chỉ những dòng còn khả dụng mới được cộng giá hiện tại vào tổng tạm tính; badge vẫn phản ánh số dòng đang lưu.
+
+   Ví dụ, nếu có hai giờ trong giỏ nhưng một giờ đã bị người khác đặt, trang vẫn cho thấy hai lựa chọn đã lưu, đồng thời ghi “Còn đặt được 1/2 giờ” và chỉ cộng giá của giờ còn trống. Như vậy người dùng không nhầm số lựa chọn với số giờ vẫn đặt được, cũng không dựa vào tổng tiền cũ khi giá hoặc lịch đã thay đổi.
+
+6. **Vì sao dùng `localStorage`, và dữ liệu được khôi phục như thế nào?** GGO dùng `localStorage` với khóa giỏ `ggo.cart` để lựa chọn còn lại khi khách chuyển trang hoặc tải lại cùng website trên trình duyệt đó. `loadCart` đọc và kiểm tra dữ liệu; `saveCart` ghi danh sách sau khi thêm hoặc xóa, phát thông báo cập nhật giao diện và đọc lại kết quả. Cả lưu và đọc đều được bảo vệ để lỗi định dạng hoặc trình duyệt không cho truy cập bộ nhớ không làm hỏng trang.
+
+   Ví dụ, sau khi tải lại trang, các mã sân, sân con, ngày và giờ vẫn được đọc lại; giỏ sau đó tải lịch và giá mới. Dữ liệu này chỉ nằm trong trình duyệt đó, không đồng bộ giữa thiết bị và không giữ chỗ trên máy chủ. Vì vậy phải kiểm tra lịch lại ở bước đặt sân.
+
+   ```js
+   const raw = storage.getItem(KEY);
+   const rows = raw ? JSON.parse(raw) : [];
+   if (!Array.isArray(rows)) return [];
+   ```
+
+7. **Nếu dữ liệu trong giỏ sân sai hoặc không còn hợp lệ thì xử lý thế nào?** Khi đọc dữ liệu, GGO chỉ giữ các dòng có mã sân và mã sân con chuyển được thành số nguyên, ngày theo dạng năm-tháng-ngày và giờ theo dạng giờ-phút; các dòng còn lại bị bỏ, mã được chuẩn hóa về dạng số và chỉ bốn trường định danh được giữ. Nếu nội dung không phải JSON hợp lệ hoặc không phải danh sách, thao tác đọc trả về danh sách rỗng. Sau đó trang giỏ vẫn kiểm tra lại sân con và giờ trong lịch.
+
+   Ví dụ, một dòng có giờ sai định dạng hoặc thiếu mã sân không được dùng để dựng thẻ giỏ. Một dòng đúng định dạng nhưng sân hoặc giờ không còn trong lịch cũng bị đánh dấu không khả dụng và loại khỏi tổng. Phân biệt hai bước này giúp chống dữ liệu lỗi trong bộ nhớ đồng thời không nhầm rằng một dòng đúng cấu trúc chắc chắn còn đặt được.
+
+8. **Nhóm giải quyết xung đột khi gộp hai nhánh tìm kiếm/sắp xếp và giỏ sân như thế nào?** Hai nhánh cùng sửa danh sách các luồng kiểm thử cần chạy: nhánh tìm kiếm/sắp xếp thêm luồng của mình, còn nhánh giỏ sân thêm luồng giỏ. Khi gộp, phần danh sách đó bị xung đột; nhóm giữ lại cả hai luồng để bộ chạy chung tiếp tục kiểm tra đủ hai chức năng.
+
+   Nhánh giỏ sân đã được công khai trên GitHub trước khi nhập vào nhánh chính, nên nhóm dùng merge thay vì rebase. Cách này giữ nguyên lịch sử đã chia sẻ và thể hiện rõ hai nhánh công việc; nếu chỉ giữ một phía của xung đột thì một trong hai luồng kiểm thử sẽ bị bỏ khỏi lượt chạy chung.
+
+9. **Nhóm đã kiểm chứng phần AI hỗ trợ viết như thế nào, và phát hiện gì?** Nhóm chạy bộ kiểm thử dự án đạt 183/183; kiểm thử trình duyệt cho tìm kiếm/sắp xếp và giỏ sân đều đạt ở độ rộng 390 và 1366. Nhóm cũng xem ảnh giao diện thay vì chỉ dựa vào kết quả tự động. Qua đó phát hiện ô tìm bị ẩn trong vùng lọc thu gọn, nhãn sắp xếp bị cắt trên điện thoại và sân hết giờ bị xếp xen vào nhóm sân còn giờ; các điểm này được điều chỉnh rồi kiểm tra lại.
+
+   Ảnh giỏ sân còn cho thấy dấu câu sau lý do giờ không khả dụng bị thiếu, câu “1 giờ còn trống · 1 giờ” khó hiểu và ngày hiển thị dài hơn cần thiết; nhóm đổi thành cách ghi số giờ còn đặt được trên tổng, sửa dấu câu và rút gọn nhãn ngày. Ngoài ra, một kiểm thử sau khi tải lại trang lấy thuộc tính `value` trực tiếp từ lựa chọn quận, nhưng lựa chọn đó không khai báo thuộc tính này; kiểm thử được sửa để chọn theo nội dung nhãn. Những lần đối chiếu này cho thấy đề xuất của AI cần được kiểm tra bằng hành vi thật và cách người dùng đọc giao diện.
+
+10. **Giỏ sân có bảo đảm khách sẽ đặt được giờ đã lưu không?** Không. Giỏ sân chỉ lưu lựa chọn ở trình duyệt; nó không khóa giờ và không tạo đơn đặt. Khi khách tiếp tục đặt, website gửi yêu cầu đặt theo luồng hiện có và máy chủ kiểm tra lại trạng thái giờ.
+
+   Chẳng hạn, hai khách ở hai trình duyệt khác nhau có thể cùng lưu giờ 20:00 của một sân khi giờ còn trống. Người đặt trước có thể thành công, còn yêu cầu đến sau nhận thông báo giờ không còn khả dụng. Tách bước lưu khỏi bước đặt giúp không giữ chỗ vô thời hạn và buộc tình trạng cuối cùng được quyết định bởi lịch trên máy chủ.
