@@ -55,6 +55,7 @@ function paintSummary() {
   if (state.district) parts.push(state.district);
   if (state.maxPrice) parts.push(`đến ${state.maxPrice / 1000}k`);
   if (state.lastMinute) parts.push('giờ chót');
+  if (state.q) parts.push(`Tên: “${state.q}”`);
   $('f-now').textContent = parts.join(' · ');
 }
 function setFiltersOpen(open) {
@@ -138,8 +139,9 @@ async function load() {
     const without = rows.filter((x) => !x.pills.length);
     const total = withSlots.reduce((n, x) => n + x.pills.length, 0);
     $('summary').textContent = withSlots.length ? `${withSlots.length} sân còn ${total} giờ trống` : 'Không sân nào còn giờ trống';
+    const byPrice = (a, b) => (state.sort === 'asc' ? 1 : -1) * (a.v.minPrice - b.v.minPrice) || a.v.name.localeCompare(b.v.name, 'vi');
     const ordered = state.sort
-      ? [...withSlots, ...without].sort((a, b) => (state.sort === 'asc' ? 1 : -1) * (a.v.minPrice - b.v.minPrice) || a.v.name.localeCompare(b.v.name, 'vi'))
+      ? [...withSlots.slice().sort(byPrice), ...without.slice().sort(byPrice)]
       : [...withSlots, ...without];
     $('results').innerHTML = ordered.map((x, i) => card(x.v, i, x.pills)).join('');
     $('empty').hidden = withSlots.length > 0 || rows.length > 0;

@@ -5,13 +5,16 @@ const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH 
 const page = await browser.newPage({ viewport: { width, height: width < 600 ? 844 : 768 }, isMobile: width < 600 });
 const check = (ok, msg) => { if (!ok) throw new Error(msg); console.log(`OK ${msg}`); };
 try {
- await page.goto(`${U}/products.html`); await page.locator('#f-toggle').click(); await page.locator('#f-name').waitFor();
+ await page.goto(`${U}/products.html`); await page.locator('#f-name').waitFor();
+ check(await page.locator('#f-name').isVisible() && await page.locator('#f-sort').isVisible(), 'search and sorting visible without opening filters');
+ await page.locator('#f-toggle').click();
  const names = await page.locator('.venue-card .title').allTextContents();
  check(names.length > 0, 'venues loaded');
  const found = names[0].trim(); await page.locator('#f-name').fill(found); await page.waitForTimeout(500);
  check((await page.locator('.venue-card .title').allTextContents()).every(n => n.toLowerCase().includes(found.toLowerCase())), 'name search filters results');
  await page.locator('#f-name').fill('zz-no-such-venue-xyz'); await page.waitForTimeout(500);
  check(await page.locator('#empty').isVisible(), 'no-results feedback appears');
+ check((await page.locator('#f-now').innerText()).includes('zz-no-such-venue-xyz'), 'summary reflects search query');
  await page.locator('#f-name').fill(''); await page.waitForTimeout(500);
  const district = (await page.locator('#f-district option').nth(1).textContent()).trim();
  await page.locator('#f-district').selectOption({ label: district }); await page.locator('#f-sort').selectOption('asc'); await page.waitForTimeout(500);

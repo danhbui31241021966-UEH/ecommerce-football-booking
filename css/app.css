@@ -3297,7 +3297,13 @@ i.slot-league { min-height: 0; padding: 0; }
 }
 
 /* ---------- Trang kết quả và thanh đặt sân: gọn để thấy giờ trống ngay ---------- */
-.filter-summary { margin-bottom: var(--sp-3); }
+.venue-search { margin-bottom: var(--sp-3); }
+.filter-summary { display: flex; align-items: end; gap: var(--sp-3); margin-bottom: var(--sp-3); }
+.venue-sort { width: min(100%, 240px); flex: none; }
+@media (max-width: 479px) {
+  .filter-summary { align-items: stretch; flex-direction: column; }
+  .venue-sort { width: 100%; }
+}
 .filter-toggle { display: flex; align-items: center; justify-content: space-between; gap: var(--sp-3); width: 100%; min-height: 48px; padding: 0 var(--sp-4); border: 1px solid var(--line-strong); border-radius: var(--r-lg); background: var(--surface); color: var(--text); font: inherit; font-weight: 600; text-align: left; cursor: pointer; transition: border-color var(--dur) var(--ease); }
 .filter-toggle:hover { border-color: var(--text); }
 .filter-now { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
