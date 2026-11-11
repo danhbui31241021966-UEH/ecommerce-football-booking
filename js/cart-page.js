@@ -32,14 +32,13 @@ function render() {
   }
   const valid = entries.filter((e) => !e.invalid && e.slot);
   const total = valid.reduce((sum, e) => sum + e.slot.price, 0);
-  const minutes = valid.reduce((sum, e) => sum + (e.venue.slotMinutes || 60), 0);
   root.innerHTML = `<div class="page-head"><h1 class="h1">Giờ đã lưu</h1><p class="sub">Mỗi giờ là một chỗ riêng. Tình trạng và giá được cập nhật từ lịch sân hiện tại.</p></div>
     <div class="cart-list">${entries.map(({ item, venue, court, slot, invalid }) => {
       const link = `/product-detail.html?id=${item.venueId}&date=${encodeURIComponent(item.date)}&slot=${encodeURIComponent(item.start)}&court=${item.courtId}`;
       const image = venue?.imageUrl ? `<img src="${esc(venue.imageUrl)}" alt="${esc(venue.name)}">` : '<div class="cart-image-empty">Chưa có ảnh</div>';
-      return `<article class="card cart-item">${image}<div class="cart-info"><h2 class="h3">${esc(venue?.name || 'Không tải được sân')}</h2><p>${esc(court?.name || 'Sân con không tìm thấy')} · ${esc(item.date)} (${esc(dayLabel(item.date))}) · ${esc(slot ? `${slot.start}–${slot.end}` : item.start)}</p><p class="cart-price">${slot ? money(slot.price) : '—'}</p>${invalid ? `<p class="notice warn cart-invalid" role="status">${esc(invalid)} Không tính vào tổng.</p>` : ''}</div><div class="cart-actions">${invalid ? '' : `<a class="btn btn-lime btn-sm" href="${link}">Đặt giờ này</a>`}<button type="button" class="btn btn-ghost btn-sm" data-remove="${esc(rowKey(item))}">Xóa</button></div></article>`;
+      return `<article class="card cart-item">${image}<div class="cart-info"><h2 class="h3">${esc(venue?.name || 'Không tải được sân')}</h2><p>${esc(court?.name || 'Sân con không tìm thấy')} · ${esc(dayLabel(item.date))} · ${esc(slot ? `${slot.start}–${slot.end}` : item.start)}</p><p class="cart-price">${slot ? money(slot.price) : '—'}</p>${invalid ? `<p class="notice warn cart-invalid" role="status">${esc(invalid.replace(/\.$/, ''))}. Không tính vào tổng.</p>` : ''}</div><div class="cart-actions">${invalid ? '' : `<a class="btn btn-lime btn-sm" href="${link}">Đặt giờ này</a>`}<button type="button" class="btn btn-ghost btn-sm" data-remove="${esc(rowKey(item))}">Xóa</button></div></article>`;
     }).join('')}</div>
-    <section class="card cart-total"><p>${valid.length} giờ còn trống · ${minutes / 60} giờ</p><p class="h3">Tổng tạm tính <b>${money(total)}</b></p><small>Giá có thể thay đổi. Chỉ xác nhận khi bạn đặt giờ.</small></section>`;
+    <section class="card cart-total"><p>Còn đặt được ${valid.length}/${entries.length} giờ</p><p class="h3">Tổng tạm tính <b>${money(total)}</b></p><small>Giá có thể thay đổi. Chỉ xác nhận khi bạn đặt giờ.</small></section>`;
   decorate();
 }
 
