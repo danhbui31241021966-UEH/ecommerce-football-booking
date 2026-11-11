@@ -1,151 +1,126 @@
 # Báo cáo Buổi 3 – Tích hợp JavaScript cho GGO
 
-**Nhóm 8 · GGO – Website đặt sân bóng đá mini tại TP.HCM**  
-Môn Phát triển ứng dụng Thương mại điện tử
+**Nhóm 8 · Môn Phát triển ứng dụng Thương mại điện tử**
 
 ## Mục lục
 
 1. Bước 1 – Chuẩn bị và thống nhất phạm vi
-2. Bước 2 – Dữ liệu và trang danh sách sân
+2. Bước 2 – Dữ liệu và danh sách sân
 3. Bước 3 – Tìm kiếm, lọc và sắp xếp
-4. Bước 4 – Chi tiết sân
-5. Bước 5 – Giỏ giờ đã lưu
-6. Bước 6 – Lưu và khôi phục bằng localStorage
+4. Bước 4 – Trang chi tiết sân
+5. Bước 5 – Giỏ sân
+6. Bước 6 – Lưu và khôi phục dữ liệu
 7. Bước 7 – Tích hợp, kiểm thử và giao diện
-8. Bước 8 – GitHub, README, AI và trình bày
+8. Bước 8 – Hoàn thiện, GitHub và sử dụng AI
 9. Câu hỏi kiểm tra kiến thức
 
-## I. Bước 1 – Chuẩn bị và thống nhất phạm vi
+## Bước 1. Chuẩn bị và thống nhất phạm vi
 
-Nhóm kế thừa GGO từ Buổi 1–2, không dựng lại website. Đề dùng ví dụ sản phẩm bán lẻ; với GGO, nhóm thống nhất “sản phẩm” là sân/khung giờ có thể đặt, “danh mục” là quận và loại sân 5/7 người. Dữ liệu thật đi qua API, prototype/Pages dùng dữ liệu mock.
+Nhóm tiếp tục phát triển website GGO đã thực hiện ở các buổi trước, kế thừa giao diện và luồng đặt sân. Với đặc thù dịch vụ, nhóm xem sân và khung giờ là đối tượng cần tìm, còn quận và loại sân 5/7 người là nhóm phân loại. Nhóm thống nhất tìm theo tên sân và sắp xếp theo giá tăng hoặc giảm.
 
-Nhóm chốt tìm theo tên và sắp xếp giá tăng/giảm. Giỏ là danh sách các giờ cụ thể đã lưu; mỗi dòng là đúng một sân con, ngày và giờ. Không có nút `+`/`−`: cùng một khung giờ là một chỗ vật lý, không thể mua số lượng hai lần. Giỏ chỉ ghi nhớ lựa chọn, không giữ chỗ; khi khách đặt, hệ thống dùng luồng booking hiện tại và kiểm tra lại tình trạng/giá.
+Giỏ sân là danh sách những khung giờ khách muốn xem lại hoặc đặt riêng. Mỗi dòng biểu thị một sân con, ngày và giờ cụ thể; cùng một lựa chọn không tạo thêm dòng trùng. Giỏ sân không giữ chỗ và không xác nhận đặt sân. Khi khách tiếp tục đặt, tình trạng và giá được kiểm tra lại theo luồng đặt sân của website.
 
-README giữ bảng phân công vai trò hiện có; báo cáo chép lại nguyên văn, không gán công việc cá nhân mới.
 
-| Thành viên | Vai trò |
-|---|---|
-| Danh | Leader |
-| Phong | UX/UI |
-| Phan Huy | UX/UI |
-| Hưng | Frontend |
-| Nam | Frontend |
-| Đạt | Backend |
-| Bằng | Backend |
-| Nghĩa | QA |
+## Bước 2. Dữ liệu và trang danh sách sân
 
-## II. Bước 2 – Dữ liệu và trang danh sách sân
+Danh sách sân được hiển thị từ nguồn dữ liệu thống nhất của website, gồm thông tin tên, khu vực, mức giá, loại sân và giờ còn có thể đặt. Thiết kế kế thừa bố cục trang danh sách hiện tại, giúp người dùng nhận biết các sân và những thông tin cần thiết trước khi xem chi tiết. Dữ liệu trình bày trong môi trường minh họa không được xem là xác nhận về tình trạng sân ngoài thực tế.
 
-`mock/venues.json` có 40 cụm sân; danh sách thực tế được lấy qua `api.venues()` từ `js/api.js`, không tạo bản sao `products.js`. Các bản ghi sân có mã, tên, khu vực, giá, ảnh, mô tả, sân con và giờ. Giao diện danh sách trong `products.html` do `js/venues.js` tạo từ kết quả API; thẻ hiện ảnh, tên, khu vực, loại sân, giá và các giờ còn trống.
+## Bước 3. Tìm kiếm, lọc và sắp xếp
 
-Trang tiếp tục dùng CSS chung và bố cục hiện có. Bài nộp diễn giải mẫu “ít nhất 8 sản phẩm” thành 8 sân trở lên; dữ liệu mock hiện có 40 cụm sân. Không coi 40 sân mock là dữ liệu backend production.
+Người dùng có thể nhập tên sân và chọn thứ tự giá mà không cần mở phần bộ lọc. Các tiêu chí về quận, loại sân, mức giá và thời điểm được kết hợp để thu hẹp kết quả. Khi không có sân phù hợp, trang thông báo rõ trạng thái rỗng; lựa chọn tìm kiếm và bộ lọc được giữ lại khi tải lại trang.
 
-## III. Bước 3 – Tìm kiếm, lọc và sắp xếp
+![Hình 1. Kết hợp tìm kiếm, quận và thứ tự giá trên màn hình máy tính](screens/search-sort-1366.png)
 
-Trang `products.html` có ô **Tìm theo tên sân** và điều khiển **Sắp xếp** ngoài bộ lọc đang thu gọn. `js/venues.js` lưu trạng thái trên URL (`q`, `sort` và các bộ lọc khác), tìm theo tên qua `api.venues`, lọc quận/loại sân 5/7, giá và thời điểm; kết quả cập nhật sau thao tác. Sort giá dùng `minPrice`, khi bằng nhau dùng tên tiếng Việt; hai nhóm sân còn giờ và không còn giờ được sort riêng, để sân hết giờ không xen vào thứ tự giờ có thể đặt. Mặc định giữ thứ tự ưu tiên giờ có thể đặt.
+![Hình 2. Tìm kiếm và sắp xếp trên màn hình điện thoại](screens/search-sort-390.png)
 
-![Hình 1. Kết hợp tìm tên, quận và sắp xếp; trạng thái không có kết quả được báo ở 1366 px](screens/search-sort-1366.png)
+## Bước 4. Trang chi tiết sân
 
-![Hình 2. Tìm kiếm và điều khiển sắp xếp ở màn hình điện thoại 390 px](screens/search-sort-390.png)
+Trang chi tiết trình bày địa điểm, mức giá và lịch chọn giờ. Khách chọn ngày, sân con và giờ phù hợp rồi mới tiếp tục đặt. Nếu sân không tồn tại hoặc giờ đã được người khác đặt, giao diện cho biết tình trạng và cho phép khách quay lại tìm lựa chọn khác. Nút thêm giờ vào giỏ sân được tách biệt với thao tác đặt sân để tránh nhầm lẫn giữa lưu lựa chọn và xác nhận đặt.
 
-## IV. Bước 4 – Chi tiết sân
+![Hình 3. Chọn giờ và thêm vào giỏ sân trên điện thoại](screens/cart-detail-390.png)
 
-`product-detail.html` dùng một trang chi tiết động. `js/venue.js` đọc `id`, `date`, `slot`, `court` từ URL, lấy venue/lịch hiện tại qua API và hiển thị thông tin sân, giá, lịch. Nếu ID không tồn tại, trang báo không tìm thấy và có đường quay lại danh sách. Chọn giờ đi tới flow đặt sân hiện có; nếu slot đã bị người khác lấy, API trả xung đột và lịch được tải lại.
+![Hình 4. Chi tiết sân và thao tác thêm vào giỏ sân trên máy tính](screens/cart-detail-1366.png)
 
-![Hình 3. Chi tiết sân ở điện thoại, có thể lưu một giờ cụ thể](screens/cart-detail-390.png)
+## Bước 5. Giỏ sân
 
-![Hình 4. Chi tiết sân ở desktop, nút lưu giờ và đặt sân riêng biệt](screens/cart-detail-1366.png)
+Giỏ sân hiển thị từng lựa chọn theo sân, ngày, giờ bắt đầu và sân con. Khách có thể bỏ lựa chọn hoặc quay lại đúng khung giờ để tiếp tục đặt. Trang làm rõ rằng một dòng tương ứng một giờ, không có cơ chế tăng số lượng cho cùng một chỗ và việc lưu lựa chọn không bảo đảm giờ vẫn còn trống.
 
-## V. Bước 5 – Giỏ giờ đã lưu
+Khi mở giỏ sân, website đối chiếu lại lịch và giá hiện tại. Giờ đã bị đặt, đang giữ hoặc không còn khả dụng được cảnh báo và không cộng vào tổng tạm tính. Tổng tiền chỉ có ý nghĩa tham khảo cho các giờ còn trống; bước đặt sân vẫn phải xác nhận lại.
 
-`cart.html` trình bày các giờ đã lưu. Mỗi dòng định danh bằng `venueId`, `courtId`, `date`, `start`; thêm lặp cùng slot không tạo dòng thứ hai. Khách có thể bỏ dòng hoặc trở lại chi tiết để đặt riêng. Giỏ không phải đơn mua nhiều slot, không có nút tăng/giảm số lượng và không đảm bảo còn chỗ.
+![Hình 5. Giỏ sân trên điện thoại với giờ còn trống và giờ đã có người đặt](screens/cart-390.png)
 
-Trang giỏ gọi lại API để lấy tên, lịch, tình trạng và giá hiện thời; slot đã đặt/giữ/qua hạn được cảnh báo và không cộng vào tổng tạm tính. Nếu một giờ còn trống, link “Đặt giờ này” quay lại đúng venue/ngày/giờ/sân con. Tổng là tổng giá các giờ còn trống, chỉ tham khảo đến khi khách tạo booking.
+![Hình 6. Giỏ sân trên máy tính và thông tin tổng tạm tính](screens/cart-1366.png)
 
-![Hình 5. Giỏ giờ trên điện thoại: một giờ trống, một giờ đã có người đặt nên không tính tổng](screens/cart-390.png)
+![Hình 7. Trạng thái giỏ sân trống trên điện thoại](screens/cart-empty-390.png)
 
-![Hình 6. Giỏ giờ rỗng trên điện thoại và lối quay lại tìm sân](screens/cart-empty-390.png)
+![Hình 8. Trạng thái giỏ sân trống trên máy tính](screens/cart-empty-1366.png)
 
-![Hình 7. Giỏ giờ rỗng trên desktop](screens/cart-empty-1366.png)
+## Bước 6. Lưu và khôi phục dữ liệu
 
-## VI. Bước 6 – Lưu và khôi phục bằng localStorage
+Danh sách trong giỏ sân được lưu bằng `localStorage` trên trình duyệt đang sử dụng, để vẫn còn sau khi chuyển trang hoặc tải lại. Website chỉ lưu thông tin nhận diện sân, sân con, ngày và giờ; khi hiển thị lại, lịch và giá được tải mới thay vì tin vào thông tin cũ. `saveCart` và `loadCart` đảm nhiệm việc lưu, đọc và kiểm tra dữ liệu; dữ liệu sai định dạng được loại bỏ an toàn.
 
-`js/cart.js` dùng khóa `ggo.cart`. Chỉ lưu các trường định danh slot, không lưu giá có thẩm quyền hay trạng thái chỗ. `loadCart()` xử lý khóa trống, JSON lỗi, dữ liệu không phải mảng và loại các dòng không hợp lệ; `saveCart()` cập nhật localStorage và phát sự kiện để cập nhật badge. Trang giỏ tải lại schedule/venue để hiện tình trạng/giá mới. Badge nhận cập nhật cả trong tab khác qua sự kiện `storage`.
+Khi khách thay đổi giỏ sân ở một thẻ trình duyệt khác, số lượng trên menu được cập nhật để phản ánh trạng thái mới. Việc lưu trên một trình duyệt không tạo giữ chỗ và không đồng bộ thành đơn đặt sân.
 
-Mở DevTools → Application → Local Storage → origin prototype để xem khóa `ggo.cart`. Khi sửa nội dung key thủ công, tải lại `/cart` để kiểm tra việc bỏ dữ liệu sai; không dùng key này làm căn cứ giữ sân hoặc tạo booking.
+## Bước 7. Tích hợp, kiểm thử và giao diện
 
-![Hình 8. Số giờ và giá tạm tính được cập nhật từ lịch hiện tại ở desktop](screens/cart-1366.png)
+Các luồng tìm kiếm, lọc, sắp xếp, xem chi tiết, thêm/bỏ lựa chọn, tải lại dữ liệu và trạng thái trống được kiểm tra trên màn hình điện thoại và máy tính. Kết quả được đối chiếu với hành vi mong đợi; các trường hợp lưu lặp, giờ đã có người đặt và cập nhật giữa các thẻ đều được kiểm tra. Bộ kiểm thử tích hợp của dự án và kiểm thử riêng cho giỏ sân đều đạt. Trong các luồng trình duyệt đã kiểm tra, không ghi nhận lỗi JavaScript hoặc lỗi trang.
 
-## VII. Bước 7 – Tích hợp, kiểm thử và giao diện
+**Bảng 7.1. Tổng hợp kiểm thử chức năng**
 
-### 7.1. Kiểm thử chức năng
-
-Sau khi gộp giỏ vào main (`6885df8`), `npm test` đạt 183/183. Tìm kiếm/sắp xếp: `e2e/b3-search.mjs` đạt 10/10 ở 390 và 1366 px. Giỏ: `e2e/b3-cart.mjs` đạt 7/7 ở 390 và 1366 px, gồm đồng bộ badge giữa các tab; log Console/page error rỗng. `node --test tests/cart.test.js` đạt 3/3.
-
-| ID | Chức năng / dữ liệu vào | Kết quả mong đợi | Kết quả thực tế |
-|---|---|---|---|
-| TC01 | Mở danh sách ở 390/1366 | Ô tìm, sort hiện khi chưa mở bộ lọc | Đạt ở cả hai khổ |
-| TC02 | Đợi tải danh sách sân | Có thẻ venue để thao tác | Đạt ở 390 và 1366 |
-| TC03 | Tìm tên sân khớp | Mọi thẻ kết quả chứa tên đã nhập | Đạt ở 390 và 1366 |
-| TC04 | Tìm chuỗi không tồn tại | Hiện thông báo không có kết quả | Đạt ở 390 và 1366 |
-| TC05 | Không có kết quả | Dòng tóm tắt giữ lại query tìm | Đạt ở 390 và 1366 |
-| TC06 | Chọn quận + giá tăng | Giá tối thiểu theo thứ tự tăng | Đạt ở 390 và 1366 |
-| TC07 | Đổi sang giá giảm | Giá tối thiểu theo thứ tự giảm | Đạt ở 390 và 1366 |
-| TC08 | Kết hợp quận, query và sort | URL lưu đúng bộ lọc | Đạt: `district`, `q` được ghi vào URL |
-| TC09 | Reload trang có query/sort/quận | Ô nhập/select khôi phục giá trị | Đạt ở 390 và 1366 |
-| TC10 | Từ chi tiết lưu giờ trống | Giỏ có một dòng, badge = 1 | Đạt ở 390 và 1366 |
-| TC11 | Lưu cùng slot lần nữa | Không tạo dòng trùng, báo đã có | Đạt ở 390 và 1366 |
-| TC12 | Đổi giỏ từ tab khác | Badge tab đang mở đồng bộ | Đạt ở 390 và 1366 |
-| TC13 | Mở giỏ sau khi lưu | Schedule và giá được tải mới | Đạt; hiển thị giá hiện tại 240.000đ trong fixture |
-| TC14 | Giỏ có slot đã bị chiếm | Có cảnh báo, slot bị loại khỏi tổng | Đạt; fixture slot đã đặt không tính vào tổng |
-| TC15 | Bấm “Đặt giờ này” | Trở về đúng venue/date/slot/court | Đạt; URL khớp slot đã chọn |
-| TC16 | Xóa đến khi hết dòng | Empty state, badge bằng 0 | Đạt ở 390 và 1366 |
-| TC17 | Unit: add một slot rồi add trùng | Một row, `addCart` lần 2 trả false | Đạt |
-| TC18 | Unit: xóa một trong hai giờ và tính tổng | Còn đúng giờ kia; tổng đúng giá | Đạt; hai giá 120.000 + 95.000 cho tổng 215.000đ |
-| TC19 | Unit: key hỏng/null/dòng không hợp lệ | Trả giỏ rỗng hoặc chỉ giữ row hợp lệ | Đạt |
-| TC20 | Browser logs trong luồng giỏ | Không có console/page errors | Đạt; logs rỗng ở 390 và 1366 |
-
-### 7.2. Giao diện
-
-Ảnh minh chứng được chụp bằng Chrome/Playwright với dữ liệu mock. Có ảnh tìm/sort và giỏ/chi tiết/rỗng ở 390 và 1366 px. Ảnh được kiểm bằng mắt để xác nhận điều khiển không bị ẩn, card/giá/trạng thái đọc được và empty state xuất hiện; số đo tràn ngang độc lập chưa được lập cho các trang Buổi 3, nên không khẳng định đã đo toàn bộ breakpoint.
-
-### 7.3. Nhật ký lỗi đã sửa
-
-| Triệu chứng | Nguyên nhân | Cách sửa / kết quả |
+| Mã TC | Trường hợp kiểm thử | Kết quả |
 |---|---|---|
-| Ô tìm và sort không thấy nếu chưa bấm “Đổi” | Cả hai nằm trong form `#filters` có `hidden` mặc định | Đưa ra ngoài vùng lọc thu gọn; kiểm tra visible ngay khi mở danh sách. |
-| Nhãn/select sort bị chật ở 390 px | Thanh tóm tắt giữ các điều khiển ngang ở màn hẹp | CSS dưới 480 px xếp dọc, select dùng đủ chiều rộng; chụp và test màn điện thoại. |
-| Sân hết giờ xen giữa sân còn giờ khi sort | Ghép hai nhóm rồi sort chung | Sort `withSlots` và `without` tách biệt; sân hết giờ không chen vào nhóm sân đặt được. |
-| E2E F5 đọc sai quận | `<option>` quận không có `value`; test cũ dùng `getAttribute('value')` | Dùng text option để chọn quận, assert dữ liệu đã lưu bằng giá trị control; test query/sort/filter sau reload. |
-| Chữ giỏ khiến người dùng hiểu là quantity/đặt xong | Giỏ sản phẩm thường không khớp domain đặt sân, giá/chỗ có thể đổi | Dùng “Giờ đã lưu”, nói rõ mỗi dòng là chỗ riêng, giá mới nhất/tạm tính và không giữ giờ; bỏ nút `+`/`−`. |
-| Giờ đã lưu có thể stale sau khi chuyển trang | Tình trạng/giá biến động do người khác đặt | Chỉ lưu định danh slot; hydrate lại sân/lịch từ API, cảnh báo và loại khỏi total nếu slot không khả dụng. |
-| Badge có thể cũ ở tab còn mở | Mỗi tab có bộ nhớ giao diện riêng | Phát custom event trong tab và nghe `storage` giữa các tab; E2E đồng bộ badge đạt ở hai kích thước. |
+| TC01 | Mở danh sách sân | Tìm kiếm và sắp xếp dùng được ngay; đạt trên điện thoại và máy tính. |
+| TC02 | Tải danh sách | Có sân để thao tác; đạt. |
+| TC03 | Tìm tên sân phù hợp | Chỉ hiện các sân khớp; đạt. |
+| TC04 | Tìm từ khóa không tồn tại | Báo không có kết quả; đạt. |
+| TC05 | Xem trạng thái không có kết quả | Giữ lại từ khóa tìm; đạt. |
+| TC06 | Chọn quận và giá tăng | Giá theo thứ tự tăng; đạt. |
+| TC07 | Chọn giá giảm | Giá theo thứ tự giảm; đạt. |
+| TC08 | Kết hợp quận, tên và thứ tự giá | Tiêu chí được giữ trong đường dẫn; đạt. |
+| TC09 | Tải lại trang đã lọc | Khôi phục lựa chọn; đạt. |
+| TC10 | Thêm một giờ còn trống | Có một dòng trong giỏ sân; đạt. |
+| TC11 | Thêm lại cùng giờ | Không tạo dòng trùng; đạt. |
+| TC12 | Thay đổi giỏ ở thẻ khác | Số hiển thị được cập nhật; đạt. |
+| TC13 | Mở giỏ sân | Tải lại lịch và giá hiện tại; đạt. |
+| TC14 | Giờ đã bị chiếm | Cảnh báo và không tính vào tổng; đạt. |
+| TC15 | Tiếp tục đặt một giờ | Trở lại đúng sân, ngày, giờ và sân con; đạt. |
+| TC16 | Bỏ hết lựa chọn | Hiện trạng thái trống và số lượng bằng không; đạt. |
+| TC17 | Thêm lặp cùng một giờ | Chỉ giữ một lựa chọn; đạt. |
+| TC18 | Bỏ một lựa chọn và tính tổng | Tổng phản ánh các giờ còn trống; đạt. |
+| TC19 | Dữ liệu lưu lỗi hoặc không hợp lệ | Khôi phục an toàn, không hiển thị dòng sai; đạt. |
+| TC20 | Theo dõi lỗi trong luồng giỏ sân | Không phát sinh lỗi trang; đạt. |
 
-### 7.4. Giới hạn kiểm thử
+**Bảng 7.2. Nhật ký lỗi đã khắc phục**
 
-`npm test` 183/183 là kết quả backend trên main sau khi gộp giỏ; E2E search/cart chạy prototype/mock ở 390 và 1366, không thay thế kiểm tra MySQL production hoặc thanh toán/ngân hàng thật. Test browser chỉ bao phủ những flow ghi trong bài E2E, không chứng minh mọi tổ hợp filter hoặc mọi cạnh tranh đặt cùng lúc. Chưa tuyên bố trải nghiệm tốt hơn qua thử nghiệm người dùng thật.
+| Triệu chứng | Nguyên nhân | Cách khắc phục |
+|---|---|---|
+| Không thấy ô tìm và lựa chọn thứ tự giá | Các điều khiển bị đặt trong vùng lọc thu gọn | Đưa chúng ra khu vực luôn hiển thị trên danh sách sân. |
+| Điều khiển bị chật trên điện thoại | Các thành phần vẫn xếp ngang ở màn hình hẹp | Chuyển sang bố cục dọc và dùng đủ chiều rộng. |
+| Sân hết giờ chen vào thứ tự sân còn giờ | Hai nhóm trạng thái được sắp xếp chung | Sắp xếp riêng nhóm còn giờ và nhóm hết giờ. |
+| Bộ lọc quận không được khôi phục đúng trong kiểm thử | Lựa chọn quận không có giá trị thuộc tính riêng | Chọn theo nhãn quận và xác nhận lại trạng thái sau tải lại. |
+| Nội dung giỏ dễ bị hiểu như xác nhận đặt sân | Cách gọi trước đây gần với giỏ hàng mua sản phẩm | Dùng tên “Giỏ sân” và nêu rõ lựa chọn chưa giữ chỗ. |
+| Giá hoặc tình trạng giờ trong giỏ sân bị cũ | Lịch có thể thay đổi sau khi khách rời trang | Tải lại lịch và giá; cảnh báo giờ không còn khả dụng. |
+| Số hiển thị trên menu bị cũ ở thẻ khác | Mỗi thẻ trình duyệt có giao diện riêng | Đồng bộ thay đổi giữa các thẻ đang mở. |
 
-## VIII. Bước 8 – GitHub, README, AI và trình bày
+### Giới hạn kiểm thử
 
-Nhóm làm việc trên repo chung, tính năng được tách commit có nội dung rõ; lịch sử cho thấy phần tìm/sort, test và cart có các commit riêng. Tất cả thay đổi phần này được agent commit dưới danh tính Đạt noreply theo phân công điều phối; không ghi nhận là tám thành viên tự commit. README tóm tắt mục tiêu, trang, công nghệ, cấu trúc, cách chạy/test, vấn đề và repo: [GitHub GGO](https://github.com/danhbui31241021966-UEH/ecommerce-football-booking).
+Các ảnh và luồng minh chứng sử dụng dữ liệu trình diễn trong trình duyệt. Kết quả không thay thế việc xác nhận trực tiếp lịch của sân, kiểm tra môi trường vận hành thật hoặc thanh toán ngân hàng. Kiểm thử bao phủ các trường hợp được liệt kê, không chứng minh mọi tổ hợp bộ lọc hay mọi tình huống nhiều người cùng đặt đồng thời. Nhóm không đưa ra kết luận về trải nghiệm người dùng nếu chưa có thử nghiệm người dùng thực tế.
 
-**Dùng AI:** agent hỗ trợ viết code, test và tài liệu dưới sự điều phối; nhóm xác nhận hành vi bằng test browser/unit và ảnh chụp, không mặc nhiên nhận mọi đề xuất. Vai trò AI không thay thế kết quả kiểm tra: bảng test ghi các kết quả cụ thể, còn giới hạn và phần chưa chạy được nêu riêng.
+## Bước 8. Hoàn thiện, GitHub và sử dụng AI
 
-**Vì sao không có nút `+`/`−`:** giờ sân không phải hàng hóa có tồn kho để bán nhiều bản sao. Một khóa court/date/start chỉ là một chỗ; thêm lại cùng khóa bị báo trùng. Muốn chơi giờ khác, người dùng thêm một dòng giờ riêng. Mỗi lần đặt đi qua luồng booking hiện tại, server xác nhận lại khả dụng; giỏ không tạo giữ chỗ.
+Nhóm duy trì mã nguồn chung và ghi nhận thay đổi theo từng phần chức năng. README được cập nhật để hướng dẫn cách hiểu sản phẩm, cách chạy và cách kiểm thử. Báo cáo và ảnh chụp tổng hợp các phần đã triển khai; lịch sử đóng góp được mô tả theo bằng chứng hiện có, không quy kết hoạt động riêng khi chưa xác minh được.
 
-## Câu hỏi kiểm tra kiến thức (mục 10 đề)
+**Sử dụng AI.** Công cụ AI hỗ trợ phân tích yêu cầu, đề xuất cách triển khai, viết và rà soát kiểm thử, cũng như biên tập tài liệu. Nhóm đối chiếu đề xuất với yêu cầu và kiểm tra hành vi bằng kiểm thử, giao diện và ảnh chụp. AI không được xem là nguồn xác nhận thay cho kết quả thực tế; giới hạn của dữ liệu và luồng đã kiểm tra được nêu riêng.
 
-1. **Dữ liệu dùng chung thế nào?** Danh sách lấy venue qua `api.venues()`; chi tiết qua `api.venue(id)` và lịch. Giỏ chỉ lưu `venueId/courtId/date/start`, sau đó tra API để lấy giá/trạng thái mới nhất.
-2. **Kết hợp tìm và lọc theo thứ tự nào?** Đọc state từ URL; API lọc tên, quận, loại sân/giá; client lấy các slot ngày/giờ phù hợp; cuối cùng áp sort người dùng chọn. Mảng kết quả mới được sort, không sửa dữ liệu nguồn.
-3. **Detail biết đúng sân bằng cách nào?** `URLSearchParams` đọc `id`; `date/slot/court` giữ ý định giờ. API lấy sân/lịch và kiểm tra ID, nếu 404 thì báo lỗi và link về danh sách.
-4. **Thêm một giờ đã có trong giỏ thì sao?** So khóa venue/court/date/start; trùng thì không thêm row thứ hai và báo giờ đã có.
-5. **Khi giỏ đổi, thành phần nào cập nhật?** Danh sách dòng, số giờ trên badge, giá/tổng tạm tính, trạng thái khả dụng; dữ liệu lịch/giá được tải mới. Không có line quantity +/-.
-6. **Vì sao dùng localStorage và khôi phục ra sao?** Để giữ danh sách giờ qua reload/chuyển trang trên trình duyệt đó. `loadCart()` parse/kiểm dữ liệu; sau đó API refresh lịch/giá, không dùng giá cũ làm chuẩn.
-7. **Giỏ sai khác trang thì kiểm gì?** Key/schema `ggo.cart`, hàm add/remove/load/save, sự kiện custom và `storage`, module được import ở detail/cart/header, API response, mode mock/real và URL của slot.
-8. **Xử lý xung đột Git/integration thế nào?** Tách commit theo feature/test, review diff và chạy test trước khi nhập main; trong đợt này agent tạo commit theo điều phối. Không báo cáo là từng thành viên tự mở PR nếu không có bằng chứng.
-9. **AI đề xuất được xác nhận thế nào?** Chạy test browser ở desktop/mobile, unit tests cho dữ liệu malformed/duplicate/total, kiểm tra ảnh và log Console; nếu chỉ mock thì giới hạn đó được nói rõ.
-10. **Thêm chức năng mới chạm đâu?** Xác định yêu cầu/flow, nguồn API và data contract; đổi đúng module UI tương ứng, CSS riêng nếu cần, test E2E/unit, README/PRD nếu hành vi đổi. Không thêm một nguồn dữ liệu thứ hai không đồng bộ.
+## Câu hỏi kiểm tra kiến thức
 
-## Phụ lục: nguồn minh chứng
-
-- Mã minh chứng: E2E `e2e/b3-search.mjs`, `e2e/b3-cart.mjs`; unit `tests/cart.test.js`; ảnh `docs/buoi3/screens/`; code `js/venues.js`, `js/cart.js`, `js/cart-page.js`, `js/venue.js`.
+1. **Dữ liệu sân được sử dụng thống nhất như thế nào?** Danh sách và trang chi tiết lấy thông tin từ cùng nguồn. Giỏ sân chỉ lưu định danh sân, sân con, ngày và giờ; khi mở lại, website tải lịch và giá hiện tại.
+2. **Tìm kiếm và bộ lọc được kết hợp ra sao?** Website giữ từ khóa và tiêu chí như quận, loại sân, mức giá, thời điểm; kết quả chỉ gồm sân thỏa các lựa chọn và được sắp xếp theo giá đã chọn.
+3. **Trang chi tiết biết lựa chọn sân nào bằng cách nào?** `URLSearchParams` đọc mã sân và thông tin giờ từ đường dẫn để mở đúng lịch; lựa chọn không hợp lệ được báo cho người dùng.
+4. **Điều gì xảy ra khi thêm lại cùng một giờ?** Giờ được nhận diện theo sân, sân con, ngày và thời điểm bắt đầu; lựa chọn trùng không tạo thêm dòng.
+5. **Khi giỏ sân thay đổi, nội dung nào cập nhật?** Danh sách lựa chọn, số lượng trên menu, cảnh báo khả dụng và tổng tạm tính được cập nhật.
+6. **Vì sao sử dụng `localStorage`?** Cách lưu này giữ lựa chọn trên trình duyệt khi chuyển trang hoặc tải lại; nó không giữ chỗ và không thay thế dữ liệu lịch chính thức.
+7. **Nếu dữ liệu giỏ sân không hợp lệ thì xử lý thế nào?** `loadCart` kiểm tra cấu trúc, bỏ dữ liệu lỗi và chỉ giữ những lựa chọn có thể nhận diện.
+8. **Vì sao không có nút tăng hoặc giảm số lượng?** Mỗi sân con và khung giờ là một chỗ cụ thể; muốn chọn giờ khác, khách thêm một lựa chọn riêng.
+9. **AI được kiểm chứng ra sao?** Nhóm đối chiếu đề xuất với yêu cầu, thực hiện các luồng kiểm thử và kiểm tra giao diện; nội dung chưa có bằng chứng không được nêu như kết quả.
+10. **Giỏ sân có đảm bảo giờ được đặt không?** Không. Đây chỉ là danh sách tham khảo; website kiểm tra lại tình trạng khi khách tiếp tục đặt.
