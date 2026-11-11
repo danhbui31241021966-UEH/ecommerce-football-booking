@@ -12,7 +12,7 @@ const MAX_PILLS = 8;
 let today;
 let nowTs;
 let windowDays = 3;
-const state = { date: '', at: '', fieldType: '', district: '', maxPrice: '', lastMinute: '', q: '' };
+const state = { date: '', at: '', fieldType: '', district: '', maxPrice: '', lastMinute: '', q: '', sort: '' };
 
 document.getElementById('filters')?.addEventListener('submit', (event) => event.preventDefault());
 
@@ -40,6 +40,8 @@ function paintFilters(districts) {
   $('f-at').value = state.at;
   if (districts) $('f-district').insertAdjacentHTML('beforeend', districts.map((d) => `<option>${esc(d)}</option>`).join(''));
   $('f-district').value = state.district;
+  $('f-name').value = state.q;
+  $('f-sort').value = state.sort;
   for (const [id, key] of [['f-type', 'fieldType'], ['f-price', 'maxPrice']]) {
     $(id).querySelectorAll('[data-v]').forEach((b) => b.setAttribute('aria-pressed', String(b.dataset.v === state[key])));
   }
@@ -136,7 +138,10 @@ async function load() {
     const without = rows.filter((x) => !x.pills.length);
     const total = withSlots.reduce((n, x) => n + x.pills.length, 0);
     $('summary').textContent = withSlots.length ? `${withSlots.length} sân còn ${total} giờ trống` : 'Không sân nào còn giờ trống';
-    $('results').innerHTML = [...withSlots, ...without].map((x, i) => card(x.v, i, x.pills)).join('');
+    const ordered = state.sort
+      ? [...withSlots, ...without].sort((a, b) => (state.sort === 'asc' ? 1 : -1) * (a.v.minPrice - b.v.minPrice) || a.v.name.localeCompare(b.v.name, 'vi'))
+      : [...withSlots, ...without];
+    $('results').innerHTML = ordered.map((x, i) => card(x.v, i, x.pills)).join('');
     $('empty').hidden = withSlots.length > 0 || rows.length > 0;
     $('req-cta').innerHTML = `<div class="card card-pad req-cta"><div><b>Chưa thấy giờ hợp ý?</b><br><span class="muted">Nhờ sân báo giá (quận, giờ, mức giá bạn muốn), các sân phù hợp sẽ gửi báo giá để bạn chọn.</span></div><a class="btn btn-lime" href="/request-new.html?${new URLSearchParams({ date: state.date, ...(state.district && { district: state.district }), ...(state.fieldType && { fieldType: state.fieldType }), ...(state.at && { from: state.at }) })}">Nhờ sân báo giá</a></div>`;
     $('empty-why').textContent = 'Thử đổi ngày, bỏ bớt bộ lọc hoặc chọn giờ khác.';
@@ -159,6 +164,13 @@ function wire() {
   });
   $('f-at').addEventListener('change', () => ((state.at = $('f-at').value), load()));
   $('f-district').addEventListener('change', () => ((state.district = $('f-district').value), load()));
+  let searchTimer;
+  $('f-name').addEventListener('input', () => {
+    state.q = $('f-name').value.trim();
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(load, 300);
+  });
+  $('f-sort').addEventListener('change', () => ((state.sort = $('f-sort').value), load()));
   for (const [id, key] of [['f-type', 'fieldType'], ['f-price', 'maxPrice']]) {
     $(id).addEventListener('click', (e) => {
       const b = e.target.closest('[data-v]');
@@ -174,7 +186,9 @@ function wire() {
     load();
   });
   $('clear-filters').addEventListener('click', () => {
-    Object.assign(state, { at: '', fieldType: '', district: '', maxPrice: '', lastMinute: '', q: '' });
+    Object.assign(state, { at: '', fieldType: '', district: '', maxPrice: '', lastMinute: '', q: '', sort: '' });
+    $('f-name').value = '';
+    $('f-sort').value = '';
     paintFilters();
     load();
   });

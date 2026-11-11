@@ -40,6 +40,10 @@
       </div>
 
       <form class="filter-bar" id="filters" aria-label="Bộ lọc sân" hidden>
+        <div class="filter-grid">
+          <div class="filter-field"><label class="filter-label" for="f-name">Tên sân</label><input class="input" id="f-name" type="search" placeholder="Nhập tên sân" autocomplete="off"></div>
+          <div class="filter-field"><label class="filter-label" for="f-sort">Sắp xếp giá</label><select class="select" id="f-sort"><option value="">Ưu tiên giờ có thể đặt</option><option value="asc">Giá thấp đến cao</option><option value="desc">Giá cao đến thấp</option></select></div>
+        </div>
         <div class="filter-row">
           <span class="filter-label">Ngày</span>
           <div class="day-chips" id="f-days" role="group" aria-label="Chọn ngày"></div>
