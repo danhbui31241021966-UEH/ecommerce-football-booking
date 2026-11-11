@@ -59,10 +59,10 @@ Báo cáo đo 4 trang chính tại 1366, 768 và 390 px bằng Playwright/Chrome
 
    ```bash
    U=http://127.0.0.1:4123 node e2e/b3-search.mjs 390
-   U=http://127.0.0.1:4123 node e2e/b3-search.mjs 1280
+   U=http://127.0.0.1:4123 node e2e/b3-search.mjs 1366
    node --test tests/cart.test.js
    U=http://127.0.0.1:4123 node e2e/b3-cart.mjs 390
-   U=http://127.0.0.1:4123 node e2e/b3-cart.mjs 1280
+   U=http://127.0.0.1:4123 node e2e/b3-cart.mjs 1366
    ```
 
 Các bài cart E2E cần prototype chạy ở cổng chỉ định; xem kết quả từng bước và ảnh trong `e2e/out/`. `npm test` chạy bộ kiểm thử backend (cần cấu hình DB kiểm thử); `npm run e2e:all` chạy toàn bộ E2E. Ảnh và bảng kết quả của Buổi 3: [docs/buoi3/Nhom08_Buoi3_GGO.docx](docs/buoi3/Nhom08_Buoi3_GGO.docx).

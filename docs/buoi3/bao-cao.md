@@ -44,7 +44,7 @@ Trang tiếp tục dùng CSS chung và bố cục hiện có. Bài nộp diễn 
 
 Trang `products.html` có ô **Tìm theo tên sân** và điều khiển **Sắp xếp** ngoài bộ lọc đang thu gọn. `js/venues.js` lưu trạng thái trên URL (`q`, `sort` và các bộ lọc khác), tìm theo tên qua `api.venues`, lọc quận/loại sân 5/7, giá và thời điểm; kết quả cập nhật sau thao tác. Sort giá dùng `minPrice`, khi bằng nhau dùng tên tiếng Việt; hai nhóm sân còn giờ và không còn giờ được sort riêng, để sân hết giờ không xen vào thứ tự giờ có thể đặt. Mặc định giữ thứ tự ưu tiên giờ có thể đặt.
 
-![Hình 1. Tìm theo tên, bộ lọc kết hợp và sắp xếp giá ở màn hình 1280 px](screens/search-sort-1280.png)
+![Hình 1. Kết hợp tìm tên, quận và sắp xếp; trạng thái không có kết quả được báo ở 1366 px](screens/search-sort-1366.png)
 
 ![Hình 2. Tìm kiếm và điều khiển sắp xếp ở màn hình điện thoại 390 px](screens/search-sort-390.png)
 
@@ -54,15 +54,19 @@ Trang `products.html` có ô **Tìm theo tên sân** và điều khiển **Sắp
 
 ![Hình 3. Chi tiết sân ở điện thoại, có thể lưu một giờ cụ thể](screens/cart-detail-390.png)
 
+![Hình 4. Chi tiết sân ở desktop, nút lưu giờ và đặt sân riêng biệt](screens/cart-detail-1366.png)
+
 ## V. Bước 5 – Giỏ giờ đã lưu
 
 `cart.html` trình bày các giờ đã lưu. Mỗi dòng định danh bằng `venueId`, `courtId`, `date`, `start`; thêm lặp cùng slot không tạo dòng thứ hai. Khách có thể bỏ dòng hoặc trở lại chi tiết để đặt riêng. Giỏ không phải đơn mua nhiều slot, không có nút tăng/giảm số lượng và không đảm bảo còn chỗ.
 
 Trang giỏ gọi lại API để lấy tên, lịch, tình trạng và giá hiện thời; slot đã đặt/giữ/qua hạn được cảnh báo và không cộng vào tổng tạm tính. Nếu một giờ còn trống, link “Đặt giờ này” quay lại đúng venue/ngày/giờ/sân con. Tổng là tổng giá các giờ còn trống, chỉ tham khảo đến khi khách tạo booking.
 
-![Hình 4. Giỏ giờ trên điện thoại: một giờ trống, một giờ đã có người đặt nên không tính tổng](screens/cart-390.png)
+![Hình 5. Giỏ giờ trên điện thoại: một giờ trống, một giờ đã có người đặt nên không tính tổng](screens/cart-390.png)
 
-![Hình 5. Trang giỏ giờ rỗng và lối quay lại tìm sân](screens/cart-empty-390.png)
+![Hình 6. Giỏ giờ rỗng trên điện thoại và lối quay lại tìm sân](screens/cart-empty-390.png)
+
+![Hình 7. Giỏ giờ rỗng trên desktop](screens/cart-empty-1366.png)
 
 ## VI. Bước 6 – Lưu và khôi phục bằng localStorage
 
@@ -70,40 +74,40 @@ Trang giỏ gọi lại API để lấy tên, lịch, tình trạng và giá hi�
 
 Mở DevTools → Application → Local Storage → origin prototype để xem khóa `ggo.cart`. Khi sửa nội dung key thủ công, tải lại `/cart` để kiểm tra việc bỏ dữ liệu sai; không dùng key này làm căn cứ giữ sân hoặc tạo booking.
 
-![Hình 6. Số giờ và giá tạm tính được cập nhật từ lịch hiện tại ở desktop](screens/cart-1280.png)
+![Hình 8. Số giờ và giá tạm tính được cập nhật từ lịch hiện tại ở desktop](screens/cart-1366.png)
 
 ## VII. Bước 7 – Tích hợp, kiểm thử và giao diện
 
 ### 7.1. Kiểm thử chức năng
 
-Tìm kiếm/sắp xếp: `e2e/b3-search.mjs` chạy ở 390 và 1280 px, mỗi lần 10 assertion đạt. Giỏ: kết quả lưu trong `e2e/out/results-b3-cart-{390,1280,1366}.json`; 7/7, 6/6, 7/7 bước đạt, log Console/page error rỗng. Ở 1280 px bài không có bước sync hai tab; bước này chạy đạt ở 390 và 1366. `node --test tests/cart.test.js`: 3/3 test đạt.
+Sau khi gộp giỏ vào main (`6885df8`), `npm test` đạt 183/183. Tìm kiếm/sắp xếp: `e2e/b3-search.mjs` đạt 10/10 ở 390 và 1366 px. Giỏ: `e2e/b3-cart.mjs` đạt 7/7 ở 390 và 1366 px, gồm đồng bộ badge giữa các tab; log Console/page error rỗng. `node --test tests/cart.test.js` đạt 3/3.
 
 | ID | Chức năng / dữ liệu vào | Kết quả mong đợi | Kết quả thực tế |
 |---|---|---|---|
-| TC01 | Mở danh sách ở 390/1280 | Ô tìm, sort hiện khi chưa mở bộ lọc | Đạt ở cả hai khổ |
-| TC02 | Đợi tải danh sách sân | Có thẻ venue để thao tác | Đạt; query “sân” trả 39 sân trong ảnh kiểm thử |
-| TC03 | Tìm tên sân khớp | Mọi thẻ kết quả chứa tên đã nhập | Đạt ở 390 và 1280 |
-| TC04 | Tìm chuỗi không tồn tại | Hiện thông báo không có kết quả | Đạt ở 390 và 1280 |
-| TC05 | Không có kết quả | Dòng tóm tắt giữ lại query tìm | Đạt ở 390 và 1280 |
-| TC06 | Chọn quận + giá tăng | Giá tối thiểu theo thứ tự tăng | Đạt ở 390 và 1280 |
-| TC07 | Đổi sang giá giảm | Giá tối thiểu theo thứ tự giảm | Đạt ở 390 và 1280 |
+| TC01 | Mở danh sách ở 390/1366 | Ô tìm, sort hiện khi chưa mở bộ lọc | Đạt ở cả hai khổ |
+| TC02 | Đợi tải danh sách sân | Có thẻ venue để thao tác | Đạt ở 390 và 1366 |
+| TC03 | Tìm tên sân khớp | Mọi thẻ kết quả chứa tên đã nhập | Đạt ở 390 và 1366 |
+| TC04 | Tìm chuỗi không tồn tại | Hiện thông báo không có kết quả | Đạt ở 390 và 1366 |
+| TC05 | Không có kết quả | Dòng tóm tắt giữ lại query tìm | Đạt ở 390 và 1366 |
+| TC06 | Chọn quận + giá tăng | Giá tối thiểu theo thứ tự tăng | Đạt ở 390 và 1366 |
+| TC07 | Đổi sang giá giảm | Giá tối thiểu theo thứ tự giảm | Đạt ở 390 và 1366 |
 | TC08 | Kết hợp quận, query và sort | URL lưu đúng bộ lọc | Đạt: `district`, `q` được ghi vào URL |
-| TC09 | Reload trang có query/sort/quận | Ô nhập/select khôi phục giá trị | Đạt ở 390 và 1280 |
-| TC10 | Từ chi tiết lưu giờ trống | Giỏ có một dòng, badge = 1 | Đạt; test E2E giỏ 390/1280/1366 |
-| TC11 | Lưu cùng slot lần nữa | Không tạo dòng trùng, báo đã có | Đạt ở 390/1280/1366 |
-| TC12 | Đổi giỏ từ tab khác | Badge tab đang mở đồng bộ | Đạt ở 390 và 1366; không chạy ở 1280 |
+| TC09 | Reload trang có query/sort/quận | Ô nhập/select khôi phục giá trị | Đạt ở 390 và 1366 |
+| TC10 | Từ chi tiết lưu giờ trống | Giỏ có một dòng, badge = 1 | Đạt ở 390 và 1366 |
+| TC11 | Lưu cùng slot lần nữa | Không tạo dòng trùng, báo đã có | Đạt ở 390 và 1366 |
+| TC12 | Đổi giỏ từ tab khác | Badge tab đang mở đồng bộ | Đạt ở 390 và 1366 |
 | TC13 | Mở giỏ sau khi lưu | Schedule và giá được tải mới | Đạt; hiển thị giá hiện tại 240.000đ trong fixture |
 | TC14 | Giỏ có slot đã bị chiếm | Có cảnh báo, slot bị loại khỏi tổng | Đạt; fixture slot đã đặt không tính vào tổng |
 | TC15 | Bấm “Đặt giờ này” | Trở về đúng venue/date/slot/court | Đạt; URL khớp slot đã chọn |
-| TC16 | Xóa đến khi hết dòng | Empty state, badge bằng 0 | Đạt ở 390/1280/1366 |
+| TC16 | Xóa đến khi hết dòng | Empty state, badge bằng 0 | Đạt ở 390 và 1366 |
 | TC17 | Unit: add một slot rồi add trùng | Một row, `addCart` lần 2 trả false | Đạt |
 | TC18 | Unit: xóa một trong hai giờ và tính tổng | Còn đúng giờ kia; tổng đúng giá | Đạt; hai giá 120.000 + 95.000 cho tổng 215.000đ |
 | TC19 | Unit: key hỏng/null/dòng không hợp lệ | Trả giỏ rỗng hoặc chỉ giữ row hợp lệ | Đạt |
-| TC20 | Browser logs trong luồng giỏ | Không có console/page errors | Đạt; logs rỗng ở 390/1280/1366 |
+| TC20 | Browser logs trong luồng giỏ | Không có console/page errors | Đạt; logs rỗng ở 390 và 1366 |
 
 ### 7.2. Giao diện
 
-Ảnh minh chứng được chụp bằng Chrome/Playwright với dữ liệu mock. Có ảnh tìm/sort ở 390, 1280 và giỏ/chi tiết/rỗng ở 390, 1280. Ảnh được kiểm bằng mắt để xác nhận điều khiển không bị ẩn, card/giá/trạng thái đọc được và empty state xuất hiện; số đo tràn ngang độc lập chưa được lập cho các trang Buổi 3, nên không khẳng định đã đo toàn bộ breakpoint.
+Ảnh minh chứng được chụp bằng Chrome/Playwright với dữ liệu mock. Có ảnh tìm/sort và giỏ/chi tiết/rỗng ở 390 và 1366 px. Ảnh được kiểm bằng mắt để xác nhận điều khiển không bị ẩn, card/giá/trạng thái đọc được và empty state xuất hiện; số đo tràn ngang độc lập chưa được lập cho các trang Buổi 3, nên không khẳng định đã đo toàn bộ breakpoint.
 
 ### 7.3. Nhật ký lỗi đã sửa
 
@@ -119,7 +123,7 @@ Tìm kiếm/sắp xếp: `e2e/b3-search.mjs` chạy ở 390 và 1280 px, mỗi l
 
 ### 7.4. Giới hạn kiểm thử
 
-Kiểm thử dùng prototype/mock và trình duyệt cục bộ; không thay thế kiểm tra backend MySQL production hoặc thanh toán/ngân hàng thật. Test browser chỉ bao phủ những flow ghi trong bài E2E, không chứng minh mọi tổ hợp filter hoặc mọi cạnh tranh đặt cùng lúc. Cart E2E artifacts có 390/1280/1366; search E2E thực chạy ở 390/1280. Chưa tuyên bố trải nghiệm tốt hơn qua thử nghiệm người dùng thật.
+`npm test` 183/183 là kết quả backend trên main sau khi gộp giỏ; E2E search/cart chạy prototype/mock ở 390 và 1366, không thay thế kiểm tra MySQL production hoặc thanh toán/ngân hàng thật. Test browser chỉ bao phủ những flow ghi trong bài E2E, không chứng minh mọi tổ hợp filter hoặc mọi cạnh tranh đặt cùng lúc. Chưa tuyên bố trải nghiệm tốt hơn qua thử nghiệm người dùng thật.
 
 ## VIII. Bước 8 – GitHub, README, AI và trình bày
 
@@ -144,4 +148,4 @@ Nhóm làm việc trên repo chung, tính năng được tách commit có nội 
 
 ## Phụ lục: nguồn minh chứng
 
-- Mã minh chứng: E2E `e2e/b3-search.mjs`, `e2e/b3-cart.mjs`; unit `tests/cart.test.js`; ảnh `docs/buoi3/screens/` và kết quả giỏ `e2e/out/results-b3-cart-*.json`; code `js/venues.js`, `js/cart.js`, `js/cart-page.js`, `js/venue.js`.
+- Mã minh chứng: E2E `e2e/b3-search.mjs`, `e2e/b3-cart.mjs`; unit `tests/cart.test.js`; ảnh `docs/buoi3/screens/`; code `js/venues.js`, `js/cart.js`, `js/cart-page.js`, `js/venue.js`.
