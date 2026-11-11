@@ -8,8 +8,8 @@ GGO giúp người chơi tìm sân bóng mini 5/7 người theo giờ, xem giá 
 
 - `index.html` – Trang chủ, tìm theo ngày/giờ/loại sân/khu vực và xem giờ gần nhất còn trống.
 - `products.html` – Tìm theo tên sân; lọc ngày, giờ, quận, loại sân (5/7 người), giá và giờ chót; sắp xếp giá tăng/giảm.
-- `product-detail.html` – Thông tin sân, lịch giờ và luồng đặt sân; lưu giờ cụ thể vào giỏ giờ.
-- `cart.html` – Xem các giờ đã lưu, tình trạng và giá mới nhất; bỏ giờ hoặc mở lại lịch để đặt.
+- `product-detail.html` – Thông tin sân, lịch giờ và luồng đặt sân; thêm giờ cụ thể vào giỏ sân.
+- `cart.html` – Giỏ sân: xem các giờ đã thêm, tình trạng và giá mới nhất; bỏ giờ hoặc mở lại lịch để đặt.
 - `about.html` – Giới thiệu GGO.
 - Tài khoản khách: `login.html`, `register.html`, `my-bookings.html`, `booking.html`, `notifications.html`.
 - Pass sân: `transfers.html`, `transfer.html`.
@@ -23,8 +23,8 @@ GGO giúp người chơi tìm sân bóng mini 5/7 người theo giờ, xem giá 
 
 - Tìm sân theo tên; kết hợp với lọc quận, loại sân 5/7 người và các bộ lọc có sẵn; sắp xếp theo giá tăng dần/giảm dần. Mặc định vẫn ưu tiên giờ có thể đặt.
 - Trang danh sách sân lấy dữ liệu qua API/mock; chi tiết sân mở theo `id` trên URL.
-- Giỏ giờ lưu từng khung giờ cụ thể trong trình duyệt (`localStorage`), mỗi dòng là một chỗ riêng, không có số lượng `+`/`−`. Lịch và giá được tải lại trước khi hiển thị; giờ không còn trống bị loại khỏi tổng và không thể đặt từ giỏ.
-- Giỏ chỉ là danh sách nháp, **không giữ chỗ**. Đặt từng giờ qua luồng booking hiện tại; chủ sân có thể nhận yêu cầu/giữ giờ theo luật GGO. GGO không gom nhiều giờ thành một đơn thanh toán.
+- Giỏ sân lưu từng khung giờ cụ thể trong trình duyệt (`localStorage`), mỗi dòng là một chỗ riêng, không có số lượng `+`/`−`. Lịch và giá được tải lại trước khi hiển thị; giờ không còn trống bị loại khỏi tổng và không thể đặt từ giỏ sân.
+- Giỏ sân chỉ là danh sách nháp, **không giữ chỗ**. Đặt từng giờ qua luồng booking hiện tại; chủ sân có thể nhận yêu cầu/giữ giờ theo luật GGO. GGO không gom nhiều giờ thành một đơn thanh toán.
 
 ## Công nghệ
 
@@ -122,7 +122,7 @@ Seed dữ liệu demo cung cấp tài khoản mẫu; mật khẩu chung là `Mat
 - Bố cục điều khiển bị chật ở màn 390 px; xếp dọc và cho ô sắp xếp dùng toàn chiều rộng trên điện thoại.
 - Sort giá làm sân hết giờ xen vào thứ tự sân còn giờ; tách hai nhóm rồi sort giá riêng trong mỗi nhóm.
 - Test sau F5 lấy `value` của option quận, nhưng option này không khai báo thuộc tính đó; chuyển test sang chọn theo nội dung text của option rồi kiểm tra giá trị bộ lọc đã khôi phục.
-- Giỏ hàng dùng chữ dễ hiểu nhầm là đặt chỗ hoặc cộng số lượng; đổi nội dung thành “Giờ đã lưu”, mỗi dòng một slot và nói rõ giá/tình trạng có thể đổi, giỏ không giữ giờ.
+- Giỏ hàng dùng chữ dễ hiểu nhầm là đặt chỗ hoặc cộng số lượng; đặt tên là “Giỏ sân”, mỗi dòng một giờ cụ thể và nói rõ giá/tình trạng có thể đổi, giỏ sân không giữ giờ.
 
 ## Repository GitHub
 

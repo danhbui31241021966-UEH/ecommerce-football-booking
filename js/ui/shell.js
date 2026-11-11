@@ -16,7 +16,7 @@ const NAV = {
     main: [
       { href: '/', label: 'Trang chủ' },
       { href: '/products.html', label: 'Tìm sân' },
-      { href: '/cart.html', label: 'Giờ đã lưu', cart: true },
+      { href: '/cart.html', label: 'Giỏ sân', cart: true },
     ],
     more: MORE('/request-new.html'),
   },
@@ -25,7 +25,7 @@ const NAV = {
       { href: '/', label: 'Trang chủ' },
       { href: '/products.html', label: 'Tìm sân' },
       { href: '/my-bookings.html', label: 'Lịch đặt của tôi' },
-      { href: '/cart.html', label: 'Giờ đã lưu', cart: true },
+      { href: '/cart.html', label: 'Giỏ sân', cart: true },
     ],
     more: MORE('/requests.html'),
   },
@@ -35,7 +35,7 @@ const NAV = {
       { href: '/owner-schedule.html', label: 'Lịch sân', also: ['/owner-bookings.html', '/owner-leagues.html', '/owner-league.html'] },
       { href: '/owner-requests.html', label: 'Khách nhờ báo giá' },
       { href: '/owner-settings.html', label: 'Cài đặt sân' },
-      { href: '/cart.html', label: 'Giờ đã lưu', cart: true },
+      { href: '/cart.html', label: 'Giỏ sân', cart: true },
     ],
     more: [],
   },
@@ -44,7 +44,7 @@ const NAV = {
       { href: '/admin.html', label: 'Tài khoản' },
       { href: '/admin-bookings.html', label: 'Lịch đặt' },
       { href: '/admin-logs.html', label: 'Nhật ký' },
-      { href: '/cart.html', label: 'Giờ đã lưu', cart: true },
+      { href: '/cart.html', label: 'Giỏ sân', cart: true },
     ],
     more: [],
   },
@@ -114,10 +114,10 @@ const saveHint = (role) => {
 };
 
 const cartCount = () => globalThis.GgoCart?.countCart() || 0;
-const linkHtml = (l) => `<a href="${l.href}" ${isCurrent(l.href, l.also) ? 'aria-current="page"' : ''}>${l.label}${l.cart ? ` <span class="cart-count" data-cart-count aria-label="${cartCount()} giờ đã lưu">${cartCount()}</span>` : ''}</a>`;
+const linkHtml = (l) => `<a href="${l.href}" ${isCurrent(l.href, l.also) ? 'aria-current="page"' : ''}>${l.label}${l.cart ? ` <span class="cart-count" data-cart-count aria-label="${cartCount()} giờ trong giỏ sân">${cartCount()}</span>` : ''}</a>`;
 function syncCartBadges() {
   const n = cartCount();
-  document.querySelectorAll('[data-cart-count]').forEach((el) => { el.textContent = n; el.setAttribute('aria-label', `${n} giờ đã lưu`); });
+  document.querySelectorAll('[data-cart-count]').forEach((el) => { el.textContent = n; el.setAttribute('aria-label', `${n} giờ trong giỏ sân`); });
 }
 const moreIsCurrent = (role) => NAV[role].more.some((l) => isCurrent(l.href, l.also));
 

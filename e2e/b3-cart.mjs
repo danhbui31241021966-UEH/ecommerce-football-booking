@@ -65,7 +65,7 @@ await step(p, 'b3-cart', 'book-link', async () => {
 await step(p, 'b3-cart', 'remove-and-empty', async () => {
   await p.goto(U + '/cart'); await p.locator('.cart-item').first().waitFor();
   while (await p.locator('.cart-item').count()) { await p.locator('.cart-item [data-remove]').first().click(); await p.waitForTimeout(100); }
-  assert.match(await p.locator('#cart-root').innerText(), /chưa lưu giờ/i);
+  assert.match(await p.locator('#cart-root').innerText(), /giỏ sân đang trống/i);
   assert.equal(await p.evaluate(() => GgoCart.countCart()), 0);
   await p.screenshot({ path: `${shotDir}/empty-${W}.png`, fullPage: true });
   return 'empty cart and zero badge';

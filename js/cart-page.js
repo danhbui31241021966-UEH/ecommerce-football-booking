@@ -27,12 +27,12 @@ async function load() {
 function render() {
   const root = $('cart-root');
   if (!entries.length) {
-    root.innerHTML = '<div class="card empty"><h1 class="h1">Giỏ giờ đã lưu</h1><p>Bạn chưa lưu giờ sân nào.</p><a class="btn btn-lime" href="/products.html">Tìm sân</a></div>';
+    root.innerHTML = '<div class="card empty"><h1 class="h1">Giỏ sân</h1><p>Giỏ sân đang trống.</p><a class="btn btn-lime" href="/products.html">Tìm sân</a></div>';
     decorate(); return;
   }
   const valid = entries.filter((e) => !e.invalid && e.slot);
   const total = valid.reduce((sum, e) => sum + e.slot.price, 0);
-  root.innerHTML = `<div class="page-head"><h1 class="h1">Giờ đã lưu</h1><p class="sub">Mỗi giờ là một chỗ riêng. Tình trạng và giá được cập nhật từ lịch sân hiện tại.</p></div>
+  root.innerHTML = `<div class="page-head"><h1 class="h1">Giỏ sân</h1><p class="sub">Mỗi giờ là một chỗ riêng. Tình trạng và giá được cập nhật từ lịch sân hiện tại.</p></div>
     <div class="cart-list">${entries.map(({ item, venue, court, slot, invalid }) => {
       const link = `/product-detail.html?id=${item.venueId}&date=${encodeURIComponent(item.date)}&slot=${encodeURIComponent(item.start)}&court=${item.courtId}`;
       const image = venue?.imageUrl ? `<img src="${esc(venue.imageUrl)}" alt="${esc(venue.name)}">` : '<div class="cart-image-empty">Chưa có ảnh</div>';
@@ -49,7 +49,7 @@ document.addEventListener('click', async (event) => {
   const target = GgoCart.loadCart().find((item) => rowKey(item) === key);
   if (target) GgoCart.removeCart(target);
   await load();
-  toast('Đã xóa giờ khỏi giỏ.');
+  toast('Đã xóa giờ khỏi giỏ sân.');
 });
 await mountShell();
 await load();

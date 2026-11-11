@@ -398,7 +398,7 @@ function wire() {
   $('bar-save').addEventListener('click', () => {
     if (!picked) return;
     const added = GgoCart.addCart({ venueId, courtId: picked.courtId, date, start: picked.start });
-    toast(added ? 'Đã lưu giờ vào giỏ.' : 'Giờ này đã có trong giỏ.', { error: !added });
+    toast(added ? 'Đã thêm giờ này vào giỏ sân.' : 'Giờ này đã có trong giỏ sân.', { error: !added });
   });
   $('do-book').addEventListener('click', submitBooking);
   $('confirm-dialog').querySelectorAll('[data-close]').forEach((b) => b.addEventListener('click', () => $('confirm-dialog').close()));
