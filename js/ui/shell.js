@@ -2,6 +2,7 @@
 // Trang chỉ cần <div id="app-header"></div> và <div id="app-footer"></div>, rồi gọi mountShell().
 import { icon, brandMark } from './icons.js';
 import { api } from '/js/api.js';
+import '/js/cart.js';
 
 // main: luôn hiện trên thanh. more: gom vào mục "Thêm" (trên điện thoại hiện thẳng dưới nhãn "Thêm", không cần bấm thêm).
 const MORE = (requestHref) => [
@@ -15,6 +16,7 @@ const NAV = {
     main: [
       { href: '/', label: 'Trang chủ' },
       { href: '/products.html', label: 'Tìm sân' },
+      { href: '/cart.html', label: 'Giờ đã lưu', cart: true },
     ],
     more: MORE('/request-new.html'),
   },
@@ -23,6 +25,7 @@ const NAV = {
       { href: '/', label: 'Trang chủ' },
       { href: '/products.html', label: 'Tìm sân' },
       { href: '/my-bookings.html', label: 'Lịch đặt của tôi' },
+      { href: '/cart.html', label: 'Giờ đã lưu', cart: true },
     ],
     more: MORE('/requests.html'),
   },
@@ -32,6 +35,7 @@ const NAV = {
       { href: '/owner-schedule.html', label: 'Lịch sân', also: ['/owner-bookings.html', '/owner-leagues.html', '/owner-league.html'] },
       { href: '/owner-requests.html', label: 'Khách nhờ báo giá' },
       { href: '/owner-settings.html', label: 'Cài đặt sân' },
+      { href: '/cart.html', label: 'Giờ đã lưu', cart: true },
     ],
     more: [],
   },
@@ -40,6 +44,7 @@ const NAV = {
       { href: '/admin.html', label: 'Tài khoản' },
       { href: '/admin-bookings.html', label: 'Lịch đặt' },
       { href: '/admin-logs.html', label: 'Nhật ký' },
+      { href: '/cart.html', label: 'Giờ đã lưu', cart: true },
     ],
     more: [],
   },
@@ -108,7 +113,12 @@ const saveHint = (role) => {
   }
 };
 
-const linkHtml = (l) => `<a href="${l.href}" ${isCurrent(l.href, l.also) ? 'aria-current="page"' : ''}>${l.label}</a>`;
+const cartCount = () => globalThis.GgoCart?.countCart() || 0;
+const linkHtml = (l) => `<a href="${l.href}" ${isCurrent(l.href, l.also) ? 'aria-current="page"' : ''}>${l.label}${l.cart ? ` <span class="cart-count" data-cart-count aria-label="${cartCount()} giờ đã lưu">${cartCount()}</span>` : ''}</a>`;
+function syncCartBadges() {
+  const n = cartCount();
+  document.querySelectorAll('[data-cart-count]').forEach((el) => { el.textContent = n; el.setAttribute('aria-label', `${n} giờ đã lưu`); });
+}
 const moreIsCurrent = (role) => NAV[role].more.some((l) => isCurrent(l.href, l.also));
 
 function navHtml(role) {
@@ -229,6 +239,8 @@ export async function mountShell() {
     header.outerHTML = headerHtml(guessed, guessed === 'guest' ? null : {}, 0, true) + mobileNavHtml(guessed, guessed !== 'guest') + dockHtml(guessed);
     wireHeader();
     bindGlobalKeys();
+  globalThis.addEventListener('storage', (e) => { if (e.key === globalThis.GgoCart?.KEY) syncCartBadges(); });
+  globalThis.addEventListener('ggo-cart-change', syncCartBadges);
   }
 
   try {
