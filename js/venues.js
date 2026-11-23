@@ -155,7 +155,6 @@ async function load() {
 }
 
 function wire() {
-  $('f-toggle').addEventListener('click', () => setFiltersOpen($('filters').hidden));
   $('f-days').addEventListener('click', (e) => {
     const b = e.target.closest('[data-date]');
     if (!b) return;
@@ -198,6 +197,8 @@ function wire() {
 }
 
 async function main() {
+  // Mở/đóng bộ lọc không cần dữ liệu: gắn ngay để nút phản hồi cả khi mạng chậm, các ô lọc được điền khi dữ liệu về.
+  $('f-toggle').addEventListener('click', () => setFiltersOpen($('filters').hidden));
   await mountShell();
   decorate();
   try {

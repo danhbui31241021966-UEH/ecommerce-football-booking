@@ -5,6 +5,11 @@ const browser = await chromium.launch({ executablePath: process.env.CHROME_PATH 
 const page = await browser.newPage({ viewport: { width, height: width < 600 ? 844 : 768 }, isMobile: width < 600 });
 const check = (ok, msg) => { if (!ok) throw new Error(msg); console.log(`OK ${msg}`); };
 try {
+ // Mạng chậm: dữ liệu mẫu về trễ 2 giây, nút Bộ lọc vẫn phải mở được ngay.
+ await page.route('**/mock/*.json', async (r) => { await new Promise((x) => setTimeout(x, 2000)); await r.continue().catch(() => {}); });
+ await page.goto(`${U}/products.html`, { waitUntil: 'domcontentloaded' }); await page.locator('#f-toggle').click();
+ check(await page.locator('.venue-card').count() === 0 && await page.locator('#f-toggle').getAttribute('aria-expanded') === 'true' && await page.locator('#filters').isVisible(), 'filter toggle responds while data is still loading');
+ await page.unroute('**/mock/*.json');
  await page.goto(`${U}/products.html`); await page.locator('#f-name').waitFor();
  check(await page.locator('#f-name').isVisible() && await page.locator('#f-sort').isVisible(), 'search and sorting visible without opening filters');
  // Nút lọc chỉ được gắn sự kiện sau khi trang tải xong dữ liệu (qua mạng chậm có thể mất vài giây).
