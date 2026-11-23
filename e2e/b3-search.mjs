@@ -7,6 +7,8 @@ const check = (ok, msg) => { if (!ok) throw new Error(msg); console.log(`OK ${ms
 try {
  await page.goto(`${U}/products.html`); await page.locator('#f-name').waitFor();
  check(await page.locator('#f-name').isVisible() && await page.locator('#f-sort').isVisible(), 'search and sorting visible without opening filters');
+ // Nút lọc chỉ được gắn sự kiện sau khi trang tải xong dữ liệu (qua mạng chậm có thể mất vài giây).
+ await page.locator('.venue-card .title').first().waitFor();
  await page.locator('#f-toggle').click();
  const names = await page.locator('.venue-card .title').allTextContents();
  check(names.length > 0, 'venues loaded');
@@ -29,6 +31,6 @@ try {
  await page.locator('#f-name').fill(found); await page.waitForTimeout(500);
  check(new URL(page.url()).searchParams.get('q') === found, 'name query persisted in URL');
  await page.screenshot({path:`/tmp/b3-shots/search/${width}.png`, fullPage:true});
- await page.reload(); await page.locator('#f-toggle').click();
+ await page.reload(); await page.waitForFunction(() => document.querySelector('.venue-card') || !document.getElementById('empty').hidden); await page.locator('#f-toggle').click();
  check(await page.locator('#f-sort').inputValue() === 'desc' && await page.locator('#f-district').inputValue() === district && await page.locator('#f-name').inputValue() === found, 'filters survive reload');
 } finally { await browser.close(); }
