@@ -300,13 +300,24 @@ export async function mountShell() {
           <div>
             <p><a class="footer-link" href="/about.html">Giới thiệu GGO</a></p>
             <p>Đồ án môn Phát triển ứng dụng TMĐT – Nhóm 8</p>
-            ${MODE === 'mock' ? '<p class="footer-demo">Bản demo: dữ liệu mẫu, lưu trên trình duyệt này.</p>' : ''}
+            ${MODE === 'mock' ? '<p class="footer-demo">Bản demo: dữ liệu mẫu, lưu trên trình duyệt này.</p><p class="footer-demo" data-demo-stale hidden></p>' : ''}
           </div>
           ${proto ? `<div class="footer-role"><span>Xem với vai trò</span>${roleSwitch}${protoTools}</div>` : ''}
         </div>
         <p class="footer-wordmark" aria-hidden="true"><img src="/images/logo-ggo-dark.svg" alt="" width="1655" height="712"></p>
       </footer>`;
+    if (MODE === 'mock') showStaleDemo();
   }
+}
+
+// Dữ liệu mẫu được giữ nguyên qua các ngày khi người dùng đã thao tác, nên đơn mẫu dần thành lịch đã qua: báo ngày dựng và cho làm mới.
+async function showStaleDemo() {
+  const st = await api.proto.state().catch(() => null);
+  const el = document.querySelector('[data-demo-stale]');
+  if (!st?.seedStale || !el) return;
+  const [, m, d] = st.seedDay.split('-');
+  el.innerHTML = `Dữ liệu mẫu dựng ngày ${d}/${m}, các lịch mẫu có thể đã qua. <button type="button" class="footer-link" data-proto="reset">Đặt lại demo</button> để có dữ liệu mẫu mới (mất các thao tác bạn đã làm).`;
+  el.hidden = false;
 }
 
 export function toast(message, { error = false } = {}) {

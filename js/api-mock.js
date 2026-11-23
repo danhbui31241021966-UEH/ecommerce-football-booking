@@ -3436,6 +3436,6 @@ export const proto = {
   },
   async state() {
     await ready();
-    return { now: now(), clockOffsetMin: S.clockOffsetMin, user: sessionUser() ? userOut(sessionUser()) : null, statuses: STATUSES };
+    return { now: now(), clockOffsetMin: S.clockOffsetMin, user: sessionUser() ? userOut(sessionUser()) : null, statuses: STATUSES, seedDay: S.seedDay, seedStale: S.seedDay !== dateOf(realNow()) };
   },
 };

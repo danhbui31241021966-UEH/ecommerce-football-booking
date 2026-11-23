@@ -3282,6 +3282,7 @@ i.slot-league { min-height: 0; padding: 0; }
 .about-ph { padding: var(--sp-3) var(--sp-4); border: 2px dashed var(--text); border-radius: var(--r-lg); background: var(--surface); font-weight: 600; overflow-wrap: anywhere; }
 .home-about { margin-top: var(--sp-6); }
 .site-footer .footer-link { color: var(--on-dark); text-underline-offset: 3px; }
+.site-footer button.footer-link { background: none; border: 0; padding: 0; font: inherit; text-decoration: underline; cursor: pointer; }
 @media (min-width: 768px) {
   .about-who { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .about-feat { grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--sp-8); }
