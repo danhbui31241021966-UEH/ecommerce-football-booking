@@ -339,6 +339,7 @@ async function submitBooking() {
   btn.disabled = true;
   try {
     const b = await api.createBooking({ courtId: picked.courtId, date, start: picked.start, note: $('note').value.trim() });
+    GgoCart.removeCart({ venueId, courtId: picked.courtId, date, start: picked.start });
     location.href = `/booking.html?id=${b.id}`;
   } catch (e) {
     $('confirm-dialog').close();
