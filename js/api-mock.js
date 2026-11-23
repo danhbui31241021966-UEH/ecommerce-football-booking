@@ -341,8 +341,9 @@ async function ready() {
   } catch {
     loaded = null;
   }
-  // Dữ liệu demo sinh theo ngày: sang ngày mới thì dựng lại để "tối nay" luôn có thật.
-  if (loaded && loaded.seedDay === dateOf(realNow())) {
+  // Dữ liệu demo sinh theo ngày: sang ngày mới thì dựng lại để "tối nay" luôn có thật,
+  // trừ khi người dùng đã tạo dữ liệu (tài khoản, lịch đặt…): khi đó giữ nguyên, muốn làm mới thì "Đặt lại demo".
+  if (loaded && (loaded.seedDay === dateOf(realNow()) || loaded.userData)) {
     S = loaded;
   } else {
     const keepSession = loaded?.sessionUserId ?? null;
@@ -3345,6 +3346,8 @@ route('GET', '/api/admin/logs', (c) => {
 /* ---------- Điểm vào cho api.js ---------- */
 
 /** Giả lập một request HTTP tới backend. Trả JSON thuần (đã sao chép) hoặc ném ApiError. */
+const NO_USER_DATA = new Set(['/api/auth/login', '/api/auth/logout']);
+
 export async function handle(method, path, { query = {}, body } = {}, csrfToken) {
   await ready();
   tick();
@@ -3353,6 +3356,10 @@ export async function handle(method, path, { query = {}, body } = {}, csrfToken)
   if (!r) fail(404, 'Không tìm thấy đường dẫn');
   const params = r.re.exec(path).groups || {};
   const result = r.handler({ params, query, body: clone(body), user: sessionUser() });
+  if (method !== 'GET' && !NO_USER_DATA.has(path) && !S.userData) {
+    S.userData = true;
+    save();
+  }
   return clone(result);
 }
 
