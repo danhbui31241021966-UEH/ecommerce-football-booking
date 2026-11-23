@@ -13,8 +13,8 @@ let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
 let seeds = null; // dữ liệu mẫu đã tải từ public/mock/*.json
 let seedPromise = null;
 
-const fail = (status, message) => {
-  throw new ApiError(status, message);
+const fail = (status, message, field) => {
+  throw new ApiError(status, message, field);
 };
 const clone = (x) => (x === undefined ? undefined : JSON.parse(JSON.stringify(x)));
 const realNow = () => msToVn(Date.now());
@@ -2462,12 +2462,15 @@ route('GET', '/api/auth/me', (c) => ({ user: c.user ? userOut(c.user) : null }))
 route('POST', '/api/auth/register', (c) => {
   const { fullName = '', email: rawEmail = '', phone: rawPhone = '', password = '' } = c.body || {};
   const email = String(rawEmail ?? '').trim().toLowerCase() || null;
-  const phone = normalizeAuthPhone(rawPhone);
-  req(String(fullName).trim().length >= 2, 'Vui lòng nhập họ tên');
-  req(!email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), 'Email không hợp lệ');
-  req(String(password).length >= 8, 'Mật khẩu cần ít nhất 8 ký tự');
-  if (email && S.users.some((u) => u.email?.toLowerCase() === email)) fail(409, 'Email này đã được đăng ký');
-  if (S.users.some((u) => storedAuthPhone(u.phone) === phone)) fail(409, 'Số điện thoại này đã được đăng ký');
+  // Kiểm theo thứ tự các ô trên form và báo kèm tên ô sai đầu tiên.
+  const check = (ok, message, field) => { if (!ok) fail(400, message, field); };
+  check(String(fullName).trim().length >= 2, 'Vui lòng nhập họ tên', 'fullName');
+  check(!email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), 'Email không hợp lệ', 'email');
+  let phone;
+  try { phone = normalizeAuthPhone(rawPhone); } catch (e) { fail(400, e.message, 'phone'); }
+  check(String(password).length >= 8, 'Mật khẩu cần ít nhất 8 ký tự', 'password');
+  if (email && S.users.some((u) => u.email?.toLowerCase() === email)) fail(409, 'Email này đã được đăng ký', 'email');
+  if (S.users.some((u) => storedAuthPhone(u.phone) === phone)) fail(409, 'Số điện thoại này đã được đăng ký', 'phone');
   const u = { id: nextId('user'), fullName: String(fullName).trim(), email, phone, role: 'customer', isActive: true, password, createdAt: now() };
   S.users.push(u);
   S.sessionUserId = u.id;

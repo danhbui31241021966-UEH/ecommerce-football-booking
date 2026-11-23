@@ -1381,6 +1381,11 @@ body:has(.booking-bar) .role-dock {
 .field.error .hint {
   color: var(--danger);
 }
+.field-msg {
+  font-size: var(--fs-sm);
+  font-weight: 600;
+  color: var(--danger);
+}
 
 /* Ô tìm kiếm lớn trên hero */
 .search-panel {

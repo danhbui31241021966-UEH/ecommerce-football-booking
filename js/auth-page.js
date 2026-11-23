@@ -47,6 +47,32 @@ const showError = (msg) => {
   errorBox.hidden = !msg;
 };
 
+// Lỗi gắn với một ô: hiện ngay dưới ô đó và đưa con trỏ vào ô.
+function clearFieldErrors() {
+  form.querySelectorAll('.field.error').forEach((f) => {
+    f.classList.remove('error');
+    f.querySelector('.field-msg')?.remove();
+    f.querySelector('[aria-invalid]')?.removeAttribute('aria-invalid');
+  });
+}
+function showFieldError(input, msg) {
+  const field = input.closest('.field');
+  field.classList.add('error');
+  const note = document.createElement('span');
+  note.className = 'field-msg';
+  note.id = `${input.name}-msg`;
+  note.setAttribute('role', 'alert');
+  note.textContent = msg;
+  field.append(note);
+  input.setAttribute('aria-invalid', 'true');
+  input.setAttribute('aria-describedby', note.id);
+  input.focus();
+}
+// Ô bắt buộc còn trống: chỉ kiểm có hay không có chữ, ô đầu tiên theo thứ tự trên form.
+function firstEmptyRequired() {
+  return [...form.querySelectorAll('input[required]')].find((i) => !i.value.trim());
+}
+
 (async () => {
   await mountShell();
   if (getUser()) location.replace(safeNext || HOME[getUser().role] || '/');
@@ -68,6 +94,12 @@ if (demo && api.proto) {
 form.addEventListener('submit', async (e) => {
   e.preventDefault();
   showError('');
+  clearFieldErrors();
+  const empty = firstEmptyRequired();
+  if (empty) {
+    showFieldError(empty, `Nhập ${form.querySelector(`label[for="${empty.id}"]`).textContent.toLowerCase()}`);
+    return;
+  }
   const body = Object.fromEntries(new FormData(form));
   const btn = form.querySelector('button[type=submit]');
   const label = btn.textContent;
@@ -77,9 +109,11 @@ form.addEventListener('submit', async (e) => {
     const { user } = await (form.dataset.mode === 'register' ? api.register(body) : api.login(body));
     location.href = safeNext || HOME[user.role] || '/';
   } catch (err) {
-    showError(err.message);
     btn.disabled = false;
     btn.textContent = label;
+    const input = err.field && form.elements.namedItem(err.field);
+    if (input) return showFieldError(input, err.message);
+    showError(err.message);
     form.querySelector('input').focus();
   }
 });

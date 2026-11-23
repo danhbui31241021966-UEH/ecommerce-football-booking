@@ -4,7 +4,7 @@ const rateLimit = require('express-rate-limit');
 const { db, isDuplicate } = require('../db');
 const clock = require('../clock');
 const v = require('../utils/validate');
-const { badRequest, conflict, unauthorized, forbidden } = require('../utils/errors');
+const { HttpError, badRequest, conflict, unauthorized, forbidden } = require('../utils/errors');
 const { issueToken, ensureToken } = require('../middleware/csrf');
 
 const router = express.Router();
@@ -40,11 +40,20 @@ router.get('/me', (req, res) => {
 });
 
 router.post('/register', authLimiter, async (req, res) => {
-  const fullName = v.str(req.body.fullName, 'Họ tên', { min: 2, max: 100 });
+  // Gắn tên ô vào lỗi để trang đưa con trỏ tới đúng ô sai (thứ tự kiểm = thứ tự các ô trên form).
+  const atField = (field, check) => {
+    try {
+      return check();
+    } catch (err) {
+      if (err instanceof HttpError) err.field = field;
+      throw err;
+    }
+  };
+  const fullName = atField('fullName', () => v.str(req.body.fullName, 'Họ tên', { min: 2, max: 100 }));
   const rawEmail = String(req.body.email ?? '').trim();
-  const email = rawEmail ? v.email(rawEmail) : null;
-  const phone = v.phone(req.body.phone);
-  const password = v.password(req.body.password);
+  const email = rawEmail ? atField('email', () => v.email(rawEmail)) : null;
+  const phone = atField('phone', () => v.phone(req.body.phone));
+  const password = atField('password', () => v.password(req.body.password));
   const hash = await bcrypt.hash(password, 10);
   let id;
   try {
@@ -54,8 +63,8 @@ router.post('/register', authLimiter, async (req, res) => {
     );
     id = r.insertId;
   } catch (err) {
-    if (isDuplicate(err, 'uq_user_phone')) throw conflict('Số điện thoại này đã được đăng ký');
-    if (isDuplicate(err, 'uq_user_email')) throw conflict('Email này đã được đăng ký');
+    if (isDuplicate(err, 'uq_user_phone')) throw Object.assign(conflict('Số điện thoại này đã được đăng ký'), { field: 'phone' });
+    if (isDuplicate(err, 'uq_user_email')) throw Object.assign(conflict('Email này đã được đăng ký'), { field: 'email' });
     if (isDuplicate(err)) throw conflict('Thông tin tài khoản đã được sử dụng');
     throw err;
   }

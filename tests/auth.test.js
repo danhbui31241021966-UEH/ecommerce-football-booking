@@ -88,6 +88,12 @@ test('đăng ký ba trường, phone được chuẩn hóa và trùng số bị 
   assert.equal((await b.post('/api/auth/register', { fullName: 'A', phone: '0912345679', password: 'matkhau123', email: 'khong-phai-email' })).status, 400);
   assert.equal((await b.post('/api/auth/register', { fullName: 'Ai Đó', phone: '123', password: 'matkhau123' })).status, 400);
   assert.equal((await b.post('/api/auth/register', { fullName: 'Ai Đó', phone: '0912345679', password: 'ngan' })).status, 400);
+  // Lỗi báo kèm tên ô sai đầu tiên theo thứ tự trên form, để trang đưa con trỏ tới đúng ô.
+  const firstBad = async (body) => (await b.post('/api/auth/register', body)).body.field;
+  assert.equal(await firstBad({}), 'fullName');
+  assert.equal(await firstBad({ fullName: 'Ai Đó' }), 'phone');
+  assert.equal(await firstBad({ fullName: 'Ai Đó', phone: '123', password: 'ngan' }), 'phone');
+  assert.equal(await firstBad({ fullName: 'Ai Đó', phone: '0912345679' }), 'password');
 
   const withEmail = await b.post('/api/auth/register', { fullName: 'Có Email', email: 'Moi@Test.local', phone: '0912345679', password: 'matkhau123' });
   assert.equal(withEmail.status, 201);

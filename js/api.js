@@ -23,10 +23,11 @@ function pickMode() {
 export const MODE = pickMode();
 
 export class ApiError extends Error {
-  constructor(status, message) {
+  constructor(status, message, field) {
     super(message);
     this.name = 'ApiError';
     this.status = status;
+    this.field = field; // tên ô nhập sai, nếu server biết
   }
 }
 
@@ -77,7 +78,7 @@ async function transport(method, path, { query, body } = {}, token) {
     throw new ApiError(503, 'Hệ thống đang tạm nghỉ');
   }
   const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new ApiError(res.status, data.error || `Lỗi ${res.status}`);
+  if (!res.ok) throw new ApiError(res.status, data.error || `Lỗi ${res.status}`, data.field);
   return data;
 }
 
