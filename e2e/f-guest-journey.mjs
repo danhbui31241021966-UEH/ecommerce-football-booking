@@ -44,6 +44,8 @@ await step(p, 'journey', '08-simulated-payment-paid', async () => {
 }, { full: true });
 await step(p, 'journey', '09-my-bookings-after-reload', async () => {
   await p.goto(`${U}/my-bookings.html`); await p.reload(); await p.waitForSelector(`text=Mã ${code}`);
+  const inCart = await p.locator('[data-cart-count]').first().innerText();
+  if (inCart !== '0') throw new Error('giờ đã đặt vẫn nằm trong Giỏ sân: ' + inCart);
 });
 await step(p, 'journey', '10-kept-after-new-day', async () => {
   // Giả lập trình duyệt mở lại vào ngày hôm sau: dữ liệu demo lưu từ hôm trước.
