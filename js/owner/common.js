@@ -2,7 +2,7 @@
 import { mountShell, toast } from '/js/ui/shell.js';
 import { icon } from '/js/ui/icons.js';
 import { api } from '/js/api.js';
-import { vnToMs, msToVn, secondsLeft } from '/js/ui/format.js';
+import { vnToMs, msToVn, secondsLeft, addDays } from '/js/ui/format.js';
 
 export { toast, icon, api };
 
@@ -297,6 +297,18 @@ export async function openAddBooking({ venues, venueId, date = todayStr(), court
       const el = (id) => dlg.querySelector(id);
       let priceTouched = false;
       el('#pb-price').addEventListener('input', () => { priceTouched = true; });
+      // Ngày mở sẵn đã hết giờ (mọi ô đều "đã qua", thường là ban đêm): chọn sẵn ngày gần nhất còn giờ. Chủ sân vẫn đổi ngày được.
+      let rolled = '';
+      try {
+        let d = el('#pb-date').value;
+        for (let i = 0; i < 3; i += 1) {
+          const sc = await scheduleOf(d);
+          if (!sc.courts.every((c) => c.slots.every((s) => s.status === 'past'))) break;
+          d = addDays(d, 1);
+          rolled = d;
+        }
+        if (rolled) el('#pb-date').value = rolled;
+      } catch { /* refresh bên dưới báo lỗi tải giờ */ }
       const refresh = async () => {
         const sel = el('#pb-start');
         const keep = sel.value || start;
@@ -309,7 +321,8 @@ export async function openAddBooking({ venues, venueId, date = todayStr(), court
               return `<option value="${s.start}" data-price="${s.basePrice}" ${why ? 'disabled' : ''} ${s.start === keep && !why ? 'selected' : ''}>${s.start}–${s.end}${why ? ` · ${why}` : ` · ${money(s.basePrice)}`}</option>`;
             })
             .join('')}`;
-          el('#pb-slot-hint').textContent = court.slots.some((s) => s.status === 'available' && !s.teamMode) ? '' : 'Ngày này không còn giờ trống để thêm lịch.';
+          const hasFree = court.slots.some((s) => s.status === 'available' && !s.teamMode);
+          el('#pb-slot-hint').textContent = hasFree ? (rolled && el('#pb-date').value === rolled ? 'Ngày trước đó đã hết giờ nên đã chọn sẵn ngày còn giờ.' : '') : 'Ngày này không còn giờ trống để thêm lịch.';
         } catch (e) {
           sel.innerHTML = '<option value="">Không tải được giờ</option>';
           el('#pb-slot-hint').textContent = e.message;

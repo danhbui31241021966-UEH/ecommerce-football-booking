@@ -12,6 +12,8 @@ let venues = [];
 let venueId;
 // Ngày mặc định lấy sau khi đồng bộ đồng hồ (initPage), để tua đồng hồ demo vẫn mở đúng hôm nay.
 let date = new URLSearchParams(location.search).get('date');
+let defaultDate = false;
+let rolledOver = false; // ngày mặc định đã hết giờ nên tự chuyển sang ngày mai
 let sched;
 let bookings = [];
 let nowTimer;
@@ -249,8 +251,15 @@ async function load() {
   try {
     await syncClock();
     [sched, bookings] = await Promise.all([api.owner.schedule(venueId, date), api.owner.bookings({ venueId, date })]);
+    // Mở trang mà không chọn ngày: nếu hôm nay mọi ô đều "đã qua" (ban đêm) thì mở ngày mai. Chip "Hôm nay" vẫn chọn lại được.
+    if (defaultDate && date === todayStr() && sched.courts.every((c) => c.slots.every((s) => s.status === 'past'))) {
+      date = todayStr(1);
+      rolledOver = true;
+      [sched, bookings] = await Promise.all([api.owner.schedule(venueId, date), api.owner.bookings({ venueId, date })]);
+    }
+    defaultDate = false;
     const v = venues.find((x) => x.id === venueId);
-    $('#sub').textContent = `${v.name} · ${dayLabel(date)}, ${dm(date)} · giờ ${sched.slotMinutes} phút`;
+    $('#sub').textContent = `${v.name} · ${dayLabel(date)}, ${dm(date)} · giờ ${sched.slotMinutes} phút${rolledOver && date === todayStr(1) ? ' · hôm nay đã hết giờ' : ''}`;
     render();
   } catch (err) {
     errorBox(content, err, load);
@@ -259,6 +268,7 @@ async function load() {
 
 if (await initPage()) {
   try {
+    defaultDate = !date;
     date ||= todayStr();
     ({ venues, id: venueId } = await loadVenues());
     if (!venues.length) {
