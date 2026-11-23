@@ -138,7 +138,7 @@ await step(p, 'auth-intent', 'next-to-other-site-stays-here', async () => {
     await p.waitForURL((u) => !u.pathname.startsWith('/login')); seen.push(p.url());
   }
   for (const u of seen) assert.equal(new URL(u).origin, here, u);
-  await p.goto(U + '/login?next=' + encodeURIComponent('/cart.html?x=1#y')); await p.waitForURL(/\/cart\.html\?x=1#y$/);
+  await p.goto(U + '/login?next=' + encodeURIComponent('/cart.html?x=1#y')); await p.waitForURL(/\/cart(\.html)?\?x=1#y$/); // Pages/nginx chuyển /cart.html -> /cart (308), Express giữ nguyên
   return seen.map((u) => u.replace(here, '')).join(' ');
 }, { shot: false });
 save(); console.log('LOGS', logs.join('\n')); await b.close();
