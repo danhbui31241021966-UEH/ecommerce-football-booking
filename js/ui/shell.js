@@ -1,7 +1,7 @@
 // Khung trang dùng chung: header + menu theo vai trò, footer, toast.
 // Trang chỉ cần <div id="app-header"></div> và <div id="app-footer"></div>, rồi gọi mountShell().
 import { icon, brandMark } from './icons.js';
-import { api } from '/js/api.js';
+import { api, MODE } from '/js/api.js';
 import '/js/cart.js';
 
 // main: luôn hiện trên thanh. more: gom vào mục "Thêm" (trên điện thoại hiện thẳng dưới nhãn "Thêm", không cần bấm thêm).
@@ -300,6 +300,7 @@ export async function mountShell() {
           <div>
             <p><a class="footer-link" href="/about.html">Giới thiệu GGO</a></p>
             <p>Đồ án môn Phát triển ứng dụng TMĐT – Nhóm 8</p>
+            ${MODE === 'mock' ? '<p class="footer-demo">Bản demo: dữ liệu mẫu, lưu trên trình duyệt này.</p>' : ''}
           </div>
           ${proto ? `<div class="footer-role"><span>Xem với vai trò</span>${roleSwitch}${protoTools}</div>` : ''}
         </div>
