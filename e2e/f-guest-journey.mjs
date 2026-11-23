@@ -52,6 +52,9 @@ await step(p, 'journey', '10-kept-after-new-day', async () => {
   await p.evaluate(() => { for (const k of Object.keys(localStorage)) if (k.startsWith('sannhanh.mock')) { const s = JSON.parse(localStorage.getItem(k)); s.seedDay = '2000-01-01'; localStorage.setItem(k, JSON.stringify(s)); } });
   await p.goto(`${U}/my-bookings.html`); await p.waitForSelector(`text=Mã ${code}`);
   const me = await api(p, 'a=>a.me()'); if (me.user?.fullName !== 'Khách Mới') throw new Error('mất tài khoản: ' + JSON.stringify(me));
+  const note = p.locator('[data-demo-stale]'); await note.waitFor(); await note.scrollIntoViewIfNeeded();
+  if (!(await note.innerText()).includes('01/01') || !(await note.locator('[data-proto=reset]').count())) throw new Error('thiếu ghi chú dữ liệu mẫu cũ');
+  return await note.innerText();
 });
 await step(p, 'journey', '11-same-slot-not-bookable', async () => {
   const s = await p.evaluate(async ([v, d, c, st]) => { const { api } = await import('/js/api.js'); const sc = await api.schedule(v, d); return sc.courts.find((x) => x.id === Number(c)).slots.find((x) => x.start === st).status; }, [picked.id, picked.date, picked.court, picked.slot]);
@@ -65,6 +68,6 @@ await step(p, 'journey', '12-admin-sees-paid-booking', async () => {
   const r = await api(p, `a=>a.admin.bookings({ q: '${code}' })`); const row = (r.bookings || r).find((x) => x.code === code);
   if (!row || row.paymentStatus !== 'paid') throw new Error('admin: ' + JSON.stringify(row));
 }, { shot: false });
-await step(p, 'journey', '13-demo-note-in-footer', async () => { await p.goto(`${U}/`); return await p.locator('.footer-demo').innerText(); }, { shot: false });
+await step(p, 'journey', '13-demo-note-in-footer', async () => { await p.goto(`${U}/`); return await p.locator('.footer-demo').first().innerText(); }, { shot: false });
 if (logs.length) console.log('LOGS', logs.join(' | '));
 save(); await b.close();
