@@ -126,4 +126,19 @@ await step(p, 'auth-intent', 'explicit-null-email-registration', async () => {
   assert.equal(user.phone, extraPhone);
   return `email=${user.email}; phone=${user.phone}`;
 });
+await step(p, 'auth-intent', 'next-to-other-site-stays-here', async () => {
+  // "/\host" trình duyệt hiểu là "//host": sau đăng nhập (và khi đã đăng nhập sẵn) phải ở lại trang mình.
+  const here = new URL(U).origin; const seen = [];
+  await p.evaluate(async () => { const { api } = await import('/js/api.js'); await api.logout(); });
+  await p.goto(U + '/login?next=' + encodeURIComponent('/\\example.com'));
+  await p.fill('#identifier', 'khach1@datsan.local'); await p.fill('#password', 'Matkhau@123'); await p.click('form button[type=submit]');
+  await p.waitForURL((u) => !u.pathname.startsWith('/login')); seen.push(p.url());
+  for (const next of ['//example.com', '/\\example.com', 'https://example.com', 'javascript:alert(1)']) {
+    await p.goto(U + '/login?next=' + encodeURIComponent(next));
+    await p.waitForURL((u) => !u.pathname.startsWith('/login')); seen.push(p.url());
+  }
+  for (const u of seen) assert.equal(new URL(u).origin, here, u);
+  await p.goto(U + '/login?next=' + encodeURIComponent('/cart.html?x=1#y')); await p.waitForURL(/\/cart\.html\?x=1#y$/);
+  return seen.map((u) => u.replace(here, '')).join(' ');
+}, { shot: false });
 save(); console.log('LOGS', logs.join('\n')); await b.close();

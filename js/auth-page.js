@@ -1,11 +1,12 @@
 // Đăng nhập / đăng ký: gọi api.login / api.register rồi chuyển về trang đích theo vai trò.
 import { api } from '/js/api.js';
 import { mountShell, getUser } from '/js/ui/shell.js';
+import { safeNext as sameOriginPath } from '/js/safe-next.js';
 
 const form = document.getElementById('auth-form');
 const errorBox = document.getElementById('form-error');
 const next = new URLSearchParams(location.search).get('next');
-const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : null;
+const safeNext = sameOriginPath(next, location.origin);
 const HOME = { customer: '/', owner: '/owner.html', admin: '/admin.html' };
 
 async function showBookingContext() {
