@@ -548,6 +548,7 @@ function toBooking(b, { admin = false } = {}) {
     fromOffer: !!b.offerId,
     source: b.walkIn ? 'phone' : 'web',
     paidVia: b.paymentStatus === 'paid' ? b.paidVia || null : null,
+    refundBank: b.refundStatus !== 'none' && b.refundBank ? { ...b.refundBank, bankName: meta().banks.find((x) => x.bin === b.refundBank.bin)?.name || b.refundBank.bin } : null,
   };
   if (admin) {
     const u = customerOf(b);
@@ -912,7 +913,7 @@ function ownBooking(ctx, id) {
 }
 
 /** Hủy đặt sân: dùng chung cho khách, chủ sân và admin. trả lại tiền, R10 hủy sát giờ. */
-function doCancel(b, actor, reason, by) {
+function doCancel(b, actor, reason, by, refundBank) {
   const mt = matchOfBooking(b);
   if (mt) {
     if (by === 'customer') fail(409, b.status === 'matching' ? 'Lịch đặt này đang chờ ghép kèo: hãy rút khỏi kèo ở trang kèo' : 'Kèo đã chốt: nếu cần hủy, hãy liên hệ chủ sân');
@@ -931,6 +932,8 @@ function doCancel(b, actor, reason, by) {
   if (!['pending', 'confirmed'].includes(b.status)) fail(409, 'Lịch đặt này không hủy được nữa');
   const tr = activeTransfer(b);
   if (tr?.status === 'claimed' && by === 'customer') fail(409, 'Đang có đội nhận pass, hãy chờ chủ sân xác nhận hoặc từ chối rồi hủy');
+  // Tiền do chủ sân chuyển tay, nên khách hủy mà có tiền được trả lại thì phải cho biết chuyển về đâu (kiểm trước khi đổi gì).
+  const bank = by === 'customer' && !b.walkIn && refundFor({ startAt: b.startAt, price: b.price, paid: b.paymentStatus === 'paid' }, now(), by).amount > 0 ? parseBank(refundBank) : null;
   if (tr) closeTransfer(tr, 'cancelled', by === 'customer' ? actor : null, 'Lịch đặt bị hủy nên đóng đăng pass');
   const from = b.status;
   const paid = b.paymentStatus === 'paid';
@@ -944,6 +947,7 @@ function doCancel(b, actor, reason, by) {
   b.refundPercent = r.percent;
   b.refundAmount = r.amount;
   b.refundStatus = r.amount > 0 ? 'pending' : 'none';
+  if (bank) b.refundBank = bank;
   b.lateCancel = !b.walkIn && by === 'customer' && from === 'confirmed' && r.hoursLeft < 12;
   addLog(b, 'cancel', from, 'cancelled', actor, b.cancelReason || '');
   const [venue] = courtOf(b.courtId);
@@ -1522,14 +1526,18 @@ function reportResult(ctx) {
   return toMatch(m, user);
 }
 
-function saveBank(m, part, bank) {
+function parseBank(bank) {
   const bin = String(bank?.bin || '');
   const account = String(bank?.account || '').replace(/\s/g, '');
   const accountName = String(bank?.accountName || '').trim().toUpperCase();
   req(meta().banks.some((x) => x.bin === bin), 'Chọn ngân hàng');
   req(/^\d{6,19}$/.test(account), 'Số tài khoản gồm 6 đến 19 chữ số');
   req(accountName.length >= 2 && accountName.length <= 60, 'Nhập tên chủ tài khoản');
-  m[`${part}Bank`] = { bin, account, accountName };
+  return { bin, account, accountName };
+}
+
+function saveBank(m, part, bank) {
+  m[`${part}Bank`] = parseBank(bank);
 }
 
 function setMatchBank(ctx) {
@@ -2559,7 +2567,18 @@ route('POST', '/api/bookings/:id/cancel', (c) => {
   const u = need(c, 'customer');
   const b = findBooking(c.params.id);
   if (b.userId !== u.id) fail(404, 'Không tìm thấy lịch đặt');
-  doCancel(b, u, c.body?.reason, 'customer');
+  doCancel(b, u, c.body?.reason, 'customer', c.body?.refundBank);
+  return toBookingDetail(b, u);
+});
+route('PUT', '/api/bookings/:id/refund-bank', (c) => {
+  const u = need(c, 'customer');
+  const b = findBooking(c.params.id);
+  if (b.userId !== u.id) fail(404, 'Không tìm thấy lịch đặt');
+  const bank = parseBank(c.body);
+  if (b.refundStatus !== 'pending') fail(409, 'Lịch đặt này không có khoản trả lại đang chờ');
+  b.refundBank = bank;
+  notify(courtOf(b.courtId)[0].ownerId, `Khách đã cho biết tài khoản nhận lại tiền của lịch đặt ${b.code}.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
+  save();
   return toBookingDetail(b, u);
 });
 

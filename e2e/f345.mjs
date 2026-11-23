@@ -1,4 +1,4 @@
-import { start, step, save, loginAs, api, U, W, logs, anchor, pickCourt, pickAny, dayPlus, mockNow } from './lib.mjs';
+import { start, step, save, loginAs, api, U, W, logs, anchor, pickCourt, pickAny, dayPlus, mockNow, confirmCancel } from './lib.mjs';
 const { b, p } = await start();
 const toast = async () => { await p.waitForSelector('.toast', { timeout: 4000 }); return (await p.locator('.toast').last().innerText()).replace(/\n/g,' '); };
 const today = async () => (await api(p, 'a=>a.meta()')).now.slice(0, 10);
@@ -41,7 +41,7 @@ await step(p, 'luong3', '02-khach1-sees-booked-wait-btn', async () => { await op
 await step(p, 'luong3', '03-join-waitlist', async () => { await p.locator(`[data-wait][data-start="${A.start}"][data-court="${A.court}"]:visible`).first().click(); const t = await toast(); await p.waitForTimeout(600); return t; });
 await step(p, 'luong3', '04-my-bookings-waiting-tab', async () => { await p.goto(U + '/my-bookings?tab=waiting'); await p.waitForSelector('.booking-item'); return (await p.locator('.booking-item').first().innerText()).replace(/\n/g, ' | '); });
 await loginAs(p, 'khach2@datsan.local');
-await step(p, 'luong3', '05-khach2-cancels', async () => { await p.goto(url3); await p.click('#open-cancel'); await p.waitForSelector('#cancel-dialog[open]'); const t = (await p.locator('#cancel-refund').innerText()).replace(/\n/g,' '); await p.screenshot({ path: `e2e/out/luong3-05b-cancel-dialog-${W}.png` }); await p.click('#do-cancel'); await toast(); return t; });
+await step(p, 'luong3', '05-khach2-cancels', async () => { await p.goto(url3); await p.click('#open-cancel'); await p.waitForSelector('#cancel-dialog[open]'); const t = (await p.locator('#cancel-refund').innerText()).replace(/\n/g,' '); await p.screenshot({ path: `e2e/out/luong3-05b-cancel-dialog-${W}.png` }); await confirmCancel(p); await toast(); return t; });
 await loginAs(p, 'khach1@datsan.local');
 let offerLink;
 await step(p, 'luong3', '06-khach1-offer-notification', async () => { await p.goto(U + '/notifications'); await p.waitForSelector('.notif-item'); const f = p.locator('.notif-item').first(); offerLink = await f.getAttribute('href'); const t = (await f.innerText()).replace(/\n/g,' '); if (!/giữ/i.test(t)) throw new Error('thông báo đầu: ' + t); return offerLink + ' :: ' + t; });
@@ -53,7 +53,7 @@ await step(p, 'luong3', '11-offer-expiry-passes-to-next', async () => {
   // khach2 giữ 21:00 sân 1, khach1 + khach3 xếp hàng, khach2 hủy -> khach1 được giữ; tua 11 phút -> khach3 được giữ
   await loginAs(p, 'khach2@datsan.local'); await bookUI(1, B.date, B.start, B.court); const u = p.url();
   for (const e of ['khach1', 'khach3']) { await loginAs(p, e + '@datsan.local'); await openSlot(1, B.date, B.start, B.court); await p.locator(`[data-wait][data-start="${B.start}"][data-court="${B.court}"]:visible`).first().click(); await toast(); }
-  await loginAs(p, 'khach2@datsan.local'); await p.goto(u); await p.click('#open-cancel'); await p.click('#do-cancel'); await toast();
+  await loginAs(p, 'khach2@datsan.local'); await p.goto(u); await p.click('#open-cancel'); await confirmCancel(p); await toast();
   const n1 = 'n/a';
   await api(p, 'a=>a.proto.advanceClock(11)');
   await loginAs(p, 'khach3@datsan.local'); await p.goto(U + '/notifications'); await p.waitForSelector('.notif-item');
@@ -66,7 +66,7 @@ await step(p, 'luong3', '12-R1-only-3-day-chips', async () => { await openSlot(1
 let c4, u4;
 await step(p, 'luong4', '01-khach-books-and-owner-pays', async () => { await loginAs(p, 'khach2@datsan.local'); c4 = await bookUI(1, R50.date, R50.start, R50.court); u4 = p.url(); await loginAs(p, 'chusan1@datsan.local'); await p.goto(U + '/owner-bookings?status=unpaid&q=' + c4); await p.waitForSelector('.bk'); await p.locator(`.bk:has-text("${c4}") [data-act=paid]`).click(); await p.locator('dialog button[type=submit]').click(); return c4 + ' ' + await toast(); }, { shot: false });
 await step(p, 'luong4', '02-cancel-dialog-shows-refund', async () => { await loginAs(p, 'khach2@datsan.local'); await p.goto(u4); await p.click('#open-cancel'); await p.waitForSelector('#cancel-dialog[open]'); const tx = (await p.locator('#cancel-refund').innerText()).replace(/\n/g, ' '); if (!/trả lại 50%/.test(tx)) throw new Error('kỳ vọng 50% (cách ' + R50.hoursAhead.toFixed(1) + 'h): ' + tx); return tx; });
-await step(p, 'luong4', '03-cancelled-refund-box', async () => { await p.click('#do-cancel'); const t = await toast(); await p.waitForSelector('#root .refund-box'); return t + ' || ' + (await p.locator('#root .refund-box').innerText()); }, { full: true });
+await step(p, 'luong4', '03-cancelled-refund-box', async () => { await confirmCancel(p); const t = await toast(); await p.waitForSelector('#root .refund-box'); return t + ' || ' + (await p.locator('#root .refund-box').innerText()); }, { full: true });
 await step(p, 'luong4', '04-owner-notified-and-refund-filter', async () => { await loginAs(p, 'chusan1@datsan.local'); await p.goto(U + '/notifications'); const t = (await p.locator('.notif-item', { hasText: c4 }).first().innerText()).replace(/\n/g,' '); await p.goto(U + '/owner-bookings?status=refund'); await p.waitForSelector('.bk'); if (!await p.locator(`.bk:has-text("${c4}")`).count()) throw new Error('không thấy trong Chờ hoàn tiền'); return t; });
 await step(p, 'luong4', '05-owner-marks-refunded', async () => { await p.locator(`.bk:has-text("${c4}") [data-act=refund]`).click(); await p.screenshot({ path: `e2e/out/luong4-05b-refund-dialog-${W}.png` }); await p.locator('dialog button[type=submit]').click(); return await toast(); });
 await step(p, 'luong4', '06-customer-sees-refund-done', async () => { await loginAs(p, 'khach2@datsan.local'); await p.goto(u4); await p.waitForSelector('#root .refund-box'); const t = await p.locator('#root .refund-box').innerText(); if (!/Đã trả lại/i.test(t)) throw new Error(t); const n = (await p.locator('.notif-item').count()); return t; }, { full: true });

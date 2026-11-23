@@ -392,10 +392,13 @@ export async function runAction(kind, b) {
       return r && call(() => api.owner.markPaid(b.id, r.note.trim()));
     }
     case 'refund': {
+      const to = b.refundBank
+        ? `<p class="dlg-ref">Chuyển về: <b>${esc(b.refundBank.bankName)} · ${esc(b.refundBank.account)} · ${esc(b.refundBank.accountName)}</b></p>`
+        : `<p class="dlg-ref">Khách chưa cho biết tài khoản nhận lại tiền${b.customerPhone ? `. Hãy gọi ${esc(b.customerPhone)} để hỏi` : ''}. Khách cũng nhập được trên trang lịch đặt của họ.</p>`;
       const r = await dialog({
         title: 'Ghi nhận đã trả lại tiền',
         confirm: `Đã chuyển lại ${money(b.refundAmount)}`,
-        body: `${who(b)}<p>${b.status === 'transferred' ? `Sân đã pass cho đội khác. Chuyển lại <b>${money(b.refundAmount)}</b> (số tiền đội nhận đã trả) cho đội pass` : `Chuyển lại <b>${money(b.refundAmount)}</b> (${b.refundPercent}%) cho khách`} bằng chuyển khoản, rồi bấm ghi nhận ở đây.</p>${noteField('Ghi chú (không bắt buộc)', 'Ví dụ: mã giao dịch')}`,
+        body: `${who(b)}${to}<p>${b.status === 'transferred' ? `Sân đã pass cho đội khác. Chuyển lại <b>${money(b.refundAmount)}</b> (số tiền đội nhận đã trả) cho đội pass` : `Chuyển lại <b>${money(b.refundAmount)}</b> (${b.refundPercent}%) cho khách`} bằng chuyển khoản, rồi bấm ghi nhận ở đây.</p>${noteField('Ghi chú (không bắt buộc)', 'Ví dụ: mã giao dịch')}`,
       });
       return r && call(() => api.owner.markRefunded(b.id, r.note.trim()));
     }

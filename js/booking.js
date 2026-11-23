@@ -19,6 +19,20 @@ const ACTION = {
   transfer_open: 'Đăng pass sân', transfer_withdraw: 'Rút đăng pass', transfer_claim: 'Có đội nhận pass', transfer_release: 'Mở lại đăng pass',
   transfer_reject: 'Chủ sân từ chối đội nhận', transfer_expire: 'Quá hạn pass', transfer_done: 'Đã pass cho đội khác',
 };
+const bankFields = (prefix, hint) => `<fieldset class="field bank-fields"><legend>Tài khoản nhận lại tiền</legend>
+  <div class="field"><label for="${prefix}-bin">Ngân hàng</label><select class="select" id="${prefix}-bin" name="bin"><option value="">Chọn ngân hàng</option>${meta.banks.map((x) => `<option value="${esc(x.bin)}">${esc(x.name)}</option>`).join('')}</select></div>
+  <div class="field"><label for="${prefix}-acc">Số tài khoản</label><input class="input" id="${prefix}-acc" name="account" inputmode="numeric" autocomplete="off"></div>
+  <div class="field"><label for="${prefix}-name">Tên chủ tài khoản</label><input class="input" id="${prefix}-name" name="accountName" autocomplete="off"></div>
+  <span class="hint">${hint}</span></fieldset>`;
+const bankOf = (prefix) => ({ bin: $(`${prefix}-bin`).value, account: $(`${prefix}-acc`).value.trim(), accountName: $(`${prefix}-name`).value.trim() });
+const bankLine = (x) => `<b>${esc(x.bankName)} · ${esc(x.account)} · ${esc(x.accountName)}</b>`;
+let editingRefundBank = false;
+// Chủ sân chuyển tiền bằng tay nên cần biết chuyển về đâu: hiện tài khoản đã nhập, hoặc ô nhập nếu chưa có (chủ sân/admin hủy, pass).
+function refundBankBox() {
+  if (b.refundStatus !== 'pending') return b.refundBank ? `<p style="margin-top:6px">Đã chuyển về ${bankLine(b.refundBank)}.</p>` : '';
+  if (b.refundBank && !editingRefundBank) return `<p style="margin-top:6px">Chủ sân sẽ chuyển về ${bankLine(b.refundBank)}. <button type="button" class="btn btn-ghost btn-sm" id="refund-bank-edit">Sửa</button></p>`;
+  return `<form id="refund-bank-form" class="stack" style="margin-top:8px">${bankFields('rf', 'Chủ sân chỉ chuyển lại tiền vào tài khoản này.')}<p class="dlg-error" id="refund-bank-error" role="alert" hidden></p><div class="row"><button type="submit" class="btn btn-lime btn-sm">Lưu tài khoản</button></div></form>`;
+}
 const BY = { customer: 'bạn', owner: 'chủ sân', admin: 'quản trị viên' };
 
 const at = (ts) => `${timeOf(ts)} ${dayLabel(ts.slice(0, 10))}`;
@@ -31,11 +45,11 @@ function refundNote() {
   if (b.match) return '';
   if (b.status === 'transferred') {
     const done = b.refundStatus === 'done';
-    return `<div class="refund-box"><b>${done ? 'Đã trả lại' : 'Chưa trả lại'}</b> · tiền bạn được nhận lại <b class="num">${money(b.refundAmount)}</b>. ${done ? 'Chủ sân đã chuyển lại tiền cho bạn.' : 'Sân đã sang đội khác, nhưng chủ sân chưa chuyển lại tiền cho bạn. Chuyển xong, chủ sân sẽ ghi nhận ở đây.'}</div>`;
+    return `<div class="refund-box"><b>${done ? 'Đã trả lại' : 'Chưa trả lại'}</b> · tiền bạn được nhận lại <b class="num">${money(b.refundAmount)}</b>. ${done ? 'Chủ sân đã chuyển lại tiền cho bạn.' : 'Sân đã sang đội khác, nhưng chủ sân chưa chuyển lại tiền cho bạn. Chuyển xong, chủ sân sẽ ghi nhận ở đây.'}${refundBankBox()}</div>`;
   }
   if (b.status !== 'cancelled' && b.status !== 'rejected' && b.status !== 'expired') return '';
   if (b.paymentStatus !== 'paid') return `<div class="refund-box">Bạn chưa chuyển khoản nên không có tiền để trả lại.</div>`;
-  return `<div class="refund-box"><b>${REFUND_LABEL[b.refundStatus] || ''}</b> · trả lại ${b.refundPercent}% = <b class="num">${money(b.refundAmount)}</b>. ${b.refundStatus === 'done' ? 'Chủ sân đã chuyển lại tiền cho bạn.' : 'Chủ sân sẽ chuyển lại tiền cho bạn.'}</div>`;
+  return `<div class="refund-box"><b>${REFUND_LABEL[b.refundStatus] || ''}</b> · trả lại ${b.refundPercent}% = <b class="num">${money(b.refundAmount)}</b>. ${b.refundStatus === 'done' ? 'Chủ sân đã chuyển lại tiền cho bạn.' : 'Chủ sân sẽ chuyển lại tiền cho bạn.'}${refundBankBox()}</div>`;
 }
 
 // Pass sân: chỉ lịch đặt đã xác nhận và đã chuyển khoản, đăng trước giờ đá transferCloseMinutes phút.
@@ -140,6 +154,7 @@ function openCancel() {
   $('cancel-refund').innerHTML = `<p>Còn <b>${r.hoursLeft >= 1 ? `${Math.floor(r.hoursLeft)} giờ` : 'dưới 1 giờ'}</b> tới giờ đá nên được trả lại <b>${r.percent}%</b>.</p>
     <p style="margin-top:6px">${paid ? `Bạn đã chuyển khoản ${money(b.price)}, tiền trả lại là <b class="num">${money(r.amount)}</b>.` : `Bạn chưa chuyển khoản nên không có tiền để trả lại.`}</p>
     ${late ? '<p style="margin-top:6px">Hủy khi còn dưới 12 giờ bị tính là <b>hủy sát giờ</b>. Hủy sát giờ hoặc bùng sân 2 lần trong 60 ngày thì lần đặt sau phải chờ chủ sân đồng ý.</p>' : ''}`;
+  $('cancel-bank').innerHTML = r.amount > 0 ? bankFields('cb', `Chủ sân sẽ chuyển ${money(r.amount)} vào tài khoản này, nên hãy nhập đúng. Bạn có thể sửa lại sau trên trang này.`) : '';
   $('cancel-error').hidden = true;
   $('do-cancel').disabled = false;
   $('cancel-dialog').showModal();
@@ -148,7 +163,7 @@ function openCancel() {
 async function doCancel() {
   $('do-cancel').disabled = true;
   try {
-    b = await api.cancelBooking(id, $('cancel-reason').value.trim());
+    b = await api.cancelBooking(id, $('cancel-reason').value.trim(), $('cancel-bank').firstElementChild ? bankOf('cb') : undefined);
     $('cancel-dialog').close();
     meta = await api.meta();
     render();
@@ -178,6 +193,10 @@ document.addEventListener('click', async (e) => {
     toast(`Đã sao chép ${copy.dataset.copy}`);
   }
   if (e.target.closest('#open-cancel')) openCancel();
+  if (e.target.closest('#refund-bank-edit')) {
+    editingRefundBank = true;
+    render();
+  }
   if (e.target.closest('#withdraw-transfer')) {
     try {
       await api.withdrawTransfer(b.transfer.id);
@@ -191,6 +210,19 @@ document.addEventListener('click', async (e) => {
 });
 $('do-cancel').addEventListener('click', doCancel);
 document.addEventListener('submit', async (e) => {
+  if (e.target.id === 'refund-bank-form') {
+    e.preventDefault();
+    try {
+      b = await api.setRefundBank(id, bankOf('rf'));
+      editingRefundBank = false;
+      render();
+      toast('Đã lưu tài khoản nhận lại tiền.');
+    } catch (err) {
+      $('refund-bank-error').textContent = err.message;
+      $('refund-bank-error').hidden = false;
+    }
+    return;
+  }
   if (e.target.id !== 'transfer-form') return;
   e.preventDefault();
   try {

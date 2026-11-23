@@ -1,7 +1,7 @@
 // Smoke trên link công khai (chế độ thật, không có api.proto): đăng nhập bằng form → đặt một ô cách bây giờ hơn 24 giờ → kiểm đơn → hủy (hoàn 100%) → đăng xuất.
 // Chỉ dùng giao diện như người dùng (api.* chỉ để ĐỌC dữ liệu có cấu trúc: giờ và trạng thái ô). Đơn nào đã tạo thì luôn được hủy (finally); không hủy được thì in mã đơn kèm FAIL.
 // Chạy được cả trên mock. Tài khoản: khách demo trong seed (mật khẩu seed nằm trong lib.mjs).
-import { start, step, save, loginAs, api, U, W, logs, dayPlus } from './lib.mjs';
+import { start, step, save, loginAs, api, U, W, logs, dayPlus, confirmCancel } from './lib.mjs';
 const { b, p } = await start();
 const must = (c, m) => { if (!c) throw new Error(m); };
 const EMAIL = 'khach1@datsan.local';
@@ -43,7 +43,7 @@ async function cancelUI() {
   await p.goto(url); await p.waitForSelector('.booking-code');
   await p.click('#open-cancel'); await p.waitForSelector('#cancel-dialog[open]');
   const dlg = (await p.locator('#cancel-refund').innerText()).replace(/\s+/g, ' ');
-  await p.click('#do-cancel'); await p.waitForSelector('.toast', { timeout: 15000 });
+  await confirmCancel(p); await p.waitForSelector('.toast', { timeout: 15000 });
   return dlg;
 }
 const detail = (id) => p.evaluate(async (i) => (await import('/js/api.js')).api.booking(i), id);

@@ -9,6 +9,7 @@ const clock = require('../clock');
 const { db, withTransaction, isDuplicate } = require('../db');
 const { RULES, BANKS, CANCEL_POLICY_TEXT } = require('../rules');
 const { vnToMs, msToVn, isDate, isHm, addDays } = require('../lib/time');
+const { parseBank } = require('../lib/bank');
 const { badRequest, conflict, forbidden, notFound } = require('../utils/errors');
 const { loadCourt } = require('./venueStore');
 const { slotGrid, slotEndAt, teamModeAt } = require('./slotGrid');
@@ -492,15 +493,6 @@ async function refundPart(user, rawId, part, note) {
 
 /* ---------- Kết quả và phần chênh (R15) ---------- */
 
-function parseBank(bank) {
-  const bin = String(bank?.bin || '');
-  const account = String(bank?.account || '').replace(/\s/g, '');
-  const accountName = String(bank?.accountName || '').trim().toUpperCase();
-  if (!BANKS.some((x) => x.bin === bin)) throw badRequest('Chọn ngân hàng');
-  if (!/^\d{6,19}$/.test(account)) throw badRequest('Số tài khoản gồm 6 đến 19 chữ số');
-  if (accountName.length < 2 || accountName.length > 60) throw badRequest('Nhập tên chủ tài khoản');
-  return { bin, account, accountName };
-}
 const saveBank = (tx, id, part, b) =>
   tx.query(`UPDATE matches SET ${part}_bank_bin = ?, ${part}_bank_account = ?, ${part}_bank_name = ? WHERE id = ?`, [b.bin, b.account, b.accountName, id]);
 

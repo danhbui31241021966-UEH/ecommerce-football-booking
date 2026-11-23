@@ -137,7 +137,9 @@ export const api = {
   myBookings: () => get('/api/bookings/mine'),
   myReliability: () => get('/api/bookings/reliability'),
   booking: (id) => get(`/api/bookings/${id}`),
-  cancelBooking: (id, reason = '') => post(`/api/bookings/${id}/cancel`, { reason }),
+  cancelBooking: (id, reason = '', refundBank) => post(`/api/bookings/${id}/cancel`, { reason, refundBank }),
+  /** body: { bin, account, accountName }: tài khoản khách nhận lại tiền khi khoản trả lại còn chờ. */
+  setRefundBank: (id, bank) => request('PUT', `/api/bookings/${id}/refund-bank`, { body: bank }),
   /** body: { courtId, date, start } → { id, position } */
   joinWaitlist: (body) => post('/api/waitlist', body),
   myWaitlist: () => get('/api/waitlist/mine'),

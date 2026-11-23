@@ -2,7 +2,7 @@ const express = require('express');
 const { requireRole } = require('../middleware/auth');
 const { createBooking } = require('../services/bookingCore');
 const { bookingDetail, myBookings } = require('../services/bookingView');
-const { assertAccess, cancelBooking } = require('../services/bookingOps');
+const { assertAccess, cancelBooking, setRefundBank } = require('../services/bookingOps');
 const { reliabilityOf } = require('../services/reliability');
 const { db } = require('../db');
 const { notFound } = require('../utils/errors');
@@ -32,7 +32,13 @@ router.get('/:id', requireRole(), async (req, res) => {
 
 router.post('/:id/cancel', requireRole('customer'), async (req, res) => {
   const id = bookingId(req);
-  await cancelBooking(req.user, id, req.body?.reason, 'customer');
+  await cancelBooking(req.user, id, req.body?.reason, 'customer', req.body?.refundBank);
+  res.json(await bookingDetail(id, req.user));
+});
+
+router.put('/:id/refund-bank', requireRole('customer'), async (req, res) => {
+  const id = bookingId(req);
+  await setRefundBank(req.user, id, req.body);
   res.json(await bookingDetail(id, req.user));
 });
 

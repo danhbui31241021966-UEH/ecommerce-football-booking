@@ -5,6 +5,7 @@
 const clock = require('../clock');
 const { db, withTransaction } = require('../db');
 const { vnToMs } = require('../lib/time');
+const { parseBank } = require('../lib/bank');
 const { badRequest, conflict, forbidden, notFound } = require('../utils/errors');
 const { setStatus, payByFor } = require('./bookingState');
 const { notify, addHistory, money } = require('./notify');
@@ -50,7 +51,7 @@ function refundTier(startAt, now, by) {
 }
 
 /** Hủy: dùng chung cho khách (by='customer'), chủ sân ('owner') và admin ('admin'). */
-async function cancelBooking(user, id, reason, by) {
+async function cancelBooking(user, id, reason, by, refundBank) {
   await assertAccess(user, id);
   // Booking của trận ghép kèo (R13) đi theo luồng của trận: khách rút ở trang kèo; chủ sân/admin hủy cả trận (hoàn 100% hai đội).
   // matchOps được nạp lúc cần vì nó dùng lại refundTier ở file này.
@@ -72,7 +73,10 @@ async function cancelBooking(user, id, reason, by) {
     const refundPercent = walkIn ? 0 : percent;
     const refundAmount = walkIn || !paid ? 0 : Math.round((b.price * percent) / 100);
     const why = typeof reason === 'string' ? reason.slice(0, 255) || null : null;
+    // Tiền do chủ sân chuyển tay, nên khách hủy mà có tiền được trả lại thì phải cho biết chuyển về đâu.
+    const bank = by === 'customer' && refundAmount > 0 ? parseBank(refundBank) : null;
     await setStatus(tx, id, 'cancelled', {
+      ...(bank ? { refund_bank_bin: bank.bin, refund_bank_account: bank.account, refund_bank_name: bank.accountName } : {}),
       cancelled_by: by, cancel_reason: why, cancelled_at: now, expires_at: null,
       refund_percent: refundPercent, refund_amount: refundAmount, refund_status: refundAmount > 0 ? 'pending' : 'none',
       late_cancel: !walkIn && by === 'customer' && b.status === 'confirmed' && hoursLeft < 12 ? 1 : 0,
@@ -85,6 +89,18 @@ async function cancelBooking(user, id, reason, by) {
       await notify(tx, b.userId, `Lịch đặt ${b.code} đã bị ${by === 'owner' ? 'chủ sân' : 'quản trị viên'} hủy${why ? `: ${why}` : '.'}${refundAmount ? ` Bạn sẽ được trả lại ${money(refundAmount)}.` : ''}`, { bookingId: id, link: link(id) });
     }
     await offerSlot(tx, b.courtId, b.startAt);
+  });
+}
+
+/** Khách bổ sung hoặc sửa tài khoản nhận lại tiền khi khoản hoàn còn chờ (chủ sân hoặc admin hủy, đã pass cho đội khác). */
+async function setRefundBank(user, id, body) {
+  await assertAccess(user, id);
+  const bank = parseBank(body);
+  await withTransaction(async (tx) => {
+    const b = await lock(tx, id);
+    if (b.userId !== user.id || b.refundStatus !== 'pending') throw conflict('Lịch đặt này không có khoản trả lại đang chờ');
+    await tx.query('UPDATE bookings SET refund_bank_bin = ?, refund_bank_account = ?, refund_bank_name = ?, updated_at = ? WHERE id = ?', [bank.bin, bank.account, bank.accountName, clock.now(), id]);
+    await notify(tx, (await context(tx, b)).ownerId, `Khách đã cho biết tài khoản nhận lại tiền của lịch đặt ${b.code}.`, { bookingId: id, link: `/owner-bookings.html?id=${id}` });
   });
 }
 
@@ -246,6 +262,6 @@ async function reloadBooking(id, opts) {
 }
 
 module.exports = {
-  assertAccess, refundTier, cancelBooking, approveBooking, rejectBooking, markPaid, applyPaid, markRefunded, markAttendance,
+  assertAccess, refundTier, cancelBooking, setRefundBank, approveBooking, rejectBooking, markPaid, applyPaid, markRefunded, markAttendance,
   expireBooking, expireOffer, sweep, reloadBooking,
 };

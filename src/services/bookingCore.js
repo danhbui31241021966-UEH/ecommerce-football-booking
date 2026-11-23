@@ -14,6 +14,7 @@ const { isHolding, claimForBooking, payByFor, TAKEN } = require('./bookingState'
 const { loadOccupancy, slotInfo } = require('./schedule');
 const { reliabilityOf } = require('./reliability');
 const { notify, addHistory, shortTs } = require('./notify');
+const { bankName } = require('../lib/bank');
 
 const bookingCode = (id) => `SN${String(id).padStart(5, '0')}`;
 
@@ -65,6 +66,7 @@ function toBooking(b, { admin = false } = {}) {
     fromOffer: b.offerId != null,
     source: b.source,
     paidVia: b.paymentStatus === 'paid' ? b.paidVia || null : null,
+    refundBank: b.refundStatus !== 'none' && b.refundBankAccount ? { bin: b.refundBankBin, bankName: bankName(b.refundBankBin), account: b.refundBankAccount, accountName: b.refundBankName } : null,
   };
   if (admin) {
     out.customerName = b.customerName ?? b.walkInName ?? '';

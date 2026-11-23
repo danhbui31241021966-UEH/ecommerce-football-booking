@@ -14,6 +14,7 @@ let auto; // cụm sân tự xác nhận của o1
 let manual; // cụm sân chờ duyệt của o1
 let other; // cụm sân của o2
 const pw = 'Matkhau@123';
+const REFUND_BANK = { bin: '970436', account: '0123 456 789', accountName: 'trần minh khoa' };
 
 const loginAs = async (user) => {
   const a = app.agent();
@@ -74,7 +75,7 @@ test('hủy theo mốc giờ (R7): >=24h 100%, 12-24h 50%, <12h 0% và ghi hủy
     assert.equal(r.body.status, 'confirmed');
     if (paid) assert.equal((await ow.post(`/api/owner/bookings/${r.body.id}/paid`, { note: 'ck' })).status, 200);
     at(stampBefore(`${day1} ${start}:00`, left));
-    const c = await a.post(`/api/bookings/${r.body.id}/cancel`, { reason: 'bận' });
+    const c = await a.post(`/api/bookings/${r.body.id}/cancel`, { reason: 'bận', refundBank: REFUND_BANK });
     assert.equal(c.status, 200, c.text);
     assert.equal(c.body.status, 'cancelled');
     assert.equal(c.body.cancelledBy, 'customer');
@@ -87,6 +88,58 @@ test('hủy theo mốc giờ (R7): >=24h 100%, 12-24h 50%, <12h 0% và ghi hủy
   }
   assert.equal((await a.get('/api/bookings/reliability')).body.lateCancels, 1);
   await noDrift();
+});
+
+test('hủy có tiền phải trả lại: khách nhập tài khoản nhận, chủ sân và admin thấy; chưa trả tiền thì không cần', async () => {
+  const cust = await person('customer');
+  const a = await loginAs(cust);
+  const ow = await loginAs(o1);
+  const ad = await loginAs(admin);
+  const stranger = await loginAs(await person('customer'));
+  const paidBooking = async (court, start) => {
+    const r = await book(a, auto.courtIds[court], day1, start);
+    assert.equal(r.status, 201, r.text);
+    assert.equal((await ow.post(`/api/owner/bookings/${r.body.id}/paid`)).status, 200);
+    return r.body.id;
+  };
+  const id = await paidBooking(2, '10:00');
+  const bad = await a.post(`/api/bookings/${id}/cancel`, {});
+  assert.equal(bad.status, 400, 'thiếu tài khoản nhận tiền');
+  assert.equal(await statusOf(id), 'confirmed', 'thiếu tài khoản thì chưa hủy');
+  assert.equal((await a.post(`/api/bookings/${id}/cancel`, { refundBank: { ...REFUND_BANK, account: '12ab' } })).status, 400);
+  assert.equal((await a.post(`/api/bookings/${id}/cancel`, { refundBank: { ...REFUND_BANK, bin: '000000' } })).status, 400);
+  const c = await a.post(`/api/bookings/${id}/cancel`, { refundBank: REFUND_BANK });
+  assert.equal(c.status, 200, c.text);
+  const want = { bankName: 'Vietcombank', account: '0123456789', accountName: 'TRẦN MINH KHOA' };
+  assert.deepEqual({ ...c.body.refundBank, bin: undefined }, { ...want, bin: undefined });
+  for (const viewer of [ow, ad]) assert.equal((await viewer.get(`/api/bookings/${id}`)).body.refundBank.account, '0123456789');
+  assert.equal((await stranger.get(`/api/bookings/${id}`)).status, 404);
+
+  // hủy khi chưa chuyển khoản: không có tiền trả lại nên không hỏi tài khoản
+  const free = await book(a, auto.courtIds[2], day1, '11:00');
+  const f = await a.post(`/api/bookings/${free.body.id}/cancel`, {});
+  assert.equal(f.status, 200, f.text);
+  assert.equal(f.body.refundBank ?? null, null);
+  await noDrift();
+});
+
+test('chủ sân hoặc admin hủy lịch đã trả tiền: khách bổ sung tài khoản nhận tiền khi còn chờ hoàn, đã hoàn thì khóa', async () => {
+  const cust = await person('customer');
+  const a = await loginAs(cust);
+  const ow = await loginAs(o1);
+  const stranger = await loginAs(await person('customer'));
+  const r = await book(a, auto.courtIds[2], day1, '12:00');
+  await ow.post(`/api/owner/bookings/${r.body.id}/paid`);
+  assert.equal((await ow.post(`/api/owner/bookings/${r.body.id}/cancel`, { reason: 'Mưa lớn' })).status, 200);
+  const id = r.body.id;
+  assert.equal((await ow.get(`/api/bookings/${id}`)).body.refundBank ?? null, null, 'chưa có tài khoản để chuyển');
+  assert.equal((await a.put(`/api/bookings/${id}/refund-bank`, { ...REFUND_BANK, account: '1' })).status, 400);
+  assert.equal((await stranger.put(`/api/bookings/${id}/refund-bank`, REFUND_BANK)).status, 404);
+  const ok = await a.put(`/api/bookings/${id}/refund-bank`, REFUND_BANK);
+  assert.equal(ok.status, 200, ok.text);
+  assert.equal((await ow.get(`/api/bookings/${id}`)).body.refundBank.account, '0123456789');
+  assert.equal((await ow.post(`/api/owner/bookings/${id}/refund`)).status, 200);
+  assert.equal((await a.put(`/api/bookings/${id}/refund-bank`, REFUND_BANK)).status, 409, 'đã hoàn thì không đổi tài khoản');
 });
 
 test('chủ sân hoặc admin hủy luôn hoàn 100%, không tính hủy sát giờ; hoàn tiền xong chuyển refundStatus done', async () => {

@@ -65,3 +65,12 @@ export async function pickAny(p, venueId, date, afterHm) {
     for (const c of sc.courts) for (const s of c.slots) if (s.start >= a && s.status === 'available') return { court: c.id, start: s.start }; return null; }, [venueId, date, afterHm]);
 }
 export const mockNow = async (p) => (await api(p, 'a=>a.meta()')).now;
+// Bấm "Hủy đặt sân" trong hộp huỷ; nếu hộp hỏi tài khoản nhận lại tiền (lịch đã trả tiền) thì điền trước.
+export async function confirmCancel(p) {
+  if (await p.locator('#cancel-bank select').count()) {
+    await p.selectOption('#cancel-bank select', '970436');
+    await p.fill('#cancel-bank [name=account]', '0123456789');
+    await p.fill('#cancel-bank [name=accountName]', 'TRAN MINH KHOA');
+  }
+  await p.click('#do-cancel');
+}

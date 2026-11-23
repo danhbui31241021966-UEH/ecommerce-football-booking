@@ -138,6 +138,9 @@ CREATE TABLE bookings (
   refund_amount            INT UNSIGNED NOT NULL DEFAULT 0,
   refunded_at              DATETIME NULL,
   refund_note              VARCHAR(255) NULL,
+  refund_bank_bin          VARCHAR(10) NULL,                       -- tài khoản khách nhận lại tiền (khách nhập lúc hủy hoặc sau đó)
+  refund_bank_account      VARCHAR(20) NULL,
+  refund_bank_name         VARCHAR(60) NULL,
   cancelled_by             ENUM('customer','owner','admin') NULL,
   cancelled_at             DATETIME NULL,
   cancel_reason            VARCHAR(255) NULL,
