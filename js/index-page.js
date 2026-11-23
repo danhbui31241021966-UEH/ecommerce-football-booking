@@ -80,7 +80,7 @@ function renderTonight(rows, date, today, at) {
           (s, i) => `<a class="tonight-row${i >= 4 ? ' extra' : ''}" href="${slotLink(s.venue.id, date, s)}"><span class="t">${s.start}</span><span class="what"><b>${esc(shortName(s.venue.name))}</b><span>${esc(s.courtName)} · Sân ${s.fieldType}</span></span><span class="cost"><span class="price">${money(s.price)}</span>${s.discountPercent ? `<span class="tag-sale">-${s.discountPercent}%</span>` : ''}${isTeam(s) ? '<span class="tag-team">Ghép kèo</span>' : ''}</span></a>`,
         )
         .join('')
-    : '<p class="muted" style="padding:var(--sp-4) 0">Hôm nay đã hết giờ trống.</p>';
+    : '<p class="muted" style="padding:var(--sp-4) 0">Không còn giờ trống phù hợp ở thời điểm này.</p>';
 }
 
 function renderVenues(venues, date, today, at) {
@@ -201,7 +201,13 @@ async function main() {
       listVenues = r.venues;
       rows = flatten(r.venues);
     }
-    renderTonight(rows, listDate, today, $('f-at').value || choice.at);
+    // Danh sách "còn trống" theo loại sân đang chọn ở ô tìm (Sân 5 / Sân 7 / Tất cả).
+    const paintTonight = () => {
+      const type = $('search').elements.fieldType.value;
+      renderTonight(type ? rows.filter((s) => String(s.fieldType) === type) : rows, listDate, today, $('f-at').value || choice.at);
+    };
+    paintTonight();
+    $('search').elements.fieldType.addEventListener('change', () => { paintTonight(); decorate(); });
     renderVenues(listVenues, listDate, today, $('f-at').value || choice.at);
     decorate();
   } catch (e) {

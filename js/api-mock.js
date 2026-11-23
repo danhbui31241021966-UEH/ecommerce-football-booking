@@ -821,10 +821,10 @@ function insertBooking(user, venue, court, date, start, slot, extra = {}) {
   S.waitlist = S.waitlist.filter((w) => !(w.userId === user.id && w.courtId === court.id && w.date === date && w.start === start));
   addLog(b, 'create', null, b.status, user, extra.logNote || (rel.restricted && !venue.requiresApproval ? 'Chờ chủ sân đồng ý do uy tín của khách' : ''));
   if (needsApproval) {
-    notify(venue.ownerId, `${user.fullName} vừa đặt sân (mã ${b.code}) và đang chờ bạn đồng ý, còn ${meta().holdMinutes} phút.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
-    notify(user.id, `Bạn đã đặt ${court.name} lúc ${shortTs(b.startAt)}. Chủ sân có ${meta().holdMinutes} phút để đồng ý.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+    notify(venue.ownerId, `${user.fullName} vừa đặt ${court.name} tại ${venue.name} lúc ${shortTs(b.startAt)} (mã ${b.code}) và đang chờ bạn đồng ý, còn ${meta().holdMinutes} phút.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
+    notify(user.id, `Bạn đã đặt ${court.name} tại ${venue.name} lúc ${shortTs(b.startAt)}. Chủ sân có ${meta().holdMinutes} phút để đồng ý.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   } else {
-    notify(user.id, `${b.expiresAt ? `Đang giữ sân · chuyển khoản trước ${b.expiresAt.slice(11, 16)}` : 'Đã có sân · chưa chuyển khoản'} (mã ${b.code}). Hãy chuyển khoản${b.expiresAt ? ', quá giờ đơn tự hết hạn' : ' theo hướng dẫn của chủ sân'}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+    notify(user.id, `Bạn đã có ${court.name} tại ${venue.name} lúc ${shortTs(b.startAt)} (mã ${b.code}). Hãy chuyển khoản${b.expiresAt ? ` trước ${b.expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn` : ' theo hướng dẫn của chủ sân'}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }
   save();
   return b;
@@ -966,7 +966,7 @@ function doApprove(b, actor) {
   b.status = 'confirmed';
   b.expiresAt = payByFor(b, courtOf(b.courtId)[0]); // hạn chuyển khoản tính từ lúc duyệt (R3)
   addLog(b, 'approve', 'pending', 'confirmed', actor);
-  notify(b.userId, `Chủ sân đã đồng ý lịch đặt ${b.code}. ${b.expiresAt ? `Đang giữ sân · chuyển khoản trước ${b.expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn.` : 'Đã có sân · chưa chuyển khoản.'}`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  notify(b.userId, `Chủ sân đã đồng ý lịch đặt ${b.code}. Hãy chuyển khoản${b.expiresAt ? ` bằng mã QR trước ${b.expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn` : ' theo hướng dẫn của chủ sân'}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   save();
 }
 function doReject(b, actor, reason) {
@@ -1882,13 +1882,13 @@ function bankReport(d) {
   if (!reason && amount !== target.due) reason = amount < target.due ? 'short' : 'over';
   S.bankEvents.push(ev);
   if (!reason) {
-    target.apply(`Ngân hàng báo đã nhận ${vnd(amount)}, nội dung "${content}", mã giao dịch ${txId} (mô phỏng SePay)`);
+    target.apply(`Số tiền ${vnd(amount)}, nội dung "${content}", mã giao dịch ${txId} (mô phỏng SePay)`);
     if (ev.ownerId != null) notify(ev.ownerId, `Ngân hàng báo đã nhận ${vnd(amount)} cho đơn ${ev.bookingCode}. Hệ thống đã tự ghi nhận "Đã nhận tiền" (mô phỏng).`, { bookingId: ev.bookingId, link: '/owner-bookings.html' });
   } else {
     ev.status = 'unmatched';
     ev.reason = reason;
     const b = target.b;
-    if (b && reason !== 'wrong_account') addLog(b, 'bank_unmatched', null, null, BANK_ACTOR, `Ngân hàng báo ${vnd(amount)}, nội dung "${content}" nhưng chưa tự ghi nhận: ${reasonText(reason, b)}${target.due ? ` (cần ${vnd(target.due)})` : ''} (mô phỏng SePay)`);
+    if (b && reason !== 'wrong_account') addLog(b, 'bank_unmatched', null, null, BANK_ACTOR, `Số tiền ${vnd(amount)}, nội dung "${content}". Chưa tự ghi nhận: ${reasonText(reason, b)}${target.due ? ` (cần ${vnd(target.due)})` : ''} (mô phỏng SePay)`);
     if (ev.ownerId != null) notify(ev.ownerId, `Ngân hàng báo ${vnd(amount)}, nội dung "${content}" nhưng chưa tự ghi nhận được: ${reasonText(reason, b).toLowerCase()}. Cần bạn xem và xử lý.`, { bookingId: b?.id ?? null, link: '/owner.html' });
     if (b?.userId != null && ['short', 'over'].includes(reason)) notify(b.userId, `Ngân hàng báo đã nhận ${vnd(amount)} cho ${b.code}, chưa khớp số cần chuyển (${vnd(target.due)}). Chủ sân sẽ xem và liên hệ bạn.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }

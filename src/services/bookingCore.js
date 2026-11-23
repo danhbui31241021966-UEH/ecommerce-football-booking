@@ -163,10 +163,10 @@ async function createBooking(user, body = {}, opts = {}) {
       });
       const startAt = `${date} ${start}:00`;
       if (pending) {
-        await notify(tx, venue.ownerId, `${user.fullName} vừa đặt sân (mã ${code}) và đang chờ bạn đồng ý, còn ${RULES.holdMinutes} phút.`, { bookingId: r.insertId, link: `/owner-bookings.html?id=${r.insertId}` });
-        await notify(tx, user.id, `Bạn đã đặt ${court.name} lúc ${shortTs(startAt)}. Chủ sân có ${RULES.holdMinutes} phút để đồng ý.`, { bookingId: r.insertId, link: `/booking.html?id=${r.insertId}` });
+        await notify(tx, venue.ownerId, `${user.fullName} vừa đặt ${court.name} tại ${venue.name} lúc ${shortTs(startAt)} (mã ${code}) và đang chờ bạn đồng ý, còn ${RULES.holdMinutes} phút.`, { bookingId: r.insertId, link: `/owner-bookings.html?id=${r.insertId}` });
+        await notify(tx, user.id, `Bạn đã đặt ${court.name} tại ${venue.name} lúc ${shortTs(startAt)}. Chủ sân có ${RULES.holdMinutes} phút để đồng ý.`, { bookingId: r.insertId, link: `/booking.html?id=${r.insertId}` });
       } else {
-        await notify(tx, user.id, `${expiresAt ? `Đang giữ sân · chuyển khoản trước ${expiresAt.slice(11, 16)}` : 'Đã có sân · chưa chuyển khoản'} (mã ${code}). Hãy chuyển khoản${expiresAt ? ', quá giờ đơn tự hết hạn' : ' theo hướng dẫn của chủ sân'}.`, { bookingId: r.insertId, link: `/booking.html?id=${r.insertId}` });
+        await notify(tx, user.id, `Bạn đã có ${court.name} tại ${venue.name} lúc ${shortTs(startAt)} (mã ${code}). Hãy chuyển khoản${expiresAt ? ` trước ${expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn` : ' theo hướng dẫn của chủ sân'}.`, { bookingId: r.insertId, link: `/booking.html?id=${r.insertId}` });
       }
       if (opts.inTx) await opts.inTx(tx, r.insertId);
       return r.insertId;

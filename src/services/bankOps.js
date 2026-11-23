@@ -135,7 +135,7 @@ async function report({ txId, content, amount, account }) {
     const parsed = codes.length === 1 ? codes[0] : null;
     // Tìm sân theo tài khoản trước; đơn chỉ được tự nhận khi thuộc đúng các sân dùng tài khoản đó.
     const venues = acc ? await tx.query('SELECT id, owner_id FROM venues WHERE bank_account = ?', [acc]) : [];
-    const note = `Ngân hàng báo đã nhận ${money(sum)}, nội dung "${text}", mã giao dịch ${id}`;
+    const note = `Số tiền ${money(sum)}, nội dung "${text}", mã giao dịch ${id}`;
     let b = null;
     let inAccount = false;
     let reason = null;
@@ -175,7 +175,7 @@ async function report({ txId, content, amount, account }) {
       if (inAccount) {
         await addHistory(tx, b.id, 'bank_unmatched', {
           actor: BANK_ACTOR,
-          note: `Ngân hàng báo ${money(sum)}, nội dung "${text}" nhưng chưa tự ghi nhận: ${reasonTextOf(reason, afterHold)}${expected ? ` (cần ${money(expected)})` : ''}`,
+          note: `Số tiền ${money(sum)}, nội dung "${text}". Chưa tự ghi nhận: ${reasonTextOf(reason, afterHold)}${expected ? ` (cần ${money(expected)})` : ''}`,
         });
       }
       await notify(tx, ownerId, `Ngân hàng báo ${money(sum)}, nội dung "${text}" nhưng chưa tự ghi nhận được: ${reasonTextOf(reason, afterHold).toLowerCase()}. Cần bạn xem và xử lý.`, { bookingId: inAccount ? b.id : null, link: '/owner.html' });

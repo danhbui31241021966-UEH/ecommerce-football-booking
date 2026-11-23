@@ -186,7 +186,7 @@ function renderGrid() {
   const cur = courts.find((c) => c.id === wantCourt);
   const periods = ['Sáng', 'Chiều', 'Tối'];
   const mobile = `<div class="slot-mobile">
-    ${courts.length > 1 ? `<div class="segmented court-switch" role="group" aria-label="Chọn sân">${courts.map((c) => `<button type="button" data-court-tab="${c.id}" aria-pressed="${c.id === wantCourt}">${esc(c.name)} · ${c.fieldType}</button>`).join('')}</div>` : `<p class="muted" style="margin-bottom:var(--sp-3)">${esc(cur.name)} · sân ${cur.fieldType} người</p>`}
+    ${courts.length > 1 ? `<div class="segmented court-switch" role="group" aria-label="Chọn sân">${courts.map((c) => `<button type="button" data-court-tab="${c.id}" aria-pressed="${c.id === wantCourt}">${esc(c.name)} (${c.fieldType} người)</button>`).join('')}</div>` : `<p class="muted" style="margin-bottom:var(--sp-3)">${esc(cur.name)} · sân ${cur.fieldType} người</p>`}
     ${periods
       .map((p) => {
         const slots = cur.slots.filter((s) => periodOf(s.start) === p && s.status !== 'past'); // giờ đã qua không giúp chọn, bỏ khỏi lưới điện thoại
@@ -256,7 +256,7 @@ function paintBar() {
     return;
   }
   if (!s) {
-    $('bar-what').textContent = 'Chọn một giờ trống ở lưới phía trên';
+    $('bar-what').textContent = 'Chọn một giờ trống';
     $('bar-total').textContent = '';
     btn.disabled = true;
     saveBtn.disabled = true;

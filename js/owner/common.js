@@ -64,6 +64,7 @@ export const refundBadge = (b) =>
 
 export function reliabilityHtml(r) {
   if (!r) return '<span class="rel rel-new">Khách mới, chưa có lịch sử</span>';
+  if (!r.restricted && !r.violations && !r.completed) return '<span class="rel rel-new">Khách mới, chưa có lịch sử</span>';
   const cls = r.restricted || r.violations >= r.maxViolations ? 'bad' : r.violations > 0 ? 'warn' : 'ok';
   const head = r.restricted ? 'Cần bạn đồng ý trước' : r.violations > 0 ? 'Cần lưu ý' : 'Uy tín tốt';
   return `<span class="rel rel-${cls}"><b>${head}</b> · ${r.noShows} bùng, ${r.lateCancels} hủy sát giờ trong ${r.windowDays} ngày · ${r.completed} lần đã đá</span>`;

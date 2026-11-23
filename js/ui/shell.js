@@ -35,7 +35,6 @@ const NAV = {
       { href: '/owner-schedule.html', label: 'Lịch sân', also: ['/owner-bookings.html', '/owner-leagues.html', '/owner-league.html'] },
       { href: '/owner-requests.html', label: 'Khách nhờ báo giá' },
       { href: '/owner-settings.html', label: 'Cài đặt sân' },
-      { href: '/cart.html', label: 'Giỏ sân', cart: true },
     ],
     more: [],
   },
@@ -44,7 +43,6 @@ const NAV = {
       { href: '/admin.html', label: 'Tài khoản' },
       { href: '/admin-bookings.html', label: 'Lịch đặt' },
       { href: '/admin-logs.html', label: 'Nhật ký' },
-      { href: '/cart.html', label: 'Giỏ sân', cart: true },
     ],
     more: [],
   },
@@ -134,7 +132,7 @@ function mobileLinksHtml(role) {
 }
 
 const actionsHtml = (user, role, unread, ghost) => {
-  if (!user) return '<a class="btn btn-lime btn-sm" href="/login.html">Đăng nhập</a>';
+  if (!user) return /^\/login(\.html)?$/.test(location.pathname) ? '' : '<a class="btn btn-lime btn-sm" href="/login.html">Đăng nhập</a>';
   if (ghost) return '<span class="avatar avatar-ghost" aria-hidden="true"></span>'; // đoán là đã đăng nhập, chờ api.me cho tên thật
   return `<a class="icon-btn" href="/notifications.html" aria-label="Thông báo${unread ? `: ${unread} chưa đọc` : ''}">${icon('bell')}${unread ? `<span class="dot">${unread}</span>` : ''}</a>
     <details class="user-menu"><summary class="avatar" aria-label="Tài khoản ${esc(user.fullName)}" title="${esc(user.fullName)}">${esc(initialsOf(user.fullName))}</summary>
