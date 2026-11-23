@@ -48,16 +48,20 @@ export function countdown(el, seconds, text, onEnd) {
 }
 
 /** Chính sách hủy theo mốc giờ còn hiệu lực tại nowTs; mốc đã qua không hiện, thay bằng dòng "hiện tại trả lại bao nhiêu". */
-export function policyStepsHtml(startAt, nowTs) {
+export function policyStepsHtml(startAt, nowTs, paid = true) {
   const d = cancelDeadlines(startAt);
   const at = (ts) => `${ts.slice(11, 16)} ${dayLabel(ts.slice(0, 10))}`;
   const now = vnToMs(nowTs);
   const { percent } = refundFor({ startAt, price: 0, paid: false }, nowTs);
+  if (!paid) {
+    const late = vnToMs(d.half) <= now;
+    return `<p class="muted" style="font-size:var(--fs-sm);margin-bottom:8px"><b>Hủy miễn phí</b>: bạn chưa chuyển khoản nên không mất tiền.</p><div class="step"><b>Uy tín</b><span>${late ? 'hủy bây giờ (còn dưới 12 giờ) bị tính là hủy sát giờ' : `hủy sau <b>${at(d.half)}</b> (dưới 12 giờ trước giờ đá) bị tính là hủy sát giờ`}</span></div>`;
+  }
   const steps = [];
   if (vnToMs(d.full) > now) steps.push(`<div class="step"><b>100%</b><span>nếu hủy trước <b>${at(d.full)}</b></span></div>`);
   if (vnToMs(d.half) > now) steps.push(`<div class="step"><b>50%</b><span>nếu hủy trước <b>${at(d.half)}</b>${vnToMs(d.full) <= now ? ' (mốc 100% đã qua)' : ''}</span></div>`);
   steps.push(`<div class="step"><b>0%</b><span>${vnToMs(d.half) > now ? 'nếu hủy sau đó' : 'mốc trả lại 100% và 50% đều đã qua, hủy bây giờ không được trả lại'} (tính vào uy tín của bạn)</span></div>`);
-  return `<p class="muted" style="font-size:var(--fs-sm);margin-bottom:8px">Nếu hủy ngay bây giờ: trả lại <b>${percent}%</b>.</p>${steps.join('')}`;
+  return `<p class="muted" style="font-size:var(--fs-sm);margin-bottom:8px">Nếu hủy ngay bây giờ: trả lại <b>${percent}%</b>, tính theo thời gian còn lại tới giờ đá (không tính từ lúc đặt).</p>${steps.join('')}`;
 }
 
 // Chỉ có ở prototype: thay cho việc chuyển tiền thật. Bản thật không có khối này, ngân hàng (SePay) báo về server.

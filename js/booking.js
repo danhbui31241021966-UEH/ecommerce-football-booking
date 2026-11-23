@@ -39,7 +39,7 @@ const at = (ts) => `${timeOf(ts)} ${dayLabel(ts.slice(0, 10))}`;
 const claimed = () => b.transfer?.status === 'claimed';
 const canCancel = () => !b.match && ['pending', 'confirmed'].includes(b.status) && secondsLeft(b.startAt, meta.now) > 0 && !claimed();
 
-const policyHtml = () => `<div class="policy">${policyStepsHtml(b.startAt, meta.now)}</div>`;
+const policyHtml = () => `<div class="policy">${policyStepsHtml(b.startAt, meta.now, b.paymentStatus === 'paid')}</div>`;
 
 function refundNote() {
   if (b.match) return '';
@@ -151,8 +151,12 @@ function openCancel() {
   const paid = b.paymentStatus === 'paid';
   const r = refundFor({ startAt: b.startAt, price: b.price, paid }, meta.now);
   const late = r.hoursLeft < 12;
-  $('cancel-refund').innerHTML = `<p>Còn <b>${r.hoursLeft >= 1 ? `${Math.floor(r.hoursLeft)} giờ` : 'dưới 1 giờ'}</b> tới giờ đá nên được trả lại <b>${r.percent}%</b>.</p>
-    <p style="margin-top:6px">${paid ? `Bạn đã chuyển khoản ${money(b.price)}, tiền trả lại là <b class="num">${money(r.amount)}</b>.` : `Bạn chưa chuyển khoản nên không có tiền để trả lại.`}</p>
+  const left = `Còn <b>${r.hoursLeft >= 1 ? `${Math.floor(r.hoursLeft)} giờ` : 'dưới 1 giờ'}</b> tới giờ đá`;
+  const tier = r.percent === 100 ? 'từ 24 giờ trở lên' : r.percent === 50 ? 'từ 12 đến dưới 24 giờ' : 'dưới 12 giờ';
+  $('cancel-refund').innerHTML = `${paid
+    ? `<p>${left} (${tier}) nên được trả lại <b>${r.percent}%</b>. Mốc này tính theo thời gian còn lại tới giờ đá, không tính từ lúc đặt.</p>
+    <p style="margin-top:6px">Bạn đã chuyển khoản ${money(b.price)}, tiền trả lại là <b class="num">${money(r.amount)}</b>.</p>`
+    : `<p><b>Hủy miễn phí.</b> Bạn chưa chuyển khoản nên không mất tiền.</p>`}
     ${late ? '<p style="margin-top:6px">Hủy khi còn dưới 12 giờ bị tính là <b>hủy sát giờ</b>. Hủy sát giờ hoặc bùng sân 2 lần trong 60 ngày thì lần đặt sau phải chờ chủ sân đồng ý.</p>' : ''}`;
   $('cancel-bank').innerHTML = r.amount > 0 ? bankFields('cb', `Chủ sân sẽ chuyển ${money(r.amount)} vào tài khoản này, nên hãy nhập đúng. Bạn có thể sửa lại sau trên trang này.`) : '';
   $('cancel-error').hidden = true;
