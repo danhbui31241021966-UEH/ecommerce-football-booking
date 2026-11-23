@@ -35,6 +35,7 @@ GGO giúp người chơi tìm sân bóng mini 5/7 người theo giờ, xem giá 
 ## Mở website
 
 - **Bản live:** https://ggo-datsan.pages.dev – triển khai tĩnh trên Cloudflare Pages, dùng dữ liệu mẫu trong `mock/`, không kết nối backend hay MySQL. File `js/mode.js` của bản tĩnh đặt `SERVED_BY_API = false`.
+- **Bản tĩnh bằng Docker (VPS):** cùng nội dung bản Pages (dữ liệu mẫu, không backend), phục vụ bằng nginx ở cổng 8080 trong container; `/x` → `x.html`, `/x.html` → 308 `/x`, link cũ 301, đường dẫn lạ 404. Build từ gốc repo: `docker build -f deploy/static/Dockerfile -t ggo-static .` (chỉ các file trong `deploy/static/Dockerfile.dockerignore` vào image, không có `.env`). Chạy thử: `docker run -d --name ggo-static -p 127.0.0.1:18480:8080 ggo-static`, rồi `node scripts/compare-status.mjs http://127.0.0.1:18480` để so mã phản hồi với bản Pages. Public qua Traefik bằng label `Host(...)`, `tls.certresolver` và `loadbalancer.server.port=8080`. Muốn chỉ dựng thư mục tĩnh: `node scripts/static-build.mjs` (ra `dist/`).
 - **Prototype trên máy:** `npm install`, sau đó `npm run prototype`; mở http://localhost:4100. Chạy bằng dữ liệu mẫu, không cần MySQL.
 - **Chạy đầy đủ trên máy:** cần Node.js 20+ và MySQL 8. Tạo database/user MySQL riêng theo cấu hình cục bộ, sao chép `.env.example` thành `.env` và điền thông tin kết nối, rồi chạy:
 

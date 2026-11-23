@@ -1,0 +1,14 @@
+# Danh sách cho phép: chặn tất cả rồi mở đúng phần bản tĩnh cần (khớp src/static-site.js) và script dựng.
+*
+!*.html
+!css
+!fonts
+!images
+!js
+!mock
+!robots.txt
+!sitemap.xml
+!favicon.ico
+!src/static-site.js
+!scripts/static-build.mjs
+!deploy/static/nginx.conf

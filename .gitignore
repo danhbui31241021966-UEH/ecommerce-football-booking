@@ -9,3 +9,4 @@ functions/_lib/backend.generated.js
 /.demo-state.json
 /.demo-state.lock
 /.demo-logs/
+/dist/

@@ -21,7 +21,7 @@ import { fileURLToPath } from 'node:url';
 
 const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 // Gốc repo có cả src/, db/, .env, tests/... nên không thể đưa cả gốc lên Pages: chép riêng các file tĩnh vào thư mục tạm rồi deploy thư mục đó.
-const { staticEntries, redirectsFile, notFoundPage } = createRequire(import.meta.url)('../src/static-site.js');
+const { writeDist } = createRequire(import.meta.url)('../src/static-site.js');
 const GENERATED = path.join(ROOT, 'functions/_lib/backend.generated.js');
 const DEV_VARS = path.join(ROOT, '.dev.vars');
 const PROJECT = 'ggo-datsan';
@@ -49,9 +49,7 @@ if (!dev) {
 const writeBackend = (url) => fs.writeFileSync(GENERATED, `export default ${JSON.stringify(url)};\n`);
 const DIST = fs.mkdtempSync(path.join(os.tmpdir(), 'ggo-pages-'));
 const cleanup = () => { writeBackend(''); fs.rmSync(DEV_VARS, { force: true }); fs.rmSync(DIST, { recursive: true, force: true }); };
-for (const name of staticEntries(ROOT)) fs.cpSync(path.join(ROOT, name), path.join(DIST, name), { recursive: true });
-fs.writeFileSync(path.join(DIST, '_redirects'), redirectsFile());
-fs.writeFileSync(path.join(DIST, '404.html'), notFoundPage);
+writeDist(DIST, ROOT);
 process.on('exit', cleanup);
 for (const s of ['SIGINT', 'SIGTERM']) process.on(s, () => process.exit(130));
 

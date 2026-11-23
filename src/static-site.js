@@ -1,8 +1,8 @@
 // Cái gì ở thư mục gốc của repo được phép ra web. Gốc repo còn chứa src/, db/, tests/, .env, package.json...,
-// nên KHÔNG bao giờ phục vụ cả thư mục gốc: Express và bản deploy Cloudflare Pages đều chỉ lấy đúng danh sách dưới đây.
+// nên KHÔNG bao giờ phục vụ cả thư mục gốc: Express, bản deploy Cloudflare Pages và image Docker tĩnh đều chỉ lấy đúng danh sách dưới đây.
+// Không nạp express ở đầu file: bước build bản tĩnh (scripts/static-build.mjs, cả trong Docker) chạy không cần node_modules.
 const fs = require('fs');
 const path = require('path');
-const express = require('express');
 
 const ROOT = path.join(__dirname, '..');
 
@@ -32,7 +32,24 @@ function redirectsFile() {
   return `${REDIRECTS.map((r) => `${r.from} ${r.to} 301`).join('\n')}\n`;
 }
 
+// Bản tĩnh đúng như Pages nhận: trang .html, file lẻ, thư mục tĩnh, _redirects và 404.html. out phải chưa có hoặc rỗng.
+function writeDist(out, root = ROOT) {
+  fs.mkdirSync(out, { recursive: true });
+  if (fs.readdirSync(out).length) throw new Error(`thư mục đích không rỗng: ${out}`);
+  for (const name of staticEntries(root)) fs.cpSync(path.join(root, name), path.join(out, name), { recursive: true });
+  fs.writeFileSync(path.join(out, '_redirects'), redirectsFile());
+  fs.writeFileSync(path.join(out, '404.html'), notFoundPage);
+}
+
+// Cùng bảng REDIRECTS cho nginx (image Docker): 301, giữ nguyên query như Pages.
+function nginxRedirects() {
+  return `${REDIRECTS.map((r) => (r.from.endsWith('/*')
+    ? `location ^~ ${r.from.slice(0, -1)} { rewrite ^${r.from.slice(0, -1)}(.*)$ ${r.to.replace(/:splat$/, '')}$1 permanent; }`
+    : `location = ${r.from} { return 301 ${r.to}$is_args$args; }`)).join('\n')}\n`;
+}
+
 function mountStatic(app, root = ROOT) {
+  const express = require('express');
   for (const r of REDIRECTS) {
     if (r.from.endsWith('/*')) {
       const base = r.from.slice(0, -2);
@@ -60,4 +77,4 @@ const notFoundPage = `<!doctype html>
 <body><main class="container"><h1 class="h1">Không tìm thấy trang</h1><p><a href="/">Về trang chủ GGO</a></p></main></body></html>
 `;
 
-module.exports = { ROOT, STATIC_DIRS, STATIC_FILES, REDIRECTS, staticEntries, redirectsFile, notFoundPage, mountStatic };
+module.exports = { ROOT, STATIC_DIRS, STATIC_FILES, REDIRECTS, staticEntries, redirectsFile, nginxRedirects, notFoundPage, writeDist, mountStatic };

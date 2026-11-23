@@ -1,7 +1,10 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const express = require('express');
-const { mountStatic, staticEntries, redirectsFile, REDIRECTS } = require('../src/static-site');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { mountStatic, staticEntries, redirectsFile, nginxRedirects, writeDist, REDIRECTS } = require('../src/static-site');
 
 async function withServer(fn) {
   const app = express();
@@ -44,4 +47,24 @@ test('danh sách tĩnh không chứa thư mục không phải trang, và _redire
   for (const bad of ['src', 'db', 'tests', 'e2e', 'docs', 'scripts', 'node_modules', 'functions', 'data', '.env', 'package.json', 'README.md']) assert.ok(!names.includes(bad), bad);
   for (const must of ['index.html', 'products.html', 'product-detail.html', 'cart.html', 'about.html', 'css', 'images']) assert.ok(names.includes(must), must);
   assert.equal(redirectsFile().trim().split('\n').length, REDIRECTS.length);
+});
+
+test('bản tĩnh dựng cho Pages/Docker chỉ có file trang, chạy dữ liệu mẫu, kèm _redirects và 404', () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ggo-dist-'));
+  try {
+    writeDist(out);
+    const names = fs.readdirSync(out).sort();
+    assert.deepEqual(names, [...staticEntries(), '_redirects', '404.html'].sort());
+    for (const n of ['.env', 'src', 'db', 'functions', 'package.json', 'node_modules', 'docs']) assert.ok(!names.includes(n), n);
+    assert.match(fs.readFileSync(path.join(out, 'js/mode.js'), 'utf8'), /SERVED_BY_API = false/);
+    assert.equal(fs.readFileSync(path.join(out, '_redirects'), 'utf8'), redirectsFile());
+    assert.throws(() => writeDist(out), /không rỗng/);
+  } finally { fs.rmSync(out, { recursive: true, force: true }); }
+});
+
+test('bảng chuyển hướng nginx có đủ mọi link cũ, 301 và giữ query', () => {
+  const conf = nginxRedirects();
+  for (const r of REDIRECTS) assert.ok(conf.includes(r.from.replace(/\*$/, '')), r.from);
+  assert.match(conf, /location = \/venues\.html \{ return 301 \/products\$is_args\$args; \}/);
+  assert.match(conf, /location \^~ \/img\/ \{ rewrite \^\/img\/\(\.\*\)\$ \/images\/\$1 permanent; \}/);
 });
