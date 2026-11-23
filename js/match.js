@@ -50,7 +50,7 @@ function topUpBox() {
   const foot = '<p class="muted" style="font-size:var(--fs-sm)">Khoản này chuyển thẳng giữa hai đội. GGO không giữ tiền và không bắt buộc trả, chỉ ghi lại trạng thái.</p>';
   if (m.role === t.from) {
     if (t.status === 'received') return `<div class="refund-box">${head}</div>`;
-    return `<div class="notice warn" role="status"><div>${head}${m.topUpQr ? '<p>Quét mã QR bên cạnh để chuyển cho đội thắng.</p>' : '<p>Đội thắng chưa nhập số tài khoản. Khi họ nhập xong, mã QR sẽ hiện ở đây.</p>'}${foot}</div></div>`;
+    return `<div class="notice warn" role="status"><div>${head}${m.topUpQr ? '<p>Quét mã QR trong khung chuyển khoản, hoặc sao chép số tài khoản, để chuyển cho đội thắng.</p>' : '<p>Đội thắng chưa nhập số tài khoản. Khi họ nhập xong, mã QR sẽ hiện ở đây.</p>'}${foot}</div></div>`;
   }
   if (m.role === t.to) {
     const form = t.status === 'unpaid' ? (m.yourBank
@@ -88,14 +88,14 @@ function action() {
   const user = getUser();
   const link = `${location.origin}/match.html?id=${m.id}`;
   if (m.role === 'host') {
-    if (m.status === 'open' && !m.hostPaid) return `<div class="notice warn" role="status"><div><b>Chuyển ${money(m.hostAmount)} cho chủ sân</b> bằng mã QR bên cạnh, giữ nguyên nội dung chuyển khoản. Bạn còn <span id="cd"></span> để chủ sân nhận tiền, quá hạn thì sân mở lại. Kèo chỉ hiện cho đội khác sau khi chủ sân nhận tiền của bạn.</div></div>${withdrawHtml()}`;
+    if (m.status === 'open' && !m.hostPaid) return `<div class="notice warn" role="status"><div><b>Chuyển ${money(m.hostAmount)} cho chủ sân</b> bằng mã QR hoặc thông tin trong khung chuyển khoản (sao chép được), giữ nguyên nội dung chuyển khoản. Bạn còn <span id="cd"></span> để chủ sân nhận tiền, quá hạn thì sân mở lại. Kèo chỉ hiện cho đội khác sau khi chủ sân nhận tiền của bạn.</div></div>${withdrawHtml()}`;
     if (m.status === 'open') return `<div class="notice" role="status"><div>Chủ sân đã nhận ${money(m.hostAmount)} của bạn. Sân được giữ đến ${shortTs(m.closesAt)} để chờ đội thứ hai. Muốn rủ đội quen? Gửi link này: <button type="button" class="btn btn-sm" data-copy="${esc(link)}">Sao chép link</button></div></div>${withdrawHtml()}`;
     if (m.status === 'joined') return `<div class="notice" role="status"><div>Đã có đội vào kèo. Họ cần chuyển ${money(m.guestAmount)} trong <span id="cd"></span> nữa thì kèo mới chốt. Phần bạn đã trả vẫn được giữ nguyên.</div></div>${withdrawHtml()}`;
     if (m.status === 'confirmed') return `<div class="notice" role="status"><div>Kèo đã chốt: chủ sân đã nhận đủ tiền của hai đội. <a href="/booking.html?id=${m.bookingId}">Mở lịch đặt</a>.</div></div>${resultBox()}`;
     return `<div class="notice"><div>${esc(m.endReason || 'Kèo đã kết thúc.')}</div></div>${refundBox()}`;
   }
   if (m.role === 'guest') {
-    if (m.status === 'joined') return `<div class="notice warn" role="status"><div><b>Chuyển ${money(m.guestAmount)} cho chủ sân</b> bằng mã QR bên cạnh, giữ nguyên nội dung chuyển khoản. Bạn còn <span id="cd"></span> để chủ sân nhận tiền. Kèo chỉ chốt sau khi chủ sân nhận tiền của bạn.</div></div>`;
+    if (m.status === 'joined') return `<div class="notice warn" role="status"><div><b>Chuyển ${money(m.guestAmount)} cho chủ sân</b> bằng mã QR hoặc thông tin trong khung chuyển khoản (sao chép được), giữ nguyên nội dung chuyển khoản. Bạn còn <span id="cd"></span> để chủ sân nhận tiền. Kèo chỉ chốt sau khi chủ sân nhận tiền của bạn.</div></div>`;
     if (m.status === 'confirmed') return `<div class="notice"><div>Kèo đã chốt. Hẹn gặp bạn trên sân.</div></div>${resultBox()}`;
     return `<div class="notice"><div>${esc(m.endReason || 'Bạn không còn trong kèo này.')}</div></div>${refundBox()}`;
   }

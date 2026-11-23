@@ -1561,6 +1561,32 @@ dialog.modal[open] {
   border-radius: var(--r-lg);
   background: #fff;
 }
+.qr-card .copy-list,
+.qr-card .qr-pic {
+  display: grid;
+  gap: var(--sp-3);
+}
+.qr-card .qr-save {
+  justify-self: center;
+  min-height: 44px;
+  padding: 0 var(--sp-5);
+  border: 1px solid rgb(255 255 255 / 0.18);
+  border-radius: var(--r-full);
+  background: transparent;
+  color: var(--on-dark);
+  font-weight: 700;
+  cursor: pointer;
+}
+.qr-card .qr-save:hover {
+  background: var(--lime-400);
+  border-color: var(--lime-400);
+  color: var(--pitch-950);
+}
+/* Từ 900px khung QR nằm bên cạnh nên ảnh QR lên trước; hẹp hơn thì ô sao chép lên trước để dán vào app ngân hàng. */
+@media (min-width: 900px) {
+  .qr-card .qr-pic { order: -1; }
+  .qr-card > .row { order: -2; }
+}
 .qr-card .amount {
   text-align: center;
   font-weight: 700;

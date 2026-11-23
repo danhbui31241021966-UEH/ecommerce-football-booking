@@ -37,7 +37,7 @@ function action() {
       <p class="muted" style="font-size:var(--fs-sm)">Bấm nhận để lấy mã QR. Bạn có ${meta.holdMinutes} phút để chuyển khoản. Chủ sân nhận được tiền thì sân mới là của bạn.</p>`;
   }
   if (t.status === 'claimed') {
-    if (t.role === 'claimer') return `<div class="notice warn" role="status"><div><b>Chuyển ${money(t.askPrice)} cho chủ sân</b> bằng mã QR bên cạnh, giữ nguyên nội dung chuyển khoản. Bạn còn <span id="cd"></span> để chủ sân nhận tiền. Sân chỉ là của bạn sau khi chủ sân nhận tiền.</div></div>`;
+    if (t.role === 'claimer') return `<div class="notice warn" role="status"><div><b>Chuyển ${money(t.askPrice)} cho chủ sân</b> bằng mã QR hoặc thông tin trong khung chuyển khoản (sao chép được), giữ nguyên nội dung chuyển khoản. Bạn còn <span id="cd"></span> để chủ sân nhận tiền. Sân chỉ là của bạn sau khi chủ sân nhận tiền.</div></div>`;
     if (t.role === 'giver') return `<div class="notice" role="status"><div>Đã có đội nhận, đang chờ chủ sân nhận tiền của họ (còn <span id="cd"></span>). Lúc này sân vẫn là của bạn. <a href="/booking.html?id=${t.bookingId}">Mở lịch đặt</a></div></div>`;
     return '<div class="notice">Đã có đội khác nhận sân này.</div>';
   }

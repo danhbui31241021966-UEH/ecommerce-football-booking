@@ -97,16 +97,57 @@ document.addEventListener('click', async (e) => {
 /** Khung mã QR dùng ở chi tiết lịch đặt và chi tiết pass: tiền vào thẳng tài khoản chủ sân. */
 export function qrHtml(q, title = 'Chuyển khoản để giữ sân', note = 'Tiền vào thẳng tài khoản chủ sân. Ngân hàng báo đã nhận thì đơn tự chuyển sang "Đã nhận tiền" (nếu chưa tự được, chủ sân xác nhận tay). GGO không giữ tiền của bạn.', { simulate = true } = {}) {
   const row = (k, v, copy) => `<div class="copy-row"><div><div class="k">${k}</div><div class="v">${esc(v)}</div></div>${copy ? `<button type="button" data-copy="${esc(copy)}" aria-label="Sao chép ${k.toLowerCase()}">Sao chép</button>` : ''}</div>`;
+  // Thứ tự trong DOM là thứ tự trên điện thoại: thông tin chuyển khoản (sao chép được) trước, ảnh QR sau.
+  // Từ 900px QR nằm trên cùng (xem .qr-card trong css).
   return `<aside class="qr-card" aria-labelledby="qr-title">
     <div class="row"><span class="h3" id="qr-title">${esc(title)}</span></div>
-    <img class="qr" alt="Mã QR chuyển khoản ${money(q.amount)}, nội dung ${esc(q.content)}" src="${esc(q.url)}" width="260" height="260">
-    <p class="amount num">${money(q.amount)}</p>
-    ${row('Ngân hàng', q.bankName)}
-    ${row('Số tài khoản', q.account, q.account)}
-    ${row('Chủ tài khoản', q.accountName)}
-    ${row('Số tiền', String(q.amount), String(q.amount))}
-    ${row('Nội dung', q.content, q.content)}
+    <div class="copy-list">
+      ${row('Ngân hàng', q.bankName)}
+      ${row('Số tài khoản', q.account, q.account)}
+      ${row('Chủ tài khoản', q.accountName)}
+      ${row('Số tiền', String(q.amount), String(q.amount))}
+      ${row('Nội dung', q.content, q.content)}
+    </div>
+    <div class="qr-pic">
+      <img class="qr" alt="Mã QR chuyển khoản ${money(q.amount)}, nội dung ${esc(q.content)}" src="${esc(q.url)}" width="260" height="260">
+      <p class="amount num">${money(q.amount)}</p>
+      <button type="button" class="qr-save" data-qr-save="${esc(q.url)}" data-qr-name="ggo-qr-${esc(q.content)}">Lưu ảnh QR</button>
+    </div>
     <p style="font-size:12px;color:var(--on-dark-muted)">${esc(note)}</p>
     ${simulate && api.proto ? simulateHtml(q) : ''}
   </aside>`;
 }
+
+// Lưu ảnh QR về máy (ảnh gốc là SVG của VietQR): tải về, vẽ lại thành PNG để mở được trong thư viện ảnh. Không được thì mở ảnh ra để nhấn giữ lưu.
+document.addEventListener('click', async (e) => {
+  const btn = e.target.closest('[data-qr-save]');
+  if (!btn) return;
+  const url = btn.dataset.qrSave;
+  btn.disabled = true;
+  try {
+    const svg = await (await fetch(url)).blob();
+    const href = URL.createObjectURL(svg);
+    const img = await new Promise((ok, no) => { const i = new Image(); i.onload = () => ok(i); i.onerror = no; i.src = href; });
+    const size = 1024;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = Math.round(size * (img.naturalHeight / img.naturalWidth || 1));
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#fff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    URL.revokeObjectURL(href);
+    const png = await new Promise((ok) => canvas.toBlob(ok, 'image/png'));
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(png);
+    a.download = `${btn.dataset.qrName}.png`;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  } catch {
+    window.open(url, '_blank', 'noopener');
+  } finally {
+    btn.disabled = false;
+  }
+});
