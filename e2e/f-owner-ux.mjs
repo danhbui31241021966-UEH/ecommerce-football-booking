@@ -21,6 +21,21 @@ const goMenu = async (label) => {
   await click(`${NARROW ? '.mobile-nav' : '.site-header .nav'} a:has-text("${label}")`);
 };
 
+await step(p, 'ownux', 'notification-badge-caps-at-99-plus', async () => {
+  await reset(); await loginAs(p, OWNER);
+  await p.evaluate(() => {
+    const key = 'sannhanh.mock.v12'; const state = JSON.parse(localStorage.getItem(key));
+    const ownerId = state.sessionUserId;
+    for (let i = 0; i < 100; i++) state.notifications.push({ id: ++state.ids.notification, userId: ownerId, message: 'test', link: '/notifications.html', isRead: false, createdAt: new Date().toISOString() });
+    localStorage.setItem(key, JSON.stringify(state));
+  });
+  await p.reload(); await p.waitForSelector('.header-actions .dot');
+  must(await p.locator('.header-actions .dot').innerText() === '99+', 'badge không giới hạn: ' + await p.locator('.header-actions .dot').innerText());
+  const actualUnread = (await api(p, 'a=>a.notifications()')).unread;
+  must((await p.locator('.header-actions a[href="/notifications.html"]').getAttribute('aria-label')).includes(`${actualUnread} chưa đọc`), 'aria-label phải giữ số chính xác');
+  return '100 chưa đọc hiển thị 99+, nhãn trợ năng giữ chính xác';
+});
+
 await step(p, 'ownux', '01-menu-has-four-items-and-demo-group', async () => {
   await reset(); await loginAs(p, OWNER); await gotoToday();
   const links = await p.locator('.site-header .nav a').allInnerTexts();

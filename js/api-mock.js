@@ -239,6 +239,7 @@ function seedCrowd(st, t, today, courts) {
             basePrice: slot.basePrice,
             discountPercent: 0,
             paymentStatus: paid ? 'paid' : 'unpaid',
+            synthetic: true,
             refundStatus: 'none',
             refundPercent: 0,
             refundAmount: 0,
@@ -668,11 +669,13 @@ function tick() {
       const from = b.status;
       b.status = 'expired';
       addLog(b, 'expire', from, 'expired', null, waitingApproval ? 'Quá hạn giữ chỗ chưa được đồng ý' : 'Quá hạn giữ chỗ chưa chuyển khoản', b.expiresAt);
-      if (waitingApproval) {
-        notify(b.userId, `Lịch đặt ${b.code} đã quá hạn vì chủ sân chưa kịp đồng ý.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
-      } else {
-        notify(b.userId, `Lịch đặt ${b.code} đã hết hạn giữ chỗ vì chưa nhận được chuyển khoản. Giờ này đã mở lại cho người khác.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
-        notify(courtOf(b.courtId)[0].ownerId, `Lịch đặt ${b.code} của ${userOf(b.userId).fullName} đã hết hạn giữ chỗ vì khách chưa chuyển khoản. Giờ này đã mở lại.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
+      if (!b.synthetic) {
+        if (waitingApproval) {
+          notify(b.userId, `Lịch đặt ${b.code} đã quá hạn vì chủ sân chưa kịp đồng ý.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+        } else {
+          notify(b.userId, `Lịch đặt ${b.code} đã hết hạn giữ chỗ vì chưa nhận được chuyển khoản. Giờ này đã mở lại cho người khác.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+          notify(courtOf(b.courtId)[0].ownerId, `Lịch đặt ${b.code} của ${userOf(b.userId).fullName} đã hết hạn giữ chỗ vì khách chưa chuyển khoản. Giờ này đã mở lại.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
+        }
       }
       freeSlot(b);
       changed = true;
