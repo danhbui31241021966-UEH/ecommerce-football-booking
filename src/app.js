@@ -9,7 +9,7 @@ const { csrfProtection } = require('./middleware/csrf');
 const { errorHandler, apiNotFound } = require('./middleware/error');
 const { sweepDue } = require('./middleware/sweep');
 const { proxyGate } = require('./middleware/proxy');
-const { mountStatic } = require('./static-site');
+const { mountStatic, SECURITY_HEADERS } = require('./static-site');
 
 /**
  * @param {{ production?: boolean }} [opts] production mặc định theo NODE_ENV; chỉ test truyền vào để dựng cả hai chế độ.
@@ -24,13 +24,11 @@ function createApp({ production = config.isProduction, proxySecret = null, devRo
   // Cổng proxy bật ở tiến trình production thật (config.isProduction: thiếu PROXY_SECRET thì chặn hết) hoặc khi test truyền proxySecret.
   if (production && (config.isProduction || proxySecret)) app.use(proxyGate(() => proxySecret || config.proxySecret));
 
-  app.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: { 'img-src': ["'self'", 'data:', 'https:'] },
-      },
-    }),
-  );
+  app.use(helmet({ contentSecurityPolicy: false, hsts: false, frameguard: false }));
+  app.use((req, res, next) => {
+    for (const [name, value] of Object.entries(SECURITY_HEADERS)) res.setHeader(name, value);
+    next();
+  });
   app.use(express.json({ limit: '50kb' }));
   // Construct the API router before creating MySQLStore: a synchronous route-module load error must not leak
   // the store's expiry timer and keep startup/test processes alive.

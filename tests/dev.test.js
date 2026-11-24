@@ -58,6 +58,10 @@ test('dev: route không bật mặc định dù NODE_ENV không phải productio
     const a = app.agent();
     assert.equal((await a.get('/api/dev/state')).status, 404);
     assert.match((await a.get('/js/mode.js')).text, /DEV_TOOLS = false/);
+    const page = await a.get('/products');
+    assert.equal(page.headers.get('content-security-policy'), require('../src/static-site').SECURITY_HEADERS['Content-Security-Policy']);
+    assert.equal(page.headers.get('x-frame-options'), 'DENY');
+    assert.equal(page.headers.get('strict-transport-security'), 'max-age=31536000; includeSubDomains');
   } finally { await app.close(); }
 });
 

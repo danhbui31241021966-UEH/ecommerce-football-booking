@@ -4,7 +4,7 @@ const express = require('express');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { mountStatic, staticEntries, redirectsFile, nginxRedirects, writeDist, REDIRECTS } = require('../src/static-site');
+const { mountStatic, staticEntries, redirectsFile, headersFile, nginxRedirects, writeDist, REDIRECTS, SECURITY_HEADERS } = require('../src/static-site');
 
 async function withServer(fn) {
   const app = express();
@@ -54,12 +54,19 @@ test('bản tĩnh dựng cho Pages/Docker chỉ có file trang, chạy dữ li�
   try {
     writeDist(out);
     const names = fs.readdirSync(out).sort();
-    assert.deepEqual(names, [...staticEntries(), '_redirects', '404.html'].sort());
+    assert.deepEqual(names, [...staticEntries(), '_redirects', '_headers', '404.html'].sort());
     for (const n of ['.env', 'src', 'db', 'functions', 'package.json', 'node_modules', 'docs']) assert.ok(!names.includes(n), n);
     assert.match(fs.readFileSync(path.join(out, 'js/mode.js'), 'utf8'), /SERVED_BY_API = false/);
     assert.equal(fs.readFileSync(path.join(out, '_redirects'), 'utf8'), redirectsFile());
+    assert.equal(fs.readFileSync(path.join(out, '_headers'), 'utf8'), headersFile());
+    for (const [name, value] of Object.entries(SECURITY_HEADERS)) assert.ok(fs.readFileSync(path.join(out, '_headers'), 'utf8').includes(`${name}: ${value}`));
     assert.throws(() => writeDist(out), /không rỗng/);
   } finally { fs.rmSync(out, { recursive: true, force: true }); }
+});
+
+test('header nginx khớp chính sách bảo mật của bản Pages', () => {
+  const conf = fs.readFileSync(path.join(__dirname, '../deploy/static/nginx.conf'), 'utf8');
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) assert.ok(conf.includes(`add_header ${name} "${value}" always;`) || conf.includes(`add_header ${name} ${value} always;`), name);
 });
 
 test('bảng chuyển hướng nginx có đủ mọi link cũ, 301 và giữ query', () => {
