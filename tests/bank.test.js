@@ -15,7 +15,7 @@ let DAY;
 const stamp = (date, hm) => `${date} ${hm}`;
 
 test.before(async () => {
-  app = await h.startApp();
+  app = await h.startApp({ devRoutes: true });
 });
 test.after(async () => {
   await app.close();

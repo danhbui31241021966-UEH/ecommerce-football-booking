@@ -15,7 +15,7 @@ const { mountStatic } = require('./static-site');
  * @param {{ production?: boolean }} [opts] production mặc định theo NODE_ENV; chỉ test truyền vào để dựng cả hai chế độ.
  * Ở production KHÔNG gắn router dev (không phải gắn rồi chặn): /api/dev/* khi đó là 404 như mọi đường dẫn lạ.
  */
-function createApp({ production = config.isProduction, proxySecret = null } = {}) {
+function createApp({ production = config.isProduction, proxySecret = null, devRoutes = process.env.ENABLE_DEV_ROUTES === 'true' } = {}) {
   const app = express();
   if (production) {
     app.set('trust proxy', 1);
@@ -59,7 +59,7 @@ function createApp({ production = config.isProduction, proxySecret = null } = {}
   api.use('/leagues', require('./routes/leagues'));
   api.use('/owner/leagues', require('./routes/owner-leagues'));
   api.use('/owner', require('./routes/owner-bank'));
-  if (!production) api.use('/dev', require('./routes/dev'));
+  if (!production && devRoutes) api.use('/dev', require('./routes/dev'));
   api.use(apiNotFound);
 
   const store = new MySQLStore({ createDatabaseTable: false }, pool);
@@ -81,7 +81,7 @@ function createApp({ production = config.isProduction, proxySecret = null } = {}
   app.use('/api', api);
 
   // FE do Express phục vụ thì chạy chế độ thật; bản tĩnh (Cloudflare, prototype 4100) dùng js/mode.js gốc = mock.
-  const devTools = !production;
+  const devTools = !production && devRoutes;
   app.get('/js/mode.js', (req, res) => {
     res.type('application/javascript').set('Cache-Control', 'no-store');
     res.send(`export const SERVED_BY_API = true;\nexport const DEV_TOOLS = ${devTools};\n`);
