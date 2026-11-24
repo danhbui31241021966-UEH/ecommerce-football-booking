@@ -19,7 +19,7 @@ const nextQuery = `?next=${encodeURIComponent(next)}`;
 await step(p, 'auth-intent', 'demo-role-shortcuts', async () => {
   const accounts = [
     { identifier: 'khach1@datsan.local', role: 'customer', path: '/' },
-    { identifier: 'chusan1@datsan.local', role: 'owner', path: '/owner' },
+    { identifier: 'chusan2@datsan.local', role: 'owner', path: '/owner', recommendedVenue: 'Sân cỏ nhân tạo Hoàng Gia' },
     { identifier: 'admin@datsan.local', role: 'admin', path: '/admin' },
   ];
   for (const account of accounts) {
@@ -32,6 +32,10 @@ await step(p, 'auth-intent', 'demo-role-shortcuts', async () => {
     ]);
     const me = await api(p, 'a=>a.me()');
     assert.equal(me.user.role, account.role);
+    if (account.recommendedVenue) {
+      const venues = await api(p, 'a=>a.owner.venues()');
+      assert.ok(venues.some((v) => v.name === account.recommendedVenue), `tài khoản demo không sở hữu sân gợi ý ${account.recommendedVenue}`);
+    }
     await p.evaluate(async () => { const { api } = await import('/js/api.js'); await api.logout(); });
   }
   return 'prototype quick login: customer, owner, admin';
