@@ -66,9 +66,19 @@ await step(p, 'match', '06-owner-confirms-host-part-only', async () => {
   await ownerConfirm(M1.id, 'host');
   const m = (await attempt(`a=>a.owner.matches()`)).r.find((x) => x.id === M1.id); must(m.hostPaid && !m.guestPaid && m.status === 'open', 'trạng thái sau xác nhận phần đội mở');
   const bk = (await attempt(`a=>a.booking(${M1.bookingId})`)).r; must(bk.status === 'matching' && bk.paymentStatus === 'unpaid', 'booking chốt sớm: ' + bk.status); return 'mới một phần: booking vẫn ' + bk.status; });
+await step(p, 'match', '06b-join-asks-confirmation-and-cancel-holds-nothing', async () => {
+  await loginAs(p, 'khach2@datsan.local');
+  await p.goto(`${U}/match?id=${M1.id}`); await p.click('#join'); await p.waitForSelector('#join-dialog[open]');
+  const t = (await p.locator('#join-dialog').innerText()).replace(/\s+/g, ' ');
+  must(t.includes(M1.guestAmount.toLocaleString('vi-VN')), 'hộp xác nhận thiếu số tiền: ' + t); must(/trước \d{2}:\d{2}/.test(t), 'hộp xác nhận thiếu hạn chuyển: ' + t);
+  await p.waitForTimeout(600);
+  await p.screenshot({ path: `e2e/out/match-join-dialog-${W}.png` });
+  await p.click('#join-cancel'); await p.waitForSelector('#join-dialog', { state: 'hidden' });
+  const m = (await attempt(`a=>a.match(${M1.id})`)).r; must(m.status === 'open' && !m.hasGuest, 'bấm Hủy mà vẫn giữ chỗ: ' + m.status);
+  must(await p.locator('#join').count() === 1, 'nút vào kèo biến mất sau khi Hủy'); return t; });
 await step(p, 'match', '07-guest-joins-and-sees-qr', async () => {
   await loginAs(p, 'khach2@datsan.local'); await p.goto(`${U}/matches`); await p.waitForSelector(`a[href="/match.html?id=${M1.id}"]`);
-  await p.goto(`${U}/match?id=${M1.id}`); await p.click('#join'); await p.waitForSelector('.qr-card, .qr');
+  await p.goto(`${U}/match?id=${M1.id}`); await p.click('#join'); await p.waitForSelector('#join-dialog[open]'); await p.click('#join-ok'); await p.waitForSelector('.qr-card, .qr');
   const t = await body(); must(t.includes(M1.guestAmount.toLocaleString('vi-VN')), 'QR không có số tiền phần đội vào'); must(/chưa chuyển khoản/.test(t), 'không ghi rõ chưa được xác nhận');
   must(await p.locator('.toast').count() === 0, 'toast che QR'); return 'đội vào thấy QR phần ' + M1.guestAmount; });
 await step(p, 'match', '08-second-joiner-blocked-and-host-cannot-join', async () => {

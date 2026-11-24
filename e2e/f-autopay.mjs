@@ -118,8 +118,10 @@ await step(p, 'autopay', '05-duplicate-transaction-idempotent', async () => {
 await step(p, 'autopay', '06b-wrong-or-missing-account-blocked', async () => {
   // Tiền vào tài khoản sân khác nhưng nội dung mang mã đơn của sân này: không được tự nhận; chủ của tài khoản đã nhận tiền thấy thẻ.
   const X = await unpaid(); // sân 1 (chusan1)
-  const other = await accountOf(3); // sân 3 cùng chủ: tài khoản khác
   const acc1 = X.paymentQr.account;
+  // Một sân khác của cùng chủ, nhận tiền ở tài khoản khác (vài sân demo dùng chung một tài khoản thật nên không lấy cố định theo id).
+  await loginAs(p, OWNER);
+  const other = (await call('a=>a.owner.venues()')).r.find((v) => v.bankAccount && v.bankAccount !== acc1)?.bankAccount;
   must(other && other !== acc1, 'hai sân phải có hai tài khoản khác nhau: ' + other + ' / ' + acc1);
   const rep = (tx, account) => call(`a=>a.proto.bankReport({txId:'${tx}',amount:${X.paymentQr.amount},content:'${X.paymentQr.content}',account:'${account}'})`);
   const w = (await rep('TX-WRONGACC', other)).r;
@@ -130,7 +132,7 @@ await step(p, 'autopay', '06b-wrong-or-missing-account-blocked', async () => {
   const u = (await rep('TX-UNKNOWNACC', '000111222')).r; must(u.reason === 'wrong_account', 'tài khoản lạ: ' + JSON.stringify(u));
   // Sân khác chủ: tài khoản của chusan2 → thẻ hiện cho chusan2, không hiện cho chusan1
   await loginAs(p, 'chusan2@datsan.local');
-  const acc2 = (await call('a=>a.owner.venues()')).r[0]?.bankAccount; must(acc2 && acc2 !== acc1, 'chusan2 thiếu tài khoản');
+  const acc2 = (await call('a=>a.owner.venues()')).r.find((v) => v.bankAccount && v.bankAccount !== acc1)?.bankAccount; must(acc2 && acc2 !== acc1, 'chusan2 thiếu tài khoản');
   const w2 = (await call(`a=>a.proto.bankReport({txId:'TX-WRONGACC2',amount:${X.paymentQr.amount},content:'${X.paymentQr.content}',account:'${acc2}'})`)).r;
   must(w2.reason === 'wrong_account', 'tài khoản chủ khác: ' + JSON.stringify(w2));
   const mine = (await call('a=>a.owner.bankEvents()')).r.map((e) => e.txId);

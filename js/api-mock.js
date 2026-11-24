@@ -6,8 +6,8 @@ import {
   vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs, weekdayOf,
 } from './ui/format.js';
 
-// Đổi phiên bản khi dữ liệu mẫu đổi theo cách người đang dùng phải nhận ngay (vd tài khoản nhận tiền của sân): trình duyệt dựng lại demo.
-const STORE_KEY = 'sannhanh.mock.v13';
+// Đổi phiên bản khi dữ liệu mẫu đổi theo cách người đang dùng phải nhận ngay (vd tài khoản nhận tiền của sân, link liên hệ của giải): trình duyệt dựng lại demo.
+const STORE_KEY = 'sannhanh.mock.v14';
 const STATUSES = ['pending', 'confirmed', 'rejected', 'cancelled', 'expired', 'completed', 'no_show', 'transferred', 'matching'];
 
 let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
@@ -1321,7 +1321,7 @@ const teamModeAt = (court, start) => {
 };
 const matchOfBooking = (b) => (b.matchId ? S.matches.find((m) => m.id === b.matchId) : null);
 const ACTIVE_MATCH = ['open', 'joined'];
-// Kèo tiền sân: % tiền sân đội thua chịu. 50 = hòa vốn (5-5), 100 = thua bao sân. Mỗi đội luôn chuyển trước 50% để giữ sân.
+// Kèo tiền sân: % tiền sân đội thua chịu. 50 = chia đôi 5-5, 100 = thua bao sân. Mỗi đội luôn chuyển trước 50% để giữ sân.
 const STAKES = [50, 60, 70, 100];
 const stakeText = (p) => (p >= 100 ? 'thua bao sân' : `${p / 10}-${10 - p / 10}`);
 const halfOf = (price) => Math.min(price - 1000, Math.max(1000, roundThousand(price / 2)));
