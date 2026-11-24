@@ -71,6 +71,15 @@ function bool(value) {
 }
 
 // Chỉ nhận ảnh nội bộ hoặc https để tránh javascript:/data: URL.
+function mapsUrl(value) {
+  const s = str(value, 'Bản đồ', { max: 2000, optional: true });
+  if (s === null) return '';
+  let parsed;
+  try { parsed = new URL(s); } catch { throw badRequest('Bản đồ phải là đường dẫn https://'); }
+  if (parsed.protocol !== 'https:' || !parsed.hostname) throw badRequest('Bản đồ phải là đường dẫn https://');
+  return s;
+}
+
 function imageUrl(value) {
   const s = str(value, 'Ảnh', { max: 500, optional: true });
   if (s === null) return '/images/pitch-1.svg';
@@ -80,4 +89,4 @@ function imageUrl(value) {
   return s;
 }
 
-module.exports = { str, email, phone, password, date, time, int, id, bool, imageUrl };
+module.exports = { str, email, phone, password, date, time, int, id, bool, imageUrl, mapsUrl };

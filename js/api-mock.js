@@ -2654,6 +2654,11 @@ const myVenue = (c, id) => {
 };
 const VENUE_FIELDS = ['name', 'district', 'address', 'phone', 'imageUrl', 'description', 'rules', 'cancelPolicy', 'mapsUrl', 'openTime', 'closeTime', 'peakStart', 'peakEnd'];
 function applyVenue(v, b) {
+  if (b.mapsUrl !== undefined && b.mapsUrl !== '') {
+    let parsed;
+    try { parsed = new URL(String(b.mapsUrl)); } catch { parsed = null; }
+    req(parsed?.protocol === 'https:' && !!parsed.hostname && String(b.mapsUrl).length <= 2000, 'Bản đồ phải là đường dẫn https://');
+  }
   for (const k of VENUE_FIELDS) if (b[k] !== undefined) v[k] = b[k];
   if (b.amenities !== undefined) v.amenities = Array.isArray(b.amenities) ? b.amenities : String(b.amenities).split(',').map((s) => s.trim()).filter(Boolean);
   if (b.slotMinutes !== undefined) v.slotMinutes = Number(b.slotMinutes);
