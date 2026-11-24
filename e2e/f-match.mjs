@@ -71,6 +71,8 @@ await step(p, 'match', '06b-join-asks-confirmation-and-cancel-holds-nothing', as
   await p.goto(`${U}/match?id=${M1.id}`); await p.click('#join'); await p.waitForSelector('#join-dialog[open]');
   const t = (await p.locator('#join-dialog').innerText()).replace(/\s+/g, ' ');
   must(t.includes(M1.guestAmount.toLocaleString('vi-VN')), 'hộp xác nhận thiếu số tiền: ' + t); must(/trước \d{2}:\d{2}/.test(t), 'hộp xác nhận thiếu hạn chuyển: ' + t);
+  await p.waitForTimeout(600);
+  await p.screenshot({ path: `e2e/out/match-join-dialog-${W}.png` });
   await p.click('#join-cancel'); await p.waitForSelector('#join-dialog', { state: 'hidden' });
   const m = (await attempt(`a=>a.match(${M1.id})`)).r; must(m.status === 'open' && !m.hasGuest, 'bấm Hủy mà vẫn giữ chỗ: ' + m.status);
   must(await p.locator('#join').count() === 1, 'nút vào kèo biến mất sau khi Hủy'); return t; });
