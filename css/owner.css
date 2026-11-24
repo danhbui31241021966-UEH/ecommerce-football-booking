@@ -46,7 +46,7 @@
 .bk-money .price { font-size: 1.25rem; }
 .bk-who, .bk-court, .bk-state, .bk-actions { grid-column: 1 / -1; }
 .bk-who b { font-weight: 700; }
-.bk-who .phone { color: var(--text-2); font-variant-numeric: tabular-nums; margin-left: 6px; font-size: var(--fs-sm); }
+.bk-who .phone { color: var(--text-2); font-variant-numeric: tabular-nums; margin-left: 6px; font-size: var(--fs-sm); display: inline-flex; align-items: center; min-height: 44px; padding-inline: 4px; }
 .bk-who .note { font-size: var(--fs-sm); color: var(--text-2); margin-top: 2px; }
 .bk-who p + p { margin-top: 4px; }
 .bk-court { font-size: var(--fs-sm); color: var(--text-2); display: flex; flex-wrap: wrap; gap: 0 var(--sp-3); }

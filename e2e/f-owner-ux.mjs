@@ -36,6 +36,17 @@ await step(p, 'ownux', 'notification-badge-caps-at-99-plus', async () => {
   return '100 chưa đọc hiển thị 99+, nhãn trợ năng giữ chính xác';
 });
 
+await step(p, 'ownux', 'customer-phone-hit-targets-44px', async () => {
+  await reset(); await loginAs(p, OWNER); await gotoToday();
+  const heights = [];
+  for (const path of ['/owner', '/owner-bookings']) {
+    await p.goto(U + path); await p.waitForSelector('.bk .phone');
+    heights.push(await p.locator('.bk .phone').first().evaluate((el) => el.getBoundingClientRect().height));
+  }
+  must(heights.every((h) => h >= 44), `vùng gọi điện thấp hơn 44px: ${heights}`);
+  return `owner=${heights[0]}px, owner-bookings=${heights[1]}px`;
+});
+
 await step(p, 'ownux', '01-menu-has-four-items-and-demo-group', async () => {
   await reset(); await loginAs(p, OWNER); await gotoToday();
   const links = await p.locator('.site-header .nav a').allInnerTexts();
