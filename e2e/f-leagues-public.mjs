@@ -165,8 +165,12 @@ await step(p, 'lgpub', '04-open-league-and-contact-button', async () => {
 
 await step(p, 'lgpub', '05-no-number-invented-when-venue-has-none', async () => {
   // sân không có số và giải không có link: nút dẫn về trang sân, không tự đặt số
-  const l = ALL.find((x) => !x.link); const owner = 'chusan2@datsan.local';
-  await loginAs(p, owner);
+  const l = ALL.find((x) => !x.link); let owner = '';
+  for (const who of ['chusan1@datsan.local', 'chusan2@datsan.local']) { // sân thuộc chủ nào thì chủ đó sửa được
+    await loginAs(p, who);
+    if ((await p.evaluate(async (id) => { const { api } = await import('/js/api.js'); return (await api.owner.venues()).some((v) => v.id === id); }, l.venueId))) { owner = who; break; }
+  }
+  must(owner, 'không tìm thấy chủ của sân ' + l.venueId);
   const v = await call(`a=>a.owner.updateVenue(${l.venueId}, { phone: '' })`);
   await p.evaluate(async () => { await (await import('/js/api.js')).api.logout().catch(() => {}); });
   const pub = (await call('a=>a.leagues()')).find((x) => x.id === l.id);
