@@ -31,7 +31,7 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 | Khách vãng lai | Tìm sân, xem giá và lịch trống. Không cần đăng nhập. |
 | Khách hàng | Đặt sân, thanh toán qua QR, hủy, xếp hàng chờ, nhận thông báo. Nhượng booking đã trả tiền cho đội khác thay vì hủy; nhận nhượng booking của đội khác. Mở trận đủ hai đội hoặc vào trận có sẵn ở sân bật chế độ này. Đăng nhu cầu (quận, ngày, khung giờ, loại sân, ngân sách), xem các chào giá của sân và chọn một để đặt sân. |
 | Chủ sân | Quản lý sân/sân con, giá, lịch, chặn lịch, duyệt booking, ghi nhận thanh toán/hoàn tiền, đánh dấu có mặt/bùng, xác nhận đã nhận tiền của đội nhận nhượng (hoặc từ chối đội đó). Bật chế độ "đủ hai đội" cho từng sân con (cả ngày hoặc một khung giờ); xác nhận từng phần tiền của hai đội, hủy trận, ghi hoàn cho từng đội. Xem nhu cầu của khách ở khu vực sân mình và gửi chào giá (chọn sân con + slot, giá, hiệu lực), rút chào giá. |
-| Admin | Cấp và khóa tài khoản chủ sân, can thiệp booking ngoại lệ, xem nhật ký. |
+| Admin | Cấp và khóa tài khoản chủ sân, can thiệp khi cần (hủy lịch đặt, ghi nhận thanh toán), xem nhật ký. |
 
 ## 3. Phạm vi MVP
 
@@ -124,7 +124,7 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 | # | Màn | Nội dung chính |
 |---|---|---|
 | 14 | Tài khoản | Danh sách người dùng, tạo tài khoản chủ sân, khóa/mở. |
-| 15 | Lịch đặt | Tra cứu mọi lịch đặt, hủy ngoại lệ, ghi nhận thanh toán/hoàn tiền, đánh dấu có mặt. |
+| 15 | Lịch đặt | Tra cứu mọi lịch đặt, hủy lịch đặt, ghi nhận thanh toán/hoàn tiền, đánh dấu có mặt. |
 | 16 | Nhật ký | Lịch sử thao tác trên lịch đặt. |
 
 ## 6. Luồng chính
