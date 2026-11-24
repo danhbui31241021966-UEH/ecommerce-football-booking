@@ -1,6 +1,6 @@
 # Các giai đoạn làm GGO
 
-> **Tài liệu tổng kết lập sau.** Repo này không có nhánh hay PR riêng cho từng giai đoạn: mọi việc từ 21/10 đến 24/11/2026 nằm thẳng trên `main`, trừ đợt 3 (PR #1). File này dựng lại các giai đoạn từ lịch sử commit thật (`git log` của `main`, 149 commit, từ `54f072d` đến `4ca2401`), đối chiếu với `docs/TASKS.md` và `docs/PRD.md`. Ranh giới nào cũng là một commit có thật; chỗ việc đan xen nhau thì có ghi "Lẫn" ngay dưới mục đó.
+> **Tài liệu tổng kết lập sau.** Repo này không có nhánh hay PR riêng cho từng giai đoạn: mọi việc từ 21/10 đến 24/11/2026 nằm thẳng trên `main`, trừ đợt 3 và đợt 4 (PR #1, PR #2). File này dựng lại các giai đoạn từ lịch sử commit thật (`git log` của `main`, 149 commit, từ `54f072d` đến `2fe94aa`), đối chiếu với `docs/TASKS.md` và `docs/PRD.md`. Ranh giới nào cũng là một commit có thật; chỗ việc đan xen nhau thì có ghi "Lẫn" ngay dưới mục đó.
 
 Repo: <https://github.com/danhbui31241021966-UEH/ecommerce-football-booking>. Giờ trong bảng là giờ ghi trên commit (UTC+7). Link `compare` đi từ commit cuối của giai đoạn trước đến commit cuối của giai đoạn này, nên bao gồm cả các commit gộp nhánh nằm giữa.
 
@@ -18,7 +18,8 @@ Repo: <https://github.com/danhbui31241021966-UEH/ecommerce-football-booking>. Gi
 | – | Buổi 3: tìm tên, sắp xếp giá, Giỏ sân | 11/11 | `86ce1f2` → `c8f57dd` |
 | – | Đợt 1: bản demo live giữ dữ liệu, Docker tĩnh, chặn chuyển hướng sau đăng nhập | 23/11 – 24/11 | `7bae3a4` → `034dc47` |
 | – | Đợt 2: sửa lỗi từ lượt thử UX | 24/11 | `0f25bb3` → `f649b86` |
-| – | Đợt 3: bảo mật và trải nghiệm bản demo (PR #1) | 24/11 | `a731a1d` → `4ca2401` |
+| – | Đợt 3: bảo mật và trải nghiệm bản demo (PR #1) | 24/11 | `a731a1d` → `2fe94aa` |
+| – | Đợt 4: quyết định sản phẩm và cụm admin (PR #2) | 24/11 | `814ec43` → `73cc77a` |
 
 Giai đoạn 4 của TASKS không có khoảng commit riêng, xem cuối file.
 
@@ -147,7 +148,7 @@ Cách kiểm chung: `npm test` chạy `tests/*.test.js` trên MySQL thật (`scr
 ## – Đợt 3: bảo mật và trải nghiệm bản demo (PR #1)
 
 - **Mục tiêu:** làm cứng bản demo công khai và sửa vài điểm trải nghiệm. Đây là phần duy nhất đi qua nhánh và PR.
-- **Commit:** `a731a1d` (24/11 10:02) → `438728c` (10:54), gộp bằng `4ca2401` (11:05, `Gộp đợt 3: bảo mật và trải nghiệm bản demo (#1)`). Link: [f649b86…4ca2401](https://github.com/danhbui31241021966-UEH/ecommerce-football-booking/compare/f649b86...4ca2401) · [commit 4ca2401](https://github.com/danhbui31241021966-UEH/ecommerce-football-booking/commit/4ca2401)
+- **Commit:** `a731a1d` (24/11 10:02) → `438728c` (10:54), gộp bằng `2fe94aa` (11:05, `Gộp đợt 3: bảo mật và trải nghiệm bản demo (#1)`). Link: [f649b86…2fe94aa](https://github.com/danhbui31241021966-UEH/ecommerce-football-booking/compare/f649b86...2fe94aa) · [commit 2fe94aa](https://github.com/danhbui31241021966-UEH/ecommerce-football-booking/commit/2fe94aa)
 - **Làm gì:**
   - Chỉ nhận liên kết bản đồ an toàn (`a731a1d`); API demo chỉ bật khi có cờ rõ ràng (`c7b382a`).
   - CSP và header bảo mật cho bản tĩnh; header nginx sinh từ cùng chính sách với Pages (`8325cf7`, `6bc1977`).

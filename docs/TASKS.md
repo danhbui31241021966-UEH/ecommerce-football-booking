@@ -79,4 +79,4 @@ Không có trong danh sách trên lúc lập; ghi lại theo commit thật, chi 
 - [x] Buổi 3: tìm tên sân, sắp xếp giá, Giỏ sân (`86ce1f2`…`c8f57dd`).
 - [x] Bản demo live giữ dữ liệu người dùng, Docker tĩnh, chặn chuyển hướng sau đăng nhập (`7bae3a4`…`034dc47`).
 - [x] Sửa lỗi từ lượt thử UX: tài khoản nhận tiền hoàn, thanh toán trên điện thoại, lịch ban đêm, lỗi đăng ký (`0f25bb3`…`f649b86`).
-- [x] Bảo mật và QR thật cho bản demo, CSP (PR #1, `4ca2401`).
+- [x] Bảo mật và QR thật cho bản demo, CSP (PR #1, `2fe94aa`).
