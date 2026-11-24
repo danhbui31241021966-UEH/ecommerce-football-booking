@@ -8,7 +8,7 @@ Ký hiệu: `[ ]` chưa làm · `[~]` đang làm · `[x]` xong.
 
 - [x] Tách phần BE làm trước PRD sang branch `draft/backend-additions`; `main` về bản nháp gốc.
 - [~] PRD + task list — **xong khi:** nhóm duyệt PRD (luật nghiệp vụ, 16 màn, API contract).
-- [ ] Trả lời các câu hỏi mở trong PRD mục 10 (deadline, phân công).
+- [~] Trả lời các câu hỏi mở trong PRD mục 10 (deadline, phân công). Phân công thành viên đã điền trong README (`9a305e3`, `e004166`, `c8f57dd`); chưa thấy chốt deadline trong repo.
 
 ## Giai đoạn 1 – Prototype đợt 1: luồng đặt sân của khách
 
@@ -56,12 +56,27 @@ Ký hiệu: `[ ]` chưa làm · `[~]` đang làm · `[x]` xong.
 
 ## Giai đoạn 3 – Backend và nối FE
 
-- [ ] **T12.** Đưa phần BE từ `draft/backend-additions` vào `main`, rà lại theo PRD; chuyển response sang camelCase theo contract.
-- [ ] **T13.** Tắt dữ liệu giả, nối từng màn với API thật.
-- [ ] **T14.** Kiểm thử: chống đặt trùng, giữ chỗ 15 phút, danh sách chờ, hoàn tiền, độ tin cậy, giảm giá giờ chót.
-- [ ] **T15.** Dữ liệu mẫu cho demo + kịch bản demo theo 5 luồng PRD mục 6.
+Mốc commit của từng giai đoạn: `docs/PHASES.md`.
+
+- [x] **T12.** Backend Express + MySQL trong `main`, response camelCase (`src/lib/camel.js`). Xong ở `7e268e4`…`c465310` (02–03/11).
+  Lệch so với mô tả: không đưa phần BE từ `draft/backend-additions` vào; BE được viết lại theo PRD ngay trên `main`. Nhánh `draft/backend-additions` (`d317100`) vẫn còn và chưa gộp.
+- [x] **T13.** Nối FE với API thật: `js/api.js` có hằng `MODE` (`mock` hoặc `real`); khi Express phục vụ giao diện thì `js/mode.js` do `src/app.js` trả về bật `real`. Căn cứ: `js/api.js`, `src/app.js`, `e2e/f-live-smoke.mjs` (`c465310`).
+  Lệch so với mô tả: bản live trên Cloudflare Pages vẫn chạy dữ liệu giả có chủ ý, không nối backend.
+- [x] **T14.** Kiểm thử trên MySQL thật: chống đặt trùng (`tests/booking.race.test.js`), giữ chỗ 15 phút (`tests/pay-hold.test.js`), danh sách chờ, hoàn tiền theo mốc và độ tin cậy (`tests/booking.ops.test.js`), giảm giá giờ chót (`tests/public.test.js`, `tests/slots.test.js`).
+- [~] **T15.** Dữ liệu mẫu có (`src/seed/`, `scripts/demo-seed.cjs`, `mock/*.json`, dữ liệu sân thật `data/venues-hcm.json`). Chưa có tài liệu kịch bản demo theo 5 luồng PRD mục 6 trong repo; các luồng `e2e/f12.mjs`, `e2e/f345.mjs` chạy được 5 luồng nhưng không phải kịch bản để thuyết trình.
 
 ## Giai đoạn 4 – Hoàn thiện
 
-- [ ] **T16.** Sửa báo cáo cho khớp các thay đổi (giữ chỗ 15 phút, các tính năng bổ sung).
-- [ ] **T17.** Triển khai lên hosting, chuẩn bị slide demo.
+- [~] **T16.** Báo cáo Buổi 2 và Buổi 3 có trong `docs/buoi2/`, `docs/buoi3/`; báo cáo Buổi 2 đã cập nhật giữ chỗ 15 phút (`65ae890`). Chưa rà lại phần các tính năng bổ sung R12–R18 trong báo cáo.
+- [~] **T17.** Đã triển khai: bản tĩnh `https://ggo-datsan.pages.dev` (`scripts/pages-deploy.mjs`, `c465310`) và Docker nginx (`deploy/static/`, `10ee078`). Chưa có slide demo trong repo.
+
+## Việc làm sau danh sách ban đầu
+
+Không có trong danh sách trên lúc lập; ghi lại theo commit thật, chi tiết ở `docs/PHASES.md`.
+
+- [x] Dữ liệu sân bóng mini thật ở TP.HCM, ảnh thật (`606a061`…`2cc4de2`).
+- [x] Buổi 2: tên GGO, logo, đo và cải thiện luồng đặt sân, dời trang tĩnh ra thư mục gốc (`8824cd3`…`e004166`).
+- [x] Buổi 3: tìm tên sân, sắp xếp giá, Giỏ sân (`86ce1f2`…`c8f57dd`).
+- [x] Bản demo live giữ dữ liệu người dùng, Docker tĩnh, chặn chuyển hướng sau đăng nhập (`7bae3a4`…`034dc47`).
+- [x] Sửa lỗi từ lượt thử UX: tài khoản nhận tiền hoàn, thanh toán trên điện thoại, lịch ban đêm, lỗi đăng ký (`0f25bb3`…`f649b86`).
+- [x] Bảo mật và QR thật cho bản demo, CSP (PR #1, `4ca2401`).
