@@ -23,7 +23,7 @@ function steps() {
 }
 
 function stakeLine() {
-  if (m.loserPercent <= 50) return 'Hòa vốn 5-5: mỗi đội chịu một nửa';
+  if (m.loserPercent <= 50) return 'Chia đôi 5-5: mỗi đội chịu một nửa';
   return `<b>${stakeText(m.loserPercent)}</b>: đội thua chịu <span class="num">${money(m.loserAmount)}</span>, đội thắng chịu <span class="num">${money(m.winnerAmount)}</span>`;
 }
 

@@ -50,7 +50,7 @@ function render() {
       <fieldset class="field"><legend>Kèo tiền sân</legend>
         <div class="chips wrap" role="group">${STAKES.map(([p, label]) => `<button type="button" class="chip" data-stake="${p}" aria-pressed="${p === loserPercent}">${label}</button>`).join('')}</div>
         <p class="muted" style="font-size:var(--fs-sm)">${loserPercent === 50
-          ? `Hòa vốn: mỗi đội chịu <b class="num">${money(host)}</b>, không ai phải trả thêm.`
+          ? `Chia đôi 5-5: mỗi đội chịu <b class="num">${money(host)}</b>, không ai phải trả thêm.`
           : `Đội thua chịu <b class="num">${money(loser)}</b>, đội thắng chịu <b class="num">${money(slot.basePrice - loser)}</b>. Mỗi đội đã trả trước nửa tiền sân, nên đá xong đội thua chuyển thêm khoảng <b class="num">${money(Math.max(0, loser - host))}</b> cho đội thắng. Hòa thì không ai trả thêm.`}</p>
         <p class="muted" style="font-size:var(--fs-sm)">Chỉ có kèo tiền sân: hai đội cộng lại luôn đúng giá sân. Không cược thêm tiền, không kèo theo tỉ số. Khoản trả thêm chuyển thẳng giữa hai đội, GGO không giữ tiền.</p>
       </fieldset>
