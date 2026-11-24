@@ -73,8 +73,8 @@ const tomorrow = () => addDays(clock.today(), 1);
 const setNow = (stamp) => clock.setOffsetMinutes((vnToMs(stamp) - Date.now()) / 60000);
 
 /** Chạy app trên cổng ngẫu nhiên; trả { base, agent(), close() }. */
-async function startApp({ production = false, proxySecret = null } = {}) {
-  const app = createApp({ production, proxySecret });
+async function startApp({ production = false, proxySecret = null, devRoutes } = {}) {
+  const app = createApp({ production, proxySecret, ...(devRoutes !== undefined ? { devRoutes } : {}) });
   const server = await new Promise((resolve) => {
     const s = app.listen(0, '127.0.0.1', () => resolve(s));
   });

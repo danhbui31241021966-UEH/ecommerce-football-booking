@@ -11,6 +11,7 @@ const venueId = Number(params.get('id'));
 
 const ESTIMATED_LABEL = { courtCount: 'số sân', fieldTypes: 'loại sân', openingHours: 'giờ mở cửa', priceVnd: 'giá' };
 const DERIVED_LABEL = { district: 'khu vực', address: 'địa chỉ', name: 'tên', phone: 'số điện thoại' };
+const secureMapsUrl = (value) => { try { const u = new URL(value); return u.protocol === 'https:' ? u.href : ''; } catch { return ''; } };
 
 // Sân lấy từ nguồn công khai: ghi nguồn, ngày lấy và các trường chỉ là ước lượng (dataSource do dữ liệu cung cấp).
 function sourceNote(ds) {
@@ -90,7 +91,7 @@ function renderTop() {
         <div class="row" style="gap:8px">${modeTag(venue.requiresApproval)}${venue.lastMinutePercent ? `<span class="tag-sale">Giờ chót -${venue.lastMinutePercent}%</span>` : ''}</div>
         <h1 class="h1">${esc(venue.name)}</h1>
         <div class="addr"><span data-icon="pin">${esc(venue.address)}</span>
-          <a href="${esc(venue.mapsUrl)}" target="_blank" rel="noopener">Mở Google Maps</a></div>
+          ${secureMapsUrl(venue.mapsUrl) ? `<a href="${esc(secureMapsUrl(venue.mapsUrl))}" target="_blank" rel="noopener">Mở Google Maps</a>` : ''}</div>
         <p><span class="price">${money(venue.minPrice)}</span> <span class="muted">– ${money(venue.maxPrice)} / ${unit} · mở ${venue.openTime}–${venue.closeTime}</span></p>
         ${leagues.length ? `<p class="venue-leagues muted">Giải đang đá ở sân này: ${leagues.map((l) => `<a href="/league.html?id=${l.id}">${esc(l.name)}</a> <span>(sân ${esc(l.fieldType)} người · ${l.status === 'ongoing' ? 'đang đá' : 'sắp đá'})</span>`).join(', ')}</p>` : ''}
       </div>

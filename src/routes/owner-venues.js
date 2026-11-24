@@ -8,6 +8,7 @@ const { toVenueDetail } = require('../services/venueDto');
 const { venueLeagues } = require('../services/leagueOps');
 const { scheduleOf } = require('../services/schedule');
 const clock = require('../clock');
+const { mapsUrl } = require('../utils/validate');
 
 const router = express.Router();
 router.use(requireRole('owner'));
@@ -89,7 +90,7 @@ router.post('/venues', async (req, res) => {
       hmOrNull(p.peakEnd),
       p.requiresApproval ? 1 : 0,
       number(p.lastMinutePercent ?? 0, 'lastMinutePercent', 100),
-      String(p.mapsUrl || ''),
+      mapsUrl(p.mapsUrl),
       String(p.bankBin || ''),
       String(p.bankAccount || ''),
       String(p.bankAccountName || ''),
@@ -118,7 +119,7 @@ router.put('/venues/:id', async (req, res) => {
     peakEnd: ['peak_end', p.peakEnd],
     requiresApproval: ['requires_approval', p.requiresApproval],
     lastMinutePercent: ['last_minute_percent', p.lastMinutePercent],
-    mapsUrl: ['maps_url', p.mapsUrl],
+    mapsUrl: ['maps_url', p.mapsUrl === undefined ? undefined : mapsUrl(p.mapsUrl)],
     bankBin: ['bank_bin', p.bankBin],
     bankAccount: ['bank_account', p.bankAccount],
     bankAccountName: ['bank_account_name', p.bankAccountName],
