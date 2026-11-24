@@ -2,7 +2,7 @@
 import { api } from '/js/api.js';
 import { getUser, mountShell, toast } from '/js/ui/shell.js';
 import { $, countdown, decorate, esc, qrHtml } from '/js/ui/page.js';
-import { dateOf, dayLabel, mmss, money, secondsLeft, shortTs, timeOf } from '/js/ui/format.js';
+import { dateOf, dayLabel, mmss, money, msToVn, secondsLeft, shortTs, timeOf, vnToMs } from '/js/ui/format.js';
 import { matchLabel, partsHtml, stakeText, winnerWord } from '/js/ui/match.js';
 
 const id = Number(new URLSearchParams(location.search).get('id'));
@@ -215,17 +215,44 @@ document.addEventListener('click', async (e) => {
       await load();
     }
   } else if (e.target.closest('#join')) {
-    e.target.closest('#join').disabled = true;
+    openJoinDialog();
+  } else if (e.target.closest('#join-cancel')) {
+    $('join-dialog').close();
+  } else if (e.target.closest('#join-ok')) {
+    const ok = $('join-ok');
+    ok.disabled = true;
     try {
       m = await api.joinMatch(id);
+      $('join-dialog').close();
       meta = await api.meta();
       render();
     } catch (err) {
+      $('join-dialog').close();
       toast(err.message, { error: true });
       await load();
     }
   }
 });
+
+// Vào kèo là giữ chỗ ngay, nên hỏi lại một lần: bấm Hủy thì chưa gọi API, chưa giữ chỗ.
+function openJoinDialog() {
+  let dlg = $('join-dialog');
+  if (!dlg) {
+    dlg = document.createElement('dialog');
+    dlg.className = 'modal';
+    dlg.id = 'join-dialog';
+    dlg.setAttribute('aria-labelledby', 'join-title');
+    document.body.append(dlg);
+  }
+  const by = timeOf(msToVn(Math.min(vnToMs(meta.now) + meta.holdMinutes * 60000, vnToMs(m.closesAt))));
+  dlg.innerHTML = `<div class="modal-head"><span class="h2" id="join-title">Vào kèo này?</span><span class="spacer"></span></div>
+    <div class="modal-body stack">
+      <p>Bạn phải chuyển <b class="num">${money(m.guestAmount)}</b> cho chủ sân <b>trước ${by}</b> (${meta.holdMinutes} phút kể từ khi bấm).</p>
+      <p class="muted" style="font-size:var(--fs-sm)">Bấm "Vào kèo" là giữ chỗ ngay và đội khác không vào được nữa. Quá hạn mà chủ sân chưa nhận tiền thì bạn rời kèo.</p>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn btn-ghost" id="join-cancel">Hủy</button><button type="button" class="btn btn-lime" id="join-ok">Vào kèo · trả ${money(m.guestAmount)}</button></div>`;
+  dlg.showModal();
+}
 
 const bankOf = (form) => Object.fromEntries(['bin', 'account', 'accountName'].map((k) => [k, String(form.elements[k].value || '').trim()]));
 
