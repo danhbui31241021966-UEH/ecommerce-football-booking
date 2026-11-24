@@ -6,8 +6,8 @@ import {
   vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs, weekdayOf,
 } from './ui/format.js';
 
-// Đổi phiên bản khi dữ liệu mẫu đổi theo cách người đang dùng phải nhận ngay (vd tài khoản nhận tiền của sân): trình duyệt dựng lại demo.
-const STORE_KEY = 'sannhanh.mock.v13';
+// Đổi phiên bản khi dữ liệu mẫu đổi theo cách người đang dùng phải nhận ngay (vd tài khoản nhận tiền của sân, link liên hệ của giải): trình duyệt dựng lại demo.
+const STORE_KEY = 'sannhanh.mock.v14';
 const STATUSES = ['pending', 'confirmed', 'rejected', 'cancelled', 'expired', 'completed', 'no_show', 'transferred', 'matching'];
 
 let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
