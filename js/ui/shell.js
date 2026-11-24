@@ -134,7 +134,7 @@ function mobileLinksHtml(role) {
 const actionsHtml = (user, role, unread, ghost) => {
   if (!user) return /^\/login(\.html)?$/.test(location.pathname) ? '' : '<a class="btn btn-lime btn-sm" href="/login.html">Đăng nhập</a>';
   if (ghost) return '<span class="avatar avatar-ghost" aria-hidden="true"></span>'; // đoán là đã đăng nhập, chờ api.me cho tên thật
-  return `<a class="icon-btn" href="/notifications.html" aria-label="Thông báo${unread ? `: ${unread} chưa đọc` : ''}">${icon('bell')}${unread ? `<span class="dot">${unread}</span>` : ''}</a>
+  return `<a class="icon-btn" href="/notifications.html" aria-label="Thông báo${unread ? `: ${unread} chưa đọc` : ''}">${icon('bell')}${unread ? `<span class="dot">${unread > 99 ? '99+' : unread}</span>` : ''}</a>
     <details class="user-menu"><summary class="avatar" aria-label="Tài khoản ${esc(user.fullName)}" title="${esc(user.fullName)}">${esc(initialsOf(user.fullName))}</summary>
       <div class="user-menu-panel"><b>${esc(user.fullName)}</b><span>${esc(user.email || user.phone)} · ${ROLE_LABEL[role]}</span>
         <button type="button" data-logout>Đăng xuất</button></div></details>`;

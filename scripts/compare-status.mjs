@@ -30,6 +30,18 @@ for (const p of PATHS) {
 }
 const h = (await probe(base, '/products')).headers;
 for (const k of ['x-content-type-options', 'referrer-policy', 'cache-control', 'content-type']) console.log(`header ${k}: ${h.get(k)}`);
+// Các header bảo mật là chính sách mong muốn của repo, không lấy Pages làm baseline so sánh.
+const requiredHeaders = {
+  'content-security-policy': "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests",
+  'x-frame-options': 'DENY',
+  'strict-transport-security': 'max-age=31536000; includeSubDomains',
+};
+for (const [name, expected] of Object.entries(requiredHeaders)) {
+  const actual = h.get(name);
+  const ok = actual === expected;
+  if (!ok) diff++;
+  console.log(`header ${name}: ${ok ? 'OK' : 'DIFF'} actual=${actual} | expected=${expected}`);
+}
 const mode = await (await fetch(base + '/js/mode.js')).text();
 const mock = /SERVED_BY_API\s*=\s*false/.test(mode);
 console.log(`mode.js: ${mock ? 'mock (SERVED_BY_API=false)' : 'KHÔNG phải mock'}`);

@@ -44,7 +44,8 @@ function showMaintenance() {
     el.id = 'maintenance';
     el.className = 'maintenance';
     el.setAttribute('role', 'alert');
-    el.innerHTML = '<div class="maintenance-box"><h1>Hệ thống đang tạm nghỉ</h1><p>Mời bạn quay lại sau ít phút.</p><button type="button" class="btn btn-lime" onclick="location.reload()">Tải lại trang</button></div>';
+    el.innerHTML = '<div class="maintenance-box"><h1>Hệ thống đang tạm nghỉ</h1><p>Mời bạn quay lại sau ít phút.</p><button type="button" class="btn btn-lime" data-maintenance-reload>Tải lại trang</button></div>';
+    el.querySelector('[data-maintenance-reload]').addEventListener('click', () => location.reload());
     document.body.append(el);
   };
   if (document.body) mount();

@@ -26,9 +26,9 @@
     "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
     "mapsUrl": "https://www.google.com/maps/search/?api=1&query=33+Nguyễn+Thị+Thập+Quận+7",
     "bank": {
-      "bin": "970436",
-      "account": "0123456789",
-      "accountName": "CTY SAN THANH PHAT"
+      "bin": "970423",
+      "account": "10002544163",
+      "accountName": "NGUYEN THANH DAT"
     },
     "courts": [
       {
@@ -85,9 +85,9 @@
     "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
     "mapsUrl": "https://www.google.com/maps/search/?api=1&query=88+Điện+Biên+Phủ+Bình+Thạnh",
     "bank": {
-      "bin": "970422",
-      "account": "9876543210",
-      "accountName": "TRAN THI SAN"
+      "bin": "970423",
+      "account": "10002544163",
+      "accountName": "NGUYEN THANH DAT"
     },
     "courts": [
       {
@@ -137,9 +137,9 @@
     "cancelPolicy": "Hủy trước 24 giờ hoàn 100%, từ 12 đến dưới 24 giờ hoàn 50%, dưới 12 giờ không hoàn.",
     "mapsUrl": "https://www.google.com/maps/search/?api=1&query=20+Nguyễn+Lương+Bằng+Quận+7",
     "bank": {
-      "bin": "970407",
-      "account": "1903456789",
-      "accountName": "SAN PHU MY HUNG"
+      "bin": "970423",
+      "account": "10002544163",
+      "accountName": "NGUYEN THANH DAT"
     },
     "courts": [
       {

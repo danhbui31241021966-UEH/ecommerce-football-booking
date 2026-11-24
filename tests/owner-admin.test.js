@@ -23,6 +23,18 @@ async function login(app, user) {
   return agent;
 }
 
+test('mapsUrl chỉ nhận HTTPS khi tạo và cập nhật sân', async () => {
+  const ctx = await setup();
+  try {
+    const owner = await login(ctx.app, ctx.ownerA);
+    const rejected = await owner.put(`/api/owner/venues/${ctx.venue.venueId}`, { mapsUrl: 'javascript:alert(1)' });
+    assert.equal(rejected.status, 400);
+    const accepted = await owner.put(`/api/owner/venues/${ctx.venue.venueId}`, { mapsUrl: 'https://maps.google.com/?q=san' });
+    assert.equal(accepted.status, 200);
+    assert.equal(accepted.body.mapsUrl, 'https://maps.google.com/?q=san');
+  } finally { await ctx.app.close(); }
+});
+
 test('chủ sân vẫn xem được lịch xa ngoài cửa sổ đặt', async () => {
   const ctx = await setup();
   try {

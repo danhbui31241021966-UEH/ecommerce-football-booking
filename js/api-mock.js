@@ -6,7 +6,8 @@ import {
   vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs, weekdayOf,
 } from './ui/format.js';
 
-const STORE_KEY = 'sannhanh.mock.v12';
+// Đổi phiên bản khi dữ liệu mẫu đổi theo cách người đang dùng phải nhận ngay (vd tài khoản nhận tiền của sân): trình duyệt dựng lại demo.
+const STORE_KEY = 'sannhanh.mock.v13';
 const STATUSES = ['pending', 'confirmed', 'rejected', 'cancelled', 'expired', 'completed', 'no_show', 'transferred', 'matching'];
 
 let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
@@ -239,6 +240,7 @@ function seedCrowd(st, t, today, courts) {
             basePrice: slot.basePrice,
             discountPercent: 0,
             paymentStatus: paid ? 'paid' : 'unpaid',
+            synthetic: true,
             refundStatus: 'none',
             refundPercent: 0,
             refundAmount: 0,
@@ -668,11 +670,13 @@ function tick() {
       const from = b.status;
       b.status = 'expired';
       addLog(b, 'expire', from, 'expired', null, waitingApproval ? 'Quá hạn giữ chỗ chưa được đồng ý' : 'Quá hạn giữ chỗ chưa chuyển khoản', b.expiresAt);
-      if (waitingApproval) {
-        notify(b.userId, `Lịch đặt ${b.code} đã quá hạn vì chủ sân chưa kịp đồng ý.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
-      } else {
-        notify(b.userId, `Lịch đặt ${b.code} đã hết hạn giữ chỗ vì chưa nhận được chuyển khoản. Giờ này đã mở lại cho người khác.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
-        notify(courtOf(b.courtId)[0].ownerId, `Lịch đặt ${b.code} của ${userOf(b.userId).fullName} đã hết hạn giữ chỗ vì khách chưa chuyển khoản. Giờ này đã mở lại.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
+      if (!b.synthetic) {
+        if (waitingApproval) {
+          notify(b.userId, `Lịch đặt ${b.code} đã quá hạn vì chủ sân chưa kịp đồng ý.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+        } else {
+          notify(b.userId, `Lịch đặt ${b.code} đã hết hạn giữ chỗ vì chưa nhận được chuyển khoản. Giờ này đã mở lại cho người khác.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+          notify(courtOf(b.courtId)[0].ownerId, `Lịch đặt ${b.code} của ${userOf(b.userId).fullName} đã hết hạn giữ chỗ vì khách chưa chuyển khoản. Giờ này đã mở lại.`, { bookingId: b.id, link: `/owner-bookings.html?id=${b.id}` });
+        }
       }
       freeSlot(b);
       changed = true;
@@ -1860,7 +1864,8 @@ function bankReport(d) {
     if (!account) target.reason = 'no_account';
     else if (orderVenue.bank?.account !== account) target.reason = 'wrong_account';
   }
-  const venue = (target.reason === 'wrong_account' ? accountVenue : accountVenue || orderVenue) || orderVenue;
+  // Nhiều sân có thể dùng chung một tài khoản: đơn khớp tài khoản thì thuộc đúng sân của đơn, chỉ khi không có đơn hay sai tài khoản mới lấy sân theo tài khoản.
+  const venue = (target.reason === 'wrong_account' || !orderVenue ? accountVenue : orderVenue) || orderVenue;
   const ev = {
     id: nextId('bankEvent'),
     txId,
@@ -2654,6 +2659,11 @@ const myVenue = (c, id) => {
 };
 const VENUE_FIELDS = ['name', 'district', 'address', 'phone', 'imageUrl', 'description', 'rules', 'cancelPolicy', 'mapsUrl', 'openTime', 'closeTime', 'peakStart', 'peakEnd'];
 function applyVenue(v, b) {
+  if (b.mapsUrl !== undefined && b.mapsUrl !== '') {
+    let parsed;
+    try { parsed = new URL(String(b.mapsUrl)); } catch { parsed = null; }
+    req(parsed?.protocol === 'https:' && !!parsed.hostname && String(b.mapsUrl).length <= 2000, 'Bản đồ phải là đường dẫn https://');
+  }
   for (const k of VENUE_FIELDS) if (b[k] !== undefined) v[k] = b[k];
   if (b.amenities !== undefined) v.amenities = Array.isArray(b.amenities) ? b.amenities : String(b.amenities).split(',').map((s) => s.trim()).filter(Boolean);
   if (b.slotMinutes !== undefined) v.slotMinutes = Number(b.slotMinutes);

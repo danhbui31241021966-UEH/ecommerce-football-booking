@@ -43,7 +43,31 @@ test("production: router dev không được require khi dựng app (route khôn
   }
 });
 
-test('dev: đăng nhập nhanh theo vai trò demo, tua đồng hồ, đặt lại dữ liệu', async () => {
+test('production không gắn API dev kể cả khi yêu cầu bật cờ', async () => {
+  const app = await h.startApp({ production: true, devRoutes: true });
+  try {
+    const a = app.agent();
+    assert.equal((await a.get('/api/dev/state')).status, 404);
+    assert.match((await a.get('/js/mode.js')).text, /DEV_TOOLS = false/);
+  } finally { await app.close(); }
+});
+
+test('dev: route không bật mặc định dù NODE_ENV không phải production', async () => {
+  const app = await h.startApp();
+  try {
+    const a = app.agent();
+    assert.equal((await a.get('/api/dev/state')).status, 404);
+    assert.match((await a.get('/js/mode.js')).text, /DEV_TOOLS = false/);
+    const page = await a.get('/products');
+    assert.equal(page.headers.get('content-security-policy'), require('../src/static-site').SECURITY_HEADERS['Content-Security-Policy']);
+    assert.equal(page.headers.get('x-frame-options'), 'DENY');
+    assert.equal(page.headers.get('strict-transport-security'), 'max-age=31536000; includeSubDomains');
+  } finally { await app.close(); }
+});
+
+test('dev: cờ ENABLE_DEV_ROUTES bật đường tắt demo, tua đồng hồ, đặt lại dữ liệu', async () => {
+  const previous = process.env.ENABLE_DEV_ROUTES;
+  process.env.ENABLE_DEV_ROUTES = 'true';
   const app = await h.startApp();
   try {
     const a = app.agent();
@@ -75,11 +99,13 @@ test('dev: đăng nhập nhanh theo vai trò demo, tua đồng hồ, đặt lạ
   } finally {
     h.clock.setOffsetMinutes(0);
     await app.close();
+    if (previous === undefined) delete process.env.ENABLE_DEV_ROUTES;
+    else process.env.ENABLE_DEV_ROUTES = previous;
   }
 });
 
 test('thao tác dev vẫn phải qua CSRF như mọi thao tác ghi', async () => {
-  const app = await h.startApp();
+  const app = await h.startApp({ devRoutes: true });
   try {
     const r = await fetch(`${app.base}/api/dev/reset-demo`, { method: 'POST' });
     assert.equal(r.status, 403);
