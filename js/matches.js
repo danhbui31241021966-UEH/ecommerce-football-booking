@@ -15,7 +15,7 @@ function card(m) {
       <div class="where">${esc(m.venueName)} · ${esc(m.courtName)} (sân ${m.fieldType})</div></div>
       <div class="badges"><span class="badge badge-matching">Cần thêm một đội</span></div></div>
     <p class="transfer-price"><b>Kèo ${stakeText(m.loserPercent)}</b> <span class="muted">· cả sân ${money(m.price)}</span></p>
-    <p class="muted" style="font-size:var(--fs-sm)">Vào kèo trả trước <b class="num">${money(m.guestAmount)}</b>${m.loserPercent > 50 ? `. Thua thì chịu ${money(m.loserAmount)}, thắng chịu ${money(m.winnerAmount)}` : ', hòa vốn'}.</p>
+    <p class="muted" style="font-size:var(--fs-sm)">Vào kèo trả trước <b class="num">${money(m.guestAmount)}</b>${m.loserPercent > 50 ? `. Thua thì chịu ${money(m.loserAmount)}, thắng chịu ${money(m.winnerAmount)}` : ', chia đôi 5-5'}.</p>
     <p class="muted" style="font-size:var(--fs-sm)">Vào kèo trước ${timeOf(m.closesAt)}. Đội mở kèo đã chuyển khoản ${money(m.hostAmount)}.</p>
     <div class="actions"><a class="btn btn-sm btn-lime" href="/match.html?id=${m.id}">Xem và vào kèo</a></div>
   </article>`;

@@ -2,7 +2,7 @@
 import { money } from './format.js';
 
 /** [chữ hiển thị, lớp badge]. Trạng thái luôn có chữ, không chỉ màu. */
-export const STAKES = [[50, '5-5', 'Hòa vốn'], [60, '6-4', 'Thua chịu 60%'], [70, '7-3', 'Thua chịu 70%'], [100, 'Thua bao sân', 'Thua trả cả sân']];
+export const STAKES = [[50, '5-5', 'Chia đôi 5-5'], [60, '6-4', 'Thua chịu 60%'], [70, '7-3', 'Thua chịu 70%'], [100, 'Thua bao sân', 'Thua trả cả sân']];
 export const stakeText = (p) => (p >= 100 ? 'thua bao sân' : `${p / 10}-${10 - p / 10}`);
 export const winnerWord = (m, w) => (w === 'draw' ? 'Hòa' : w === m.role ? 'Đội bạn thắng' : m.role === 'host' || m.role === 'guest' ? 'Đội kia thắng' : w === 'host' ? 'Đội mở kèo thắng' : 'Đội vào kèo thắng');
 

@@ -1,5 +1,5 @@
 {
-  "_doc": "Chế độ ghép kèo: sân con nào bật (khung giờ from–to) và các kèo mẫu. state: open = đội mở kèo đã trả, chờ đội thứ hai; joined = đội thứ hai đã vào, chưa trả đủ; confirmed = đủ hai phần, đã chốt. loserPercent = phần tiền sân đội thua chịu (50 hòa vốn, 60, 70, 100 thua bao sân). played = đã đá xong (day âm): không có winner thì chờ hai đội báo kết quả, có winner thì đã chốt kết quả và đội thua chưa trả phần chênh. hostId/guestId là user id khách nền.",
+  "_doc": "Chế độ ghép kèo: sân con nào bật (khung giờ from–to) và các kèo mẫu. state: open = đội mở kèo đã trả, chờ đội thứ hai; joined = đội thứ hai đã vào, chưa trả đủ; confirmed = đủ hai phần, đã chốt. loserPercent = phần tiền sân đội thua chịu (50 chia đôi 5-5, 60, 70, 100 thua bao sân). played = đã đá xong (day âm): không có winner thì chờ hai đội báo kết quả, có winner thì đã chốt kết quả và đội thua chưa trả phần chênh. hostId/guestId là user id khách nền.",
   "courtModes": [
     {
       "courtId": 6,
