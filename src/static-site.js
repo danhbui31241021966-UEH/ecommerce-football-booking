@@ -10,7 +10,7 @@ const ROOT = path.join(__dirname, '..');
 const STATIC_DIRS = ['css', 'fonts', 'images', 'js', 'mock'];
 const STATIC_FILES = ['robots.txt', 'sitemap.xml', 'favicon.ico'];
 const SECURITY_HEADERS = {
-  'Content-Security-Policy': "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; connect-src 'self'; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests",
+  'Content-Security-Policy': "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://img.vietqr.io; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests",
   'X-Frame-Options': 'DENY',
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
 };
@@ -58,6 +58,11 @@ function nginxRedirects() {
     : `location = ${r.from} { return 301 ${r.to}$is_args$args; }`)).join('\n')}\n`;
 }
 
+// Cùng SECURITY_HEADERS cho nginx (image Docker), để Pages, Express và nginx không giữ ba bản chuỗi CSP riêng.
+function nginxHeaders() {
+  return `${Object.entries(SECURITY_HEADERS).map(([name, value]) => `add_header ${name} "${value}" always;`).join('\n')}\n`;
+}
+
 function mountStatic(app, root = ROOT) {
   const express = require('express');
   for (const r of REDIRECTS) {
@@ -87,4 +92,4 @@ const notFoundPage = `<!doctype html>
 <body><main class="container"><h1 class="h1">Không tìm thấy trang</h1><p><a href="/">Về trang chủ GGO</a></p></main></body></html>
 `;
 
-module.exports = { ROOT, STATIC_DIRS, STATIC_FILES, REDIRECTS, SECURITY_HEADERS, staticEntries, redirectsFile, headersFile, nginxRedirects, notFoundPage, writeDist, mountStatic };
+module.exports = { ROOT, STATIC_DIRS, STATIC_FILES, REDIRECTS, SECURITY_HEADERS, staticEntries, redirectsFile, headersFile, nginxRedirects, nginxHeaders, notFoundPage, writeDist, mountStatic };

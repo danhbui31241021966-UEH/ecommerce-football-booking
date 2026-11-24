@@ -4,7 +4,7 @@ const express = require('express');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
-const { mountStatic, staticEntries, redirectsFile, headersFile, nginxRedirects, writeDist, REDIRECTS, SECURITY_HEADERS } = require('../src/static-site');
+const { mountStatic, staticEntries, redirectsFile, headersFile, nginxRedirects, nginxHeaders, writeDist, REDIRECTS, SECURITY_HEADERS } = require('../src/static-site');
 
 async function withServer(fn) {
   const app = express();
@@ -64,9 +64,14 @@ test('bản tĩnh dựng cho Pages/Docker chỉ có file trang, chạy dữ li�
   } finally { fs.rmSync(out, { recursive: true, force: true }); }
 });
 
-test('header nginx khớp chính sách bảo mật của bản Pages', () => {
+test('header nginx sinh từ cùng chính sách bảo mật của bản Pages và được nạp ở mức server', () => {
   const conf = fs.readFileSync(path.join(__dirname, '../deploy/static/nginx.conf'), 'utf8');
-  for (const [name, value] of Object.entries(SECURITY_HEADERS)) assert.ok(conf.includes(`add_header ${name} "${value}" always;`) || conf.includes(`add_header ${name} ${value} always;`), name);
+  assert.match(conf, /^  include \/etc\/nginx\/ggo\/headers\.conf;$/m);
+  const docker = fs.readFileSync(path.join(__dirname, '../deploy/static/Dockerfile'), 'utf8');
+  assert.match(docker, /--nginx-headers headers\.conf/);
+  assert.match(docker, /COPY --from=build \/app\/headers\.conf \/etc\/nginx\/ggo\/headers\.conf/);
+  const generated = nginxHeaders();
+  for (const [name, value] of Object.entries(SECURITY_HEADERS)) assert.ok(generated.includes(`add_header ${name} "${value}" always;`), name);
 });
 
 test('bảng chuyển hướng nginx có đủ mọi link cũ, 301 và giữ query', () => {
