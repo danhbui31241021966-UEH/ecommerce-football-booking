@@ -6,7 +6,8 @@ import {
   vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs, weekdayOf,
 } from './ui/format.js';
 
-const STORE_KEY = 'sannhanh.mock.v12';
+// Đổi phiên bản khi dữ liệu mẫu đổi theo cách người đang dùng phải nhận ngay (vd tài khoản nhận tiền của sân): trình duyệt dựng lại demo.
+const STORE_KEY = 'sannhanh.mock.v13';
 const STATUSES = ['pending', 'confirmed', 'rejected', 'cancelled', 'expired', 'completed', 'no_show', 'transferred', 'matching'];
 
 let S = null; // trạng thái hiện tại (đồng bộ với localStorage)
@@ -1863,7 +1864,8 @@ function bankReport(d) {
     if (!account) target.reason = 'no_account';
     else if (orderVenue.bank?.account !== account) target.reason = 'wrong_account';
   }
-  const venue = (target.reason === 'wrong_account' ? accountVenue : accountVenue || orderVenue) || orderVenue;
+  // Nhiều sân có thể dùng chung một tài khoản: đơn khớp tài khoản thì thuộc đúng sân của đơn, chỉ khi không có đơn hay sai tài khoản mới lấy sân theo tài khoản.
+  const venue = (target.reason === 'wrong_account' || !orderVenue ? accountVenue : orderVenue) || orderVenue;
   const ev = {
     id: nextId('bankEvent'),
     txId,

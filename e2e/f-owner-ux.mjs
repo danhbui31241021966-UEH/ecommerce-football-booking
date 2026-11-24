@@ -24,7 +24,7 @@ const goMenu = async (label) => {
 await step(p, 'ownux', 'notification-badge-caps-at-99-plus', async () => {
   await reset(); await loginAs(p, OWNER);
   await p.evaluate(() => {
-    const key = 'sannhanh.mock.v12'; const state = JSON.parse(localStorage.getItem(key));
+    const key = Object.keys(localStorage).find((k) => k.startsWith('sannhanh.mock')); const state = JSON.parse(localStorage.getItem(key));
     const ownerId = state.sessionUserId;
     for (let i = 0; i < 100; i++) state.notifications.push({ id: ++state.ids.notification, userId: ownerId, message: 'test', link: '/notifications.html', isRead: false, createdAt: new Date().toISOString() });
     localStorage.setItem(key, JSON.stringify(state));
