@@ -40,7 +40,7 @@ export const hasStarted = (b) => startsAt(b).getTime() <= nowMs();
 
 export const STATUS_LABEL = {
   pending: 'Chờ chủ sân đồng ý',
-  confirmed: 'Đã xác nhận',
+  confirmed: 'Đã có sân',
   rejected: 'Chủ sân từ chối',
   cancelled: 'Đã hủy',
   expired: 'Quá hạn',
