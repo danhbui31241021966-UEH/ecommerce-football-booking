@@ -1,4 +1,4 @@
-// Smoke trên link công khai (chế độ thật, không có api.proto): đăng nhập bằng form → đặt một ô cách bây giờ hơn 24 giờ → kiểm đơn → hủy (hoàn 100%) → đăng xuất.
+// Smoke trên link công khai (chế độ thật, không có api.proto): đăng nhập bằng form → đặt một ô cách bây giờ hơn 24 giờ → kiểm đơn → hủy miễn phí (chưa chuyển khoản) → đăng xuất.
 // Chỉ dùng giao diện như người dùng (api.* chỉ để ĐỌC dữ liệu có cấu trúc: giờ và trạng thái ô). Đơn nào đã tạo thì luôn được hủy (finally); không hủy được thì in mã đơn kèm FAIL.
 // Chạy được cả trên mock. Tài khoản: khách demo trong seed (mật khẩu seed nằm trong lib.mjs).
 import { start, step, save, loginAs, api, U, W, logs, dayPlus, confirmCancel } from './lib.mjs';
@@ -72,7 +72,8 @@ try {
   });
   await step(p, 'live', '04-cancel-full-refund', async () => {
     const dlg = await cancelUI();
-    must(/100%/.test(dlg), 'hộp thoại hủy không báo hoàn 100%: ' + dlg);
+    // Đơn chưa chuyển khoản: hộp hủy chỉ nói hủy miễn phí, không nêu mức hoàn.
+    must(/Hủy miễn phí/.test(dlg) && !/%/.test(dlg), 'hộp thoại hủy đơn chưa trả tiền: ' + dlg);
     const d = await detail(Number(new URL(url).searchParams.get('id')));
     must(d.status === 'cancelled', 'trạng thái sau hủy: ' + d.status);
     must(d.refundPercent === 100, 'mức hoàn ' + d.refundPercent);
