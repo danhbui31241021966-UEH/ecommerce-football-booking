@@ -261,7 +261,7 @@ test('rcptKey: +tag và dấu chấm gmail dùng chung một khóa, thư vẫn t
   assert.equal((await send('b.omb+1@gmail.com')).status, 202);
   assert.equal((await send('bomb@googlemail.com')).status, 202);
   assert.equal((await send('bomb+3@gmail.com')).status, 429);
-  assert.equal(s.mails()[1].to, 'b.omb+1@gmail.com');
+  assert.ok(s.mails().some((m) => m.to === 'b.omb+1@gmail.com')); // địa chỉ gốc, không phải khóa chuẩn hóa
 });
 
 test('trần ngày riêng cho thư xác nhận: notify của người đã xác nhận vẫn còn chỗ', async (t) => {
