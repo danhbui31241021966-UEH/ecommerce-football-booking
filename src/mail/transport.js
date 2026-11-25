@@ -5,9 +5,10 @@ const crypto = require('crypto');
 
 function createCapture(dir) {
   fs.mkdirSync(dir, { recursive: true });
+  let seq = 0; // số thứ tự trong tên file: đọc theo tên file ra đúng thứ tự gửi dù cùng một mili giây
   return {
     async send(msg) {
-      const name = `${Date.now()}-${crypto.randomBytes(4).toString('hex')}.json`;
+      const name = `${Date.now()}-${String(++seq).padStart(6, '0')}-${crypto.randomBytes(4).toString('hex')}.json`;
       fs.writeFileSync(path.join(dir, name), JSON.stringify({ ...msg, at: new Date().toISOString() }, null, 2));
     },
   };
