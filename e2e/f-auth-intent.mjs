@@ -54,20 +54,23 @@ await step(p, 'auth-intent', 'login-context', async () => {
 await step(p, 'auth-intent', 'register-3-fields-context', async () => {
   await p.locator('#alt-link').click();
   await p.waitForURL(/register/);
-  assert.equal(await p.locator('#auth-form input[required]').count(), 3);
-  assert.equal(await p.locator('#auth-form input[name=email]').count(), 0);
+  // Bản mock có xác minh email nên email bắt buộc (4 ô); backend thật giữ email tùy chọn (3 ô bắt buộc).
+  const verifying = await p.evaluate(async () => !!(await import('/js/api.js')).api.email);
+  assert.equal(await p.locator('#auth-form input[required]').count(), verifying ? 4 : 3);
+  assert.equal(await p.locator('#auth-form input[name=email]').count(), 1);
   await p.waitForSelector('#booking-context:not([hidden])');
   return `required fields=${await p.locator('#auth-form input[required]').count()}; ${await p.locator('#booking-context').innerText()}`;
 });
 await step(p, 'auth-intent', 'register-and-return-next', async () => {
   await p.fill('input[name=fullName]', 'Khách Đặt Sân Mới');
   await p.fill('input[name=phone]', phone);
+  await p.fill('input[name=email]', `khach.${phone}@example.test`);
   await p.fill('input[name=password]', 'Matkhau@123');
   await Promise.all([p.waitForURL((u) => pathOf(u) === '/product-detail'), p.locator('button[type=submit]').click()]);
   assert.equal(pathOf(new URL(p.url())), '/product-detail');
   assert.equal(new URL(p.url()).searchParams.get('book'), '1');
   const me = await api(p, 'a=>a.me()');
-  assert.equal(me.user.email, null);
+  assert.equal(me.user.email, `khach.${phone}@example.test`);
   assert.equal(me.user.phone, phone);
   return `${p.url().replace(U, '')}; email=${me.user.email}; phone=${me.user.phone}`;
 });
@@ -77,14 +80,14 @@ await step(p, 'auth-intent', 'null-email-account-menu', async () => {
   await p.locator('#confirm-dialog [data-close]').first().click();
   await p.locator('.user-menu summary').click();
   const text = await p.locator('.user-menu-panel').innerText();
-  assert.match(text, new RegExp(phone));
+  assert.ok(text.includes(phone) || text.includes('@example.test'), text); // menu hiện email nếu có, không thì số điện thoại
   assert.doesNotMatch(text, /null|undefined/);
   return text;
 });
 await step(p, 'auth-intent', 'duplicate-phone-and-login-phone', async () => {
   const duplicate = await p.evaluate(async (phoneValue) => {
     const { api } = await import('/js/api.js');
-    try { await api.register({ fullName: 'Trùng số', phone: `+84 ${phoneValue.slice(1)}`, password: 'Matkhau@123' }); return 'accepted'; }
+    try { await api.register({ fullName: 'Trùng số', phone: `+84 ${phoneValue.slice(1)}`, password: 'Matkhau@123', email: 'trung.so@example.test' }); return 'accepted'; }
     catch (e) { return `${e.status}:${e.message}`; }
   }, phone);
   assert.match(duplicate, /^409:/);
@@ -95,16 +98,19 @@ await step(p, 'auth-intent', 'duplicate-phone-and-login-phone', async () => {
   await Promise.all([p.waitForURL((u) => pathOf(u) === '/product-detail'), p.locator('button[type=submit]').click()]);
   const logged = await api(p, 'a=>a.me()');
   assert.equal(logged.user.phone, phone);
-  assert.equal(logged.user.email, null);
+  assert.equal(logged.user.email, `khach.${phone}@example.test`);
   return `${duplicate}; UI login normalized to ${logged.user.phone}`;
 });
 await step(p, 'auth-intent', 'admin-renders-null-email', async () => {
+  // Tài khoản cũ chưa có email: bản mock giờ bắt buộc email khi đăng ký, nên bỏ email của tài khoản vừa tạo trong kho mock.
+  await p.evaluate((ph) => { for (const k of Object.keys(localStorage)) if (k.startsWith('sannhanh.mock')) { const st = JSON.parse(localStorage.getItem(k)); for (const u of st.users) if (u.phone === ph) u.email = null; localStorage.setItem(k, JSON.stringify(st)); } }, phone);
+  await p.goto(U + '/about.html'); await p.waitForLoadState('networkidle'); // nạp lại để module mock đọc kho đã sửa, không ghi đè bằng bản trong bộ nhớ
   await p.evaluate(async () => { const { api } = await import('/js/api.js'); await api.proto.quickLogin('admin'); });
   await p.goto(U + '/admin');
   await p.waitForSelector('#user-list .admin-record');
   await p.fill('#user-search', phone);
   const text = await p.locator('#user-list .admin-record').innerText();
-  assert.match(text, /Không có email/);
+  assert.match(text, /Không có email/, text.replace(/\n/g, ' · '));
   assert.match(text, new RegExp(phone));
   return text.replace(/\n/g, ' · ');
 });
@@ -122,10 +128,13 @@ await step(p, 'auth-intent', 'explicit-null-email-registration', async () => {
   const extraPhone = phone.slice(0, 9) + String((Number(phone.slice(9)) + 1) % 10);
   const user = await p.evaluate(async (phoneValue) => {
     const { api } = await import('/js/api.js');
-    const registered = await api.register({ fullName: 'Email null', phone: phoneValue, password: 'Matkhau@123', email: null });
-    await api.logout();
-    return registered.user;
+    try {
+      const registered = await api.register({ fullName: 'Email null', phone: phoneValue, password: 'Matkhau@123', email: null });
+      await api.logout();
+      return registered.user;
+    } catch (e) { return { rejected: `${e.status}:${e.field}` }; }
   }, extraPhone);
+  if (user.rejected) { assert.equal(user.rejected, '400:email'); return 'mock: thiếu email bị từ chối ở ô email'; } // bản mock bắt buộc email
   assert.equal(user.email, null);
   assert.equal(user.phone, extraPhone);
   return `email=${user.email}; phone=${user.phone}`;

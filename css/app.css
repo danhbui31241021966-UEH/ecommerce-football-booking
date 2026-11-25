@@ -3471,3 +3471,18 @@ body:has(.booking-bar) { scroll-padding-bottom: 104px; }
   .day-chip .dsub { font-size: var(--fs-xs); }
   .day-chip .dnum { font-size: 1.25rem; }
 }
+
+/* Email: trang Tài khoản, trang xác nhận, thông báo sau đăng ký */
+.user-menu-panel a {
+  border-top: 1px solid var(--line);
+  font-weight: 600;
+  padding: 10px 0 2px;
+}
+.mobile-nav a.mobile-account + .mobile-account { margin-top: 0; padding-top: 12px; border-top: 0; }
+#email-card, .verify-result, .mail-notice { display: grid; gap: var(--sp-3); max-width: 560px; margin-top: var(--sp-4); padding: var(--sp-5); }
+#email-card .h3, #account-info .h3 { margin: 0; }
+.mail-notice[hidden], .account-email-form[hidden], #email-msg[hidden] { display: none; }
+.verify-result .btn, #email-card .btn { justify-self: start; }
+.account-email-form { display: grid; gap: var(--sp-3); margin-top: var(--sp-3); }
+.account-change summary { cursor: pointer; font-weight: 600; min-height: 44px; display: flex; align-items: center; }
+#email-msg { font-weight: 600; margin: 0; }

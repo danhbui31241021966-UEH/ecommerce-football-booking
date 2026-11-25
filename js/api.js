@@ -8,6 +8,7 @@
 // trả js/mode.js với SERVED_BY_API = true và MODE thành 'real'. Ở máy local có thể đổi bằng ?mode=mock|real
 // (nhớ trong localStorage, `?mode=` để xóa); trên host công khai tham số này bị bỏ qua nên link Cloudflare luôn là mock.
 import { SERVED_BY_API, DEV_TOOLS } from './mode.js';
+import * as mail from './mail.js';
 
 const LOCAL_HOSTS = ['localhost', '127.0.0.1', '[::1]'];
 function pickMode() {
@@ -115,7 +116,7 @@ export const api = {
 
   // Tài khoản
   me: () => get('/api/auth/me'),
-  /** body: { fullName, phone, password, email? }; customer email is optional. */
+  /** body: { fullName, phone, password, email }; email bắt buộc ở bản mock (có xác minh), tùy chọn ở backend thật. */
   register: async (body) => {
     const r = await post('/api/auth/register', body);
     csrfToken = null;
@@ -132,6 +133,39 @@ export const api = {
     csrfToken = null;
     return r;
   },
+
+  /** Xác minh email qua service mail: chỉ có ở bản mock (null ở chế độ thật, nơi giao diện ẩn phần này). Lỗi mạng/service ném MailError (js/mail.js). */
+  email:
+    MODE === 'mock'
+      ? {
+          state: () => get('/api/auth/email'),
+          /** Đổi hoặc thêm email (xóa trạng thái đã xác nhận) rồi gửi mail xác nhận. Lỗi gửi ném MailError nhưng email vẫn được lưu. */
+          set: async (email) => {
+            await request('PUT', '/api/auth/email', { body: { email } });
+            return api.email.sendVerify();
+          },
+          sendVerify: async () => {
+            const st = await get('/api/auth/email');
+            if (!st.email) throw new ApiError(400, 'Chưa có email');
+            const { requestId } = await mail.verifySend(st.email, st.fullName);
+            await post('/api/auth/email/pending', { requestId });
+          },
+          /** Link có thể đã bấm ở trình duyệt khác: hỏi service theo requestId đang chờ và lấy proof nếu đã xác nhận. Trả trạng thái mới nhất. */
+          check: async () => {
+            const st = await get('/api/auth/email');
+            if (st.verified || !st.requestId) return st;
+            const r = await mail.verifyStatus(st.requestId);
+            return r.confirmed ? post('/api/auth/email/proof', { email: r.email, proof: r.proof }) : st;
+          },
+          /** Trang verify-email.html: đổi token lấy proof; nếu chính tài khoản đang đăng nhập ở trình duyệt này thì lưu luôn. */
+          confirm: async (t) => {
+            const r = await mail.verifyConfirm(t);
+            const st = await get('/api/auth/email');
+            if (st.email?.toLowerCase() === r.email) await post('/api/auth/email/proof', { email: r.email, proof: r.proof });
+            return { email: r.email };
+          },
+        }
+      : null,
 
   // Khách hàng
   /** body: { courtId, date, start, note } (idempotencyKey tự thêm nếu thiếu) */

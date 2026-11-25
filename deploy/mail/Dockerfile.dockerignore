@@ -1,0 +1,5 @@
+# Danh sách cho phép: chỉ mã service mail và khai báo phụ thuộc của nó vào context; không có .env hay mã khác.
+*
+!src/mail
+!deploy/mail/package.json
+!deploy/mail/package-lock.json

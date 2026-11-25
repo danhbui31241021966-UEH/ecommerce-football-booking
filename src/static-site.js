@@ -10,7 +10,7 @@ const ROOT = path.join(__dirname, '..');
 const STATIC_DIRS = ['css', 'fonts', 'images', 'js', 'mock'];
 const STATIC_FILES = ['robots.txt', 'sitemap.xml', 'favicon.ico'];
 const SECURITY_HEADERS = {
-  'Content-Security-Policy': "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://img.vietqr.io; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests",
+  'Content-Security-Policy': "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://img.vietqr.io https://ggo.srv1741374.hstgr.cloud; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests",
   'X-Frame-Options': 'DENY',
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
 };

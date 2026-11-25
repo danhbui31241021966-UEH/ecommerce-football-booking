@@ -24,6 +24,7 @@ await step(p, 'reg', '02-name-only', async () => {
 });
 await step(p, 'reg', '03-bad-phone-server-error', async () => {
   await p.fill('#phone', '123');
+  await p.fill('#email', 'loi.dang.ky@example.test');
   await p.fill('#password', 'matkhau123');
   await submit();
   await p.waitForSelector('#phone-msg');

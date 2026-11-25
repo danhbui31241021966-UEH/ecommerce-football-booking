@@ -38,9 +38,11 @@
         <p class="form-error" id="form-error" role="alert" hidden></p>
         <div class="field"><label for="fullName">Họ tên</label><input class="input" id="fullName" name="fullName" autocomplete="name" required></div>
         <div class="field"><label for="phone">Số điện thoại</label><input class="input" id="phone" name="phone" type="tel" inputmode="tel" autocomplete="tel" maxlength="20" placeholder="Ví dụ: 0901234567 hoặc +84 901 234 567" required><span class="hint">Có thể nhập số bắt đầu bằng 0 hoặc +84.</span></div>
+        <div class="field"><label for="email">Email</label><input class="input" id="email" name="email" type="email" inputmode="email" autocomplete="email" maxlength="120" placeholder="ten@example.com" required><span class="hint" id="email-hint">Chúng tôi gửi mail xác nhận tới đây, và sau đó là mail báo giữ chỗ, thanh toán, hủy sân.</span></div>
         <div class="field"><label for="password">Mật khẩu</label><input class="input" id="password" name="password" type="password" autocomplete="new-password" required><span class="hint">Ít nhất 8 ký tự.</span></div>
         <button class="btn btn-dark btn-lg btn-block" type="submit">Đăng ký</button>
       </form>
+      <div class="card card-pad mail-notice" id="mail-notice" role="status" hidden><p id="mail-notice-text"></p><button class="btn btn-dark btn-block" type="button" id="mail-notice-go">Tiếp tục</button></div>
       <p class="auth-alt">Đã có tài khoản? <a href="/login.html" id="alt-link">Đăng nhập</a></p>
     </section>
   </main>

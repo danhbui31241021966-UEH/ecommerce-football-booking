@@ -37,7 +37,15 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 
 **Trong phạm vi:** F01–F16 của báo cáo, cộng A7 VietQR, A9 danh sách chờ, A10 tìm theo giờ, A11 độ tin cậy, A12 giảm giá giờ chót.
 
-**Ngoài phạm vi:** cổng thanh toán/ví (web không giữ tiền), app di động, đặt nhiều slot một lần, đặt định kỳ, kèo có tiền cược thêm hoặc kèo theo tỉ số (chỉ có kèo tiền sân, R15), đánh giá/review sân, bản đồ tương tác, SMS/email/Zalo (chỉ thông báo trong web), đa ngôn ngữ.
+**Ngoài phạm vi:** cổng thanh toán/ví (web không giữ tiền), app di động, đặt nhiều slot một lần, đặt định kỳ, kèo có tiền cược thêm hoặc kèo theo tỉ số (chỉ có kèo tiền sân, R15), đánh giá/review sân, bản đồ tương tác, SMS/Zalo, mail ngoài ba loại ở mục "Email" bên dưới (các thông báo khác chỉ ở trong web), đa ngôn ngữ.
+
+**Email (bản prototype/mock):** một service mail riêng (`/mail-api`, hợp đồng do hai bên giữ chung) gửi mail thật; web gọi nó từ `js/mail.js`, địa chỉ cấu hình ở `js/mail-config.js`. Chỉ có ba loại mail thông báo, đều gửi tới email đã xác nhận của khách và gửi ngầm (lỗi không chặn, không làm hỏng đặt sân; thông báo trong web vẫn giữ nguyên):
+- `booking_held`: khi tạo lịch đặt (giữ chỗ; kèm hạn chuyển khoản nếu có);
+- `booking_paid`: khi lịch đặt được ghi nhận đã nhận tiền (chủ sân/admin hoặc ngân hàng báo);
+- `booking_cancelled`: khi lịch đặt bị hủy (khách, chủ sân hay admin) hoặc chủ sân từ chối; kèm số tiền được trả lại nếu có.
+Mail xác nhận email là mail thứ tư, gửi ngay sau đăng ký hoặc khi thêm/đổi email. Mail chỉ đi khi tài khoản đã xác nhận email (có proof). Lịch do chủ sân nhập tay cho khách gọi điện, hết hạn giữ chỗ, kèo, pass sân và báo giá chưa có mail. Hết hạn mức hoặc service lỗi (`daily_cap`, `unavailable`, `rate_limited`) thì web báo rõ "tạm thời chưa gửi được mail, thử lại sau"; đăng ký vẫn hoàn tất và email ở trạng thái chưa xác nhận.
+**Chế độ thật (Express/MySQL) chưa có phần này:** email vẫn tùy chọn và không có xác nhận, mail thông báo không gửi, giao diện ẩn mọi phần xác minh (kể cả lối vào trang Tài khoản).
+
 
 ## 4. Luật nghiệp vụ (đã chốt)
 
@@ -96,7 +104,9 @@ Nguồn: báo cáo Chương 1 (`BÀI-TẬP-NHÓM-CHƯƠNG-1-NHÓM-8.docx`, F01�
 | 6 | Lịch đặt của tôi | Tab: Sắp tới / Đã qua / Đang chờ slot (danh sách chờ, có nút rời hàng; lượt đang được giữ quyền nổi bật kèm hạn) / Pass sân (các lần mình đăng, kèm Chưa hoàn / Đã hoàn) / Ghép kèo (các trận mình mở hoặc vào, kèm trạng thái và Chưa hoàn / Đã hoàn). Trang chi tiết lịch đặt (màn 5) có form "Pass lại" và nút rút đăng pass. |
 | 7 | Thông báo | Danh sách, đánh dấu đã đọc, bấm để mở trang liên quan. *(Dùng chung cho chủ sân.)* |
 | 8 | Đăng nhập | Một ô “Số điện thoại hoặc email” và mật khẩu. Tài khoản cũ vẫn đăng nhập bằng email. Khi `next` là một giờ đặt sân đã chọn, hiện tên sân, sân con, ngày và giờ trước khi đăng nhập. |
-| 9 | Đăng ký | Chỉ bắt buộc họ tên, số điện thoại và mật khẩu; email không bắt buộc và không hiện trên form. Số Việt Nam chuẩn hóa về `0` + 9 chữ số; chấp nhận đầu vào `0`, `84` hoặc `+84` và dấu cách. Không có xác minh OTP hay quên mật khẩu; số điện thoại chưa xác minh nên người dùng cần nhập đúng số để tránh mất khả năng đăng nhập. |
+| 9 | Đăng ký | Họ tên, số điện thoại, email và mật khẩu. Ở bản prototype email **bắt buộc**, không trùng email đã có, và đăng ký xong thì gửi mail xác nhận; nếu chưa gửi được thì hiện câu báo rõ rồi cho đi tiếp với email "chưa xác nhận". Ở chế độ thật email không bắt buộc và không có xác nhận. Số Việt Nam chuẩn hóa về `0` + 9 chữ số; chấp nhận đầu vào `0`, `84` hoặc `+84` và dấu cách. Không có xác minh OTP hay quên mật khẩu; số điện thoại chưa xác minh nên người dùng cần nhập đúng số để tránh mất khả năng đăng nhập. Đăng nhập vẫn bằng số điện thoại hoặc email. |
+| 9a | Tài khoản (`/account.html`) | Vào từ menu tài khoản ("Tài khoản và email"), chỉ khách hàng ở bản prototype. Hiện email, trạng thái "Email đã xác nhận" hoặc "Email chưa xác nhận", nút gửi lại mail xác nhận, đổi email; tài khoản cũ hoặc tài khoản mẫu chưa có email thêm ở đây. Nếu link xác nhận được bấm ở trình duyệt khác, trang tự lấy kết quả khi mở lại. |
+| 9b | Xác nhận email (`/verify-email.html?t=`) | Nhận link trong mail, gọi confirm và báo kết quả bằng câu trung tính (không nói email có tồn tại hay không). Có link hết hạn hoặc sai thì chỉ về trang Tài khoản để gửi lại. |
 | 17 | Pass sân (danh sách) | Lịch đặt đang được pass, lọc theo ngày; giá pass cạnh giá gốc gạch ngang; nhãn ưu tiên người chờ. Cũng có chip "Đang pass · giá" ở ô đã đặt trong lưới slot (màn 3) và mục "Pass sân" trên thanh điều hướng. |
 | 19 | Ghép kèo (danh sách) | Kèo đã có phần đội mở và còn nhận đội thứ hai, lọc theo ngày; kèo tiền sân (5-5, 6-4, 7-3, thua bao sân), phần trả trước của đội vào, hạn chót. Ở màn 2 và trang chủ, giờ đủ hai đội **không bị ẩn** khỏi kết quả tìm: hiện thành ô viền nét đứt có chữ "Ghép kèo" (thẻ sân: một hàng riêng "Ghép kèo · chốt khi đủ hai đội"; trang chủ: dòng có nhãn Ghép kèo), bấm vào dẫn tới trận đang chờ đội thứ hai (màn 21) hoặc màn mở trận (màn 20); cuối danh sách có lối "Nhờ sân báo giá". Ở màn 3, ô giờ của sân bật chế độ hiện nhãn "Đủ hai đội" (viền nét đứt) dẫn tới màn 20; ô đang có trận hiện liên kết vào trận. Mục "Ghép kèo" trên thanh điều hướng. |
 | 20 | Mở trận | Sân, giờ, giá sân; chọn phần của đội mình (chip %), hiện hai phần cộng đúng giá sân; chọn hạn chót; nói rõ giữ slot 15 phút và quy tắc hoàn. |
@@ -163,7 +173,7 @@ Prototype FE dùng dữ liệu giả **đúng theo contract này**; khi có BE c
 |---|---|---|
 | GET | `/api/auth/csrf` | `{ csrfToken }` |
 | GET | `/api/auth/me` | `{ user: User hoặc null }` |
-| POST | `/api/auth/register` | `{ fullName, phone, password, email? }` → `{ user }`. Email null/không gửi được; nếu có thì vẫn duy nhất. Chuẩn hóa và bắt buộc số điện thoại duy nhất trên mọi vai trò. |
+| POST | `/api/auth/register` | `{ fullName, phone, password, email? }` → `{ user }`. Backend thật: email null/không gửi được; nếu có thì vẫn duy nhất. Prototype: email bắt buộc và duy nhất, kèm `emailVerified` trong `user`; việc gửi/xác nhận email đi thẳng từ trình duyệt tới `/mail-api`, không qua `/api`. Chuẩn hóa và bắt buộc số điện thoại duy nhất trên mọi vai trò. |
 | POST | `/api/auth/login` | `{ identifier, password }` → `{ user }`; `identifier` là email hoặc số điện thoại đã chuẩn hóa (đầu vào `0`, `84`, `+84`, bỏ dấu cách/chấm). Tương thích body cũ `{ email, password }`. |
 | POST | `/api/auth/logout` | |
 
