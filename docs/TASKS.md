@@ -61,14 +61,14 @@ Mốc commit của từng giai đoạn: `docs/PHASES.md`.
 - [x] **T12.** Backend Express + MySQL trong `main`, response camelCase (`src/lib/camel.js`). Xong ở `7e268e4`…`c465310` (02–03/11).
   Lệch so với mô tả: không đưa phần BE từ `draft/backend-additions` vào; BE được viết lại theo PRD ngay trên `main`. Nhánh `draft/backend-additions` (`d317100`) vẫn còn và chưa gộp.
 - [x] **T13.** Nối FE với API thật: `js/api.js` có hằng `MODE` (`mock` hoặc `real`); khi Express phục vụ giao diện thì `js/mode.js` do `src/app.js` trả về bật `real`. Căn cứ: `js/api.js`, `src/app.js`, `e2e/f-live-smoke.mjs` (`c465310`).
-  Lệch so với mô tả: bản live trên Cloudflare Pages vẫn chạy dữ liệu giả có chủ ý, không nối backend.
+  Lệch so với mô tả: bản live trên VPS vẫn chạy dữ liệu giả có chủ ý, không nối backend.
 - [x] **T14.** Kiểm thử trên MySQL thật: chống đặt trùng (`tests/booking.race.test.js`), giữ chỗ 15 phút (`tests/pay-hold.test.js`), danh sách chờ, hoàn tiền theo mốc và độ tin cậy (`tests/booking.ops.test.js`), giảm giá giờ chót (`tests/public.test.js`, `tests/slots.test.js`).
 - [~] **T15.** Dữ liệu mẫu có (`src/seed/`, `scripts/demo-seed.cjs`, `mock/*.json`, dữ liệu sân thật `data/venues-hcm.json`). Chưa có tài liệu kịch bản demo theo 5 luồng PRD mục 6 trong repo; các luồng `e2e/f12.mjs`, `e2e/f345.mjs` chạy được 5 luồng nhưng không phải kịch bản để thuyết trình.
 
 ## Giai đoạn 4 – Hoàn thiện
 
 - [~] **T16.** Báo cáo Buổi 2 và Buổi 3 có trong `docs/buoi2/`, `docs/buoi3/`; báo cáo Buổi 2 đã cập nhật giữ chỗ 15 phút (`65ae890`). Chưa rà lại phần các tính năng bổ sung R12–R18 trong báo cáo.
-- [~] **T17.** Đã triển khai: bản tĩnh `https://ggo-datsan.pages.dev` (`scripts/pages-deploy.mjs`, `c465310`) và Docker nginx (`deploy/static/`, `10ee078`). Chưa có slide demo trong repo.
+- [~] **T17.** Đã triển khai: web chạy trên VPS `https://ggo.srv1741374.hstgr.cloud` (Docker nginx, `deploy/static/`, `10ee078`); Cloudflare Pages `ggo-datsan.pages.dev` chỉ còn chuyển hướng 301 sang VPS (`scripts/pages-deploy.mjs --redirect-to`; trước đó là bản tĩnh, `c465310`). Chưa có slide demo trong repo.
 
 ## Việc làm sau danh sách ban đầu
 

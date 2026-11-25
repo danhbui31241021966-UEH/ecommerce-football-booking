@@ -2,7 +2,7 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 
-const origin = 'https://ggo-datsan.pages.dev';
+const origin = 'https://ggo.srv1741374.hstgr.cloud';
 // Nạp đúng file trình duyệt dùng, dưới dạng ES module.
 const source = fs.readFileSync(require.resolve('../js/safe-next.js'), 'utf8');
 const load = () => import(`data:text/javascript,${encodeURIComponent(source)}`);

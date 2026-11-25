@@ -1,5 +1,5 @@
 // Cái gì ở thư mục gốc của repo được phép ra web. Gốc repo còn chứa src/, db/, tests/, .env, package.json...,
-// nên KHÔNG bao giờ phục vụ cả thư mục gốc: Express, bản deploy Cloudflare Pages và image Docker tĩnh đều chỉ lấy đúng danh sách dưới đây.
+// nên KHÔNG bao giờ phục vụ cả thư mục gốc: Express, bản deploy tĩnh và image Docker tĩnh đều chỉ lấy đúng danh sách dưới đây.
 // Không nạp express ở đầu file: bước build bản tĩnh (scripts/static-build.mjs, cả trong Docker) chạy không cần node_modules.
 const fs = require('fs');
 const path = require('path');
@@ -10,7 +10,7 @@ const ROOT = path.join(__dirname, '..');
 const STATIC_DIRS = ['css', 'fonts', 'images', 'js', 'mock'];
 const STATIC_FILES = ['robots.txt', 'sitemap.xml', 'favicon.ico'];
 const SECURITY_HEADERS = {
-  'Content-Security-Policy': "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://img.vietqr.io https://ggo.srv1741374.hstgr.cloud; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests",
+  'Content-Security-Policy': "default-src 'self'; base-uri 'self'; object-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://img.vietqr.io; frame-src 'none'; frame-ancestors 'none'; form-action 'self'; upgrade-insecure-requests",
   'X-Frame-Options': 'DENY',
   'Strict-Transport-Security': 'max-age=31536000; includeSubDomains',
 };
@@ -86,10 +86,27 @@ function mountStatic(app, root = ROOT) {
   for (const d of STATIC_DIRS) if (fs.existsSync(path.join(root, d))) app.use(`/${d}`, express.static(path.join(root, d)));
 }
 
+// Bản Pages chỉ còn chuyển hướng: mỗi đường dẫn (kể cả "/") sang cùng đường dẫn trên VPS, 301, Pages giữ nguyên query.
+// target phải là https, chỉ gồm origin (không path/query). Trả về { tên-file: nội-dung }; không có trang, _headers hay functions.
+function redirectOnlyFiles(target) {
+  let u;
+  try { u = new URL(target); } catch { throw new Error(`đích chuyển hướng không phải URL: ${target}`); }
+  if (u.protocol !== 'https:') throw new Error('đích chuyển hướng phải là https');
+  if (u.pathname !== '/' || u.search || u.hash || u.username || u.password || target.replace(/\/+$/, '') !== u.origin) throw new Error('đích chuyển hướng chỉ gồm origin, không có đường dẫn');
+  return { '_redirects': `/* ${u.origin}/:splat 301\n` };
+}
+
+function writeRedirectDist(out, target) {
+  const files = redirectOnlyFiles(target);
+  fs.mkdirSync(out, { recursive: true });
+  if (fs.readdirSync(out).length) throw new Error(`thư mục đích không rỗng: ${out}`);
+  for (const [name, body] of Object.entries(files)) fs.writeFileSync(path.join(out, name), body);
+}
+
 // Trang 404 cho bản Pages. Không có file này Pages trả trang chủ với mã 200 cho mọi đường dẫn lạ (kể cả /.env), che mất lỗi thật.
 const notFoundPage = `<!doctype html>
 <html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Không tìm thấy trang · GGO</title><link rel="stylesheet" href="/css/app.css"></head>
 <body><main class="container"><h1 class="h1">Không tìm thấy trang</h1><p><a href="/">Về trang chủ GGO</a></p></main></body></html>
 `;
 
-module.exports = { ROOT, STATIC_DIRS, STATIC_FILES, REDIRECTS, SECURITY_HEADERS, staticEntries, redirectsFile, headersFile, nginxRedirects, nginxHeaders, notFoundPage, writeDist, mountStatic };
+module.exports = { ROOT, STATIC_DIRS, STATIC_FILES, REDIRECTS, SECURITY_HEADERS, staticEntries, redirectsFile, headersFile, nginxRedirects, nginxHeaders, notFoundPage, writeDist, redirectOnlyFiles, writeRedirectDist, mountStatic };
