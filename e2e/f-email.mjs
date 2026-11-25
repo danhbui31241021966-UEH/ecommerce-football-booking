@@ -1,11 +1,19 @@
 // Email thật: đăng ký có email → mail xác nhận (đọc từ capture) → mở link → "Email đã xác nhận" → đặt sân → mail booking_held.
-// Cần service mail (thật hoặc e2e/fake-mail-service.mjs) ở cổng 4126 và prototype chuyển tiếp /mail-api tới đó (MAIL_UPSTREAM). Capture đọc từ MAIL_CAPTURE_FILE (mặc định e2e/out/mail-capture.jsonl).
+// Cần service mail thật (npm run mail, MAIL_TRANSPORT=capture) ở cổng 4126 và prototype chuyển tiếp /mail-api tới đó (MAIL_UPSTREAM). Service ghi mỗi mail thành một file JSON trong MAIL_CAPTURE_DIR (mặc định /tmp/ggo-mail-e2e).
+// Service giới hạn 10 mail xác nhận/giờ cho mỗi IP: một lượt chạy ở một khổ dùng 3 mail trong flow này, nên khởi động lại service giữa hai khổ (hoặc đợi hết giờ) khi chạy cả bộ.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
+import path from 'node:path';
 import { start, step, save, api, anchor, pickAny, U, W, logs } from './lib.mjs';
-const CAPTURE = process.env.MAIL_CAPTURE_FILE || 'e2e/out/mail-capture.jsonl';
-const mails = (to, type) => (fs.existsSync(CAPTURE) ? fs.readFileSync(CAPTURE, 'utf8').split('\n').filter(Boolean).map((l) => JSON.parse(l)) : []).filter((m) => m.to === to && (!type || m.type === type));
-const waitMail = async (to, type, code) => { for (let i = 0; i < 60; i++) { const m = mails(to, type).filter((x) => !code || x.data?.bookingCode === code); if (m.length) return m; await new Promise((r) => setTimeout(r, 250)); } throw new Error(`không có mail ${type} cho ${to}`); };
+const CAPTURE = process.env.MAIL_CAPTURE_DIR || '/tmp/ggo-mail-e2e';
+// Loại thư theo tiêu đề thư cố định của service, chỉ đủ để phân biệt ba loại mail đặt sân; mail xác nhận nhận ra bằng link trong nội dung.
+const SUBJECT = { booking_held: /giữ chỗ/i, booking_paid: /thanh toán/i, booking_cancelled: /hủy/i };
+const LINK_RE = /https?:\/\/\S*verify-email\.html\?t=\S+/;
+const all = () => (fs.existsSync(CAPTURE) ? fs.readdirSync(CAPTURE).filter((f) => f.endsWith('.json')).sort().map((f) => JSON.parse(fs.readFileSync(path.join(CAPTURE, f), 'utf8'))) : []);
+// type: 'verify' | 'booking_*'; code (tùy chọn): mã đơn có trong tiêu đề hoặc nội dung. Trả { to, subject, link } theo thứ tự gửi.
+const mails = (to, type, code) => all().filter((m) => [].concat(m.to).join(',').toLowerCase().includes(to)).map((m) => ({ ...m, link: (m.text.match(LINK_RE) || [])[0] }))
+  .filter((m) => (!type ? true : type === 'verify' ? !!m.link : !m.link && SUBJECT[type].test(m.subject)) && (!code || `${m.subject}\n${m.text}`.includes(code)));
+const waitMail = async (to, type, code) => { for (let i = 0; i < 60; i++) { const m = mails(to, type, code); if (m.length) return m; await new Promise((r) => setTimeout(r, 250)); } throw new Error(`không có mail ${type} ${code || ''} cho ${to}`); };
 const { b, p, c } = await start();
 const sfx = `${W}${String(Date.now()).slice(-5)}`;
 const emailA = `an.${sfx}@example.test`, emailB = `binh.${sfx}@example.test`, emailC = `chi.${sfx}@example.test`;
@@ -43,7 +51,7 @@ await step(p, 'email', '04-no-notice-mail-before-verified', async () => {
   const pick = await pickAny(p, 1, day, '18:00'); assert.ok(pick, 'không có giờ trống');
   const bk = await api(p, `a=>a.createBooking({courtId:${pick.court},date:"${day}",start:"${pick.start}"})`);
   await p.waitForTimeout(1500);
-  assert.equal(mails(emailA).filter((m) => m.type.startsWith('booking_')).length, 0, 'chưa xác nhận mà đã có mail thông báo');
+  assert.equal(mails(emailA).filter((m) => !m.link).length, 0, 'chưa xác nhận mà đã có mail thông báo');
   const n = (await api(p, 'a=>a.notifications()')).items.length; assert.ok(n > 0, 'thông báo trong web phải còn');
   return `booking ${bk.code}, thông báo web=${n}`;
 }, { shot: false });
@@ -58,15 +66,15 @@ await step(p, 'email', '05-open-link-same-browser', async () => {
 });
 await step(p, 'email', '06-book-sends-held-mail', async () => {
   const bk = await book('19:00', true);
-  const [m] = await waitMail(emailA, 'booking_held', bk.code); return `${m.type} ${m.data.bookingCode}`;
+  const [m] = await waitMail(emailA, 'booking_held', bk.code); return `${m.subject}`;
 }, { shot: false });
 await step(p, 'email', '07-paid-and-cancelled-mails', async () => {
-  const mine = await api(p, 'a=>a.myBookings()'); const bk = mine.find((x) => mails(emailA, 'booking_held').some((m) => m.data.bookingCode === x.code));
+  const mine = await api(p, 'a=>a.myBookings()'); const bk = mine.find((x) => mails(emailA, 'booking_held', x.code).length);
   await p.evaluate(async (id) => { const { api } = await import('/js/api.js'); await api.logout(); await api.login({ identifier: 'admin@datsan.local', password: 'Matkhau@123' }); await api.admin.markPaid(id, ''); await api.logout(); }, bk.id);
   const [paid] = await waitMail(emailA, 'booking_paid', bk.code);
   await p.evaluate(async (email) => { const { api } = await import('/js/api.js'); await api.logout(); await api.login({ identifier: email, password: 'Matkhau@123' }); }, emailA);
   await p.evaluate(async ([id]) => { const { api } = await import('/js/api.js'); await api.cancelBooking(id, 'đổi lịch', { bin: '970436', account: '0123456789', accountName: 'AN EMAIL' }); }, [bk.id]);
-  const [cx] = await waitMail(emailA, 'booking_cancelled', bk.code); return `paid + cancelled ${bk.code}, refund=${cx.data.refund ?? 0}`;
+  const [cx] = await waitMail(emailA, 'booking_cancelled', bk.code); return `paid + cancelled ${bk.code}: ${cx.subject}`;
 }, { shot: false });
 await step(p, 'email', '08-link-opened-in-other-browser', async () => {
   // Đăng ký ở trình duyệt này, bấm link ở một ngữ cảnh khác (không có phiên): quay lại trang Tài khoản thì tự lấy proof qua verify/status.
