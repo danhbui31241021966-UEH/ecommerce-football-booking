@@ -655,12 +655,9 @@ function mailBooking(type, b, extra = {}) {
   if (b.userId == null || b.walkIn) return;
   const u = userOf(b.userId);
   if (!u?.email) return;
-  const [venue, court] = courtOf(b.courtId);
+  // Chỉ mã đơn, giờ, số tiền, hạn, hoàn tiền và link: mail không mang chữ tự do nào (tên người, tên sân xem ở trang đơn).
   const data = {
-    name: String(u.fullName).slice(0, 60),
     bookingCode: b.code,
-    venueName: String(venue.name).slice(0, 80),
-    courtName: String(court.name).slice(0, 40),
     startAt: b.startAt.slice(0, 16).replace(' ', 'T'),
     amount: Math.max(0, Math.min(100000000, Math.round(b.price))),
     link: `/booking.html?id=${b.id}`,

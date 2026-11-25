@@ -10,15 +10,21 @@ const show = (title, text, ok) => {
 };
 
 await mountShell();
+// Không tự confirm khi tải trang: bộ quét link chạy JS sẽ kích hoạt được. Người dùng bấm nút thì mới gọi confirm.
 const t = new URLSearchParams(location.search).get('t');
-history.replaceState(null, '', location.pathname); // token không nằm lại trong thanh địa chỉ
+history.replaceState(null, '', location.pathname); // token không nằm lại trong thanh địa chỉ, chỉ giữ trong bộ nhớ cho nút
 if (!api.email) show('Tính năng chưa bật', 'Xác nhận email chưa dùng được ở bản này.', false);
 else if (!t) show('Liên kết không hợp lệ', mailErrorText(new MailError('invalid')), false);
 else {
-  try {
-    await api.email.confirm(t);
-    show('Email đã được xác nhận', 'Cảm ơn bạn. Mail thông báo đặt sân sẽ được gửi tới email này.', true);
-  } catch (e) {
-    show('Chưa xác nhận được email', mailErrorText(e), false);
-  }
+  $('root').innerHTML = `<section class="card card-pad verify-result"><h1 class="h2" id="verify-title">Xác nhận email của bạn</h1><p>Bấm nút bên dưới để xác nhận email đăng ký tài khoản GGO.</p>
+    <button class="btn btn-dark" type="button" id="verify-go">Xác nhận email</button></section>`;
+  $('verify-go').addEventListener('click', async (e) => {
+    e.currentTarget.disabled = true;
+    try {
+      await api.email.confirm(t);
+      show('Email đã được xác nhận', 'Cảm ơn bạn. Mail thông báo đặt sân sẽ được gửi tới email này.', true);
+    } catch (err) {
+      show('Chưa xác nhận được email', mailErrorText(err), false);
+    }
+  });
 }

@@ -57,16 +57,24 @@ await step(p, 'email', '04-no-notice-mail-before-verified', async () => {
 }, { shot: false });
 await step(p, 'email', '05-open-link-same-browser', async () => {
   const link = (await waitMail(emailA, 'verify')).at(-1).link;
-  await p.goto(link); await p.waitForSelector('#verify-title');
-  assert.equal(await p.locator('#verify-title').textContent(), 'Email đã được xác nhận');
+  await p.goto(link); await p.waitForSelector('#verify-go');
   assert.ok(!p.url().includes('t='), 'token còn trên thanh địa chỉ');
   await p.screenshot({ path: `e2e/out/email-05b-verify-page-${W}.png` });
+  // Mở link chưa đủ (bộ quét link cũng mở được): chưa bấm nút thì vẫn chưa xác nhận.
+  await p.waitForTimeout(1500);
+  await p.goto(U + '/account.html'); await p.waitForSelector('#email-status');
+  assert.match(await p.locator('#email-status').innerText(), /chưa xác nhận/);
+  await p.goto(link); await p.click('#verify-go'); await p.waitForFunction(() => /đã được xác nhận/i.test(document.getElementById('verify-title')?.textContent || ''));
   await p.goto(U + '/account.html'); await p.waitForSelector('#email-status');
   assert.equal(await p.locator('#email-status').innerText(), 'Email đã xác nhận');
 });
 await step(p, 'email', '06-book-sends-held-mail', async () => {
   const bk = await book('19:00', true);
-  const [m] = await waitMail(emailA, 'booking_held', bk.code); return `${m.subject}`;
+  const [m] = await waitMail(emailA, 'booking_held', bk.code);
+  const page = await api(p, `a=>a.booking(${bk.id})`);
+  // Mail không mang chữ tự do: không có tên người, tên sân hay tên sân con.
+  for (const word of ['An Email', page.venueName, page.courtName]) assert.ok(!`${m.subject}\n${m.text}`.includes(word), `mail còn chứa "${word}": ${m.text}`);
+  return `${m.subject}`;
 }, { shot: false });
 await step(p, 'email', '07-paid-and-cancelled-mails', async () => {
   const mine = await api(p, 'a=>a.myBookings()'); const bk = mine.find((x) => mails(emailA, 'booking_held', x.code).length);
@@ -81,14 +89,14 @@ await step(p, 'email', '08-link-opened-in-other-browser', async () => {
   await api(p, 'a=>a.logout()');
   await register('Bình Email', phone(2), emailB); await p.waitForURL((u) => u.pathname === '/');
   const link = (await waitMail(emailB, 'verify')).at(-1).link;
-  const other = await (await b.newContext()).newPage(); await other.goto(link); await other.waitForSelector('#verify-title');
+  const other = await (await b.newContext()).newPage(); await other.goto(link); await other.click('#verify-go'); await other.waitForSelector('#verify-title:has-text("đã được xác nhận")');
   assert.equal(await other.locator('#verify-title').textContent(), 'Email đã được xác nhận'); await other.context().close();
   await p.goto(U + '/account.html'); await p.waitForSelector('#email-status'); await p.waitForFunction(() => /Email đã xác nhận/.test(document.getElementById('email-status').textContent));
   await book('20:00');
   await waitMail(emailB, 'booking_held');
 }, { full: true });
 await step(p, 'email', '09-bad-link-neutral', async () => {
-  await p.goto(U + '/verify-email.html?t=khong.hop-le'); await p.waitForSelector('#verify-title');
+  await p.goto(U + '/verify-email.html?t=khong.hop-le'); await p.click('#verify-go'); await p.waitForSelector('#verify-title:has-text("Chưa xác nhận được")');
   const t = await p.locator('.verify-result').innerText(); assert.doesNotMatch(t, /tồn tại|không tìm thấy email/i); return t.replace(/\n/g, ' ');
 }, { full: true });
 await step(p, 'email', '10-register-when-daily-cap', async () => {
