@@ -85,7 +85,7 @@ function renderTonight(rows, date, today, at) {
 
 function renderVenues(venues, date, today, at) {
   const plain = (v) => v.availableSlots.filter((s) => !isTeam(s));
-  const top = venues.filter((v) => plain(v).length).sort((a, b) => plain(b).length - plain(a).length).slice(0, 3);
+  const top = venues.filter((v) => plain(v).length).sort((a, b) => plain(b).length - plain(a).length).slice(0, 4);
   $('venue-list').innerHTML = top
     .map((v, i) => {
       const byStart = new Map();

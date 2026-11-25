@@ -84,6 +84,29 @@
 
   --container: 1180px;
   --header-h: 60px;
+  /* lề trái/phải của nội dung trong .container, dùng cho khối tràn mép (hero, trang chia đôi) để thẳng hàng với header */
+  --edge: max(var(--sp-4), calc((100vw - var(--container)) / 2 + var(--sp-4)));
+}
+@media (min-width: 768px) {
+  :root {
+    --edge: max(var(--sp-6), calc((100vw - var(--container)) / 2 + var(--sp-6)));
+  }
+}
+/* Màn rộng: khung nội dung nới theo màn để trang không thành một cột hẹp giữa hai vùng trống */
+@media (min-width: 1440px) {
+  :root {
+    --container: 1320px;
+  }
+}
+@media (min-width: 1800px) {
+  :root {
+    --container: 1560px;
+  }
+}
+@media (min-width: 2300px) {
+  :root {
+    --container: 1800px;
+  }
 }
 
 /* ---------- Nền tảng ---------- */
@@ -1999,12 +2022,12 @@ body:has(.booking-bar) .toast-stack {
 @media (min-width: 960px) {
   .match-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) clamp(400px, 30vw, 520px);
-    min-height: min(720px, 100svh - var(--header-h));
+    grid-template-columns: minmax(0, 1fr) calc(var(--edge) + clamp(380px, 26vw, 560px));
+    min-height: min(max(720px, 34vw), 100svh - var(--header-h));
   }
   .hero-main {
     overflow: clip;
-    padding-left: clamp(var(--sp-4), 5vw, 80px);
+    padding-left: var(--edge);
     padding-right: var(--sp-8);
   }
   /* Ảnh phóng 140% và neo trái để cầu thủ dịch sang phải, không nằm sau tiêu đề */
@@ -2014,18 +2037,30 @@ body:has(.booking-bar) .toast-stack {
     object-position: 0% 40%;
   }
   .hero-main .display {
-    font-size: clamp(5.5rem, 7.6vw, 7rem); /* 97 / 109 / 112px ở 1280 / 1440 / 1920: chiếm nửa trái ảnh, chừa chỗ cho cầu thủ */
+    font-size: clamp(5.5rem, 7.6vw, 8.5rem); /* 97 / 109 / 136px ở 1280 / 1440 / 1920+: chiếm nửa trái ảnh, chừa chỗ cho cầu thủ */
     margin-top: max(var(--sp-8), 0.22em); /* dấu Ố nhô lên ~0,2em trên dòng đầu */
   }
   .hero-main .lead {
     max-width: 48ch;
   }
   .hero-main .search-panel {
-    max-width: 820px;
+    max-width: clamp(820px, 48vw, 980px);
   }
   .tonight {
-    padding: var(--sp-8) var(--sp-8) var(--sp-6);
+    display: flex;
+    flex-direction: column;
+    padding: var(--sp-8) var(--edge) var(--sp-6) var(--sp-8);
     border-left: 1px solid var(--text);
+  }
+  /* các dòng giãn ra lấp chiều cao hero, tối đa 120px mỗi dòng */
+  #tonight-rows {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+  }
+  .tonight-row {
+    flex: 1 1 64px;
+    max-height: 120px;
   }
   .tonight-row {
     grid-template-columns: 84px minmax(0, 1fr) auto;
@@ -2167,6 +2202,23 @@ body:has(.booking-bar) .toast-stack {
     padding-right: 0;
   }
 }
+/* Thẻ thứ 4 chỉ hiện khi đủ chỗ cho 4 cột */
+.venue:nth-child(n + 4) {
+  display: none;
+}
+@media (min-width: 1440px) {
+  .venue:nth-child(n + 4) {
+    display: grid;
+  }
+  .venue {
+    padding-inline: var(--sp-6);
+  }
+}
+@media (min-width: 900px) {
+  .rule-head .h1 {
+    font-size: clamp(2.75rem, 4.2vw, 4.5rem);
+  }
+}
 
 /* Ba điều cần biết trước khi đặt: một dải lime gọn ở cuối trang, tràn hết bề ngang như dải số cũ.
    Nền tràn bằng box-shadow + clip-path để giữ ul trong .container (chữ thẳng lề với phần trên). */
@@ -2300,27 +2352,33 @@ body:has(.booking-bar) .toast-stack {
   font-weight: 700;
 }
 .demo-accounts {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 4px;
-  margin-top: var(--sp-3);
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--sp-2);
+  margin-top: var(--sp-6);
+  padding: var(--sp-4);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--r-md);
   color: var(--text-2);
-  font-size: var(--fs-xs);
+  font-size: var(--fs-sm);
   line-height: 1.35;
 }
 .demo-accounts[hidden] {
   display: none;
 }
+.demo-accounts > span {
+  grid-column: 1 / -1;
+}
 .demo-accounts button {
-  min-height: 44px;
-  padding: 3px 6px;
+  min-height: 48px;
+  padding: var(--sp-2) var(--sp-2);
   border: 1px solid var(--line-strong);
   border-radius: var(--r-md);
   background: transparent;
   color: var(--text);
   font: inherit;
-  font-weight: 600;
+  font-size: var(--fs-md);
+  font-weight: 700;
   cursor: pointer;
 }
 .demo-accounts button:hover {
@@ -2328,15 +2386,23 @@ body:has(.booking-bar) .toast-stack {
   color: var(--on-dark);
 }
 @media (min-width: 900px) {
+  .page-auth {
+    --auth-pad: clamp(var(--sp-10), 4vw, 96px);
+  }
   .auth {
     grid-template-columns: minmax(0, 1fr) minmax(480px, 40vw);
+  }
+  /* header trang chia đôi dùng lề của khối ảnh để logo và chữ bên dưới thẳng hàng */
+  .page-auth .site-header .container {
+    max-width: none;
+    padding-inline: var(--auth-pad);
   }
   .auth-visual {
     position: relative;
     display: grid;
     align-content: end;
     isolation: isolate;
-    padding: var(--sp-10);
+    padding: var(--auth-pad);
     background: var(--pitch-950);
     color: var(--on-dark);
     overflow: clip;
@@ -2361,9 +2427,17 @@ body:has(.booking-bar) .toast-stack {
     font-size: clamp(5rem, 8vw, 8rem);
   }
   .auth-panel {
+    display: grid;
+    align-self: stretch;
+    align-content: center;
     max-width: none;
     margin: 0;
-    padding: var(--sp-12) clamp(var(--sp-8), 5vw, 80px);
+    padding: var(--sp-12) max(var(--sp-8), calc((100% - 440px) / 2));
+  }
+}
+@media (min-width: 1280px) {
+  .auth {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr);
   }
 }
 
@@ -2421,6 +2495,11 @@ body:has(.booking-bar) .toast-stack {
 @media (min-width: 1100px) {
   .card-grid {
     grid-template-columns: repeat(3, 1fr);
+  }
+}
+@media (min-width: 1800px) {
+  .card-grid {
+    grid-template-columns: repeat(4, 1fr);
   }
 }
 .venue-card .media img {
