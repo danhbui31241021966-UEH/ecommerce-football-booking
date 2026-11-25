@@ -649,6 +649,8 @@ async function proofOf(u) {
   save();
   return u.emailProof;
 }
+// Số tiền = b.price, đúng số trên QR (paymentQr dùng cùng b.price). Hạn = expiresAt của đơn confirmed, đúng dòng "chuyển khoản trước" trên trang đơn; không có hạn (sân chưa có VietQR) thì bỏ.
+const mailHeld = (b) => mailBooking('booking_held', b, b.expiresAt ? { deadline: b.expiresAt.slice(11, 16) } : {});
 function mailBooking(type, b, extra = {}) {
   if (b.userId == null || b.walkIn) return;
   const u = userOf(b.userId);
@@ -868,7 +870,8 @@ function insertBooking(user, venue, court, date, start, slot, extra = {}) {
   } else {
     notify(user.id, `Bạn đã có ${court.name} tại ${venue.name} lúc ${shortTs(b.startAt)} (mã ${b.code}). Hãy chuyển khoản${b.expiresAt ? ` trước ${b.expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn` : ' theo hướng dẫn của chủ sân'}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }
-  mailBooking('booking_held', b, b.expiresAt ? { deadline: b.expiresAt.slice(11, 16) } : {});
+  // Mail "giữ chỗ" chỉ khi sân đã thật sự giữ cho khách và chờ chuyển tiền. Đơn chờ chủ sân đồng ý (pending) gửi ở doApprove, khi đã có hạn chuyển khoản.
+  if (b.status === 'confirmed') mailHeld(b);
   save();
   return b;
 }
@@ -1010,6 +1013,7 @@ function doApprove(b, actor) {
   b.status = 'confirmed';
   b.expiresAt = payByFor(b, courtOf(b.courtId)[0]); // hạn chuyển khoản tính từ lúc duyệt (R3)
   addLog(b, 'approve', 'pending', 'confirmed', actor);
+  mailHeld(b);
   notify(b.userId, `Chủ sân đã đồng ý lịch đặt ${b.code}. Hãy chuyển khoản${b.expiresAt ? ` bằng mã QR trước ${b.expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn` : ' theo hướng dẫn của chủ sân'}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   save();
 }

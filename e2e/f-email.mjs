@@ -23,8 +23,8 @@ const register = async (name, ph, email) => {
 };
 let day;
 // Đặt thử lần lượt các sân từ giờ `after`; bỏ qua giờ chỉ nhận ghép kèo. confirmed=true: lấy đơn không cần chủ sân đồng ý (để ghi nhận tiền được).
-const book = async (after, confirmed = false) => {
-  for (let v = 1; v <= 8; v++) {
+const book = async (after, confirmed = false, only = 0) => {
+  for (let v = only || 1; v <= (only || 8); v++) {
     const pick = await pickAny(p, v, day, after); if (!pick) continue;
     try { const bk = await api(p, `a=>a.createBooking({courtId:${pick.court},date:"${day}",start:"${pick.start}"})`); if (!confirmed || bk.status === 'confirmed') return bk; await api(p, `a=>a.cancelBooking(${bk.id},"thử")`); } catch { /* giờ ghép kèo hoặc vừa hết: thử sân khác */ }
   }
@@ -111,6 +111,23 @@ await step(p, 'email', '11-notice-failure-does-not-break-booking', async () => {
   await p.route('**/mail-api/**', (r) => r.fulfill({ status: 503, contentType: 'application/json', body: '{"error":"unavailable"}' }));
   const pick = await pickAny(p, 4, day, '18:00'); const bk = await api(p, `a=>a.createBooking({courtId:${pick.court},date:"${day}",start:"${pick.start}"})`);
   await p.unroute('**/mail-api/**'); assert.ok(bk.code); return bk.code;
+}, { shot: false });
+await step(p, 'email', '12-needs-approval-mail-only-after-owner-approves', async () => {
+  // Hoàng Gia (sân 2, chủ chusan2) cần chủ đồng ý: đặt xong chưa có mail giữ chỗ; chủ đồng ý rồi mới có, số tiền và hạn khớp trang đơn.
+  await api(p, 'a=>a.logout()'); await p.evaluate(async (e) => { const { api } = await import('/js/api.js'); await api.login({ identifier: e, password: 'Matkhau@123' }); }, emailA);
+  const bk = await book('08:00', false, 2); assert.equal(bk.status, 'pending', 'đơn Hoàng Gia phải chờ chủ sân đồng ý');
+  await p.waitForTimeout(2000);
+  assert.equal(mails(emailA, 'booking_held', bk.code).length, 0, 'chưa được đồng ý mà đã có mail giữ chỗ');
+  await api(p, 'a=>a.logout()'); await api(p, 'a=>a.login({identifier:"chusan2@datsan.local",password:"Matkhau@123"})');
+  await api(p, `a=>a.owner.approve(${bk.id})`); await api(p, 'a=>a.logout()');
+  await p.evaluate(async (e) => { const { api } = await import('/js/api.js'); await api.login({ identifier: e, password: 'Matkhau@123' }); }, emailA);
+  const [m] = await waitMail(emailA, 'booking_held', bk.code);
+  const page = await api(p, `a=>a.booking(${bk.id})`);
+  const text = m.text.replace(/\./g, '');
+  assert.ok(page.paymentQr && page.expiresAt, 'trang đơn phải có QR và hạn sau khi duyệt');
+  assert.ok(text.includes(`${page.paymentQr.amount}đ`), `số tiền trong mail khác QR ${page.paymentQr.amount}: ${m.text}`);
+  assert.ok(text.includes(page.expiresAt.slice(11, 16)), `hạn trong mail khác trang đơn ${page.expiresAt}: ${m.text}`);
+  return `${bk.code} qr=${page.paymentQr.amount} hạn=${page.expiresAt.slice(11, 16)}`;
 }, { shot: false });
 if (logs.length) console.log('LOGS', logs.join(' | '));
 save(); await b.close();
