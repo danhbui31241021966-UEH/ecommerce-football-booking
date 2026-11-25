@@ -1,5 +1,15 @@
 // Cấu hình service mail: đọc hoàn toàn từ biến môi trường, thiếu/sai thì ném lỗi để không khởi động.
+const fs = require('fs');
 const MIN_SECRET = 32;
+
+// Giá trị bí mật: từ NAME hoặc từ file NAME_FILE (bỏ khoảng trắng/xuống dòng ở cuối). Có cả hai là lỗi.
+// Lỗi chỉ nêu tên biến, không bao giờ nêu nội dung hay đường dẫn đọc được từ file.
+function secret(env, name) {
+  const file = env[`${name}_FILE`];
+  if (file && env[name]) throw new Error(`${name} và ${name}_FILE không được đặt cùng lúc`);
+  if (!file) return env[name] || '';
+  try { return fs.readFileSync(file, 'utf8').trimEnd(); } catch { throw new Error(`không đọc được file của ${name}_FILE`); }
+}
 
 function int(env, name, def, { min = 0, max = Number.MAX_SAFE_INTEGER } = {}) {
   const raw = env[name];
@@ -12,8 +22,8 @@ function int(env, name, def, { min = 0, max = Number.MAX_SAFE_INTEGER } = {}) {
 
 function loadConfig(env = process.env) {
   const production = env.NODE_ENV === 'production';
-  const secret = env.MAIL_TOKEN_SECRET || '';
-  if (secret.length < MIN_SECRET) throw new Error(`MAIL_TOKEN_SECRET thiếu hoặc ngắn hơn ${MIN_SECRET} ký tự`);
+  const tokenSecret = secret(env, 'MAIL_TOKEN_SECRET');
+  if (tokenSecret.length < MIN_SECRET) throw new Error(`MAIL_TOKEN_SECRET thiếu hoặc ngắn hơn ${MIN_SECRET} ký tự`);
 
   const origins = (env.MAIL_ALLOWED_ORIGINS || '').split(',').map((s) => s.trim()).filter(Boolean);
   if (!origins.length) throw new Error('MAIL_ALLOWED_ORIGINS trống');
@@ -32,7 +42,7 @@ function loadConfig(env = process.env) {
     production,
     port: int(env, 'MAIL_PORT', 4126, { min: 1, max: 65535 }),
     host: env.MAIL_HOST || '0.0.0.0',
-    secret,
+    secret: tokenSecret,
     origins,
     // Số proxy tin cậy phía trước (Traefik = 1). 0 = không proxy, bỏ qua X-Forwarded-For.
     trustProxy: int(env, 'MAIL_TRUST_PROXY', 0, { max: 5 }),
@@ -49,12 +59,12 @@ function loadConfig(env = process.env) {
     if (!cfg.captureDir) throw new Error('MAIL_CAPTURE_DIR trống');
     cfg.from = env.MAIL_FROM || 'GGO <capture@localhost>';
   } else {
-    const user = env.SMTP_USER || '';
-    const pass = env.SMTP_PASS || '';
+    const user = secret(env, 'SMTP_USER');
+    const pass = secret(env, 'SMTP_PASS');
     if (!user || !pass) throw new Error('SMTP_USER hoặc SMTP_PASS trống');
     cfg.smtp = {
       host: env.SMTP_HOST || 'smtp.gmail.com',
-      port: int(env, 'SMTP_PORT', 465, { min: 1, max: 65535 }),
+      port: int(env, 'SMTP_PORT', 587, { min: 1, max: 65535 }),
       user, pass,
     };
     cfg.from = env.MAIL_FROM || user;

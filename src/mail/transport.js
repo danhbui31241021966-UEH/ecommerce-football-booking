@@ -13,9 +13,14 @@ function createCapture(dir) {
   };
 }
 
-function createSmtp({ host, port, user, pass }) {
-  const nodemailer = require('nodemailer');
-  const t = nodemailer.createTransport({ host, port, secure: port === 465, auth: { user, pass }, connectionTimeout: 10000, socketTimeout: 15000 });
+// 587: STARTTLS bắt buộc (không có TLS thì không gửi, không hạ cấp); 465: TLS ngay từ đầu.
+function smtpOptions({ host, port, user, pass }) {
+  const implicit = port === 465;
+  return { host, port, secure: implicit, requireTLS: !implicit, auth: { user, pass }, connectionTimeout: 10000, socketTimeout: 15000 };
+}
+
+function createSmtp(smtp) {
+  const t = require('nodemailer').createTransport(smtpOptions(smtp));
   return { send: (msg) => t.sendMail(msg) };
 }
 
@@ -27,4 +32,4 @@ function createTransport(cfg) {
   return createSmtp(cfg.smtp);
 }
 
-module.exports = { createTransport, createCapture };
+module.exports = { createTransport, createCapture, smtpOptions };

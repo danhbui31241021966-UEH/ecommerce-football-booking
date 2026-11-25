@@ -9,7 +9,7 @@ const { SlidingLimiter } = require('../src/mail/limiter');
 const { notifyData, esc } = require('../src/mail/validate');
 const { loadConfig } = require('../src/mail/config');
 const { createApp, clientIp } = require('../src/mail/app');
-const { createCapture } = require('../src/mail/transport');
+const { createCapture, smtpOptions } = require('../src/mail/transport');
 
 const SECRET = 'x'.repeat(40);
 const ORIGIN = 'https://ggo.example';
@@ -216,4 +216,31 @@ test('capture bị từ chối ở production, route lạ 404', async (t) => {
   const s = await boot(); t.after(s.close);
   assert.equal((await s.call('/mail-api/nope', {})).status, 404);
   assert.equal((await s.call('/mail-api/verify/send', null, { method: 'GET' })).status, 405);
+});
+
+test('secret từ *_FILE: đọc đúng, bỏ xuống dòng cuối, đặt cả hai hoặc thiếu file thì lỗi, lỗi không lộ nội dung', () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'mailsec-'));
+  const w = (n, v) => { const f = path.join(dir, n); fs.writeFileSync(f, v); return f; };
+  const base = { MAIL_ALLOWED_ORIGINS: ORIGIN, MAIL_TRANSPORT: 'smtp' };
+  const cfg = loadConfig({ ...base, MAIL_TOKEN_SECRET_FILE: w('t', `${SECRET}\n`), SMTP_USER_FILE: w('u', 'u@g.com\r\n'), SMTP_PASS_FILE: w('p', 'pw pw pw pw\n') });
+  assert.equal(cfg.secret, SECRET);
+  assert.equal(cfg.smtp.user, 'u@g.com'); assert.equal(cfg.smtp.pass, 'pw pw pw pw');
+  assert.equal(cfg.from, 'u@g.com');
+  const ok = { ...base, MAIL_TOKEN_SECRET: SECRET, SMTP_USER: 'u', SMTP_PASS: 'p' };
+  assert.equal(loadConfig(ok).smtp.pass, 'p'); // dùng env như cũ
+  assert.throws(() => loadConfig({ ...ok, SMTP_PASS_FILE: w('p2', 'x') }), /SMTP_PASS và SMTP_PASS_FILE/);
+  assert.throws(() => loadConfig({ ...ok, MAIL_TOKEN_SECRET_FILE: w('t2', SECRET) }), /MAIL_TOKEN_SECRET và/);
+  let err;
+  try { loadConfig({ ...ok, SMTP_PASS: undefined, SMTP_PASS_FILE: path.join(dir, 'missing') }); } catch (e) { err = e; }
+  assert.match(err.message, /SMTP_PASS_FILE/); assert.ok(!err.message.includes(dir));
+  assert.throws(() => loadConfig({ ...ok, MAIL_TOKEN_SECRET: undefined, MAIL_TOKEN_SECRET_FILE: w('short', 'abc\n') }), /MAIL_TOKEN_SECRET/);
+  assert.throws(() => loadConfig({ ...ok, SMTP_USER: undefined, SMTP_USER_FILE: w('empty', '\n') }), /SMTP_USER/);
+});
+
+test('SMTP: mặc định 587 bắt buộc STARTTLS, 465 TLS ngay từ đầu', () => {
+  const env = { MAIL_TOKEN_SECRET: SECRET, MAIL_ALLOWED_ORIGINS: ORIGIN, MAIL_TRANSPORT: 'smtp', SMTP_USER: 'u', SMTP_PASS: 'p' };
+  const d = smtpOptions(loadConfig(env).smtp);
+  assert.deepEqual([d.host, d.port, d.secure, d.requireTLS], ['smtp.gmail.com', 587, false, true]);
+  const i = smtpOptions(loadConfig({ ...env, SMTP_PORT: '465' }).smtp);
+  assert.deepEqual([i.port, i.secure, i.requireTLS], [465, true, false]);
 });
