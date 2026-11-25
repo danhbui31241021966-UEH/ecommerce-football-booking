@@ -2,7 +2,7 @@
 
 ## Cách thử
 
-- Mời **5 người chưa từng xem website**. Dùng điện thoại hoặc máy tính của họ, tại `https://ggo-datsan.pages.dev`; không cần server ở máy. Ghi thiết bị, khổ màn hình và ngày.
+- Mời **5 người chưa từng xem website**. Dùng điện thoại hoặc máy tính của họ, tại `https://ggo.srv1741374.hstgr.cloud`; không cần server ở máy. Ghi thiết bị, khổ màn hình và ngày.
 - Làm **lượt Trước trước khi bản mới được deploy**; nếu đã deploy thì không gọi là lượt Trước. Làm lượt Sau sau khi bản mới lên web. Tốt nhất cùng 5 người ở cả hai lượt; họ có thể nhớ luồng từ lần đầu.
 - Mỗi lượt giao hai nhiệm vụ dưới đây. Không chỉ nút, không trợ giúp; cho người thử tự nói khi xong hoặc muốn dừng. Bấm giờ từ lúc giao nhiệm vụ tới lúc xong/bỏ. Đếm số lần bấm (không tính cuộn). Ghi vướng mắc và câu nói nguyên văn.
 - **Tuyệt đối không chuyển khoản thật.** Không ghi tên, số điện thoại, email hay thông tin cá nhân vào phiếu.

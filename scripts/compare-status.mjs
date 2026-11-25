@@ -1,10 +1,10 @@
 #!/usr/bin/env node
-// So mã phản hồi và đích chuyển hướng của một bản tĩnh với bản Cloudflare Pages.
-//   node scripts/compare-status.mjs <base-url> [--ref https://ggo-datsan.pages.dev]
+// So mã phản hồi và đích chuyển hướng của một bản tĩnh với bản đang chạy trên VPS (mặc định) hoặc bản khác qua --ref.
+//   node scripts/compare-status.mjs <base-url> [--ref https://ggo.srv1741374.hstgr.cloud]
 //   Exit 0 khi mọi đường dẫn khớp; in từng dòng "OK/DIFF đường-dẫn  base | ref".
 const args = process.argv.slice(2);
 const refAt = args.indexOf('--ref');
-const ref = (refAt >= 0 ? args.splice(refAt, 2)[1] : 'https://ggo-datsan.pages.dev').replace(/\/+$/, '');
+const ref = (refAt >= 0 ? args.splice(refAt, 2)[1] : 'https://ggo.srv1741374.hstgr.cloud').replace(/\/+$/, '');
 const base = (args[0] || '').replace(/\/+$/, '');
 if (!base) { console.error('compare-status: thiếu <base-url>'); process.exit(1); }
 

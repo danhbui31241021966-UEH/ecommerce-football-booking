@@ -4,7 +4,7 @@ import { mountShell, toast } from '/js/ui/shell.js';
 import { $ } from '/js/ui/page.js';
 import { esc, heroHtml, tabsHtml, wireTabs, standingsHtml, scheduleHtml, rulesHtml, teamBadge, TAB_KEYS, PUBLIC_STATUS_TEXT, contactLink, REGISTER_NOTE } from '/js/ui/league-ui.js';
 
-const SITE = 'https://ggo-datsan.pages.dev';
+const SITE = 'https://ggo.srv1741374.hstgr.cloud';
 const root = $('league-root');
 const id = Number(new URLSearchParams(location.search).get('id'));
 let L;
