@@ -28,7 +28,7 @@ await step(p, 'journey', '05-book-asks-login', async () => {
 });
 await step(p, 'journey', '06-register-returns-to-confirm', async () => {
   await p.click('#alt-link'); await p.waitForURL(/register/);
-  await p.fill('#fullName', 'Khách Mới'); await p.fill('#phone', W < 600 ? '0911000390' : '0911001366'); await p.fill('#password', 'Matkhau@123');
+  await p.fill('#fullName', 'Khách Mới'); await p.fill('#phone', W < 600 ? '0911000390' : '0911001366'); await p.fill('#email', `khach.moi.${W}@example.test`); await p.fill('#password', 'Matkhau@123');
   await p.click('form button[type=submit]'); await p.waitForSelector('#confirm-dialog[open]');
 });
 await step(p, 'journey', '07-booked-with-qr', async () => {
