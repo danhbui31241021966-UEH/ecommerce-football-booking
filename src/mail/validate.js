@@ -26,8 +26,8 @@ function dateTime(v) {
   return v;
 }
 const hhmm = (v) => (typeof v === 'string' && /^([01]\d|2[0-3]):[0-5]\d$/.test(v) ? v : null);
-// Đường dẫn tương đối của chính web: bắt đầu "/", không "//" (protocol-relative), không "\".
-const link = (v) => (typeof v === 'string' && v.length <= 200 && /^\/(?!\/)[A-Za-z0-9\-._~/?=&%#:@+,]*$/.test(v) ? v : null);
+// Link chỉ có một dạng cố định (trang đơn): không chỗ nào cho chữ tự do của client lọt vào thư.
+const link = (v) => (typeof v === 'string' && /^\/booking\.html\?id=\d{1,10}$/.test(v) ? v : null);
 
 const esc = (s) => String(s).replace(/[&<>"'`]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[c]));
 

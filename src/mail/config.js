@@ -38,6 +38,10 @@ function loadConfig(env = process.env) {
   if (transport !== 'smtp' && transport !== 'capture') throw new Error('MAIL_TRANSPORT phải là smtp hoặc capture');
   if (transport === 'capture' && production) throw new Error('MAIL_TRANSPORT=capture bị từ chối khi NODE_ENV=production');
 
+  const dailyCap = int(env, 'MAIL_DAILY_LIMIT', 400, { min: 1 });
+  const dailyVerifyCap = int(env, 'MAIL_DAILY_VERIFY_LIMIT', 250, { min: 1 });
+  if (dailyVerifyCap >= dailyCap) throw new Error('MAIL_DAILY_VERIFY_LIMIT phải nhỏ hơn MAIL_DAILY_LIMIT (chừa chỗ cho thông báo)');
+
   const cfg = {
     production,
     port: int(env, 'MAIL_PORT', 4126, { min: 1, max: 65535 }),
@@ -52,9 +56,9 @@ function loadConfig(env = process.env) {
     from: '',
     limits: {
       // Trần tổng/24h: Gmail cá nhân ~500 thư/ngày, chừa dư cho thư gửi tay và lần thử lại.
-      dailyCap: int(env, 'MAIL_DAILY_LIMIT', 400, { min: 1 }),
+      dailyCap,
       // Riêng cho thư xác nhận (gửi tới người lạ, dễ bị đốt): chừa phần còn lại của trần chung cho thông báo của người đã xác nhận.
-      dailyVerifyCap: int(env, 'MAIL_DAILY_VERIFY_LIMIT', 250, { min: 1 }),
+      dailyVerifyCap,
     },
   };
   if (transport === 'capture') {

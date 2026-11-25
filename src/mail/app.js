@@ -52,6 +52,8 @@ function createApp({ config, transport, now = Date.now, limits = {}, log = () =>
   for (const [k, v] of Object.entries(lim)) L[k] = new SlidingLimiter({ ...v, evictOldest: k.startsWith('ip'), now });
   const daily = new SlidingLimiter({ max: config.limits.dailyCap, windowMs: DAY, maxKeys: 1, now });
   const dailyVerify = new SlidingLimiter({ max: config.limits.dailyVerifyCap, windowMs: DAY, maxKeys: 1, now });
+  // Phần còn lại của trần chung dành riêng cho thông báo: kẻ lấy nhiều proof cho địa chỉ của mình không đốt hết chỗ của thư xác nhận.
+  const dailyNotify = new SlidingLimiter({ max: config.limits.dailyCap - config.limits.dailyVerifyCap, windowMs: DAY, maxKeys: 1, now });
   const confirmed = new Map(); // rid -> {email, proof, exp(ms)}; trong bộ nhớ, mất khi restart (người dùng gửi lại).
 
   const remember = (rid, email, proof) => {
@@ -73,13 +75,15 @@ function createApp({ config, transport, now = Date.now, limits = {}, log = () =>
     res.end(json);
   }
 
-  function readJson(req) {
+  function readJson(req, res) {
     return new Promise((resolve) => {
+      const tooBig = () => { res.shouldKeepAlive = false; res.once('finish', () => req.destroy()); resolve(null); };
+      if (Number(req.headers['content-length']) > BODY_MAX) return tooBig();
       if (!/^application\/json\s*(;|$)/i.test(req.headers['content-type'] || '')) return resolve(null);
       const chunks = []; let size = 0; let over = false;
-      req.on('data', (c) => { size += c.length; if (size > BODY_MAX) over = true; else chunks.push(c); });
+      req.on('data', (c) => { size += c.length; if (size > BODY_MAX) { if (!over) { over = true; tooBig(); } } else if (!over) chunks.push(c); });
       req.on('end', () => {
-        if (over) return resolve(null);
+        if (over) return;
         try { const v = JSON.parse(Buffer.concat(chunks).toString('utf8')); resolve(v && typeof v === 'object' && !Array.isArray(v) ? v : null); } catch { resolve(null); }
       });
       req.on('error', () => resolve(null));
@@ -92,12 +96,13 @@ function createApp({ config, transport, now = Date.now, limits = {}, log = () =>
 
   // Hạn mức tổng trước, rồi giới hạn từng người nhận; qua hết mới ghi cả hai.
   function reserve(res, origin, rcptKeys, { verify = false } = {}) {
-    const dw = Math.max(daily.wait('all'), verify ? dailyVerify.wait('all') : 0);
+    const part = verify ? dailyVerify : dailyNotify;
+    const dw = Math.max(daily.wait('all'), part.wait('all'));
     if (dw) { send(res, 503, { error: 'daily_cap', retryAfter: dw }, origin); return false; }
     const w = consume(rcptKeys);
     if (w) { send(res, 429, { error: 'rate_limited', retryAfter: w }, origin); return false; }
     daily.record('all');
-    if (verify) dailyVerify.record('all');
+    part.record('all');
     return true;
   }
 
@@ -126,7 +131,7 @@ function createApp({ config, transport, now = Date.now, limits = {}, log = () =>
     const ip = clientIp(req, config.trustProxy);
     const ipLimiter = p === '/mail-api/verify/send' ? L.ipSend : p === '/mail-api/notify' ? L.ipNotify : L.ipRead;
     // Body hỏng bị loại trước, không tạo khóa IP: kẻ gửi rác không làm đầy bảng IP.
-    const body = await readJson(req);
+    const body = await readJson(req, res);
     if (!body) return send(res, 400, { error: 'invalid' }, allowed);
     const w = consume([{ limiter: ipLimiter, key: ip }]);
     if (w) return send(res, 429, { error: 'rate_limited', retryAfter: w }, allowed);

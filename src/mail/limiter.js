@@ -1,6 +1,6 @@
 // Giới hạn tần suất cửa sổ trượt, trong bộ nhớ, có trần số khóa. Khi bảng đầy và không dọn được:
 //  - mặc định đóng an toàn: khóa mới bị từ chối (dùng cho người nhận, vì đó là thứ bảo vệ hộp thư người khác);
-//  - evictOldest: đẩy khóa cũ nhất ra nhường chỗ (dùng cho IP: kẻ nạp nhiều IP giả không khóa được người thật,
+//  - evictOldest: đẩy khóa chèn sớm nhất ra nhường chỗ (không phải khóa lâu không dùng; dùng cho IP: kẻ nạp nhiều IP giả không khóa được người thật,
 //    còn số thư vẫn bị chặn bởi giới hạn người nhận và trần ngày).
 class SlidingLimiter {
   constructor({ max, windowMs, maxKeys = 10000, evictOldest = false, now = Date.now }) {

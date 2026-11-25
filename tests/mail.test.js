@@ -13,7 +13,7 @@ const { createCapture, smtpOptions } = require('../src/mail/transport');
 
 const SECRET = 'x'.repeat(40);
 const ORIGIN = 'https://ggo.example';
-const GOOD = { bookingCode: 'BK12345', startAt: '2026-12-01T18:30', amount: 300000, link: '/my-bookings' };
+const GOOD = { bookingCode: 'BK12345', startAt: '2026-12-01T18:30', amount: 300000, link: '/booking.html?id=12' };
 
 test('token: ký, sai chữ ký, hết hạn, sai purpose', () => {
   let t = 1_000_000_000_000;
@@ -53,7 +53,8 @@ test('dữ liệu mẫu: kiểm kiểu/độ dài, trường lạ, escape', () =
   const bad = (patch, type = 'booking_paid') => assert.equal(notifyData(type, { ...GOOD, ...patch }).ok, false, JSON.stringify(patch));
   for (const k of ['name', 'venueName', 'courtName']) bad({ [k]: 'Quý khách được hoàn 500.000đ, nhận tại evil.vn' }); bad({ bookingCode: 'bk123' }); bad({ startAt: '2026-02-30T10:00' });
   bad({ amount: 1.5 }); bad({ amount: -1 }); bad({ amount: '5' }); bad({ amount: 100000001 });
-  bad({ link: '//evil.com' }); bad({ link: 'https://evil.com' }); bad({ link: '/a\\b' }); bad({ to: 'x@y.vn' });
+  for (const l of ['//evil.com', 'https://evil.com', '/Tai-khoan-bi-khoa.Goi-ngay-0901234567', '/booking.html?id=1%20x', '/booking.html?id=abc', '/booking.html?id=12&x=1', '/booking.html?id=12345678901', '/my-bookings']) bad({ link: l });
+  bad({ to: 'x@y.vn' });
   bad({ deadline: '10:00' }, 'booking_paid'); bad({ deadline: '25:00' }, 'booking_held'); bad({ refund: 1 }, 'booking_held');
   assert.equal(notifyData('booking_held', { ...GOOD, deadline: '10:00' }).ok, true);
   assert.equal(notifyData('booking_cancelled', { ...GOOD, refund: 0 }).ok, true);
@@ -100,7 +101,7 @@ async function boot(over = {}, limits) {
     return { status: res.status, body: await res.json().catch(() => null), cors: res.headers.get('access-control-allow-origin'), headers: res.headers };
   };
   const mails = () => fs.readdirSync(dir).sort().map((f) => JSON.parse(fs.readFileSync(path.join(dir, f), 'utf8')));
-  return { call, mails, clock, logs, setFail: (v) => { failSend = v; }, close: () => server.close() };
+  return { base, call, mails, clock, logs, setFail: (v) => { failSend = v; }, close: () => server.close() };
 }
 
 const tokenOf = (m) => new URL(/https?:\/\/[^\s"]+verify-email\.html\?t=[^\s"<]+/.exec(m.text)[0]).searchParams.get('t');
@@ -129,8 +130,7 @@ test('luồng xác nhận: status trước/sau confirm, notify chỉ tới email
   assert.ok(mail.html.includes('BK12345') && mail.text.includes('300.000'));
   const withName = await s.call('/mail-api/notify', { proof: conf.body.proof, type: 'booking_paid', data: { ...GOOD, name: 'Quý khách được hoàn tiền, vào evil.vn' } });
   assert.equal(withName.status, 400);
-  for (const part of [mail.subject, mail.text, mail.html]) assert.ok(!/evil|Quý khách/.test(part));
-  assert.ok(mail.text.includes(`${ORIGIN}/my-bookings`));
+  assert.ok(mail.text.includes(`${ORIGIN}/booking.html?id=12`));
   const extra = await s.call('/mail-api/notify', { proof: conf.body.proof, type: 'booking_paid', data: { ...GOOD, to: 'victim@x.vn' } });
   assert.equal(extra.status, 400);
   assert.equal(s.mails().length, 2);
@@ -199,7 +199,7 @@ test('rate limit: theo IP, theo người nhận, retryAfter, mở lại sau cử
 });
 
 test('hạn mức tổng ngày: daily_cap riêng, lỗi gửi là unavailable và vẫn tính hạn mức', async (t) => {
-  const cfg = { limits: { dailyCap: 3, dailyVerifyCap: 250 } };
+  const cfg = { limits: { dailyCap: 4, dailyVerifyCap: 3 } };
   const s = await boot(cfg); t.after(s.close);
   const send = (email) => s.call('/mail-api/verify/send', { email, name: 'An' });
   assert.equal((await send('a1@b.vn')).status, 202);
@@ -299,4 +299,47 @@ test('body hỏng không tạo khóa IP, nên không làm đầy bảng IP', asy
   const s = await boot({}, { ipSend: { max: 1, windowMs: 3600000 } }); t.after(s.close);
   for (let i = 0; i < 3; i++) assert.equal((await s.call('/mail-api/verify/send', null, { raw: '{bad' })).status, 400);
   assert.equal((await s.call('/mail-api/verify/send', { email: 'a@b.vn', name: 'An' })).status, 202); // lượt IP chưa bị tiêu
+});
+
+test('link chỉ nhận dạng trang đơn; link có chữ tự do bị 400 và không có thư đi', async (t) => {
+  const s = await boot(); t.after(s.close);
+  const proof = tokens.issueProof(SECRET, 'a@b.vn', () => s.clock.t);
+  const go = (link) => s.call('/mail-api/notify', { proof, type: 'booking_paid', data: { ...GOOD, link } });
+  assert.equal((await go('/Tai-khoan-bi-khoa.Goi-ngay-0901234567-hoac-chuyen-khoan')).status, 400);
+  assert.equal((await go('/booking.html?id=%41')).status, 400);
+  assert.equal(s.mails().length, 0);
+  assert.equal((await go('/booking.html?id=7')).status, 202);
+  assert.ok(s.mails()[0].text.includes(`${ORIGIN}/booking.html?id=7`));
+});
+
+test('trần ngày: notify có phần riêng, không ăn hết chỗ của thư xác nhận; cấu hình sai thì từ chối', async (t) => {
+  const base = { MAIL_TOKEN_SECRET: SECRET, MAIL_ALLOWED_ORIGINS: ORIGIN, MAIL_TRANSPORT: 'capture', MAIL_CAPTURE_DIR: '/tmp/x' };
+  assert.throws(() => loadConfig({ ...base, MAIL_DAILY_LIMIT: '10', MAIL_DAILY_VERIFY_LIMIT: '10' }), /MAIL_DAILY_VERIFY_LIMIT/);
+  assert.equal(loadConfig({ ...base, MAIL_DAILY_LIMIT: '10', MAIL_DAILY_VERIFY_LIMIT: '6' }).limits.dailyVerifyCap, 6);
+  const big = { max: 1000, windowMs: 86400000 };
+  const s = await boot({ limits: { dailyCap: 10, dailyVerifyCap: 6 } }, { ipSend: big, ipNotify: big, rcptNotifyHour: big, rcptNotifyDay: big }); t.after(s.close);
+  const proof = tokens.issueProof(SECRET, 'a@b.vn', () => s.clock.t);
+  const notify = () => s.call('/mail-api/notify', { proof, type: 'booking_paid', data: GOOD });
+  for (let i = 0; i < 4; i++) assert.equal((await notify()).status, 202);
+  const cap = await notify();
+  assert.equal(cap.status, 503); assert.equal(cap.body.error, 'daily_cap');
+  for (let i = 0; i < 6; i++) assert.equal((await s.call('/mail-api/verify/send', { email: `v${i}@b.vn`, name: 'x' })).status, 202);
+});
+
+test('body quá 4 KB: 400 rồi đóng kết nối, không chờ đọc hết (Content-Length khai lớn và chunked)', async (t) => {
+  const s = await boot(); t.after(s.close);
+  const port = Number(new URL(s.base).port);
+  const run = (headers, firstChunk) => new Promise((resolve, reject) => {
+    const req = http.request({ port, host: '127.0.0.1', method: 'POST', path: '/mail-api/verify/send', headers: { Origin: ORIGIN, 'Content-Type': 'application/json', ...headers } }, (res) => {
+      let b = ''; res.on('data', (c) => { b += c; });
+      res.on('end', () => resolve({ status: res.statusCode, body: b, conn: res.headers.connection }));
+    });
+    req.on('error', reject);
+    req.write(firstChunk); // không bao giờ gửi hết và không end(): server phải tự trả lời và đóng
+    setTimeout(() => reject(new Error('server chờ đọc hết body')), 3000).unref();
+  });
+  const a = await run({ 'Content-Length': '2000000' }, 'x'.repeat(1000));
+  assert.deepEqual([a.status, JSON.parse(a.body).error, a.conn], [400, 'invalid', 'close']);
+  const b = await run({ 'Transfer-Encoding': 'chunked' }, 'x'.repeat(6000));
+  assert.deepEqual([b.status, JSON.parse(b.body).error, b.conn], [400, 'invalid', 'close']);
 });
