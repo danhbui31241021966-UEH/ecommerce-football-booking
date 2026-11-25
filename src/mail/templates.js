@@ -16,11 +16,12 @@ function render(parts) {
   return { subject: parts.subject, text, html: layout(parts.title, lines, parts.url ? { url: parts.url, label: parts.buttonLabel } : null) };
 }
 
-function verifyEmail({ name, url }) {
+// Thư tới địa chỉ người lạ do người gọi chọn: không chứa chữ nào do client gửi, chỉ nội dung cố định và link.
+function verifyEmail({ url }) {
   return render({
     subject: 'Xác nhận email đăng ký GGO',
     title: 'Xác nhận email của bạn',
-    rows: [[`Chào ${name},`], ['Bấm nút bên dưới để xác nhận email đăng ký tài khoản GGO. Liên kết có hiệu lực 24 giờ.'], ['Nếu không phải bạn đăng ký, hãy bỏ qua thư này.']],
+    rows: [['Bấm nút bên dưới để xác nhận email đăng ký tài khoản GGO. Liên kết có hiệu lực 24 giờ.'], ['Nếu không phải bạn đăng ký, hãy bỏ qua thư này.']],
     url, buttonLabel: 'Xác nhận email',
   });
 }

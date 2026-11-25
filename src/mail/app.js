@@ -114,12 +114,13 @@ function createApp({ config, transport, now = Date.now, limits = {}, log = () =>
     if (!body) return send(res, 400, { error: 'invalid' }, allowed);
 
     if (p === '/mail-api/verify/send') {
+      // name vẫn được kiểm kiểu cho đúng hợp đồng nhưng không đưa vào thư (chống dùng thư xác nhận để chuyển lời nhắn tới người lạ).
       const to = parseEmail(body.email); const name = str(body.name, 60);
       if (!to || !name) return send(res, 400, { error: 'invalid' }, allowed);
       if (!reserve(res, allowed, [{ limiter: L.rcptVerifyHour, key: to }, { limiter: L.rcptVerifyDay, key: to }])) return;
       const rid = tokens.newRequestId();
       const t = tokens.issueVerify(config.secret, to, rid, now);
-      const msg = templates.verifyEmail({ name, url: `${allowed}/verify-email.html?t=${t}` });
+      const msg = templates.verifyEmail({ url: `${allowed}/verify-email.html?t=${t}` });
       if (!(await deliver({ to, ...msg }))) return send(res, 503, { error: 'unavailable' }, allowed);
       return send(res, 202, { requestId: rid }, allowed);
     }

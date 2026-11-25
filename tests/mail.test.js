@@ -106,14 +106,14 @@ const tokenOf = (m) => new URL(/https?:\/\/[^\s"]+verify-email\.html\?t=[^\s"<]+
 
 test('luồng xác nhận: status trước/sau confirm, notify chỉ tới email trong proof', async (t) => {
   const s = await boot(); t.after(s.close);
-  const sent = await s.call('/mail-api/verify/send', { email: 'User@Mail.vn', name: '<b>An</b>' });
+  const sent = await s.call('/mail-api/verify/send', { email: 'User@Mail.vn', name: 'Bạn trúng thưởng, vào abc.xyz <b>An</b>' });
   assert.equal(sent.status, 202);
   const rid = sent.body.requestId;
   assert.ok(rid.length >= 20);
   const [m] = s.mails();
   assert.equal(m.to, 'user@mail.vn');
   assert.ok(m.text.includes(`${ORIGIN}/verify-email.html?t=`));
-  assert.ok(m.html.includes('&lt;b&gt;An&lt;/b&gt;') && !m.html.includes('<b>An</b>'));
+  for (const part of [m.subject, m.text, m.html]) assert.ok(!/trúng thưởng|abc\.xyz/.test(part), 'name do client gửi không được vào thư xác nhận');
   assert.deepEqual((await s.call('/mail-api/verify/status', { requestId: rid })).body, { confirmed: false });
   assert.deepEqual((await s.call('/mail-api/verify/status', { requestId: 'a'.repeat(24) })).body, { confirmed: false });
   const conf = await s.call('/mail-api/verify/confirm', { t: tokenOf(m) });
