@@ -2,6 +2,7 @@
 import { api } from '/js/api.js';
 import { mountShell, getUser } from '/js/ui/shell.js';
 import { safeNext as sameOriginPath } from '/js/safe-next.js';
+import { isTemporary, mailErrorText } from '/js/mail.js';
 
 const form = document.getElementById('auth-form');
 const errorBox = document.getElementById('form-error');
@@ -40,6 +41,13 @@ void showBookingContext();
 if (safeNext) {
   const alt = document.getElementById('alt-link');
   alt.href += `?next=${encodeURIComponent(safeNext)}`;
+}
+
+// Email chỉ bắt buộc khi có xác minh (bản mock); backend thật vẫn cho để trống và không có bước xác nhận.
+const emailInput = form.elements.namedItem('email');
+if (emailInput && !api.email) {
+  emailInput.required = false;
+  document.getElementById('email-hint').textContent = 'Không bắt buộc.';
 }
 
 const showError = (msg) => {
@@ -106,8 +114,24 @@ form.addEventListener('submit', async (e) => {
   btn.disabled = true;
   btn.textContent = 'Đang xử lý…';
   try {
-    const { user } = await (form.dataset.mode === 'register' ? api.register(body) : api.login(body));
-    location.href = safeNext || HOME[user.role] || '/';
+    const registering = form.dataset.mode === 'register';
+    const { user } = await (registering ? api.register(body) : api.login(body));
+    const dest = safeNext || HOME[user.role] || '/';
+    if (registering && user.email && api.email) {
+      // Tài khoản đã tạo; gửi mail xác nhận. Không gửi được thì nói rõ rồi cho đi tiếp, xác nhận sau ở trang Tài khoản.
+      try {
+        await api.email.sendVerify();
+      } catch (mailErr) {
+        const notice = document.getElementById('mail-notice');
+        document.getElementById('mail-notice-text').textContent = `Tài khoản đã được tạo. ${isTemporary(mailErr) ? mailErrorText(mailErr) : 'Chưa gửi được mail xác nhận.'} Email của bạn đang ở trạng thái chưa xác nhận; bạn có thể gửi lại trong trang Tài khoản.`;
+        form.hidden = true;
+        notice.hidden = false;
+        document.getElementById('mail-notice-go').addEventListener('click', () => { location.href = dest; });
+        document.getElementById('mail-notice-go').focus();
+        return;
+      }
+    }
+    location.href = dest;
   } catch (err) {
     btn.disabled = false;
     btn.textContent = label;

@@ -2,6 +2,7 @@
 // Mô phỏng đúng contract PRD mục 7 và các luật R1–R11 trên dữ liệu trong localStorage; không phải backend thứ hai:
 // không phân quyền chi tiết ngoài vai trò/sở hữu, không tối ưu, không xử lý đồng thời.
 import { ApiError } from './api.js';
+import { verifyStatus, sendNotice, MailError } from './mail.js';
 import {
   vnToMs, msToVn, dateOf, timeOf, addDays, hmToMin, minToHm, discountedPrice, refundFor, shortTs, weekdayOf,
 } from './ui/format.js';
@@ -636,6 +637,43 @@ function addLog(b, action, fromStatus, toStatus, actor, note = '', at = null) {
   });
 }
 
+/* ---------- Mail thông báo đặt sân (service mail riêng, chỉ ở bản mock) ----------
+   Gửi ngầm theo hành động của đơn (giữ chỗ, ghi nhận tiền, hủy), chỉ khi người dùng đã có proof của email. Không chờ, lỗi không lan ra luồng đặt sân:
+   thông báo trong web vẫn là nguồn chính, mail chỉ là bản sao. Proof bị service từ chối (401) thì bỏ để trang Tài khoản hiện lại "chưa xác nhận". */
+async function proofOf(u) {
+  if (u.emailProof) return u.emailProof;
+  if (!u.verifyRid) return null; // link có thể đã bấm ở trình duyệt khác: hỏi status một lần
+  const r = await verifyStatus(u.verifyRid);
+  if (!r.confirmed || r.email !== u.email) return null;
+  u.emailProof = r.proof;
+  save();
+  return u.emailProof;
+}
+function mailBooking(type, b, extra = {}) {
+  if (b.userId == null || b.walkIn) return;
+  const u = userOf(b.userId);
+  if (!u?.email) return;
+  const [venue, court] = courtOf(b.courtId);
+  const data = {
+    name: String(u.fullName).slice(0, 60),
+    bookingCode: b.code,
+    venueName: String(venue.name).slice(0, 80),
+    courtName: String(court.name).slice(0, 40),
+    startAt: b.startAt.slice(0, 16).replace(' ', 'T'),
+    amount: Math.max(0, Math.min(100000000, Math.round(b.price))),
+    link: `/booking.html?id=${b.id}`,
+    ...extra,
+  };
+  void (async () => {
+    try {
+      const proof = await proofOf(u);
+      if (proof) await sendNotice(proof, type, data);
+    } catch (e) {
+      if (e instanceof MailError && e.code === 'unverified' && u.emailProof) { delete u.emailProof; save(); }
+    }
+  })();
+}
+
 function notify(userId, message, { bookingId = null, link = '/notifications.html' } = {}) {
   if (userId == null) return; // lịch chủ sân thêm tay: khách không có tài khoản, không có ai để báo
   S.notifications.push({ id: nextId('notification'), userId, bookingId, message, link, isRead: false, createdAt: now() });
@@ -706,7 +744,7 @@ function tick() {
 /* ---------- Xác thực ---------- */
 
 const sessionUser = () => (S.sessionUserId ? userOf(S.sessionUserId) || null : null);
-const userOut = (u) => ({ id: u.id, fullName: u.fullName, email: u.email ?? null, phone: u.phone, role: u.role });
+const userOut = (u) => ({ id: u.id, fullName: u.fullName, email: u.email ?? null, emailVerified: !!(u.email && u.emailProof), phone: u.phone, role: u.role });
 
 function need(ctx, ...roles) {
   if (!ctx.user) fail(401, 'Vui lòng đăng nhập');
@@ -830,6 +868,7 @@ function insertBooking(user, venue, court, date, start, slot, extra = {}) {
   } else {
     notify(user.id, `Bạn đã có ${court.name} tại ${venue.name} lúc ${shortTs(b.startAt)} (mã ${b.code}). Hãy chuyển khoản${b.expiresAt ? ` trước ${b.expiresAt.slice(11, 16)}, quá giờ đơn tự hết hạn` : ' theo hướng dẫn của chủ sân'}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }
+  mailBooking('booking_held', b, b.expiresAt ? { deadline: b.expiresAt.slice(11, 16) } : {});
   save();
   return b;
 }
@@ -961,6 +1000,7 @@ function doCancel(b, actor, reason, by, refundBank) {
     notify(b.userId, `Lịch đặt ${b.code} đã bị ${by === 'owner' ? 'chủ sân' : 'quản trị viên'} hủy${b.cancelReason ? `: ${b.cancelReason}` : '.'}${r.amount ? ` Bạn sẽ được trả lại ${r.amount.toLocaleString('vi-VN')}đ.` : ''}`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
   }
   freeSlot(b);
+  mailBooking('booking_cancelled', b, r.amount ? { refund: r.amount } : {});
   save();
 }
 
@@ -981,6 +1021,7 @@ function doReject(b, actor, reason) {
   b.cancelReason = String(reason).slice(0, 300);
   addLog(b, 'reject', 'pending', 'rejected', actor, b.cancelReason);
   notify(b.userId, `Chủ sân từ chối lịch đặt ${b.code}: ${b.cancelReason}`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  mailBooking('booking_cancelled', b);
   freeSlot(b);
   save();
 }
@@ -993,6 +1034,7 @@ function doPaid(b, actor, note, via = 'owner') {
   b.paidVia = via;
   addLog(b, via === 'bank' ? 'bank_paid' : 'paid', null, null, actor, note || '');
   notify(b.userId, via === 'bank' ? `Ngân hàng báo đã nhận tiền của lịch đặt ${b.code} (mô phỏng). Đơn của bạn đã ghi nhận chuyển khoản.` : `Chủ sân đã nhận tiền của lịch đặt ${b.code}.`, { bookingId: b.id, link: `/booking.html?id=${b.id}` });
+  mailBooking('booking_paid', b);
   save();
 }
 function doRefunded(b, actor, note, part) {
@@ -2470,11 +2512,12 @@ route('POST', '/api/auth/register', (c) => {
   // Kiểm theo thứ tự các ô trên form và báo kèm tên ô sai đầu tiên.
   const check = (ok, message, field) => { if (!ok) fail(400, message, field); };
   check(String(fullName).trim().length >= 2, 'Vui lòng nhập họ tên', 'fullName');
-  check(!email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), 'Email không hợp lệ', 'email');
+  check(!!email, 'Vui lòng nhập email', 'email');
+  check(/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email), 'Email không hợp lệ', 'email');
   let phone;
   try { phone = normalizeAuthPhone(rawPhone); } catch (e) { fail(400, e.message, 'phone'); }
   check(String(password).length >= 8, 'Mật khẩu cần ít nhất 8 ký tự', 'password');
-  if (email && S.users.some((u) => u.email?.toLowerCase() === email)) fail(409, 'Email này đã được đăng ký', 'email');
+  if (S.users.some((u) => u.email?.toLowerCase() === email)) fail(409, 'Email này đã được đăng ký', 'email');
   if (S.users.some((u) => storedAuthPhone(u.phone) === phone)) fail(409, 'Số điện thoại này đã được đăng ký', 'phone');
   const u = { id: nextId('user'), fullName: String(fullName).trim(), email, phone, role: 'customer', isActive: true, password, createdAt: now() };
   S.users.push(u);
@@ -2500,6 +2543,29 @@ route('POST', '/api/auth/login', (c) => {
   S.sessionUserId = u.id;
   save();
   return { user: userOut(u) };
+});
+// Email xác minh (chỉ bản mock): đổi email, lưu requestId đang chờ và proof lấy được từ service mail.
+const emailState = (u) => ({ email: u.email ?? null, fullName: u.fullName, verified: !!(u.email && u.emailProof), requestId: u.verifyRid ?? null });
+route('GET', '/api/auth/email', (c) => (c.user ? emailState(c.user) : { email: null, fullName: '', verified: false, requestId: null }));
+route('PUT', '/api/auth/email', (c) => {
+  const u = need(c, 'customer');
+  const email = String(c.body?.email ?? '').trim().toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) fail(400, 'Email không hợp lệ', 'email');
+  if (S.users.some((x) => x.id !== u.id && x.email?.toLowerCase() === email)) fail(409, 'Email này đã được đăng ký', 'email');
+  if (email !== u.email?.toLowerCase()) { u.email = email; delete u.emailProof; delete u.verifyRid; }
+  save();
+  return emailState(u);
+});
+route('POST', '/api/auth/email/pending', (c) => {
+  const u = need(c, 'customer');
+  u.verifyRid = String(c.body?.requestId || '').slice(0, 100) || undefined;
+  save();
+  return emailState(u);
+});
+route('POST', '/api/auth/email/proof', (c) => {
+  const u = need(c, 'customer');
+  if (u.email && String(c.body?.email || '').toLowerCase() === u.email.toLowerCase() && c.body?.proof) { u.emailProof = String(c.body.proof); save(); }
+  return emailState(u);
 });
 route('POST', '/api/auth/logout', () => {
   S.sessionUserId = null;

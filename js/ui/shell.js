@@ -131,13 +131,16 @@ function mobileLinksHtml(role) {
   return main.map(linkHtml).join('') + (more.length ? `<p class="mobile-nav-label">Thêm</p>${more.map(linkHtml).join('')}` : '');
 }
 
+// Trang Tài khoản chứa phần xác nhận email: chỉ khách hàng ở bản mock (có service mail) mới có lối vào.
+const accountLink = (user, cls = '') => (user?.role === 'customer' && api.email ? `<a${cls ? ` class="${cls}"` : ''} href="/account.html">Tài khoản và email</a>` : '');
+
 const actionsHtml = (user, role, unread, ghost) => {
   if (!user) return /^\/login(\.html)?$/.test(location.pathname) ? '' : '<a class="btn btn-lime btn-sm" href="/login.html">Đăng nhập</a>';
   if (ghost) return '<span class="avatar avatar-ghost" aria-hidden="true"></span>'; // đoán là đã đăng nhập, chờ api.me cho tên thật
   return `<a class="icon-btn" href="/notifications.html" aria-label="Thông báo${unread ? `: ${unread} chưa đọc` : ''}">${icon('bell')}${unread ? `<span class="dot">${unread > 99 ? '99+' : unread}</span>` : ''}</a>
     <details class="user-menu"><summary class="avatar" aria-label="Tài khoản ${esc(user.fullName)}" title="${esc(user.fullName)}">${esc(initialsOf(user.fullName))}</summary>
       <div class="user-menu-panel"><b>${esc(user.fullName)}</b><span>${esc(user.email || user.phone)} · ${ROLE_LABEL[role]}</span>
-        <button type="button" data-logout>Đăng xuất</button></div></details>`;
+        ${accountLink(user)}<button type="button" data-logout>Đăng xuất</button></div></details>`;
 };
 
 // Công tắc vai trò chỉ để demo prototype: nút tròn ở góc (≥1280px), trong menu (<900px), trong footer (900–1279px).
@@ -164,7 +167,7 @@ const headerHtml = (role, user, unread, ghost) => `
 const mobileNavHtml = (role, loggedIn) => {
   const switchHtml = roleSwitchHtml(role);
   return `<nav class="mobile-nav" aria-label="Điều hướng (mobile)">${mobileLinksHtml(role)}
-        ${loggedIn ? '<button type="button" class="mobile-logout mobile-account" data-logout>Đăng xuất</button>' : '<a class="mobile-account" href="/register.html">Đăng ký</a>'}
+        ${loggedIn ? `${accountLink(currentUser, 'mobile-account')}<button type="button" class="mobile-logout mobile-account" data-logout>Đăng xuất</button>` : '<a class="mobile-account" href="/register.html">Đăng ký</a>'}
         ${api.proto ? (role === 'owner' ? `<details class="mobile-role demo-group"><summary>Demo (chỉ dùng khi thuyết trình)</summary><span>Xem với vai trò</span>${switchHtml}${protoToolsHtml}</details>` : `<div class="mobile-role"><span>Xem với vai trò</span>${switchHtml}${protoToolsHtml}</div>`) : ''}
       </nav>`;
 };
