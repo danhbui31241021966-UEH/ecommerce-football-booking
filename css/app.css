@@ -84,12 +84,15 @@
 
   --container: 1180px;
   --header-h: 60px;
-  /* lề trái/phải của nội dung trong .container, dùng cho khối tràn mép (hero, trang chia đôi) để thẳng hàng với header */
-  --edge: max(var(--sp-4), calc((100vw - var(--container)) / 2 + var(--sp-4)));
+}
+/* Trong hero, lề tính theo bề rộng của chính khối hero (không gồm thanh cuộn) để thẳng hàng với header */
+.match-hero {
+  container-type: inline-size;
+  --edge: max(var(--sp-4), calc((100cqw - var(--container)) / 2 + var(--sp-4)));
 }
 @media (min-width: 768px) {
-  :root {
-    --edge: max(var(--sp-6), calc((100vw - var(--container)) / 2 + var(--sp-6)));
+  .match-hero {
+    --edge: max(var(--sp-6), calc((100cqw - var(--container)) / 2 + var(--sp-6)));
   }
 }
 /* Màn rộng: khung nội dung nới theo màn để trang không thành một cột hẹp giữa hai vùng trống */
@@ -121,6 +124,9 @@ html {
   scroll-padding-top: calc(var(--header-h) + var(--sp-2)); /* header dính không che phần tử đang focus */
 }
 body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
   margin: 0;
   font-family: var(--font-body);
   font-size: var(--fs-md);
@@ -128,6 +134,10 @@ body {
   color: var(--text);
   background: var(--bg);
   -webkit-font-smoothing: antialiased;
+}
+/* nội dung ngắn hơn màn hình thì main giãn ra, footer luôn chạm đáy */
+body > main {
+  flex: 1 0 auto;
 }
 img,
 svg {
@@ -2022,7 +2032,7 @@ body:has(.booking-bar) .toast-stack {
 @media (min-width: 960px) {
   .match-hero {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) calc(var(--edge) + clamp(380px, 26vw, 560px));
+    grid-template-columns: minmax(0, 1fr) calc(max(var(--sp-6), calc((100% - var(--container)) / 2 + var(--sp-6))) + clamp(380px, 26vw, 560px));
     min-height: min(max(720px, 34vw), 100svh - var(--header-h));
   }
   .hero-main {
@@ -3294,7 +3304,8 @@ i.slot-league { min-height: 0; padding: 0; }
 
 /* ---------- Giải đấu công khai: thẻ ở trang danh sách và trang chủ ---------- */
 .lg-pubgrid { margin-top: var(--sp-4); }
-@media (min-width: 1024px) { .lg-pubgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+/* chỉ chia 3 cột khi có từ 3 giải; ít hơn thì giữ 2 cột để hàng không hụt */
+@media (min-width: 1024px) { .lg-pubgrid:has(> :nth-child(3)) { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 .lg-pubcard { position: relative; display: grid; gap: var(--sp-2); align-content: start; padding: var(--sp-4); }
 .lg-pubcard:hover { border-color: var(--pitch-950); }
 .lg-pubcard .lg-st { border-color: var(--line-strong); background: var(--neutral-bg); color: var(--text-2); }
