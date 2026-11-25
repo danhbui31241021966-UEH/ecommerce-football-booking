@@ -1,7 +1,8 @@
 // Handler HTTP của service mail (node:http thuần). Chỉ nhận JSON theo hợp đồng, gửi theo mẫu cố định.
+const net = require('net');
 const tokens = require('./token');
 const { SlidingLimiter, consume } = require('./limiter');
-const { str, email: parseEmail, notifyData } = require('./validate');
+const { str, email: parseEmail, rcptKey, notifyData } = require('./validate');
 const templates = require('./templates');
 
 const BODY_MAX = 4096;
@@ -22,19 +23,35 @@ const DEFAULTS = {
   rcptNotifyDay: { max: 30, windowMs: DAY },
 };
 
+// Chuẩn hóa để một máy/dải không đổi địa chỉ mà né giới hạn: IPv4-mapped coi là IPv4, IPv6 gom về /64.
+function normalizeIp(addr) {
+  const a = String(addr).split('%')[0].toLowerCase();
+  if (!net.isIPv6(a)) return a;
+  const [head, tail = ''] = a.split('::');
+  const side = (s) => (s ? s.split(':') : []);
+  let h = side(head); let t = side(tail);
+  const v4 = (arr) => { const l = arr[arr.length - 1]; if (l && l.includes('.')) { const o = l.split('.').map(Number); arr.splice(-1, 1, ((o[0] << 8) | o[1]).toString(16), ((o[2] << 8) | o[3]).toString(16)); } };
+  v4(h); v4(t);
+  const g = a.includes('::') ? [...h, ...Array(8 - h.length - t.length).fill('0'), ...t] : h;
+  const n = g.map((x) => parseInt(x || '0', 16));
+  if (n.slice(0, 5).every((x) => x === 0) && n[5] === 0xffff) return `${n[6] >> 8}.${n[6] & 255}.${n[7] >> 8}.${n[7] & 255}`;
+  return `${n.slice(0, 4).map((x) => x.toString(16)).join(':')}::/64`;
+}
+
 function clientIp(req, trustProxy) {
-  const peer = req.socket.remoteAddress || 'unknown';
+  const peer = normalizeIp(req.socket.remoteAddress || 'unknown');
   if (!trustProxy) return peer;
   const parts = String(req.headers['x-forwarded-for'] || '').split(',').map((s) => s.trim()).filter(Boolean);
   // Mỗi proxy tin cậy thêm địa chỉ nó thấy vào cuối; phần tử thứ trustProxy tính từ cuối là client thật.
-  return parts.length >= trustProxy ? parts[parts.length - trustProxy] : peer;
+  return parts.length >= trustProxy ? normalizeIp(parts[parts.length - trustProxy]) : peer;
 }
 
 function createApp({ config, transport, now = Date.now, limits = {}, log = () => {} }) {
   const L = {};
   const lim = { ...DEFAULTS, ...limits };
-  for (const [k, v] of Object.entries(lim)) L[k] = new SlidingLimiter({ ...v, now });
+  for (const [k, v] of Object.entries(lim)) L[k] = new SlidingLimiter({ ...v, evictOldest: k.startsWith('ip'), now });
   const daily = new SlidingLimiter({ max: config.limits.dailyCap, windowMs: DAY, maxKeys: 1, now });
+  const dailyVerify = new SlidingLimiter({ max: config.limits.dailyVerifyCap, windowMs: DAY, maxKeys: 1, now });
   const confirmed = new Map(); // rid -> {email, proof, exp(ms)}; trong bộ nhớ, mất khi restart (người dùng gửi lại).
 
   const remember = (rid, email, proof) => {
@@ -74,12 +91,13 @@ function createApp({ config, transport, now = Date.now, limits = {}, log = () =>
   }
 
   // Hạn mức tổng trước, rồi giới hạn từng người nhận; qua hết mới ghi cả hai.
-  function reserve(res, origin, rcptKeys) {
-    const dw = daily.wait('all');
+  function reserve(res, origin, rcptKeys, { verify = false } = {}) {
+    const dw = Math.max(daily.wait('all'), verify ? dailyVerify.wait('all') : 0);
     if (dw) { send(res, 503, { error: 'daily_cap', retryAfter: dw }, origin); return false; }
     const w = consume(rcptKeys);
     if (w) { send(res, 429, { error: 'rate_limited', retryAfter: w }, origin); return false; }
     daily.record('all');
+    if (verify) dailyVerify.record('all');
     return true;
   }
 
@@ -107,17 +125,17 @@ function createApp({ config, transport, now = Date.now, limits = {}, log = () =>
 
     const ip = clientIp(req, config.trustProxy);
     const ipLimiter = p === '/mail-api/verify/send' ? L.ipSend : p === '/mail-api/notify' ? L.ipNotify : L.ipRead;
-    const w = consume([{ limiter: ipLimiter, key: ip }]);
-    if (w) return send(res, 429, { error: 'rate_limited', retryAfter: w }, allowed);
-
+    // Body hỏng bị loại trước, không tạo khóa IP: kẻ gửi rác không làm đầy bảng IP.
     const body = await readJson(req);
     if (!body) return send(res, 400, { error: 'invalid' }, allowed);
+    const w = consume([{ limiter: ipLimiter, key: ip }]);
+    if (w) return send(res, 429, { error: 'rate_limited', retryAfter: w }, allowed);
 
     if (p === '/mail-api/verify/send') {
       // name vẫn được kiểm kiểu cho đúng hợp đồng nhưng không đưa vào thư (chống dùng thư xác nhận để chuyển lời nhắn tới người lạ).
       const to = parseEmail(body.email); const name = str(body.name, 60);
       if (!to || !name) return send(res, 400, { error: 'invalid' }, allowed);
-      if (!reserve(res, allowed, [{ limiter: L.rcptVerifyHour, key: to }, { limiter: L.rcptVerifyDay, key: to }])) return;
+      if (!reserve(res, allowed, [{ limiter: L.rcptVerifyHour, key: rcptKey(to) }, { limiter: L.rcptVerifyDay, key: rcptKey(to) }], { verify: true })) return;
       const rid = tokens.newRequestId();
       const t = tokens.issueVerify(config.secret, to, rid, now);
       const msg = templates.verifyEmail({ url: `${allowed}/verify-email.html?t=${t}` });
@@ -148,7 +166,7 @@ function createApp({ config, transport, now = Date.now, limits = {}, log = () =>
     const d = notifyData(body.type, body.data);
     if (!d.ok) return send(res, 400, { error: 'invalid' }, allowed);
     const to = r.payload.email;
-    if (!reserve(res, allowed, [{ limiter: L.rcptNotifyHour, key: to }, { limiter: L.rcptNotifyDay, key: to }])) return;
+    if (!reserve(res, allowed, [{ limiter: L.rcptNotifyHour, key: rcptKey(to) }, { limiter: L.rcptNotifyDay, key: rcptKey(to) }])) return;
     const msg = templates.booking(body.type, d.data, `${allowed}${d.data.link}`);
     if (!(await deliver({ to, ...msg }))) return send(res, 503, { error: 'unavailable' }, allowed);
     return send(res, 202, {}, allowed);
@@ -159,4 +177,4 @@ function createApp({ config, transport, now = Date.now, limits = {}, log = () =>
   };
 }
 
-module.exports = { createApp, clientIp, BODY_MAX };
+module.exports = { createApp, clientIp, normalizeIp, BODY_MAX };

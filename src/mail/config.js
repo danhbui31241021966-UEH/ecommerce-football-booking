@@ -53,6 +53,8 @@ function loadConfig(env = process.env) {
     limits: {
       // Trần tổng/24h: Gmail cá nhân ~500 thư/ngày, chừa dư cho thư gửi tay và lần thử lại.
       dailyCap: int(env, 'MAIL_DAILY_LIMIT', 400, { min: 1 }),
+      // Riêng cho thư xác nhận (gửi tới người lạ, dễ bị đốt): chừa phần còn lại của trần chung cho thông báo của người đã xác nhận.
+      dailyVerifyCap: int(env, 'MAIL_DAILY_VERIFY_LIMIT', 250, { min: 1 }),
     },
   };
   if (transport === 'capture') {
