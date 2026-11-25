@@ -151,7 +151,7 @@ test('server production thật: cookie phiên Secure đặt được qua proxy (
     assert.match(setCookie, /Secure/i);
     assert.match(setCookie, /HttpOnly/i);
     assert.match(setCookie, /SameSite=Lax/i);
-    assert.doesNotMatch(setCookie, /Domain=/i, 'cookie host-only (first-party trên pages.dev)');
+    assert.doesNotMatch(setCookie, /Domain=/i, 'cookie host-only (first-party trên VPS)');
     const cookie = setCookie.split(';')[0];
     const { csrfToken } = await first.json();
     const login = (ip, email = 'khong-co@test.local') => fetch(`${base}/api/auth/login`, {

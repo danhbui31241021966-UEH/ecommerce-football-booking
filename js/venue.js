@@ -56,7 +56,7 @@ function setUrl() {
 }
 
 // Tiêu đề, mô tả, thẻ xem trước (Open Graph) và canonical theo từng sân; trang tĩnh chỉ có bản chung.
-const SITE = 'https://ggo-datsan.pages.dev';
+const SITE = 'https://ggo.srv1741374.hstgr.cloud';
 function setMeta(attr, key, value) {
   let el = document.head.querySelector(`meta[${attr}="${key}"]`);
   if (!el) (el = document.createElement('meta'), el.setAttribute(attr, key), document.head.append(el));

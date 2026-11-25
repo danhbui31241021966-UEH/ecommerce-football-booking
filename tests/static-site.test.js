@@ -80,3 +80,31 @@ test('bảng chuyển hướng nginx có đủ mọi link cũ, 301 và giữ que
   assert.match(conf, /location = \/venues\.html \{ return 301 \/products\$is_args\$args; \}/);
   assert.match(conf, /location \^~ \/img\/ \{ rewrite \^\/img\/\(\.\*\)\$ \/images\/\$1 permanent; \}/);
 });
+
+test('bản chuyển hướng của Pages: mọi đường dẫn sang cùng đường dẫn trên VPS, 301, khác host Pages, chỉ một file', () => {
+  const { redirectOnlyFiles, writeRedirectDist } = require('../src/static-site');
+  const VPS = 'https://ggo.srv1741374.hstgr.cloud';
+  const files = redirectOnlyFiles(VPS);
+  assert.deepEqual(Object.keys(files), ['_redirects']);
+  assert.equal(redirectOnlyFiles(`${VPS}/`)._redirects, files._redirects, 'dấu / cuối được chấp nhận');
+  const rules = files._redirects.trim().split('\n');
+  assert.equal(rules.length, 1);
+  // Pages thay :splat bằng phần đuôi và tự giữ query; "/*" khớp cả "/" nên đích luôn là URL tuyệt đối trên VPS.
+  assert.equal(rules[0], `/* ${VPS}/:splat 301`);
+  const dest = new URL(rules[0].split(' ')[1].replace(':splat', 'products'));
+  assert.equal(dest.host, 'ggo.srv1741374.hstgr.cloud');
+  assert.notEqual(dest.host, 'ggo-datsan.pages.dev');
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), 'ggo-redir-'));
+  try {
+    writeRedirectDist(out, VPS);
+    assert.deepEqual(fs.readdirSync(out), ['_redirects']);
+    assert.throws(() => writeRedirectDist(out, VPS), /không rỗng/);
+  } finally { fs.rmSync(out, { recursive: true, force: true }); }
+});
+
+test('đích chuyển hướng phải là https và chỉ gồm origin', () => {
+  const { redirectOnlyFiles } = require('../src/static-site');
+  for (const bad of ['http://ggo.srv1741374.hstgr.cloud', 'ggo.srv1741374.hstgr.cloud', '', 'https://ggo.srv1741374.hstgr.cloud/app', 'https://ggo.srv1741374.hstgr.cloud/?a=1', 'https://u:p@ggo.srv1741374.hstgr.cloud', 'ftp://x.example']) {
+    assert.throws(() => redirectOnlyFiles(bad), /đích chuyển hướng/, JSON.stringify(bad));
+  }
+});

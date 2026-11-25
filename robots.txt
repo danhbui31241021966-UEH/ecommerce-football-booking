@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ggo-datsan.pages.dev/sitemap.xml
+Sitemap: https://ggo.srv1741374.hstgr.cloud/sitemap.xml

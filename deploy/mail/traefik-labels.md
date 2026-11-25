@@ -26,7 +26,7 @@ environment:
   - NODE_ENV=production
   - MAIL_TRANSPORT=smtp
   - MAIL_TRUST_PROXY=1
-  - MAIL_ALLOWED_ORIGINS=https://ggo-datsan.pages.dev,https://ggo.srv1741374.hstgr.cloud
+  - MAIL_ALLOWED_ORIGINS=https://ggo.srv1741374.hstgr.cloud
   - MAIL_TOKEN_SECRET_FILE=/run/ggo-mail/token-secret
   - SMTP_USER_FILE=/run/ggo-mail/smtp-user
   - SMTP_PASS_FILE=/run/ggo-mail/smtp-pass
