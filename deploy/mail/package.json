@@ -1,0 +1,8 @@
+{
+  "name": "ggo-mail",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Service gửi mail GGO: chỉ phụ thuộc nodemailer; image không kéo phần backend MySQL.",
+  "engines": { "node": ">=20" },
+  "dependencies": { "nodemailer": "^7.0.13" }
+}
