@@ -1,7 +1,10 @@
-// Giới hạn tần suất cửa sổ trượt, trong bộ nhớ, có trần số khóa. Đầy mà không dọn được thì từ chối (đóng an toàn).
+// Giới hạn tần suất cửa sổ trượt, trong bộ nhớ, có trần số khóa. Khi bảng đầy và không dọn được:
+//  - mặc định đóng an toàn: khóa mới bị từ chối (dùng cho người nhận, vì đó là thứ bảo vệ hộp thư người khác);
+//  - evictOldest: đẩy khóa cũ nhất ra nhường chỗ (dùng cho IP: kẻ nạp nhiều IP giả không khóa được người thật,
+//    còn số thư vẫn bị chặn bởi giới hạn người nhận và trần ngày).
 class SlidingLimiter {
-  constructor({ max, windowMs, maxKeys = 10000, now = Date.now }) {
-    Object.assign(this, { max, windowMs, maxKeys, now });
+  constructor({ max, windowMs, maxKeys = 10000, evictOldest = false, now = Date.now }) {
+    Object.assign(this, { max, windowMs, maxKeys, evictOldest, now });
     this.hits = new Map();
   }
   _fresh(key) {
@@ -16,6 +19,7 @@ class SlidingLimiter {
     if (arr.length >= this.max) return Math.max(1, Math.ceil((arr[0] + this.windowMs - this.now()) / 1000));
     if (!arr.length && this.hits.size >= this.maxKeys) {
       this.sweep();
+      if (this.evictOldest && this.hits.size >= this.maxKeys) this.hits.delete(this.hits.keys().next().value);
       if (this.hits.size >= this.maxKeys) return Math.ceil(this.windowMs / 1000);
     }
     return 0;

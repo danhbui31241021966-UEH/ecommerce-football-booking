@@ -31,18 +31,24 @@ const link = (v) => (typeof v === 'string' && v.length <= 200 && /^\/(?!\/)[A-Za
 
 const esc = (s) => String(s).replace(/[&<>"'`]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;', '`': '&#96;' }[c]));
 
+// Khóa giới hạn theo người nhận: bỏ "+tag"; gmail/googlemail coi là một và bỏ dấu chấm. Thư vẫn gửi tới địa chỉ gốc.
+function rcptKey(addr) {
+  let [local, domain] = addr.split('@');
+  local = local.split('+')[0];
+  if (domain === 'gmail.com' || domain === 'googlemail.com') { domain = 'gmail.com'; local = local.replace(/\./g, ''); }
+  return `${local}@${domain}`;
+}
+
 const TYPES = ['booking_held', 'booking_paid', 'booking_cancelled'];
-const FIELDS = ['name', 'bookingCode', 'venueName', 'courtName', 'startAt', 'amount', 'deadline', 'refund', 'link'];
+// Không có tên/sân do client gửi: proof có thể bị kẻ khác lấy qua requestId, nên thư thông báo không được mang chữ tự do.
+const FIELDS = ['bookingCode', 'startAt', 'amount', 'deadline', 'refund', 'link'];
 
 // Trả { ok:true, data } hoặc { ok:false }. Trường lạ bị từ chối.
 function notifyData(type, raw) {
   if (!TYPES.includes(type) || !raw || typeof raw !== 'object' || Array.isArray(raw)) return { ok: false };
   if (Object.keys(raw).some((k) => !FIELDS.includes(k))) return { ok: false };
   const d = {
-    name: str(raw.name, 60),
     bookingCode: typeof raw.bookingCode === 'string' && /^[A-Z]{2}\d{3,8}$/.test(raw.bookingCode) ? raw.bookingCode : null,
-    venueName: str(raw.venueName, 80),
-    courtName: str(raw.courtName, 40),
     startAt: dateTime(raw.startAt),
     amount: int(raw.amount, 0, 100000000),
     link: link(raw.link),
@@ -57,4 +63,4 @@ function notifyData(type, raw) {
   return { ok: true, data: d };
 }
 
-module.exports = { str, email, notifyData, esc, TYPES };
+module.exports = { str, email, rcptKey, notifyData, esc, TYPES };

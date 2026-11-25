@@ -2,7 +2,7 @@
 const crypto = require('crypto');
 
 const VERIFY_TTL = 24 * 3600;
-const PROOF_TTL = 365 * 24 * 3600;
+const PROOF_TTL = 90 * 24 * 3600;
 
 const b64 = (buf) => Buffer.from(buf).toString('base64url');
 const sign = (secret, part) => crypto.createHmac('sha256', secret).update(part).digest();

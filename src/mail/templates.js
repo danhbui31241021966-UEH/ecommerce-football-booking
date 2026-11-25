@@ -1,4 +1,4 @@
-// Mẫu thư cố định. Dữ liệu do client gửi chỉ điền vào chỗ trống và luôn được escape trong HTML.
+// Mẫu thư cố định. Chỉ các giá trị đã kiểm dạng chặt (mã đơn, giờ, số) điền vào chỗ trống, vẫn escape trong HTML.
 const { esc } = require('./validate');
 
 const vnd = (n) => `${n.toLocaleString('vi-VN')}đ`;
@@ -27,7 +27,8 @@ function verifyEmail({ url }) {
 }
 
 function booking(type, d, url) {
-  const base = [['Chào ' + d.name + ','], ['Mã đặt sân', d.bookingCode], ['Sân', `${d.venueName} – ${d.courtName}`], ['Giờ đá', when(d.startAt)]];
+  // Chỉ mã đơn, giờ, tiền, hạn, hoàn và link; chi tiết sân xem ở trang đơn. Không có chữ tự do của client.
+  const base = [['Xin chào,'], ['Mã đặt sân', d.bookingCode], ['Giờ đá', when(d.startAt)]];
   if (type === 'booking_held') {
     return render({
       subject: `Đã giữ chỗ ${d.bookingCode}`, title: 'Sân đã được giữ chỗ',

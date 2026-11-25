@@ -6,14 +6,14 @@ const os = require('os');
 const path = require('path');
 const tokens = require('../src/mail/token');
 const { SlidingLimiter } = require('../src/mail/limiter');
-const { notifyData, esc } = require('../src/mail/validate');
+const { notifyData, esc, rcptKey } = require('../src/mail/validate');
 const { loadConfig } = require('../src/mail/config');
-const { createApp, clientIp } = require('../src/mail/app');
+const { createApp, clientIp, normalizeIp } = require('../src/mail/app');
 const { createCapture, smtpOptions } = require('../src/mail/transport');
 
 const SECRET = 'x'.repeat(40);
 const ORIGIN = 'https://ggo.example';
-const GOOD = { name: 'An', bookingCode: 'BK12345', venueName: 'Sân A', courtName: 'Sân 1', startAt: '2026-12-01T18:30', amount: 300000, link: '/my-bookings' };
+const GOOD = { bookingCode: 'BK12345', startAt: '2026-12-01T18:30', amount: 300000, link: '/my-bookings' };
 
 test('token: ký, sai chữ ký, hết hạn, sai purpose', () => {
   let t = 1_000_000_000_000;
@@ -31,7 +31,8 @@ test('token: ký, sai chữ ký, hết hạn, sai purpose', () => {
   assert.equal(tokens.verifyToken(SECRET, v, 'verify', now).payload.rid, 'rid1');
   t += (tokens.VERIFY_TTL + 1) * 1000;
   assert.equal(tokens.verifyToken(SECRET, v, 'verify', now).reason, 'expired');
-  assert.equal(tokens.verifyToken(SECRET, proof, 'verified', now).ok, true); // proof sống 365 ngày
+  assert.equal(tokens.verifyToken(SECRET, proof, 'verified', now).ok, true); // proof sống 90 ngày
+  assert.equal(tokens.PROOF_TTL, 90 * 86400);
   t += tokens.PROOF_TTL * 1000;
   assert.equal(tokens.verifyToken(SECRET, proof, 'verified', now).reason, 'expired');
 });
@@ -50,7 +51,7 @@ test('rate limit: cửa sổ trượt, trả giây chờ, trần số khóa đó
 test('dữ liệu mẫu: kiểm kiểu/độ dài, trường lạ, escape', () => {
   assert.equal(notifyData('booking_paid', GOOD).ok, true);
   const bad = (patch, type = 'booking_paid') => assert.equal(notifyData(type, { ...GOOD, ...patch }).ok, false, JSON.stringify(patch));
-  bad({ name: 'a'.repeat(61) }); bad({ name: 5 }); bad({ name: 'x\ny' }); bad({ bookingCode: 'bk123' }); bad({ startAt: '2026-02-30T10:00' });
+  for (const k of ['name', 'venueName', 'courtName']) bad({ [k]: 'Quý khách được hoàn 500.000đ, nhận tại evil.vn' }); bad({ bookingCode: 'bk123' }); bad({ startAt: '2026-02-30T10:00' });
   bad({ amount: 1.5 }); bad({ amount: -1 }); bad({ amount: '5' }); bad({ amount: 100000001 });
   bad({ link: '//evil.com' }); bad({ link: 'https://evil.com' }); bad({ link: '/a\\b' }); bad({ to: 'x@y.vn' });
   bad({ deadline: '10:00' }, 'booking_paid'); bad({ deadline: '25:00' }, 'booking_held'); bad({ refund: 1 }, 'booking_held');
@@ -121,11 +122,14 @@ test('luồng xác nhận: status trước/sau confirm, notify chỉ tới email
   const st = await s.call('/mail-api/verify/status', { requestId: rid });
   assert.deepEqual(st.body, { confirmed: true, email: 'user@mail.vn', proof: conf.body.proof });
   assert.equal((await s.call('/mail-api/verify/confirm', { t: tokenOf(m) })).body.proof, conf.body.proof); // bấm lại không đổi
-  const n = await s.call('/mail-api/notify', { proof: conf.body.proof, type: 'booking_held', data: { ...GOOD, name: '<script>x</script>', deadline: '10:15', to: undefined } });
+  const n = await s.call('/mail-api/notify', { proof: conf.body.proof, type: 'booking_held', data: { ...GOOD, deadline: '10:15' } });
   assert.equal(n.status, 202);
   const mail = s.mails()[1];
   assert.equal(mail.to, 'user@mail.vn');
-  assert.ok(mail.html.includes('&lt;script&gt;') && !mail.html.includes('<script>'));
+  assert.ok(mail.html.includes('BK12345') && mail.text.includes('300.000'));
+  const withName = await s.call('/mail-api/notify', { proof: conf.body.proof, type: 'booking_paid', data: { ...GOOD, name: 'Quý khách được hoàn tiền, vào evil.vn' } });
+  assert.equal(withName.status, 400);
+  for (const part of [mail.subject, mail.text, mail.html]) assert.ok(!/evil|Quý khách/.test(part));
   assert.ok(mail.text.includes(`${ORIGIN}/my-bookings`));
   const extra = await s.call('/mail-api/notify', { proof: conf.body.proof, type: 'booking_paid', data: { ...GOOD, to: 'victim@x.vn' } });
   assert.equal(extra.status, 400);
@@ -195,7 +199,7 @@ test('rate limit: theo IP, theo người nhận, retryAfter, mở lại sau cử
 });
 
 test('hạn mức tổng ngày: daily_cap riêng, lỗi gửi là unavailable và vẫn tính hạn mức', async (t) => {
-  const cfg = { limits: { dailyCap: 3 } };
+  const cfg = { limits: { dailyCap: 3, dailyVerifyCap: 250 } };
   const s = await boot(cfg); t.after(s.close);
   const send = (email) => s.call('/mail-api/verify/send', { email, name: 'An' });
   assert.equal((await send('a1@b.vn')).status, 202);
@@ -243,4 +247,56 @@ test('SMTP: mặc định 587 bắt buộc STARTTLS, 465 TLS ngay từ đầu', 
   assert.deepEqual([d.host, d.port, d.secure, d.requireTLS], ['smtp.gmail.com', 587, false, true]);
   const i = smtpOptions(loadConfig({ ...env, SMTP_PORT: '465' }).smtp);
   assert.deepEqual([i.port, i.secure, i.requireTLS], [465, true, false]);
+});
+
+test('rcptKey: +tag và dấu chấm gmail dùng chung một khóa, thư vẫn tới địa chỉ gốc', async (t) => {
+  assert.equal(rcptKey('a+1@gmail.com'), 'a@gmail.com');
+  assert.equal(rcptKey('a.b@gmail.com'), rcptKey('ab@gmail.com'));
+  assert.equal(rcptKey('a.b+x@gmail.com'), rcptKey('ab@googlemail.com'));
+  assert.notEqual(rcptKey('a.b@corp.vn'), rcptKey('ab@corp.vn')); // tên miền khác gmail giữ dấu chấm
+  assert.equal(rcptKey('a+1@corp.vn'), 'a@corp.vn');
+  const s = await boot({}, { ipSend: { max: 1000, windowMs: 3600000 } }); t.after(s.close);
+  const send = (email) => s.call('/mail-api/verify/send', { email, name: 'An' });
+  assert.equal((await send('bomb+0@gmail.com')).status, 202);
+  assert.equal((await send('b.omb+1@gmail.com')).status, 202);
+  assert.equal((await send('bomb@googlemail.com')).status, 202);
+  assert.equal((await send('bomb+3@gmail.com')).status, 429);
+  assert.equal(s.mails()[1].to, 'b.omb+1@gmail.com');
+});
+
+test('trần ngày riêng cho thư xác nhận: notify của người đã xác nhận vẫn còn chỗ', async (t) => {
+  const s = await boot({ limits: { dailyCap: 10, dailyVerifyCap: 2 } }, { ipSend: { max: 1000, windowMs: 3600000 } }); t.after(s.close);
+  const send = (email) => s.call('/mail-api/verify/send', { email, name: 'An' });
+  assert.equal((await send('a@b.vn')).status, 202);
+  assert.equal((await send('c@d.vn')).status, 202);
+  const cap = await send('e@f.vn');
+  assert.equal(cap.status, 503); assert.equal(cap.body.error, 'daily_cap');
+  const proof = tokens.issueProof(SECRET, 'a@b.vn', () => s.clock.t);
+  assert.equal((await s.call('/mail-api/notify', { proof, type: 'booking_paid', data: GOOD })).status, 202);
+});
+
+test('IP: IPv6 gom về /64, IPv4-mapped coi là IPv4', () => {
+  assert.equal(normalizeIp('2001:db8:1:2:aaaa:bbbb:cccc:dddd'), normalizeIp('2001:db8:1:2::1'));
+  assert.notEqual(normalizeIp('2001:db8:1:2::1'), normalizeIp('2001:db8:1:3::1'));
+  assert.equal(normalizeIp('::ffff:1.2.3.4'), '1.2.3.4');
+  assert.equal(normalizeIp('::ffff:102:304'), '1.2.3.4');
+  assert.equal(normalizeIp('1.2.3.4'), '1.2.3.4');
+  const req = { headers: { 'x-forwarded-for': '2001:db8::5' }, socket: { remoteAddress: '10.0.0.1' } };
+  assert.equal(clientIp(req, 1), clientIp({ ...req, headers: { 'x-forwarded-for': '2001:db8::9' } }, 1));
+});
+
+test('bảng IP đầy: IP mới vẫn qua (đẩy khóa cũ), bảng người nhận vẫn đóng an toàn', () => {
+  const ip = new SlidingLimiter({ max: 1, windowMs: 3600000, maxKeys: 3, evictOldest: true });
+  for (const k of ['1', '2', '3']) { assert.equal(ip.wait(k), 0); ip.record(k); }
+  assert.equal(ip.wait('4'), 0); ip.record('4');
+  assert.equal(ip.hits.size, 3);
+  const rc = new SlidingLimiter({ max: 1, windowMs: 3600000, maxKeys: 3 });
+  for (const k of ['1', '2', '3']) rc.record(k);
+  assert.ok(rc.wait('4') > 0);
+});
+
+test('body hỏng không tạo khóa IP, nên không làm đầy bảng IP', async (t) => {
+  const s = await boot({}, { ipSend: { max: 1, windowMs: 3600000 } }); t.after(s.close);
+  for (let i = 0; i < 3; i++) assert.equal((await s.call('/mail-api/verify/send', null, { raw: '{bad' })).status, 400);
+  assert.equal((await s.call('/mail-api/verify/send', { email: 'a@b.vn', name: 'An' })).status, 202); // lượt IP chưa bị tiêu
 });
